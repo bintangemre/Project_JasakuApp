@@ -2,8 +2,11 @@
   "name": "jasaku-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.ts",
   "scripts": {
+    "dev": "tsx watch -r dotenv/config src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,7 +21,9 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -28,10 +33,13 @@
     "@types/multer": "^2.1.0",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
-    "dotenv": "^17.4.1",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "dotenv": "^17.4.2",
     "nodemon": "^3.1.14",
     "prisma": "^7.7.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }
 }

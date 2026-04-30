@@ -266,7 +266,8 @@ export type usersWhereInput = {
   updated_at?: Prisma.DateTimeNullableFilter<"users"> | Date | string | null
   custom_task_proposals?: Prisma.Custom_task_proposalsListRelationFilter
   custom_tasks?: Prisma.Custom_tasksListRelationFilter
-  profiles?: Prisma.XOR<Prisma.ProfilesNullableScalarRelationFilter, Prisma.profilesWhereInput> | null
+  profiles_customer?: Prisma.XOR<Prisma.Profiles_customerNullableScalarRelationFilter, Prisma.profiles_customerWhereInput> | null
+  provider_profiles?: Prisma.XOR<Prisma.Provider_profilesNullableScalarRelationFilter, Prisma.provider_profilesWhereInput> | null
   roles?: Prisma.XOR<Prisma.RolesScalarRelationFilter, Prisma.rolesWhereInput>
 }
 
@@ -284,7 +285,8 @@ export type usersOrderByWithRelationInput = {
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
   custom_task_proposals?: Prisma.custom_task_proposalsOrderByRelationAggregateInput
   custom_tasks?: Prisma.custom_tasksOrderByRelationAggregateInput
-  profiles?: Prisma.profilesOrderByWithRelationInput
+  profiles_customer?: Prisma.profiles_customerOrderByWithRelationInput
+  provider_profiles?: Prisma.provider_profilesOrderByWithRelationInput
   roles?: Prisma.rolesOrderByWithRelationInput
 }
 
@@ -305,7 +307,8 @@ export type usersWhereUniqueInput = Prisma.AtLeast<{
   updated_at?: Prisma.DateTimeNullableFilter<"users"> | Date | string | null
   custom_task_proposals?: Prisma.Custom_task_proposalsListRelationFilter
   custom_tasks?: Prisma.Custom_tasksListRelationFilter
-  profiles?: Prisma.XOR<Prisma.ProfilesNullableScalarRelationFilter, Prisma.profilesWhereInput> | null
+  profiles_customer?: Prisma.XOR<Prisma.Profiles_customerNullableScalarRelationFilter, Prisma.profiles_customerWhereInput> | null
+  provider_profiles?: Prisma.XOR<Prisma.Provider_profilesNullableScalarRelationFilter, Prisma.provider_profilesWhereInput> | null
   roles?: Prisma.XOR<Prisma.RolesScalarRelationFilter, Prisma.rolesWhereInput>
 }, "id" | "email" | "phone">
 
@@ -358,7 +361,8 @@ export type usersCreateInput = {
   updated_at?: Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutUsersInput
   custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
-  profiles?: Prisma.profilesCreateNestedOneWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
   roles: Prisma.rolesCreateNestedOneWithoutUsersInput
 }
 
@@ -376,7 +380,8 @@ export type usersUncheckedCreateInput = {
   updated_at?: Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutUsersInput
   custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
-  profiles?: Prisma.profilesUncheckedCreateNestedOneWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
 }
 
 export type usersUpdateInput = {
@@ -392,7 +397,8 @@ export type usersUpdateInput = {
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutUsersNestedInput
   custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
-  profiles?: Prisma.profilesUpdateOneWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
   roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
 }
 
@@ -410,7 +416,8 @@ export type usersUncheckedUpdateInput = {
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutUsersNestedInput
   custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
-  profiles?: Prisma.profilesUncheckedUpdateOneWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
 }
 
 export type usersCreateManyInput = {
@@ -457,11 +464,6 @@ export type usersUncheckedUpdateManyInput = {
 export type UsersNullableScalarRelationFilter = {
   is?: Prisma.usersWhereInput | null
   isNot?: Prisma.usersWhereInput | null
-}
-
-export type UsersScalarRelationFilter = {
-  is?: Prisma.usersWhereInput
-  isNot?: Prisma.usersWhereInput
 }
 
 export type UsersListRelationFilter = {
@@ -524,6 +526,11 @@ export type usersSumOrderByAggregateInput = {
   role_id?: Prisma.SortOrder
 }
 
+export type UsersScalarRelationFilter = {
+  is?: Prisma.usersWhereInput
+  isNot?: Prisma.usersWhereInput
+}
+
 export type usersCreateNestedOneWithoutCustom_task_proposalsInput = {
   create?: Prisma.XOR<Prisma.usersCreateWithoutCustom_task_proposalsInput, Prisma.usersUncheckedCreateWithoutCustom_task_proposalsInput>
   connectOrCreate?: Prisma.usersCreateOrConnectWithoutCustom_task_proposalsInput
@@ -554,20 +561,6 @@ export type usersUpdateOneWithoutCustom_tasksNestedInput = {
   delete?: Prisma.usersWhereInput | boolean
   connect?: Prisma.usersWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.usersUpdateToOneWithWhereWithoutCustom_tasksInput, Prisma.usersUpdateWithoutCustom_tasksInput>, Prisma.usersUncheckedUpdateWithoutCustom_tasksInput>
-}
-
-export type usersCreateNestedOneWithoutProfilesInput = {
-  create?: Prisma.XOR<Prisma.usersCreateWithoutProfilesInput, Prisma.usersUncheckedCreateWithoutProfilesInput>
-  connectOrCreate?: Prisma.usersCreateOrConnectWithoutProfilesInput
-  connect?: Prisma.usersWhereUniqueInput
-}
-
-export type usersUpdateOneRequiredWithoutProfilesNestedInput = {
-  create?: Prisma.XOR<Prisma.usersCreateWithoutProfilesInput, Prisma.usersUncheckedCreateWithoutProfilesInput>
-  connectOrCreate?: Prisma.usersCreateOrConnectWithoutProfilesInput
-  upsert?: Prisma.usersUpsertWithoutProfilesInput
-  connect?: Prisma.usersWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.usersUpdateToOneWithWhereWithoutProfilesInput, Prisma.usersUpdateWithoutProfilesInput>, Prisma.usersUncheckedUpdateWithoutProfilesInput>
 }
 
 export type usersCreateNestedManyWithoutRolesInput = {
@@ -616,6 +609,34 @@ export type NullableBoolFieldUpdateOperationsInput = {
   set?: boolean | null
 }
 
+export type usersCreateNestedOneWithoutProfiles_customerInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutProfiles_customerInput, Prisma.usersUncheckedCreateWithoutProfiles_customerInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutProfiles_customerInput
+  connect?: Prisma.usersWhereUniqueInput
+}
+
+export type usersUpdateOneRequiredWithoutProfiles_customerNestedInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutProfiles_customerInput, Prisma.usersUncheckedCreateWithoutProfiles_customerInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutProfiles_customerInput
+  upsert?: Prisma.usersUpsertWithoutProfiles_customerInput
+  connect?: Prisma.usersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.usersUpdateToOneWithWhereWithoutProfiles_customerInput, Prisma.usersUpdateWithoutProfiles_customerInput>, Prisma.usersUncheckedUpdateWithoutProfiles_customerInput>
+}
+
+export type usersCreateNestedOneWithoutProvider_profilesInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutProvider_profilesInput, Prisma.usersUncheckedCreateWithoutProvider_profilesInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutProvider_profilesInput
+  connect?: Prisma.usersWhereUniqueInput
+}
+
+export type usersUpdateOneRequiredWithoutProvider_profilesNestedInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutProvider_profilesInput, Prisma.usersUncheckedCreateWithoutProvider_profilesInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutProvider_profilesInput
+  upsert?: Prisma.usersUpsertWithoutProvider_profilesInput
+  connect?: Prisma.usersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.usersUpdateToOneWithWhereWithoutProvider_profilesInput, Prisma.usersUpdateWithoutProvider_profilesInput>, Prisma.usersUncheckedUpdateWithoutProvider_profilesInput>
+}
+
 export type usersCreateWithoutCustom_task_proposalsInput = {
   id?: string
   email?: string | null
@@ -628,7 +649,8 @@ export type usersCreateWithoutCustom_task_proposalsInput = {
   created_at?: Date | string | null
   updated_at?: Date | string | null
   custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
-  profiles?: Prisma.profilesCreateNestedOneWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
   roles: Prisma.rolesCreateNestedOneWithoutUsersInput
 }
 
@@ -645,7 +667,8 @@ export type usersUncheckedCreateWithoutCustom_task_proposalsInput = {
   created_at?: Date | string | null
   updated_at?: Date | string | null
   custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
-  profiles?: Prisma.profilesUncheckedCreateNestedOneWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
 }
 
 export type usersCreateOrConnectWithoutCustom_task_proposalsInput = {
@@ -676,7 +699,8 @@ export type usersUpdateWithoutCustom_task_proposalsInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
-  profiles?: Prisma.profilesUpdateOneWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
   roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
 }
 
@@ -693,7 +717,8 @@ export type usersUncheckedUpdateWithoutCustom_task_proposalsInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
-  profiles?: Prisma.profilesUncheckedUpdateOneWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
 }
 
 export type usersCreateWithoutCustom_tasksInput = {
@@ -708,7 +733,8 @@ export type usersCreateWithoutCustom_tasksInput = {
   created_at?: Date | string | null
   updated_at?: Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutUsersInput
-  profiles?: Prisma.profilesCreateNestedOneWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
   roles: Prisma.rolesCreateNestedOneWithoutUsersInput
 }
 
@@ -725,7 +751,8 @@ export type usersUncheckedCreateWithoutCustom_tasksInput = {
   created_at?: Date | string | null
   updated_at?: Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutUsersInput
-  profiles?: Prisma.profilesUncheckedCreateNestedOneWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
 }
 
 export type usersCreateOrConnectWithoutCustom_tasksInput = {
@@ -756,7 +783,8 @@ export type usersUpdateWithoutCustom_tasksInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutUsersNestedInput
-  profiles?: Prisma.profilesUpdateOneWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
   roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
 }
 
@@ -773,87 +801,8 @@ export type usersUncheckedUpdateWithoutCustom_tasksInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutUsersNestedInput
-  profiles?: Prisma.profilesUncheckedUpdateOneWithoutUsersNestedInput
-}
-
-export type usersCreateWithoutProfilesInput = {
-  id?: string
-  email?: string | null
-  phone?: string | null
-  password_hash?: string | null
-  google_id?: string | null
-  is_phone_verified?: boolean | null
-  is_email_verified?: boolean | null
-  status?: string | null
-  created_at?: Date | string | null
-  updated_at?: Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutUsersInput
-  custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
-  roles: Prisma.rolesCreateNestedOneWithoutUsersInput
-}
-
-export type usersUncheckedCreateWithoutProfilesInput = {
-  id?: string
-  role_id: number
-  email?: string | null
-  phone?: string | null
-  password_hash?: string | null
-  google_id?: string | null
-  is_phone_verified?: boolean | null
-  is_email_verified?: boolean | null
-  status?: string | null
-  created_at?: Date | string | null
-  updated_at?: Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutUsersInput
-  custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
-}
-
-export type usersCreateOrConnectWithoutProfilesInput = {
-  where: Prisma.usersWhereUniqueInput
-  create: Prisma.XOR<Prisma.usersCreateWithoutProfilesInput, Prisma.usersUncheckedCreateWithoutProfilesInput>
-}
-
-export type usersUpsertWithoutProfilesInput = {
-  update: Prisma.XOR<Prisma.usersUpdateWithoutProfilesInput, Prisma.usersUncheckedUpdateWithoutProfilesInput>
-  create: Prisma.XOR<Prisma.usersCreateWithoutProfilesInput, Prisma.usersUncheckedCreateWithoutProfilesInput>
-  where?: Prisma.usersWhereInput
-}
-
-export type usersUpdateToOneWithWhereWithoutProfilesInput = {
-  where?: Prisma.usersWhereInput
-  data: Prisma.XOR<Prisma.usersUpdateWithoutProfilesInput, Prisma.usersUncheckedUpdateWithoutProfilesInput>
-}
-
-export type usersUpdateWithoutProfilesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutUsersNestedInput
-  custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
-  roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
-}
-
-export type usersUncheckedUpdateWithoutProfilesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  role_id?: Prisma.IntFieldUpdateOperationsInput | number
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutUsersNestedInput
-  custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
 }
 
 export type usersCreateWithoutRolesInput = {
@@ -869,7 +818,8 @@ export type usersCreateWithoutRolesInput = {
   updated_at?: Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutUsersInput
   custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
-  profiles?: Prisma.profilesCreateNestedOneWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
 }
 
 export type usersUncheckedCreateWithoutRolesInput = {
@@ -885,7 +835,8 @@ export type usersUncheckedCreateWithoutRolesInput = {
   updated_at?: Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutUsersInput
   custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
-  profiles?: Prisma.profilesUncheckedCreateNestedOneWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
 }
 
 export type usersCreateOrConnectWithoutRolesInput = {
@@ -931,6 +882,174 @@ export type usersScalarWhereInput = {
   updated_at?: Prisma.DateTimeNullableFilter<"users"> | Date | string | null
 }
 
+export type usersCreateWithoutProfiles_customerInput = {
+  id?: string
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  roles: Prisma.rolesCreateNestedOneWithoutUsersInput
+}
+
+export type usersUncheckedCreateWithoutProfiles_customerInput = {
+  id?: string
+  role_id: number
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+}
+
+export type usersCreateOrConnectWithoutProfiles_customerInput = {
+  where: Prisma.usersWhereUniqueInput
+  create: Prisma.XOR<Prisma.usersCreateWithoutProfiles_customerInput, Prisma.usersUncheckedCreateWithoutProfiles_customerInput>
+}
+
+export type usersUpsertWithoutProfiles_customerInput = {
+  update: Prisma.XOR<Prisma.usersUpdateWithoutProfiles_customerInput, Prisma.usersUncheckedUpdateWithoutProfiles_customerInput>
+  create: Prisma.XOR<Prisma.usersCreateWithoutProfiles_customerInput, Prisma.usersUncheckedCreateWithoutProfiles_customerInput>
+  where?: Prisma.usersWhereInput
+}
+
+export type usersUpdateToOneWithWhereWithoutProfiles_customerInput = {
+  where?: Prisma.usersWhereInput
+  data: Prisma.XOR<Prisma.usersUpdateWithoutProfiles_customerInput, Prisma.usersUncheckedUpdateWithoutProfiles_customerInput>
+}
+
+export type usersUpdateWithoutProfiles_customerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
+}
+
+export type usersUncheckedUpdateWithoutProfiles_customerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role_id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+}
+
+export type usersCreateWithoutProvider_profilesInput = {
+  id?: string
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
+  roles: Prisma.rolesCreateNestedOneWithoutUsersInput
+}
+
+export type usersUncheckedCreateWithoutProvider_profilesInput = {
+  id?: string
+  role_id: number
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
+}
+
+export type usersCreateOrConnectWithoutProvider_profilesInput = {
+  where: Prisma.usersWhereUniqueInput
+  create: Prisma.XOR<Prisma.usersCreateWithoutProvider_profilesInput, Prisma.usersUncheckedCreateWithoutProvider_profilesInput>
+}
+
+export type usersUpsertWithoutProvider_profilesInput = {
+  update: Prisma.XOR<Prisma.usersUpdateWithoutProvider_profilesInput, Prisma.usersUncheckedUpdateWithoutProvider_profilesInput>
+  create: Prisma.XOR<Prisma.usersCreateWithoutProvider_profilesInput, Prisma.usersUncheckedCreateWithoutProvider_profilesInput>
+  where?: Prisma.usersWhereInput
+}
+
+export type usersUpdateToOneWithWhereWithoutProvider_profilesInput = {
+  where?: Prisma.usersWhereInput
+  data: Prisma.XOR<Prisma.usersUpdateWithoutProvider_profilesInput, Prisma.usersUncheckedUpdateWithoutProvider_profilesInput>
+}
+
+export type usersUpdateWithoutProvider_profilesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
+  roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
+}
+
+export type usersUncheckedUpdateWithoutProvider_profilesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role_id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
+}
+
 export type usersCreateManyRolesInput = {
   id?: string
   email?: string | null
@@ -957,7 +1076,8 @@ export type usersUpdateWithoutRolesInput = {
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutUsersNestedInput
   custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
-  profiles?: Prisma.profilesUpdateOneWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
 }
 
 export type usersUncheckedUpdateWithoutRolesInput = {
@@ -973,7 +1093,8 @@ export type usersUncheckedUpdateWithoutRolesInput = {
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutUsersNestedInput
   custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
-  profiles?: Prisma.profilesUncheckedUpdateOneWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
 }
 
 export type usersUncheckedUpdateManyWithoutRolesInput = {
@@ -1043,7 +1164,8 @@ export type usersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   updated_at?: boolean
   custom_task_proposals?: boolean | Prisma.users$custom_task_proposalsArgs<ExtArgs>
   custom_tasks?: boolean | Prisma.users$custom_tasksArgs<ExtArgs>
-  profiles?: boolean | Prisma.users$profilesArgs<ExtArgs>
+  profiles_customer?: boolean | Prisma.users$profiles_customerArgs<ExtArgs>
+  provider_profiles?: boolean | Prisma.users$provider_profilesArgs<ExtArgs>
   roles?: boolean | Prisma.rolesDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.UsersCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["users"]>
@@ -1096,7 +1218,8 @@ export type usersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
 export type usersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   custom_task_proposals?: boolean | Prisma.users$custom_task_proposalsArgs<ExtArgs>
   custom_tasks?: boolean | Prisma.users$custom_tasksArgs<ExtArgs>
-  profiles?: boolean | Prisma.users$profilesArgs<ExtArgs>
+  profiles_customer?: boolean | Prisma.users$profiles_customerArgs<ExtArgs>
+  provider_profiles?: boolean | Prisma.users$provider_profilesArgs<ExtArgs>
   roles?: boolean | Prisma.rolesDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.UsersCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1112,7 +1235,8 @@ export type $usersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   objects: {
     custom_task_proposals: Prisma.$custom_task_proposalsPayload<ExtArgs>[]
     custom_tasks: Prisma.$custom_tasksPayload<ExtArgs>[]
-    profiles: Prisma.$profilesPayload<ExtArgs> | null
+    profiles_customer: Prisma.$profiles_customerPayload<ExtArgs> | null
+    provider_profiles: Prisma.$provider_profilesPayload<ExtArgs> | null
     roles: Prisma.$rolesPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1523,7 +1647,8 @@ export interface Prisma__usersClient<T, Null = never, ExtArgs extends runtime.Ty
   readonly [Symbol.toStringTag]: "PrismaPromise"
   custom_task_proposals<T extends Prisma.users$custom_task_proposalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$custom_task_proposalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$custom_task_proposalsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   custom_tasks<T extends Prisma.users$custom_tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$custom_tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$custom_tasksPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  profiles<T extends Prisma.users$profilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$profilesArgs<ExtArgs>>): Prisma.Prisma__profilesClient<runtime.Types.Result.GetResult<Prisma.$profilesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  profiles_customer<T extends Prisma.users$profiles_customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$profiles_customerArgs<ExtArgs>>): Prisma.Prisma__profiles_customerClient<runtime.Types.Result.GetResult<Prisma.$profiles_customerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  provider_profiles<T extends Prisma.users$provider_profilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$provider_profilesArgs<ExtArgs>>): Prisma.Prisma__provider_profilesClient<runtime.Types.Result.GetResult<Prisma.$provider_profilesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   roles<T extends Prisma.rolesDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.rolesDefaultArgs<ExtArgs>>): Prisma.Prisma__rolesClient<runtime.Types.Result.GetResult<Prisma.$rolesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2014,22 +2139,41 @@ export type users$custom_tasksArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
- * users.profiles
+ * users.profiles_customer
  */
-export type users$profilesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type users$profiles_customerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the profiles
+   * Select specific fields to fetch from the profiles_customer
    */
-  select?: Prisma.profilesSelect<ExtArgs> | null
+  select?: Prisma.profiles_customerSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the profiles
+   * Omit specific fields from the profiles_customer
    */
-  omit?: Prisma.profilesOmit<ExtArgs> | null
+  omit?: Prisma.profiles_customerOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.profilesInclude<ExtArgs> | null
-  where?: Prisma.profilesWhereInput
+  include?: Prisma.profiles_customerInclude<ExtArgs> | null
+  where?: Prisma.profiles_customerWhereInput
+}
+
+/**
+ * users.provider_profiles
+ */
+export type users$provider_profilesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the provider_profiles
+   */
+  select?: Prisma.provider_profilesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the provider_profiles
+   */
+  omit?: Prisma.provider_profilesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.provider_profilesInclude<ExtArgs> | null
+  where?: Prisma.provider_profilesWhereInput
 }
 
 /**

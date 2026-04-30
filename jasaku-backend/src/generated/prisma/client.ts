@@ -92,11 +92,6 @@ export type payments = Prisma.paymentsModel
  */
 export type pricing_types = Prisma.pricing_typesModel
 /**
- * Model profiles
- * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
- */
-export type profiles = Prisma.profilesModel
-/**
  * Model provider_payout_methods
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
@@ -131,3 +126,13 @@ export type spatial_ref_sys = Prisma.spatial_ref_sysModel
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type users = Prisma.usersModel
+/**
+ * Model profiles_customer
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type profiles_customer = Prisma.profiles_customerModel
+/**
+ * Model provider_profiles
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type provider_profiles = Prisma.provider_profilesModel

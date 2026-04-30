@@ -61,14 +61,15 @@ export const ModelName = {
   orders: 'orders',
   payments: 'payments',
   pricing_types: 'pricing_types',
-  profiles: 'profiles',
   provider_payout_methods: 'provider_payout_methods',
   provider_service_prices: 'provider_service_prices',
   provider_services: 'provider_services',
   roles: 'roles',
   services: 'services',
   spatial_ref_sys: 'spatial_ref_sys',
-  users: 'users'
+  users: 'users',
+  profiles_customer: 'profiles_customer',
+  provider_profiles: 'provider_profiles'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -204,21 +205,6 @@ export const Pricing_typesScalarFieldEnum = {
 export type Pricing_typesScalarFieldEnum = (typeof Pricing_typesScalarFieldEnum)[keyof typeof Pricing_typesScalarFieldEnum]
 
 
-export const ProfilesScalarFieldEnum = {
-  id: 'id',
-  user_id: 'user_id',
-  full_name: 'full_name',
-  nickname: 'nickname',
-  birth_date: 'birth_date',
-  gender: 'gender',
-  avatar_url: 'avatar_url',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-} as const
-
-export type ProfilesScalarFieldEnum = (typeof ProfilesScalarFieldEnum)[keyof typeof ProfilesScalarFieldEnum]
-
-
 export const Provider_payout_methodsScalarFieldEnum = {
   id: 'id',
   provider_id: 'provider_id',
@@ -301,6 +287,46 @@ export const UsersScalarFieldEnum = {
 } as const
 
 export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]
+
+
+export const Profiles_customerScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  full_name: 'full_name',
+  nickname: 'nickname',
+  birth_date: 'birth_date',
+  gender: 'gender',
+  avatar_url: 'avatar_url',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Profiles_customerScalarFieldEnum = (typeof Profiles_customerScalarFieldEnum)[keyof typeof Profiles_customerScalarFieldEnum]
+
+
+export const Provider_profilesScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  full_name: 'full_name',
+  nickname: 'nickname',
+  gender: 'gender',
+  birth_date: 'birth_date',
+  phone: 'phone',
+  address: 'address',
+  domicile: 'domicile',
+  profile_photo: 'profile_photo',
+  ktp_photo: 'ktp_photo',
+  selfie_photo: 'selfie_photo',
+  is_verified: 'is_verified',
+  verification_status: 'verification_status',
+  is_active: 'is_active',
+  rating: 'rating',
+  total_jobs: 'total_jobs',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Provider_profilesScalarFieldEnum = (typeof Provider_profilesScalarFieldEnum)[keyof typeof Provider_profilesScalarFieldEnum]
 
 
 export const SortOrder = {

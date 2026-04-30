@@ -394,14 +394,15 @@ export const ModelName = {
   orders: 'orders',
   payments: 'payments',
   pricing_types: 'pricing_types',
-  profiles: 'profiles',
   provider_payout_methods: 'provider_payout_methods',
   provider_service_prices: 'provider_service_prices',
   provider_services: 'provider_services',
   roles: 'roles',
   services: 'services',
   spatial_ref_sys: 'spatial_ref_sys',
-  users: 'users'
+  users: 'users',
+  profiles_customer: 'profiles_customer',
+  provider_profiles: 'provider_profiles'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "categories" | "custom_task_proposals" | "custom_tasks" | "customer_payment_methods" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "profiles" | "provider_payout_methods" | "provider_service_prices" | "provider_services" | "roles" | "services" | "spatial_ref_sys" | "users"
+    modelProps: "categories" | "custom_task_proposals" | "custom_tasks" | "customer_payment_methods" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_payout_methods" | "provider_service_prices" | "provider_services" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1161,80 +1162,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    profiles: {
-      payload: Prisma.$profilesPayload<ExtArgs>
-      fields: Prisma.profilesFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.profilesFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.profilesFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload>
-        }
-        findFirst: {
-          args: Prisma.profilesFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.profilesFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload>
-        }
-        findMany: {
-          args: Prisma.profilesFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload>[]
-        }
-        create: {
-          args: Prisma.profilesCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload>
-        }
-        createMany: {
-          args: Prisma.profilesCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.profilesCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload>[]
-        }
-        delete: {
-          args: Prisma.profilesDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload>
-        }
-        update: {
-          args: Prisma.profilesUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload>
-        }
-        deleteMany: {
-          args: Prisma.profilesDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.profilesUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.profilesUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload>[]
-        }
-        upsert: {
-          args: Prisma.profilesUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$profilesPayload>
-        }
-        aggregate: {
-          args: Prisma.ProfilesAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProfiles>
-        }
-        groupBy: {
-          args: Prisma.profilesGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProfilesGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.profilesCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProfilesCountAggregateOutputType> | number
-        }
-      }
-    }
     provider_payout_methods: {
       payload: Prisma.$provider_payout_methodsPayload<ExtArgs>
       fields: Prisma.provider_payout_methodsFieldRefs
@@ -1753,6 +1680,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    profiles_customer: {
+      payload: Prisma.$profiles_customerPayload<ExtArgs>
+      fields: Prisma.profiles_customerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.profiles_customerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.profiles_customerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload>
+        }
+        findFirst: {
+          args: Prisma.profiles_customerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.profiles_customerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload>
+        }
+        findMany: {
+          args: Prisma.profiles_customerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload>[]
+        }
+        create: {
+          args: Prisma.profiles_customerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload>
+        }
+        createMany: {
+          args: Prisma.profiles_customerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.profiles_customerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload>[]
+        }
+        delete: {
+          args: Prisma.profiles_customerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload>
+        }
+        update: {
+          args: Prisma.profiles_customerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload>
+        }
+        deleteMany: {
+          args: Prisma.profiles_customerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.profiles_customerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.profiles_customerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload>[]
+        }
+        upsert: {
+          args: Prisma.profiles_customerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$profiles_customerPayload>
+        }
+        aggregate: {
+          args: Prisma.Profiles_customerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProfiles_customer>
+        }
+        groupBy: {
+          args: Prisma.profiles_customerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Profiles_customerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.profiles_customerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Profiles_customerCountAggregateOutputType> | number
+        }
+      }
+    }
+    provider_profiles: {
+      payload: Prisma.$provider_profilesPayload<ExtArgs>
+      fields: Prisma.provider_profilesFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.provider_profilesFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.provider_profilesFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload>
+        }
+        findFirst: {
+          args: Prisma.provider_profilesFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.provider_profilesFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload>
+        }
+        findMany: {
+          args: Prisma.provider_profilesFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload>[]
+        }
+        create: {
+          args: Prisma.provider_profilesCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload>
+        }
+        createMany: {
+          args: Prisma.provider_profilesCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.provider_profilesCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload>[]
+        }
+        delete: {
+          args: Prisma.provider_profilesDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload>
+        }
+        update: {
+          args: Prisma.provider_profilesUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload>
+        }
+        deleteMany: {
+          args: Prisma.provider_profilesDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.provider_profilesUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.provider_profilesUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload>[]
+        }
+        upsert: {
+          args: Prisma.provider_profilesUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_profilesPayload>
+        }
+        aggregate: {
+          args: Prisma.Provider_profilesAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProvider_profiles>
+        }
+        groupBy: {
+          args: Prisma.provider_profilesGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Provider_profilesGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.provider_profilesCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Provider_profilesCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1909,21 +1984,6 @@ export const Pricing_typesScalarFieldEnum = {
 export type Pricing_typesScalarFieldEnum = (typeof Pricing_typesScalarFieldEnum)[keyof typeof Pricing_typesScalarFieldEnum]
 
 
-export const ProfilesScalarFieldEnum = {
-  id: 'id',
-  user_id: 'user_id',
-  full_name: 'full_name',
-  nickname: 'nickname',
-  birth_date: 'birth_date',
-  gender: 'gender',
-  avatar_url: 'avatar_url',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-} as const
-
-export type ProfilesScalarFieldEnum = (typeof ProfilesScalarFieldEnum)[keyof typeof ProfilesScalarFieldEnum]
-
-
 export const Provider_payout_methodsScalarFieldEnum = {
   id: 'id',
   provider_id: 'provider_id',
@@ -2006,6 +2066,46 @@ export const UsersScalarFieldEnum = {
 } as const
 
 export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]
+
+
+export const Profiles_customerScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  full_name: 'full_name',
+  nickname: 'nickname',
+  birth_date: 'birth_date',
+  gender: 'gender',
+  avatar_url: 'avatar_url',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Profiles_customerScalarFieldEnum = (typeof Profiles_customerScalarFieldEnum)[keyof typeof Profiles_customerScalarFieldEnum]
+
+
+export const Provider_profilesScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  full_name: 'full_name',
+  nickname: 'nickname',
+  gender: 'gender',
+  birth_date: 'birth_date',
+  phone: 'phone',
+  address: 'address',
+  domicile: 'domicile',
+  profile_photo: 'profile_photo',
+  ktp_photo: 'ktp_photo',
+  selfie_photo: 'selfie_photo',
+  is_verified: 'is_verified',
+  verification_status: 'verification_status',
+  is_active: 'is_active',
+  rating: 'rating',
+  total_jobs: 'total_jobs',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Provider_profilesScalarFieldEnum = (typeof Provider_profilesScalarFieldEnum)[keyof typeof Provider_profilesScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2219,7 +2319,6 @@ export type GlobalOmitConfig = {
   orders?: Prisma.ordersOmit
   payments?: Prisma.paymentsOmit
   pricing_types?: Prisma.pricing_typesOmit
-  profiles?: Prisma.profilesOmit
   provider_payout_methods?: Prisma.provider_payout_methodsOmit
   provider_service_prices?: Prisma.provider_service_pricesOmit
   provider_services?: Prisma.provider_servicesOmit
@@ -2227,6 +2326,8 @@ export type GlobalOmitConfig = {
   services?: Prisma.servicesOmit
   spatial_ref_sys?: Prisma.spatial_ref_sysOmit
   users?: Prisma.usersOmit
+  profiles_customer?: Prisma.profiles_customerOmit
+  provider_profiles?: Prisma.provider_profilesOmit
 }
 
 /* Types for Logging */
