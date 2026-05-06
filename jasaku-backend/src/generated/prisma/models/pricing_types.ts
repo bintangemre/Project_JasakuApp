@@ -28,18 +28,21 @@ export type Pricing_typesMinAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
+  default_unit: string | null
 }
 
 export type Pricing_typesMaxAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
+  default_unit: string | null
 }
 
 export type Pricing_typesCountAggregateOutputType = {
   id: number
   name: number
   description: number
+  default_unit: number
   _all: number
 }
 
@@ -48,18 +51,21 @@ export type Pricing_typesMinAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  default_unit?: true
 }
 
 export type Pricing_typesMaxAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  default_unit?: true
 }
 
 export type Pricing_typesCountAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  default_unit?: true
   _all?: true
 }
 
@@ -139,6 +145,7 @@ export type Pricing_typesGroupByOutputType = {
   id: string
   name: string
   description: string | null
+  default_unit: string | null
   _count: Pricing_typesCountAggregateOutputType | null
   _min: Pricing_typesMinAggregateOutputType | null
   _max: Pricing_typesMaxAggregateOutputType | null
@@ -166,6 +173,7 @@ export type pricing_typesWhereInput = {
   id?: Prisma.UuidFilter<"pricing_types"> | string
   name?: Prisma.StringFilter<"pricing_types"> | string
   description?: Prisma.StringNullableFilter<"pricing_types"> | string | null
+  default_unit?: Prisma.StringNullableFilter<"pricing_types"> | string | null
   provider_service_prices?: Prisma.Provider_service_pricesListRelationFilter
 }
 
@@ -173,6 +181,7 @@ export type pricing_typesOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  default_unit?: Prisma.SortOrderInput | Prisma.SortOrder
   provider_service_prices?: Prisma.provider_service_pricesOrderByRelationAggregateInput
 }
 
@@ -183,6 +192,7 @@ export type pricing_typesWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.pricing_typesWhereInput | Prisma.pricing_typesWhereInput[]
   name?: Prisma.StringFilter<"pricing_types"> | string
   description?: Prisma.StringNullableFilter<"pricing_types"> | string | null
+  default_unit?: Prisma.StringNullableFilter<"pricing_types"> | string | null
   provider_service_prices?: Prisma.Provider_service_pricesListRelationFilter
 }, "id">
 
@@ -190,6 +200,7 @@ export type pricing_typesOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  default_unit?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.pricing_typesCountOrderByAggregateInput
   _max?: Prisma.pricing_typesMaxOrderByAggregateInput
   _min?: Prisma.pricing_typesMinOrderByAggregateInput
@@ -202,12 +213,14 @@ export type pricing_typesScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"pricing_types"> | string
   name?: Prisma.StringWithAggregatesFilter<"pricing_types"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"pricing_types"> | string | null
+  default_unit?: Prisma.StringNullableWithAggregatesFilter<"pricing_types"> | string | null
 }
 
 export type pricing_typesCreateInput = {
   id?: string
   name: string
   description?: string | null
+  default_unit?: string | null
   provider_service_prices?: Prisma.provider_service_pricesCreateNestedManyWithoutPricing_typesInput
 }
 
@@ -215,6 +228,7 @@ export type pricing_typesUncheckedCreateInput = {
   id?: string
   name: string
   description?: string | null
+  default_unit?: string | null
   provider_service_prices?: Prisma.provider_service_pricesUncheckedCreateNestedManyWithoutPricing_typesInput
 }
 
@@ -222,6 +236,7 @@ export type pricing_typesUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  default_unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider_service_prices?: Prisma.provider_service_pricesUpdateManyWithoutPricing_typesNestedInput
 }
 
@@ -229,6 +244,7 @@ export type pricing_typesUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  default_unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider_service_prices?: Prisma.provider_service_pricesUncheckedUpdateManyWithoutPricing_typesNestedInput
 }
 
@@ -236,36 +252,42 @@ export type pricing_typesCreateManyInput = {
   id?: string
   name: string
   description?: string | null
+  default_unit?: string | null
 }
 
 export type pricing_typesUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  default_unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type pricing_typesUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  default_unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type pricing_typesCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  default_unit?: Prisma.SortOrder
 }
 
 export type pricing_typesMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  default_unit?: Prisma.SortOrder
 }
 
 export type pricing_typesMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  default_unit?: Prisma.SortOrder
 }
 
 export type Pricing_typesScalarRelationFilter = {
@@ -291,12 +313,14 @@ export type pricing_typesCreateWithoutProvider_service_pricesInput = {
   id?: string
   name: string
   description?: string | null
+  default_unit?: string | null
 }
 
 export type pricing_typesUncheckedCreateWithoutProvider_service_pricesInput = {
   id?: string
   name: string
   description?: string | null
+  default_unit?: string | null
 }
 
 export type pricing_typesCreateOrConnectWithoutProvider_service_pricesInput = {
@@ -319,12 +343,14 @@ export type pricing_typesUpdateWithoutProvider_service_pricesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  default_unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type pricing_typesUncheckedUpdateWithoutProvider_service_pricesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  default_unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -362,6 +388,7 @@ export type pricing_typesSelect<ExtArgs extends runtime.Types.Extensions.Interna
   id?: boolean
   name?: boolean
   description?: boolean
+  default_unit?: boolean
   provider_service_prices?: boolean | Prisma.pricing_types$provider_service_pricesArgs<ExtArgs>
   _count?: boolean | Prisma.Pricing_typesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pricing_types"]>
@@ -370,21 +397,24 @@ export type pricing_typesSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   name?: boolean
   description?: boolean
+  default_unit?: boolean
 }, ExtArgs["result"]["pricing_types"]>
 
 export type pricing_typesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   description?: boolean
+  default_unit?: boolean
 }, ExtArgs["result"]["pricing_types"]>
 
 export type pricing_typesSelectScalar = {
   id?: boolean
   name?: boolean
   description?: boolean
+  default_unit?: boolean
 }
 
-export type pricing_typesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description", ExtArgs["result"]["pricing_types"]>
+export type pricing_typesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "default_unit", ExtArgs["result"]["pricing_types"]>
 export type pricing_typesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   provider_service_prices?: boolean | Prisma.pricing_types$provider_service_pricesArgs<ExtArgs>
   _count?: boolean | Prisma.Pricing_typesCountOutputTypeDefaultArgs<ExtArgs>
@@ -401,6 +431,7 @@ export type $pricing_typesPayload<ExtArgs extends runtime.Types.Extensions.Inter
     id: string
     name: string
     description: string | null
+    default_unit: string | null
   }, ExtArgs["result"]["pricing_types"]>
   composites: {}
 }
@@ -828,6 +859,7 @@ export interface pricing_typesFieldRefs {
   readonly id: Prisma.FieldRef<"pricing_types", 'String'>
   readonly name: Prisma.FieldRef<"pricing_types", 'String'>
   readonly description: Prisma.FieldRef<"pricing_types", 'String'>
+  readonly default_unit: Prisma.FieldRef<"pricing_types", 'String'>
 }
     
 

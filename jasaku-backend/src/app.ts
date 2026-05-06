@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes';
 import servicesRoutes from './modules/services/services.routes';
+import providerServicesRoutes from './modules/provider/services/services.routes';
 import dotenv from 'dotenv';
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/services', servicesRoutes);
+app.use('/api/provider/services', providerServicesRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

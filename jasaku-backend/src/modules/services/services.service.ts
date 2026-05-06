@@ -27,6 +27,7 @@ export class CategoriesService {
         return category;
     }
 
+// services untuk kategori dan layanan pada sudut pandang provider (hanya untuk user yang login)
     async getServicesByid(id: string, userId: string) {
         this.validateCustomerAccess(userId);
         const service = await prisma.services.findUnique({

@@ -199,7 +199,8 @@ export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typ
 export const Pricing_typesScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  description: 'description'
+  description: 'description',
+  default_unit: 'default_unit'
 } as const
 
 export type Pricing_typesScalarFieldEnum = (typeof Pricing_typesScalarFieldEnum)[keyof typeof Pricing_typesScalarFieldEnum]
@@ -223,7 +224,8 @@ export const Provider_service_pricesScalarFieldEnum = {
   provider_service_id: 'provider_service_id',
   pricing_type_id: 'pricing_type_id',
   price: 'price',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  unit: 'unit'
 } as const
 
 export type Provider_service_pricesScalarFieldEnum = (typeof Provider_service_pricesScalarFieldEnum)[keyof typeof Provider_service_pricesScalarFieldEnum]

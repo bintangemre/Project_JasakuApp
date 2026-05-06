@@ -183,6 +183,7 @@ export type provider_servicesWhereInput = {
   description?: Prisma.StringNullableFilter<"provider_services"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"provider_services"> | Date | string | null
   provider_service_prices?: Prisma.Provider_service_pricesListRelationFilter
+  services?: Prisma.XOR<Prisma.ServicesScalarRelationFilter, Prisma.servicesWhereInput>
 }
 
 export type provider_servicesOrderByWithRelationInput = {
@@ -192,6 +193,7 @@ export type provider_servicesOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   provider_service_prices?: Prisma.provider_service_pricesOrderByRelationAggregateInput
+  services?: Prisma.servicesOrderByWithRelationInput
 }
 
 export type provider_servicesWhereUniqueInput = Prisma.AtLeast<{
@@ -204,6 +206,7 @@ export type provider_servicesWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"provider_services"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"provider_services"> | Date | string | null
   provider_service_prices?: Prisma.Provider_service_pricesListRelationFilter
+  services?: Prisma.XOR<Prisma.ServicesScalarRelationFilter, Prisma.servicesWhereInput>
 }, "id">
 
 export type provider_servicesOrderByWithAggregationInput = {
@@ -231,10 +234,10 @@ export type provider_servicesScalarWhereWithAggregatesInput = {
 export type provider_servicesCreateInput = {
   id?: string
   provider_id: string
-  service_id: string
   description?: string | null
   created_at?: Date | string | null
   provider_service_prices?: Prisma.provider_service_pricesCreateNestedManyWithoutProvider_servicesInput
+  services: Prisma.servicesCreateNestedOneWithoutProvider_servicesInput
 }
 
 export type provider_servicesUncheckedCreateInput = {
@@ -249,10 +252,10 @@ export type provider_servicesUncheckedCreateInput = {
 export type provider_servicesUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
-  service_id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   provider_service_prices?: Prisma.provider_service_pricesUpdateManyWithoutProvider_servicesNestedInput
+  services?: Prisma.servicesUpdateOneRequiredWithoutProvider_servicesNestedInput
 }
 
 export type provider_servicesUncheckedUpdateInput = {
@@ -275,7 +278,6 @@ export type provider_servicesCreateManyInput = {
 export type provider_servicesUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
-  service_id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -317,6 +319,16 @@ export type provider_servicesMinOrderByAggregateInput = {
   created_at?: Prisma.SortOrder
 }
 
+export type Provider_servicesListRelationFilter = {
+  every?: Prisma.provider_servicesWhereInput
+  some?: Prisma.provider_servicesWhereInput
+  none?: Prisma.provider_servicesWhereInput
+}
+
+export type provider_servicesOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type provider_servicesCreateNestedOneWithoutProvider_service_pricesInput = {
   create?: Prisma.XOR<Prisma.provider_servicesCreateWithoutProvider_service_pricesInput, Prisma.provider_servicesUncheckedCreateWithoutProvider_service_pricesInput>
   connectOrCreate?: Prisma.provider_servicesCreateOrConnectWithoutProvider_service_pricesInput
@@ -331,12 +343,54 @@ export type provider_servicesUpdateOneRequiredWithoutProvider_service_pricesNest
   update?: Prisma.XOR<Prisma.XOR<Prisma.provider_servicesUpdateToOneWithWhereWithoutProvider_service_pricesInput, Prisma.provider_servicesUpdateWithoutProvider_service_pricesInput>, Prisma.provider_servicesUncheckedUpdateWithoutProvider_service_pricesInput>
 }
 
+export type provider_servicesCreateNestedManyWithoutServicesInput = {
+  create?: Prisma.XOR<Prisma.provider_servicesCreateWithoutServicesInput, Prisma.provider_servicesUncheckedCreateWithoutServicesInput> | Prisma.provider_servicesCreateWithoutServicesInput[] | Prisma.provider_servicesUncheckedCreateWithoutServicesInput[]
+  connectOrCreate?: Prisma.provider_servicesCreateOrConnectWithoutServicesInput | Prisma.provider_servicesCreateOrConnectWithoutServicesInput[]
+  createMany?: Prisma.provider_servicesCreateManyServicesInputEnvelope
+  connect?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+}
+
+export type provider_servicesUncheckedCreateNestedManyWithoutServicesInput = {
+  create?: Prisma.XOR<Prisma.provider_servicesCreateWithoutServicesInput, Prisma.provider_servicesUncheckedCreateWithoutServicesInput> | Prisma.provider_servicesCreateWithoutServicesInput[] | Prisma.provider_servicesUncheckedCreateWithoutServicesInput[]
+  connectOrCreate?: Prisma.provider_servicesCreateOrConnectWithoutServicesInput | Prisma.provider_servicesCreateOrConnectWithoutServicesInput[]
+  createMany?: Prisma.provider_servicesCreateManyServicesInputEnvelope
+  connect?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+}
+
+export type provider_servicesUpdateManyWithoutServicesNestedInput = {
+  create?: Prisma.XOR<Prisma.provider_servicesCreateWithoutServicesInput, Prisma.provider_servicesUncheckedCreateWithoutServicesInput> | Prisma.provider_servicesCreateWithoutServicesInput[] | Prisma.provider_servicesUncheckedCreateWithoutServicesInput[]
+  connectOrCreate?: Prisma.provider_servicesCreateOrConnectWithoutServicesInput | Prisma.provider_servicesCreateOrConnectWithoutServicesInput[]
+  upsert?: Prisma.provider_servicesUpsertWithWhereUniqueWithoutServicesInput | Prisma.provider_servicesUpsertWithWhereUniqueWithoutServicesInput[]
+  createMany?: Prisma.provider_servicesCreateManyServicesInputEnvelope
+  set?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+  disconnect?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+  delete?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+  connect?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+  update?: Prisma.provider_servicesUpdateWithWhereUniqueWithoutServicesInput | Prisma.provider_servicesUpdateWithWhereUniqueWithoutServicesInput[]
+  updateMany?: Prisma.provider_servicesUpdateManyWithWhereWithoutServicesInput | Prisma.provider_servicesUpdateManyWithWhereWithoutServicesInput[]
+  deleteMany?: Prisma.provider_servicesScalarWhereInput | Prisma.provider_servicesScalarWhereInput[]
+}
+
+export type provider_servicesUncheckedUpdateManyWithoutServicesNestedInput = {
+  create?: Prisma.XOR<Prisma.provider_servicesCreateWithoutServicesInput, Prisma.provider_servicesUncheckedCreateWithoutServicesInput> | Prisma.provider_servicesCreateWithoutServicesInput[] | Prisma.provider_servicesUncheckedCreateWithoutServicesInput[]
+  connectOrCreate?: Prisma.provider_servicesCreateOrConnectWithoutServicesInput | Prisma.provider_servicesCreateOrConnectWithoutServicesInput[]
+  upsert?: Prisma.provider_servicesUpsertWithWhereUniqueWithoutServicesInput | Prisma.provider_servicesUpsertWithWhereUniqueWithoutServicesInput[]
+  createMany?: Prisma.provider_servicesCreateManyServicesInputEnvelope
+  set?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+  disconnect?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+  delete?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+  connect?: Prisma.provider_servicesWhereUniqueInput | Prisma.provider_servicesWhereUniqueInput[]
+  update?: Prisma.provider_servicesUpdateWithWhereUniqueWithoutServicesInput | Prisma.provider_servicesUpdateWithWhereUniqueWithoutServicesInput[]
+  updateMany?: Prisma.provider_servicesUpdateManyWithWhereWithoutServicesInput | Prisma.provider_servicesUpdateManyWithWhereWithoutServicesInput[]
+  deleteMany?: Prisma.provider_servicesScalarWhereInput | Prisma.provider_servicesScalarWhereInput[]
+}
+
 export type provider_servicesCreateWithoutProvider_service_pricesInput = {
   id?: string
   provider_id: string
-  service_id: string
   description?: string | null
   created_at?: Date | string | null
+  services: Prisma.servicesCreateNestedOneWithoutProvider_servicesInput
 }
 
 export type provider_servicesUncheckedCreateWithoutProvider_service_pricesInput = {
@@ -366,15 +420,98 @@ export type provider_servicesUpdateToOneWithWhereWithoutProvider_service_pricesI
 export type provider_servicesUpdateWithoutProvider_service_pricesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
-  service_id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  services?: Prisma.servicesUpdateOneRequiredWithoutProvider_servicesNestedInput
 }
 
 export type provider_servicesUncheckedUpdateWithoutProvider_service_pricesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
   service_id?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type provider_servicesCreateWithoutServicesInput = {
+  id?: string
+  provider_id: string
+  description?: string | null
+  created_at?: Date | string | null
+  provider_service_prices?: Prisma.provider_service_pricesCreateNestedManyWithoutProvider_servicesInput
+}
+
+export type provider_servicesUncheckedCreateWithoutServicesInput = {
+  id?: string
+  provider_id: string
+  description?: string | null
+  created_at?: Date | string | null
+  provider_service_prices?: Prisma.provider_service_pricesUncheckedCreateNestedManyWithoutProvider_servicesInput
+}
+
+export type provider_servicesCreateOrConnectWithoutServicesInput = {
+  where: Prisma.provider_servicesWhereUniqueInput
+  create: Prisma.XOR<Prisma.provider_servicesCreateWithoutServicesInput, Prisma.provider_servicesUncheckedCreateWithoutServicesInput>
+}
+
+export type provider_servicesCreateManyServicesInputEnvelope = {
+  data: Prisma.provider_servicesCreateManyServicesInput | Prisma.provider_servicesCreateManyServicesInput[]
+  skipDuplicates?: boolean
+}
+
+export type provider_servicesUpsertWithWhereUniqueWithoutServicesInput = {
+  where: Prisma.provider_servicesWhereUniqueInput
+  update: Prisma.XOR<Prisma.provider_servicesUpdateWithoutServicesInput, Prisma.provider_servicesUncheckedUpdateWithoutServicesInput>
+  create: Prisma.XOR<Prisma.provider_servicesCreateWithoutServicesInput, Prisma.provider_servicesUncheckedCreateWithoutServicesInput>
+}
+
+export type provider_servicesUpdateWithWhereUniqueWithoutServicesInput = {
+  where: Prisma.provider_servicesWhereUniqueInput
+  data: Prisma.XOR<Prisma.provider_servicesUpdateWithoutServicesInput, Prisma.provider_servicesUncheckedUpdateWithoutServicesInput>
+}
+
+export type provider_servicesUpdateManyWithWhereWithoutServicesInput = {
+  where: Prisma.provider_servicesScalarWhereInput
+  data: Prisma.XOR<Prisma.provider_servicesUpdateManyMutationInput, Prisma.provider_servicesUncheckedUpdateManyWithoutServicesInput>
+}
+
+export type provider_servicesScalarWhereInput = {
+  AND?: Prisma.provider_servicesScalarWhereInput | Prisma.provider_servicesScalarWhereInput[]
+  OR?: Prisma.provider_servicesScalarWhereInput[]
+  NOT?: Prisma.provider_servicesScalarWhereInput | Prisma.provider_servicesScalarWhereInput[]
+  id?: Prisma.UuidFilter<"provider_services"> | string
+  provider_id?: Prisma.UuidFilter<"provider_services"> | string
+  service_id?: Prisma.UuidFilter<"provider_services"> | string
+  description?: Prisma.StringNullableFilter<"provider_services"> | string | null
+  created_at?: Prisma.DateTimeNullableFilter<"provider_services"> | Date | string | null
+}
+
+export type provider_servicesCreateManyServicesInput = {
+  id?: string
+  provider_id: string
+  description?: string | null
+  created_at?: Date | string | null
+}
+
+export type provider_servicesUpdateWithoutServicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  provider_service_prices?: Prisma.provider_service_pricesUpdateManyWithoutProvider_servicesNestedInput
+}
+
+export type provider_servicesUncheckedUpdateWithoutServicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  provider_service_prices?: Prisma.provider_service_pricesUncheckedUpdateManyWithoutProvider_servicesNestedInput
+}
+
+export type provider_servicesUncheckedUpdateManyWithoutServicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider_id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -417,6 +554,7 @@ export type provider_servicesSelect<ExtArgs extends runtime.Types.Extensions.Int
   description?: boolean
   created_at?: boolean
   provider_service_prices?: boolean | Prisma.provider_services$provider_service_pricesArgs<ExtArgs>
+  services?: boolean | Prisma.servicesDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.Provider_servicesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_services"]>
 
@@ -426,6 +564,7 @@ export type provider_servicesSelectCreateManyAndReturn<ExtArgs extends runtime.T
   service_id?: boolean
   description?: boolean
   created_at?: boolean
+  services?: boolean | Prisma.servicesDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_services"]>
 
 export type provider_servicesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -434,6 +573,7 @@ export type provider_servicesSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   service_id?: boolean
   description?: boolean
   created_at?: boolean
+  services?: boolean | Prisma.servicesDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_services"]>
 
 export type provider_servicesSelectScalar = {
@@ -447,15 +587,21 @@ export type provider_servicesSelectScalar = {
 export type provider_servicesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider_id" | "service_id" | "description" | "created_at", ExtArgs["result"]["provider_services"]>
 export type provider_servicesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   provider_service_prices?: boolean | Prisma.provider_services$provider_service_pricesArgs<ExtArgs>
+  services?: boolean | Prisma.servicesDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.Provider_servicesCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type provider_servicesIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type provider_servicesIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type provider_servicesIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  services?: boolean | Prisma.servicesDefaultArgs<ExtArgs>
+}
+export type provider_servicesIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  services?: boolean | Prisma.servicesDefaultArgs<ExtArgs>
+}
 
 export type $provider_servicesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "provider_services"
   objects: {
     provider_service_prices: Prisma.$provider_service_pricesPayload<ExtArgs>[]
+    services: Prisma.$servicesPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -858,6 +1004,7 @@ readonly fields: provider_servicesFieldRefs;
 export interface Prisma__provider_servicesClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   provider_service_prices<T extends Prisma.provider_services$provider_service_pricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.provider_services$provider_service_pricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$provider_service_pricesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  services<T extends Prisma.servicesDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.servicesDefaultArgs<ExtArgs>>): Prisma.Prisma__servicesClient<runtime.Types.Result.GetResult<Prisma.$servicesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1146,6 +1293,10 @@ export type provider_servicesCreateManyAndReturnArgs<ExtArgs extends runtime.Typ
    */
   data: Prisma.provider_servicesCreateManyInput | Prisma.provider_servicesCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.provider_servicesIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1216,6 +1367,10 @@ export type provider_servicesUpdateManyAndReturnArgs<ExtArgs extends runtime.Typ
    * Limit how many provider_services to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.provider_servicesIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

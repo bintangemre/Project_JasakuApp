@@ -40,6 +40,7 @@ export type Provider_service_pricesMinAggregateOutputType = {
   pricing_type_id: string | null
   price: runtime.Decimal | null
   created_at: Date | null
+  unit: string | null
 }
 
 export type Provider_service_pricesMaxAggregateOutputType = {
@@ -48,6 +49,7 @@ export type Provider_service_pricesMaxAggregateOutputType = {
   pricing_type_id: string | null
   price: runtime.Decimal | null
   created_at: Date | null
+  unit: string | null
 }
 
 export type Provider_service_pricesCountAggregateOutputType = {
@@ -56,6 +58,7 @@ export type Provider_service_pricesCountAggregateOutputType = {
   pricing_type_id: number
   price: number
   created_at: number
+  unit: number
   _all: number
 }
 
@@ -74,6 +77,7 @@ export type Provider_service_pricesMinAggregateInputType = {
   pricing_type_id?: true
   price?: true
   created_at?: true
+  unit?: true
 }
 
 export type Provider_service_pricesMaxAggregateInputType = {
@@ -82,6 +86,7 @@ export type Provider_service_pricesMaxAggregateInputType = {
   pricing_type_id?: true
   price?: true
   created_at?: true
+  unit?: true
 }
 
 export type Provider_service_pricesCountAggregateInputType = {
@@ -90,6 +95,7 @@ export type Provider_service_pricesCountAggregateInputType = {
   pricing_type_id?: true
   price?: true
   created_at?: true
+  unit?: true
   _all?: true
 }
 
@@ -185,6 +191,7 @@ export type Provider_service_pricesGroupByOutputType = {
   pricing_type_id: string
   price: runtime.Decimal
   created_at: Date | null
+  unit: string | null
   _count: Provider_service_pricesCountAggregateOutputType | null
   _avg: Provider_service_pricesAvgAggregateOutputType | null
   _sum: Provider_service_pricesSumAggregateOutputType | null
@@ -216,6 +223,7 @@ export type provider_service_pricesWhereInput = {
   pricing_type_id?: Prisma.UuidFilter<"provider_service_prices"> | string
   price?: Prisma.DecimalFilter<"provider_service_prices"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.DateTimeNullableFilter<"provider_service_prices"> | Date | string | null
+  unit?: Prisma.StringNullableFilter<"provider_service_prices"> | string | null
   pricing_types?: Prisma.XOR<Prisma.Pricing_typesScalarRelationFilter, Prisma.pricing_typesWhereInput>
   provider_services?: Prisma.XOR<Prisma.Provider_servicesScalarRelationFilter, Prisma.provider_servicesWhereInput>
 }
@@ -226,6 +234,7 @@ export type provider_service_pricesOrderByWithRelationInput = {
   pricing_type_id?: Prisma.SortOrder
   price?: Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  unit?: Prisma.SortOrderInput | Prisma.SortOrder
   pricing_types?: Prisma.pricing_typesOrderByWithRelationInput
   provider_services?: Prisma.provider_servicesOrderByWithRelationInput
 }
@@ -239,6 +248,7 @@ export type provider_service_pricesWhereUniqueInput = Prisma.AtLeast<{
   pricing_type_id?: Prisma.UuidFilter<"provider_service_prices"> | string
   price?: Prisma.DecimalFilter<"provider_service_prices"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.DateTimeNullableFilter<"provider_service_prices"> | Date | string | null
+  unit?: Prisma.StringNullableFilter<"provider_service_prices"> | string | null
   pricing_types?: Prisma.XOR<Prisma.Pricing_typesScalarRelationFilter, Prisma.pricing_typesWhereInput>
   provider_services?: Prisma.XOR<Prisma.Provider_servicesScalarRelationFilter, Prisma.provider_servicesWhereInput>
 }, "id">
@@ -249,6 +259,7 @@ export type provider_service_pricesOrderByWithAggregationInput = {
   pricing_type_id?: Prisma.SortOrder
   price?: Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  unit?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.provider_service_pricesCountOrderByAggregateInput
   _avg?: Prisma.provider_service_pricesAvgOrderByAggregateInput
   _max?: Prisma.provider_service_pricesMaxOrderByAggregateInput
@@ -265,12 +276,14 @@ export type provider_service_pricesScalarWhereWithAggregatesInput = {
   pricing_type_id?: Prisma.UuidWithAggregatesFilter<"provider_service_prices"> | string
   price?: Prisma.DecimalWithAggregatesFilter<"provider_service_prices"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"provider_service_prices"> | Date | string | null
+  unit?: Prisma.StringNullableWithAggregatesFilter<"provider_service_prices"> | string | null
 }
 
 export type provider_service_pricesCreateInput = {
   id?: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Date | string | null
+  unit?: string | null
   pricing_types: Prisma.pricing_typesCreateNestedOneWithoutProvider_service_pricesInput
   provider_services: Prisma.provider_servicesCreateNestedOneWithoutProvider_service_pricesInput
 }
@@ -281,12 +294,14 @@ export type provider_service_pricesUncheckedCreateInput = {
   pricing_type_id: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Date | string | null
+  unit?: string | null
 }
 
 export type provider_service_pricesUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pricing_types?: Prisma.pricing_typesUpdateOneRequiredWithoutProvider_service_pricesNestedInput
   provider_services?: Prisma.provider_servicesUpdateOneRequiredWithoutProvider_service_pricesNestedInput
 }
@@ -297,6 +312,7 @@ export type provider_service_pricesUncheckedUpdateInput = {
   pricing_type_id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type provider_service_pricesCreateManyInput = {
@@ -305,12 +321,14 @@ export type provider_service_pricesCreateManyInput = {
   pricing_type_id: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Date | string | null
+  unit?: string | null
 }
 
 export type provider_service_pricesUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type provider_service_pricesUncheckedUpdateManyInput = {
@@ -319,6 +337,7 @@ export type provider_service_pricesUncheckedUpdateManyInput = {
   pricing_type_id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type Provider_service_pricesListRelationFilter = {
@@ -337,6 +356,7 @@ export type provider_service_pricesCountOrderByAggregateInput = {
   pricing_type_id?: Prisma.SortOrder
   price?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
 }
 
 export type provider_service_pricesAvgOrderByAggregateInput = {
@@ -349,6 +369,7 @@ export type provider_service_pricesMaxOrderByAggregateInput = {
   pricing_type_id?: Prisma.SortOrder
   price?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
 }
 
 export type provider_service_pricesMinOrderByAggregateInput = {
@@ -357,6 +378,7 @@ export type provider_service_pricesMinOrderByAggregateInput = {
   pricing_type_id?: Prisma.SortOrder
   price?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
 }
 
 export type provider_service_pricesSumOrderByAggregateInput = {
@@ -459,6 +481,7 @@ export type provider_service_pricesCreateWithoutPricing_typesInput = {
   id?: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Date | string | null
+  unit?: string | null
   provider_services: Prisma.provider_servicesCreateNestedOneWithoutProvider_service_pricesInput
 }
 
@@ -467,6 +490,7 @@ export type provider_service_pricesUncheckedCreateWithoutPricing_typesInput = {
   provider_service_id: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Date | string | null
+  unit?: string | null
 }
 
 export type provider_service_pricesCreateOrConnectWithoutPricing_typesInput = {
@@ -504,12 +528,14 @@ export type provider_service_pricesScalarWhereInput = {
   pricing_type_id?: Prisma.UuidFilter<"provider_service_prices"> | string
   price?: Prisma.DecimalFilter<"provider_service_prices"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.DateTimeNullableFilter<"provider_service_prices"> | Date | string | null
+  unit?: Prisma.StringNullableFilter<"provider_service_prices"> | string | null
 }
 
 export type provider_service_pricesCreateWithoutProvider_servicesInput = {
   id?: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Date | string | null
+  unit?: string | null
   pricing_types: Prisma.pricing_typesCreateNestedOneWithoutProvider_service_pricesInput
 }
 
@@ -518,6 +544,7 @@ export type provider_service_pricesUncheckedCreateWithoutProvider_servicesInput 
   pricing_type_id: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Date | string | null
+  unit?: string | null
 }
 
 export type provider_service_pricesCreateOrConnectWithoutProvider_servicesInput = {
@@ -551,12 +578,14 @@ export type provider_service_pricesCreateManyPricing_typesInput = {
   provider_service_id: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Date | string | null
+  unit?: string | null
 }
 
 export type provider_service_pricesUpdateWithoutPricing_typesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider_services?: Prisma.provider_servicesUpdateOneRequiredWithoutProvider_service_pricesNestedInput
 }
 
@@ -565,6 +594,7 @@ export type provider_service_pricesUncheckedUpdateWithoutPricing_typesInput = {
   provider_service_id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type provider_service_pricesUncheckedUpdateManyWithoutPricing_typesInput = {
@@ -572,6 +602,7 @@ export type provider_service_pricesUncheckedUpdateManyWithoutPricing_typesInput 
   provider_service_id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type provider_service_pricesCreateManyProvider_servicesInput = {
@@ -579,12 +610,14 @@ export type provider_service_pricesCreateManyProvider_servicesInput = {
   pricing_type_id: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Date | string | null
+  unit?: string | null
 }
 
 export type provider_service_pricesUpdateWithoutProvider_servicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pricing_types?: Prisma.pricing_typesUpdateOneRequiredWithoutProvider_service_pricesNestedInput
 }
 
@@ -593,6 +626,7 @@ export type provider_service_pricesUncheckedUpdateWithoutProvider_servicesInput 
   pricing_type_id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type provider_service_pricesUncheckedUpdateManyWithoutProvider_servicesInput = {
@@ -600,6 +634,7 @@ export type provider_service_pricesUncheckedUpdateManyWithoutProvider_servicesIn
   pricing_type_id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -610,6 +645,7 @@ export type provider_service_pricesSelect<ExtArgs extends runtime.Types.Extensio
   pricing_type_id?: boolean
   price?: boolean
   created_at?: boolean
+  unit?: boolean
   pricing_types?: boolean | Prisma.pricing_typesDefaultArgs<ExtArgs>
   provider_services?: boolean | Prisma.provider_servicesDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_service_prices"]>
@@ -620,6 +656,7 @@ export type provider_service_pricesSelectCreateManyAndReturn<ExtArgs extends run
   pricing_type_id?: boolean
   price?: boolean
   created_at?: boolean
+  unit?: boolean
   pricing_types?: boolean | Prisma.pricing_typesDefaultArgs<ExtArgs>
   provider_services?: boolean | Prisma.provider_servicesDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_service_prices"]>
@@ -630,6 +667,7 @@ export type provider_service_pricesSelectUpdateManyAndReturn<ExtArgs extends run
   pricing_type_id?: boolean
   price?: boolean
   created_at?: boolean
+  unit?: boolean
   pricing_types?: boolean | Prisma.pricing_typesDefaultArgs<ExtArgs>
   provider_services?: boolean | Prisma.provider_servicesDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_service_prices"]>
@@ -640,9 +678,10 @@ export type provider_service_pricesSelectScalar = {
   pricing_type_id?: boolean
   price?: boolean
   created_at?: boolean
+  unit?: boolean
 }
 
-export type provider_service_pricesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider_service_id" | "pricing_type_id" | "price" | "created_at", ExtArgs["result"]["provider_service_prices"]>
+export type provider_service_pricesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider_service_id" | "pricing_type_id" | "price" | "created_at" | "unit", ExtArgs["result"]["provider_service_prices"]>
 export type provider_service_pricesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pricing_types?: boolean | Prisma.pricing_typesDefaultArgs<ExtArgs>
   provider_services?: boolean | Prisma.provider_servicesDefaultArgs<ExtArgs>
@@ -668,6 +707,7 @@ export type $provider_service_pricesPayload<ExtArgs extends runtime.Types.Extens
     pricing_type_id: string
     price: runtime.Decimal
     created_at: Date | null
+    unit: string | null
   }, ExtArgs["result"]["provider_service_prices"]>
   composites: {}
 }
@@ -1098,6 +1138,7 @@ export interface provider_service_pricesFieldRefs {
   readonly pricing_type_id: Prisma.FieldRef<"provider_service_prices", 'String'>
   readonly price: Prisma.FieldRef<"provider_service_prices", 'Decimal'>
   readonly created_at: Prisma.FieldRef<"provider_service_prices", 'DateTime'>
+  readonly unit: Prisma.FieldRef<"provider_service_prices", 'String'>
 }
     
 

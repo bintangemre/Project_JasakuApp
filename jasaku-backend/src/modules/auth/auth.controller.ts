@@ -25,6 +25,17 @@ const registerProvider = async (req: any, res: Response) => {
   }
 };
 
+const registerAdmin = async (req: any, res: Response) => {
+  try {
+    const { email, password, name, phone } = req.body;  
+    const authService = new AuthService();
+    const result = await authService.registerAdmin(email, password, name, phone);
+    return successResponse(res, result, 'Registrasi admin berhasil', 201);
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
 const login = async (req: any, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -36,4 +47,4 @@ const login = async (req: any, res: Response) => {
   }   
 };
 
-export { registerCustomer, registerProvider, login };
+export { registerCustomer, registerProvider, registerAdmin, login };

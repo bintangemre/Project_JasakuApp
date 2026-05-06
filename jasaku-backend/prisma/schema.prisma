@@ -118,6 +118,7 @@ model pricing_types {
   id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                    String                    @db.VarChar(50)
   description             String?
+  default_unit            String?
   provider_service_prices provider_service_prices[]
 }
 
@@ -139,6 +140,7 @@ model provider_service_prices {
   pricing_type_id     String            @db.Uuid
   price               Decimal           @db.Decimal(12, 2)
   created_at          DateTime?         @default(now()) @db.Timestamp(6)
+  unit                String?
   pricing_types       pricing_types     @relation(fields: [pricing_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_price_type")
   provider_services   provider_services @relation(fields: [provider_service_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_ps_price")
 }
@@ -151,6 +153,7 @@ model provider_services {
   description             String?
   created_at              DateTime?                 @default(now()) @db.Timestamp(6)
   provider_service_prices provider_service_prices[]
+  services                services                  @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -164,13 +167,14 @@ model roles {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model services {
-  id          String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  category_id String        @db.Uuid
-  name        String        @db.VarChar(150)
-  description String?
-  created_at  DateTime?     @default(now()) @db.Timestamp(6)
-  order_items order_items[]
-  categories  categories    @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_service_category")
+  id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  category_id       String              @db.Uuid
+  name              String              @db.VarChar(150)
+  description       String?
+  created_at        DateTime?           @default(now()) @db.Timestamp(6)
+  order_items       order_items[]
+  provider_services provider_services[]
+  categories        categories          @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_service_category")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

@@ -81,6 +81,24 @@ export class AuthService {
     return this.generateToken(user.id, role.name);
   }
 
+ //register admin langsung masuk ke tabel users tanpa profile karena tidak diperlukan
+  async registerAdmin(email: string, password: string, name: string, phone?: string) {
+    const existing = await prisma.users.findUnique({ where: { email } });
+    if (existing) throw new Error('Email sudah terdaftar');
+    const role = await prisma.roles.findUnique({ where: { name: 'admin' } });
+    if (!role) throw new Error('Role admin tidak ditemukan');
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = await prisma.users.create({
+      data: {
+        email,
+        password_hash: hashedPassword,
+        role_id: role.id,
+        phone
+      }    
+  });
+    return this.generateToken(user.id, role.name);
+  }
+
   async login(email: string, password: string) {
     const user = await prisma.users.findUnique({
       where: { email },
