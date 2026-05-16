@@ -9,11 +9,12 @@ datasource db {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model categories {
-  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name        String     @db.VarChar(100)
-  description String?
-  created_at  DateTime?  @default(now()) @db.Timestamp(6)
-  services    services[]
+  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name          String          @db.VarChar(100)
+  description   String?
+  created_at    DateTime?       @default(now()) @db.Timestamp(6)
+  pricing_types pricing_types[]
+  services      services[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -95,6 +96,9 @@ model orders {
   description       String?
   work_date         DateTime?           @db.Date
   created_at        DateTime?           @default(now()) @db.Timestamp(6)
+  start_date        DateTime?           @db.Timestamp(6)
+  end_date          DateTime?           @db.Timestamp(6)
+  assignment_type   String?             @default("manual") @db.VarChar(20)
   order_attachments order_attachments[]
   order_items       order_items[]
   order_locations   order_locations[]
@@ -119,6 +123,8 @@ model pricing_types {
   name                    String                    @db.VarChar(50)
   description             String?
   default_unit            String?
+  category_id             String?                   @db.Uuid
+  categories              categories?               @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider_service_prices provider_service_prices[]
 }
 
@@ -202,6 +208,7 @@ model users {
   custom_task_proposals custom_task_proposals[]
   custom_tasks          custom_tasks[]
   profiles_customer     profiles_customer?
+  provider_locations    provider_locations?
   provider_profiles     provider_profiles?
   roles                 roles                   @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role")
 
@@ -248,4 +255,15 @@ model provider_profiles {
   created_at          DateTime? @default(now()) @db.Timestamp(6)
   updated_at          DateTime? @default(now()) @db.Timestamp(6)
   users               users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_provider_user")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model provider_locations {
+  id          String                   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  provider_id String                   @unique @db.Uuid
+  address     String?
+  location    Unsupported("geometry")?
+  users       users                    @relation(fields: [provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_provider")
+
+  @@index([location], map: "provider_locations_geo_idx", type: Gist)
 }

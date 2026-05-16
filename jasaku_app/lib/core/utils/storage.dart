@@ -1,3 +1,4 @@
+// Wrapper untuk Flutter Secure Storage yang menyimpan dan mengambil JWT untuk kedua app.
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class StorageService {

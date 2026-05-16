@@ -17,7 +17,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Gunakan transaction agar atomic
-    const user = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const newUser = await tx.users.create({
         data: {
           email,
@@ -27,14 +27,15 @@ export class AuthService {
         }
       });
 
-      await tx.profiles_customer.create({
+      const profile = await tx.profiles_customer.create({
         data: { user_id: newUser.id, full_name: name, gender: gender, birth_date: birthDate }
       });
       
-      return newUser;
+      return { newUser, profile };
     });
 
-    return this.generateToken(user.id, role.name);
+    const token = this.generateToken(result.newUser.id, role.name);
+    return { token, user: { id: result.newUser.id, email: result.newUser.email, role: role.name }, profile: result.profile };
   }
 
 
@@ -49,7 +50,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const user = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const newUser = await tx.users.create({
         data: {
           email,
@@ -60,7 +61,7 @@ export class AuthService {
       });
 
       // Gunakan fullName (sesuai parameter)
-      await tx.provider_profiles.create({
+      const profile = await tx.provider_profiles.create({
         data: { 
           user_id: newUser.id, 
           full_name: full_name,
@@ -75,10 +76,11 @@ export class AuthService {
         }
       });
       
-      return newUser;
+      return { newUser, profile };
     });
 
-    return this.generateToken(user.id, role.name);
+    const token = this.generateToken(result.newUser.id, role.name);
+    return { token, user: { id: result.newUser.id, email: result.newUser.email, role: role.name }, profile: result.profile };
   }
 
  //register admin langsung masuk ke tabel users tanpa profile karena tidak diperlukan
@@ -96,7 +98,8 @@ export class AuthService {
         phone
       }    
   });
-    return this.generateToken(user.id, role.name);
+    const token = this.generateToken(user.id, role.name);
+    return { token, user: { id: user.id, email: user.email, role: role.name }, profile: null };
   }
 
   async login(email: string, password: string) {

@@ -1,11 +1,9 @@
+// Defines backend API endpoint URLs for shared Jasaku App network calls.
 class ApiEndpoints {
-  static const String baseUrl = 'https://api.example.com';
-  static const String login = '$baseUrl/auth/login';
-  static const String register = '$baseUrl/auth/register';
-  static const String getUserProfile = '$baseUrl/user/profile';
-  static const String updateUserProfile = '$baseUrl/user/update';
-  static const String fetchItems = '$baseUrl/items';
-  static const String createItem = '$baseUrl/items/create';
-  static const String updateItem = '$baseUrl/items/update';
-  static const String deleteItem = '$baseUrl/items/delete';
+  static const String baseUrl = 'http://10.130.41.20:3000';
+  static const String login = '$baseUrl/api/auth/login';
+  static const String registerCustomer = '$baseUrl/api/auth/register/customer';
+  static const String registerProvider = '$baseUrl/api/auth/register/provider';
+  static const String logout = '$baseUrl/api/auth/logout';
+  static const String services = '$baseUrl/api/services';
 }

@@ -174,6 +174,7 @@ export type categoriesWhereInput = {
   name?: Prisma.StringFilter<"categories"> | string
   description?: Prisma.StringNullableFilter<"categories"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"categories"> | Date | string | null
+  pricing_types?: Prisma.Pricing_typesListRelationFilter
   services?: Prisma.ServicesListRelationFilter
 }
 
@@ -182,6 +183,7 @@ export type categoriesOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricing_types?: Prisma.pricing_typesOrderByRelationAggregateInput
   services?: Prisma.servicesOrderByRelationAggregateInput
 }
 
@@ -193,6 +195,7 @@ export type categoriesWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"categories"> | string
   description?: Prisma.StringNullableFilter<"categories"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"categories"> | Date | string | null
+  pricing_types?: Prisma.Pricing_typesListRelationFilter
   services?: Prisma.ServicesListRelationFilter
 }, "id">
 
@@ -221,6 +224,7 @@ export type categoriesCreateInput = {
   name: string
   description?: string | null
   created_at?: Date | string | null
+  pricing_types?: Prisma.pricing_typesCreateNestedManyWithoutCategoriesInput
   services?: Prisma.servicesCreateNestedManyWithoutCategoriesInput
 }
 
@@ -229,6 +233,7 @@ export type categoriesUncheckedCreateInput = {
   name: string
   description?: string | null
   created_at?: Date | string | null
+  pricing_types?: Prisma.pricing_typesUncheckedCreateNestedManyWithoutCategoriesInput
   services?: Prisma.servicesUncheckedCreateNestedManyWithoutCategoriesInput
 }
 
@@ -237,6 +242,7 @@ export type categoriesUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pricing_types?: Prisma.pricing_typesUpdateManyWithoutCategoriesNestedInput
   services?: Prisma.servicesUpdateManyWithoutCategoriesNestedInput
 }
 
@@ -245,6 +251,7 @@ export type categoriesUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pricing_types?: Prisma.pricing_typesUncheckedUpdateManyWithoutCategoriesNestedInput
   services?: Prisma.servicesUncheckedUpdateManyWithoutCategoriesNestedInput
 }
 
@@ -290,6 +297,11 @@ export type categoriesMinOrderByAggregateInput = {
   created_at?: Prisma.SortOrder
 }
 
+export type CategoriesNullableScalarRelationFilter = {
+  is?: Prisma.categoriesWhereInput | null
+  isNot?: Prisma.categoriesWhereInput | null
+}
+
 export type CategoriesScalarRelationFilter = {
   is?: Prisma.categoriesWhereInput
   isNot?: Prisma.categoriesWhereInput
@@ -307,6 +319,22 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
+export type categoriesCreateNestedOneWithoutPricing_typesInput = {
+  create?: Prisma.XOR<Prisma.categoriesCreateWithoutPricing_typesInput, Prisma.categoriesUncheckedCreateWithoutPricing_typesInput>
+  connectOrCreate?: Prisma.categoriesCreateOrConnectWithoutPricing_typesInput
+  connect?: Prisma.categoriesWhereUniqueInput
+}
+
+export type categoriesUpdateOneWithoutPricing_typesNestedInput = {
+  create?: Prisma.XOR<Prisma.categoriesCreateWithoutPricing_typesInput, Prisma.categoriesUncheckedCreateWithoutPricing_typesInput>
+  connectOrCreate?: Prisma.categoriesCreateOrConnectWithoutPricing_typesInput
+  upsert?: Prisma.categoriesUpsertWithoutPricing_typesInput
+  disconnect?: Prisma.categoriesWhereInput | boolean
+  delete?: Prisma.categoriesWhereInput | boolean
+  connect?: Prisma.categoriesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.categoriesUpdateToOneWithWhereWithoutPricing_typesInput, Prisma.categoriesUpdateWithoutPricing_typesInput>, Prisma.categoriesUncheckedUpdateWithoutPricing_typesInput>
+}
+
 export type categoriesCreateNestedOneWithoutServicesInput = {
   create?: Prisma.XOR<Prisma.categoriesCreateWithoutServicesInput, Prisma.categoriesUncheckedCreateWithoutServicesInput>
   connectOrCreate?: Prisma.categoriesCreateOrConnectWithoutServicesInput
@@ -321,11 +349,60 @@ export type categoriesUpdateOneRequiredWithoutServicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.categoriesUpdateToOneWithWhereWithoutServicesInput, Prisma.categoriesUpdateWithoutServicesInput>, Prisma.categoriesUncheckedUpdateWithoutServicesInput>
 }
 
+export type categoriesCreateWithoutPricing_typesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  created_at?: Date | string | null
+  services?: Prisma.servicesCreateNestedManyWithoutCategoriesInput
+}
+
+export type categoriesUncheckedCreateWithoutPricing_typesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  created_at?: Date | string | null
+  services?: Prisma.servicesUncheckedCreateNestedManyWithoutCategoriesInput
+}
+
+export type categoriesCreateOrConnectWithoutPricing_typesInput = {
+  where: Prisma.categoriesWhereUniqueInput
+  create: Prisma.XOR<Prisma.categoriesCreateWithoutPricing_typesInput, Prisma.categoriesUncheckedCreateWithoutPricing_typesInput>
+}
+
+export type categoriesUpsertWithoutPricing_typesInput = {
+  update: Prisma.XOR<Prisma.categoriesUpdateWithoutPricing_typesInput, Prisma.categoriesUncheckedUpdateWithoutPricing_typesInput>
+  create: Prisma.XOR<Prisma.categoriesCreateWithoutPricing_typesInput, Prisma.categoriesUncheckedCreateWithoutPricing_typesInput>
+  where?: Prisma.categoriesWhereInput
+}
+
+export type categoriesUpdateToOneWithWhereWithoutPricing_typesInput = {
+  where?: Prisma.categoriesWhereInput
+  data: Prisma.XOR<Prisma.categoriesUpdateWithoutPricing_typesInput, Prisma.categoriesUncheckedUpdateWithoutPricing_typesInput>
+}
+
+export type categoriesUpdateWithoutPricing_typesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  services?: Prisma.servicesUpdateManyWithoutCategoriesNestedInput
+}
+
+export type categoriesUncheckedUpdateWithoutPricing_typesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  services?: Prisma.servicesUncheckedUpdateManyWithoutCategoriesNestedInput
+}
+
 export type categoriesCreateWithoutServicesInput = {
   id?: string
   name: string
   description?: string | null
   created_at?: Date | string | null
+  pricing_types?: Prisma.pricing_typesCreateNestedManyWithoutCategoriesInput
 }
 
 export type categoriesUncheckedCreateWithoutServicesInput = {
@@ -333,6 +410,7 @@ export type categoriesUncheckedCreateWithoutServicesInput = {
   name: string
   description?: string | null
   created_at?: Date | string | null
+  pricing_types?: Prisma.pricing_typesUncheckedCreateNestedManyWithoutCategoriesInput
 }
 
 export type categoriesCreateOrConnectWithoutServicesInput = {
@@ -356,6 +434,7 @@ export type categoriesUpdateWithoutServicesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pricing_types?: Prisma.pricing_typesUpdateManyWithoutCategoriesNestedInput
 }
 
 export type categoriesUncheckedUpdateWithoutServicesInput = {
@@ -363,6 +442,7 @@ export type categoriesUncheckedUpdateWithoutServicesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pricing_types?: Prisma.pricing_typesUncheckedUpdateManyWithoutCategoriesNestedInput
 }
 
 
@@ -371,10 +451,12 @@ export type categoriesUncheckedUpdateWithoutServicesInput = {
  */
 
 export type CategoriesCountOutputType = {
+  pricing_types: number
   services: number
 }
 
 export type CategoriesCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  pricing_types?: boolean | CategoriesCountOutputTypeCountPricing_typesArgs
   services?: boolean | CategoriesCountOutputTypeCountServicesArgs
 }
 
@@ -391,6 +473,13 @@ export type CategoriesCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.E
 /**
  * CategoriesCountOutputType without action
  */
+export type CategoriesCountOutputTypeCountPricing_typesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.pricing_typesWhereInput
+}
+
+/**
+ * CategoriesCountOutputType without action
+ */
 export type CategoriesCountOutputTypeCountServicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.servicesWhereInput
 }
@@ -401,6 +490,7 @@ export type categoriesSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   name?: boolean
   description?: boolean
   created_at?: boolean
+  pricing_types?: boolean | Prisma.categories$pricing_typesArgs<ExtArgs>
   services?: boolean | Prisma.categories$servicesArgs<ExtArgs>
   _count?: boolean | Prisma.CategoriesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["categories"]>
@@ -428,6 +518,7 @@ export type categoriesSelectScalar = {
 
 export type categoriesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "created_at", ExtArgs["result"]["categories"]>
 export type categoriesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  pricing_types?: boolean | Prisma.categories$pricing_typesArgs<ExtArgs>
   services?: boolean | Prisma.categories$servicesArgs<ExtArgs>
   _count?: boolean | Prisma.CategoriesCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -437,6 +528,7 @@ export type categoriesIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 export type $categoriesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "categories"
   objects: {
+    pricing_types: Prisma.$pricing_typesPayload<ExtArgs>[]
     services: Prisma.$servicesPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -838,6 +930,7 @@ readonly fields: categoriesFieldRefs;
  */
 export interface Prisma__categoriesClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  pricing_types<T extends Prisma.categories$pricing_typesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.categories$pricing_typesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$pricing_typesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   services<T extends Prisma.categories$servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.categories$servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$servicesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1262,6 +1355,30 @@ export type categoriesDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many categories to delete.
    */
   limit?: number
+}
+
+/**
+ * categories.pricing_types
+ */
+export type categories$pricing_typesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the pricing_types
+   */
+  select?: Prisma.pricing_typesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the pricing_types
+   */
+  omit?: Prisma.pricing_typesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.pricing_typesInclude<ExtArgs> | null
+  where?: Prisma.pricing_typesWhereInput
+  orderBy?: Prisma.pricing_typesOrderByWithRelationInput | Prisma.pricing_typesOrderByWithRelationInput[]
+  cursor?: Prisma.pricing_typesWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Pricing_typesScalarFieldEnum | Prisma.Pricing_typesScalarFieldEnum[]
 }
 
 /**

@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter: Launch Jasaku Customer",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_customer.dart",
+      "cwd": "${workspaceFolder}",
+      "args": []
+    },
+    {
+      "name": "Flutter: Launch Jasaku Mitra",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_provider.dart",
+      "cwd": "${workspaceFolder}",
+      "args": []
+    }
+  ]
+}

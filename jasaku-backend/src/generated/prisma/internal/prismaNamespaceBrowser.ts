@@ -69,7 +69,8 @@ export const ModelName = {
   spatial_ref_sys: 'spatial_ref_sys',
   users: 'users',
   profiles_customer: 'profiles_customer',
-  provider_profiles: 'provider_profiles'
+  provider_profiles: 'provider_profiles',
+  provider_locations: 'provider_locations'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -177,7 +178,10 @@ export const OrdersScalarFieldEnum = {
   total_price: 'total_price',
   description: 'description',
   work_date: 'work_date',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  start_date: 'start_date',
+  end_date: 'end_date',
+  assignment_type: 'assignment_type'
 } as const
 
 export type OrdersScalarFieldEnum = (typeof OrdersScalarFieldEnum)[keyof typeof OrdersScalarFieldEnum]
@@ -200,7 +204,8 @@ export const Pricing_typesScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  default_unit: 'default_unit'
+  default_unit: 'default_unit',
+  category_id: 'category_id'
 } as const
 
 export type Pricing_typesScalarFieldEnum = (typeof Pricing_typesScalarFieldEnum)[keyof typeof Pricing_typesScalarFieldEnum]
@@ -329,6 +334,15 @@ export const Provider_profilesScalarFieldEnum = {
 } as const
 
 export type Provider_profilesScalarFieldEnum = (typeof Provider_profilesScalarFieldEnum)[keyof typeof Provider_profilesScalarFieldEnum]
+
+
+export const Provider_locationsScalarFieldEnum = {
+  id: 'id',
+  provider_id: 'provider_id',
+  address: 'address'
+} as const
+
+export type Provider_locationsScalarFieldEnum = (typeof Provider_locationsScalarFieldEnum)[keyof typeof Provider_locationsScalarFieldEnum]
 
 
 export const SortOrder = {

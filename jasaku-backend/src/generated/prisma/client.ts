@@ -136,3 +136,8 @@ export type profiles_customer = Prisma.profiles_customerModel
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type provider_profiles = Prisma.provider_profilesModel
+/**
+ * Model provider_locations
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type provider_locations = Prisma.provider_locationsModel

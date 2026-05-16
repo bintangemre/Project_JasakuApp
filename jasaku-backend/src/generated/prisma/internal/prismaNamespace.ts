@@ -402,7 +402,8 @@ export const ModelName = {
   spatial_ref_sys: 'spatial_ref_sys',
   users: 'users',
   profiles_customer: 'profiles_customer',
-  provider_profiles: 'provider_profiles'
+  provider_profiles: 'provider_profiles',
+  provider_locations: 'provider_locations'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "categories" | "custom_task_proposals" | "custom_tasks" | "customer_payment_methods" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_payout_methods" | "provider_service_prices" | "provider_services" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles"
+    modelProps: "categories" | "custom_task_proposals" | "custom_tasks" | "customer_payment_methods" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_payout_methods" | "provider_service_prices" | "provider_services" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1828,6 +1829,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    provider_locations: {
+      payload: Prisma.$provider_locationsPayload<ExtArgs>
+      fields: Prisma.provider_locationsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.provider_locationsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.provider_locationsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload>
+        }
+        findFirst: {
+          args: Prisma.provider_locationsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.provider_locationsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload>
+        }
+        findMany: {
+          args: Prisma.provider_locationsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload>[]
+        }
+        create: {
+          args: Prisma.provider_locationsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload>
+        }
+        createMany: {
+          args: Prisma.provider_locationsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.provider_locationsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload>[]
+        }
+        delete: {
+          args: Prisma.provider_locationsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload>
+        }
+        update: {
+          args: Prisma.provider_locationsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload>
+        }
+        deleteMany: {
+          args: Prisma.provider_locationsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.provider_locationsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.provider_locationsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload>[]
+        }
+        upsert: {
+          args: Prisma.provider_locationsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$provider_locationsPayload>
+        }
+        aggregate: {
+          args: Prisma.Provider_locationsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProvider_locations>
+        }
+        groupBy: {
+          args: Prisma.provider_locationsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Provider_locationsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.provider_locationsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Provider_locationsCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1956,7 +2031,10 @@ export const OrdersScalarFieldEnum = {
   total_price: 'total_price',
   description: 'description',
   work_date: 'work_date',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  start_date: 'start_date',
+  end_date: 'end_date',
+  assignment_type: 'assignment_type'
 } as const
 
 export type OrdersScalarFieldEnum = (typeof OrdersScalarFieldEnum)[keyof typeof OrdersScalarFieldEnum]
@@ -1979,7 +2057,8 @@ export const Pricing_typesScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  default_unit: 'default_unit'
+  default_unit: 'default_unit',
+  category_id: 'category_id'
 } as const
 
 export type Pricing_typesScalarFieldEnum = (typeof Pricing_typesScalarFieldEnum)[keyof typeof Pricing_typesScalarFieldEnum]
@@ -2108,6 +2187,15 @@ export const Provider_profilesScalarFieldEnum = {
 } as const
 
 export type Provider_profilesScalarFieldEnum = (typeof Provider_profilesScalarFieldEnum)[keyof typeof Provider_profilesScalarFieldEnum]
+
+
+export const Provider_locationsScalarFieldEnum = {
+  id: 'id',
+  provider_id: 'provider_id',
+  address: 'address'
+} as const
+
+export type Provider_locationsScalarFieldEnum = (typeof Provider_locationsScalarFieldEnum)[keyof typeof Provider_locationsScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2330,6 +2418,7 @@ export type GlobalOmitConfig = {
   users?: Prisma.usersOmit
   profiles_customer?: Prisma.profiles_customerOmit
   provider_profiles?: Prisma.provider_profilesOmit
+  provider_locations?: Prisma.provider_locationsOmit
 }
 
 /* Types for Logging */
