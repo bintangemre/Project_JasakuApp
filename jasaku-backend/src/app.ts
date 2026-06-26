@@ -3,6 +3,8 @@ import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes';
 import servicesRoutes from './modules/services/services.routes';
 import providerServicesRoutes from './modules/provider/services/services.routes';
+import locationsRoutes from './modules/locations/locations.routes';
+import ordersRoutes from './modules/orders/orders.routes';
 import dotenv from 'dotenv';
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
@@ -21,11 +23,16 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/services', servicesRoutes);
+app.use('/api/locations', locationsRoutes);
+app.use('/api/orders', ordersRoutes);
 app.use('/api/provider/services', providerServicesRoutes);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server Jasaku App siap di port ${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`============= JASAKU BACKEND =============`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🌐 Accessible locally via network IP on port ${PORT}`);
+  console.log(`==========================================`);
 });
 
 // Global error handler

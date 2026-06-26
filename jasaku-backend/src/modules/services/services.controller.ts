@@ -10,8 +10,8 @@ const getAllCategories = async (req: AuthRequest, res: Response) => {
       return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
     }
     const categoriesService = new CategoriesService();
-    const result = await categoriesService.getallCategories(userId);
-    return successResponse(res, result, 'Kategori berhasil diambil');
+    const result = await categoriesService.getAllCategories();
+    return successResponse(res, result, 'Daftar kategori berhasil diambil');
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
@@ -25,31 +25,57 @@ const getCategoriesById = async (req: AuthRequest & { params: { id: string } }, 
       return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
     }
     const categoriesService = new CategoriesService();
-    const result = await categoriesService.getCategoriesById(id, userId);
+    const result = await categoriesService.getCategoriesById(id);
     return successResponse(res, result, 'Kategori berhasil diambil');
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
 };
 
-const getNearbyProviders = async (req: AuthRequest, res: Response) => {
-    try {
-        const { serviceId } = req.params;
-        const { lat, lng } = req.query; // Ambil lat/lng dari query params di Flutter
-        const userId = req.user?.userId;
-
-        if (!lat || !lng) return errorResponse(res, 'Lokasi Anda diperlukan untuk mencari tukang terdekat', 400);
-
-        const categoriesService = new CategoriesService();
-        const result = await categoriesService.getProvidersByService(
-        serviceId as string, // Tambahkan 'as string' di sini
-        parseFloat(lat as string),
-        parseFloat(lng as string)
-);
-        return successResponse(res, result, 'Daftar provider terdekat berhasil diambil');
-    } catch (err: any) {
-        return errorResponse(res, err.message);
+const getProvidersByService = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;  
+    const { serviceId, lat, lng } = req.query;
+    if (!userId) {
+      return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
     }
+    if (!serviceId || !lat || !lng) {
+      return errorResponse(res, 'serviceId, lat, dan lng wajib diisi', 400);
+    }
+    const categoriesService = new CategoriesService();
+    const result = await categoriesService.getProvidersByService({
+      serviceId: String(serviceId),
+      lat: parseFloat(String(lat)),
+      lng: parseFloat(String(lng)),
+    });
+    return successResponse(res, result, 'Daftar provider berhasil diambil');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+// sebagai contoh tampilan nya
+const getProvidersByServiceWithoutDistance = async (req: AuthRequest & { params: { serviceId: string } }, res: Response) => {
+  try { 
+    const userId = req.user?.userId;
+    const { serviceId } = req.params;
+    
+    if (!userId) {
+      return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
+    }
+    if (!serviceId) {
+      return errorResponse(res, 'serviceId wajib diisi', 400);
+    }
+
+    // Ambil data dari service (Lengkapi bagian ini)
+    const categoriesService = new CategoriesService();
+    const result = await categoriesService.getProvidersByServiceWithoutDistance(serviceId); 
+    
+    return successResponse(res, result, 'Daftar provider tanpa jarak berhasil diambil');
+  } catch (err: any) {
+    // Blok catch yang sebelumnya hilang wajib ditambahkan
+    return errorResponse(res, err.message);
+  }
 };
 
 const getServiceOptions = async (req: AuthRequest & { params: { providerId: string, serviceId: string } }, res: Response) => {
@@ -75,11 +101,11 @@ const getServicePricingTypes = async (req: AuthRequest & { params: { serviceId: 
       return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
     }
     const categoriesService = new CategoriesService();
-    const result = await categoriesService.getServicePricingTypes(serviceId, userId);
+    const result = await categoriesService.getServicePricingTypes(serviceId);
     return successResponse(res, result, 'Metode pengerjaan berhasil diambil');
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
 };
 
-export { getAllCategories, getCategoriesById, getNearbyProviders, getServiceOptions, getServicePricingTypes };
+export { getAllCategories, getCategoriesById, getProvidersByService, getServiceOptions, getServicePricingTypes, getProvidersByServiceWithoutDistance };

@@ -2,22 +2,6 @@ import { prisma } from "../../../config/prisma";
 
 
 export class ProviderServicesService {
-    // Validasi bahwa user adalah provider yang login
-    private async validateProviderAccess(userId: string) {
-        if (!userId) {
-            throw new Error('Akses ditolak: User harus login terlebih dahulu');
-        }
-
-        const user = await prisma.users.findUnique({
-            where: { id: userId },
-            include: { roles: true }
-        });
-
-        if (!user || user.roles.name !== 'provider') {
-            throw new Error('Akses ditolak: Hanya Provider yang dapat mengakses fitur ini');
-        }
-    }
-
     // Helper untuk validasi logika bisnis harga (Reusable untuk Add & Update)
     private async validatePriceLogic(tx: any, serviceId: string, prices: { pricingTypeId: string }[]) {
         // 1. Ambil data layanan & kategorinya
@@ -47,51 +31,8 @@ export class ProviderServicesService {
 
         return { service, masterPricingTypes };
     }
-
-    async addProviderService(providerId: string, serviceId: string, description: string, prices: { pricingTypeId: string; price: number }[]) {
-        await this.validateProviderAccess(providerId);
-
-        return await prisma.$transaction(async (tx) => {
-            // Validasi Logika Bisnis
-            const { masterPricingTypes } = await this.validatePriceLogic(tx, serviceId, prices);
-
-            const existingService = await tx.provider_services.findFirst({
-                where: { provider_id: providerId, service_id: serviceId }
-            });
-
-            let providerServiceId: string;
-            if (existingService) {
-                providerServiceId = existingService.id;
-            } else {
-                const newService = await tx.provider_services.create({
-                    data: {
-                        provider_id: providerId,
-                        service_id: serviceId,
-                        description: description
-                    }
-                });
-                providerServiceId = newService.id;
-            }
-
-            // Map data harga dengan unit otomatis dari pricing_types
-            const priceData = prices.map(p => {
-                const typeInfo = masterPricingTypes.find((t: any) => t.id === p.pricingTypeId);
-                return {
-                    provider_service_id: providerServiceId,
-                    pricing_type_id: p.pricingTypeId,
-                    price: p.price,
-                    unit: typeInfo?.default_unit || null // Mengisi unit otomatis dari master data
-                };
-            });
-
-            await tx.provider_service_prices.createMany({ data: priceData });
-
-            return { message: "Layanan dan harga berhasil ditambahkan" };
-        });
-    }
-
+    
     async getProviderServices(providerId: string) {
-        await this.validateProviderAccess(providerId);
         return await prisma.provider_services.findMany({
             where: { provider_id: providerId },
             include: {
@@ -106,8 +47,6 @@ export class ProviderServicesService {
     }
 
     async updateProviderService(providerId: string, serviceId: string, description: string, prices: { pricingTypeId: string; price: number }[]) {
-        await this.validateProviderAccess(providerId);
-
         return await prisma.$transaction(async (tx) => {
             // 1. Validasi Akses & Logika Bisnis
             const { masterPricingTypes } = await this.validatePriceLogic(tx, serviceId, prices);
@@ -145,6 +84,14 @@ export class ProviderServicesService {
             await tx.provider_service_prices.createMany({ data: newPrices });
 
             return { message: "Layanan berhasil diperbarui dengan penyesuaian unit otomatis" };
+        });
+    }
+
+    // fitur: aktif dan non aktif atau siap kerja atau tidak siap kerja jika siap maka atifkan jika tidak siap maka non aktifkan fitur ini digunakan untuk menandai apakah provider siap menerima orderan atau tidak, jika tidak siap maka provider tidak akan muncul di pencarian pelanggan
+    async setProviderAvailability(providerId: string, isAvailable: boolean) {
+        return await prisma.provider_profiles.update({
+            where: { provider_id: providerId },
+            data: { is_available: isAvailable }
         });
     }
 }

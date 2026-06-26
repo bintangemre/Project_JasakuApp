@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'features/auth/presentation/screens/login_screen.dart';
-import 'features/auth/presentation/screens/register_screen.dart';
+import 'features/auth/presentation/screens/customer_welcome_screen.dart';
+import 'features/auth/presentation/screens/customer_login_screen.dart';
+import 'features/auth/presentation/screens/customer_register_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: JasakuApp()));
@@ -10,7 +11,6 @@ void main() {
 class JasakuApp extends StatelessWidget {
   const JasakuApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,10 +20,11 @@ class JasakuApp extends StatelessWidget {
         colorSchemeSeed: const Color(0xFF1E40AF),
         useMaterial3: true,
       ),
-      initialRoute: '/login',
+      initialRoute: '/welcome',
       routes: {
-        '/login': (_) => const LoginScreen(expectedRole: 'customer'),
-        '/register': (_) => const RegisterScreen(),
+        '/welcome': (_) => const CustomerWelcomeScreen(),
+        '/login': (_) => const CustomerLoginScreen(),
+        '/register': (_) => const CustomerRegisterScreen(),
       },
     );
   }

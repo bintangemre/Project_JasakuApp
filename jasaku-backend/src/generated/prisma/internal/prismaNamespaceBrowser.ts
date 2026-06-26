@@ -70,7 +70,9 @@ export const ModelName = {
   users: 'users',
   profiles_customer: 'profiles_customer',
   provider_profiles: 'provider_profiles',
-  provider_locations: 'provider_locations'
+  provider_locations: 'provider_locations',
+  reviews: 'reviews',
+  user_devices: 'user_devices'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -93,7 +95,8 @@ export const CategoriesScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  icon_url: 'icon_url'
 } as const
 
 export type CategoriesScalarFieldEnum = (typeof CategoriesScalarFieldEnum)[keyof typeof CategoriesScalarFieldEnum]
@@ -330,7 +333,9 @@ export const Provider_profilesScalarFieldEnum = {
   rating: 'rating',
   total_jobs: 'total_jobs',
   created_at: 'created_at',
-  updated_at: 'updated_at'
+  updated_at: 'updated_at',
+  total_reviews: 'total_reviews',
+  portfolios: 'portfolios'
 } as const
 
 export type Provider_profilesScalarFieldEnum = (typeof Provider_profilesScalarFieldEnum)[keyof typeof Provider_profilesScalarFieldEnum]
@@ -343,6 +348,33 @@ export const Provider_locationsScalarFieldEnum = {
 } as const
 
 export type Provider_locationsScalarFieldEnum = (typeof Provider_locationsScalarFieldEnum)[keyof typeof Provider_locationsScalarFieldEnum]
+
+
+export const ReviewsScalarFieldEnum = {
+  id: 'id',
+  order_id: 'order_id',
+  customer_id: 'customer_id',
+  provider_id: 'provider_id',
+  rating: 'rating',
+  review: 'review',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ReviewsScalarFieldEnum = (typeof ReviewsScalarFieldEnum)[keyof typeof ReviewsScalarFieldEnum]
+
+
+export const User_devicesScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  fcm_token: 'fcm_token',
+  device_type: 'device_type',
+  device_name: 'device_name',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type User_devicesScalarFieldEnum = (typeof User_devicesScalarFieldEnum)[keyof typeof User_devicesScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import 'customer_services.dart';
+import 'customer_providers_by_category.dart';
 
 class CustomerHome extends ConsumerWidget {
   const CustomerHome({super.key});
@@ -9,7 +11,8 @@ class CustomerHome extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    final userName = authState.user?.displayName ?? 'Customer';
+    final userName =
+        (authState.user?.displayName ?? 'Customer').split(' ').first;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +75,6 @@ class CustomerHome extends ConsumerWidget {
                     ),
                   ],
                 ),
-                
 
                 const SizedBox(height: 28),
 
@@ -158,113 +160,152 @@ class CustomerHome extends ConsumerWidget {
               ],
             ),
           ),
-          
-           Padding(
+
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              const SizedBox(height: 28),
-                
-          // KATEGORI HEADER
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Kategori Jasa',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
+                const SizedBox(height: 28),
 
-              Text(
-                'Lihat Semua',
-                style: TextStyle(
-                  color: Color(0xFF2563EB),
-                  fontWeight: FontWeight.w500,
+                // KATEGORI HEADER
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Kategori Jasa',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const CustomerServices(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Lihat Semua',
+                        style: TextStyle(
+                          color: Color(0xFF2563EB),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-          // KATEGORI LIST
-          Row(
-            children: [
-              Expanded(
-                child: _buildCategoryCard(
-                  icon: Icons.home_repair_service,
-                  iconColor: Color(0xFFFF6B00),
-                  bgColor: Color(0xFFFFEDD5),
-                  title: 'Perbaikan\nBangunan',
+                // KATEGORI LIST
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildCategoryCard(
+                        icon: Icons.home_repair_service,
+                        iconColor: const Color(0xFFFF6B00),
+                        bgColor: const Color(0xFFFFEDD5),
+                        title: 'Perbaikan\nBangunan',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => CustomerProvidersByCategory(
+                                    categoryId:
+                                        'eba91362-4c0a-4045-bcca-51da9263a35d',
+                                    categoryName: 'Perbaikan Bangunan',
+                                  ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: _buildCategoryCard(
+                        icon: Icons.bolt,
+                        iconColor: const Color(0xFFD4A100),
+                        bgColor: const Color(0xFFFEF3C7),
+                        title: 'Perbaikan\nKelistrikan',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => CustomerProvidersByCategory(
+                                    categoryId:
+                                        'a7003a03-7318-41e0-8ece-f4810e80abf7',
+                                    categoryName: 'Perbaikan Kelistrikan',
+                                  ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ),
 
-              const SizedBox(width: 16),
+                const SizedBox(height: 36),
 
-              Expanded(
-                child: _buildCategoryCard(
-                  icon: Icons.bolt,
-                  iconColor: Color(0xFFD4A100),
-                  bgColor: Color(0xFFFEF3C7),
-                  title: 'Perbaikan\nKelistrikan',
+                // PESANAN HEADER
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text(
+                      'Pesanan Terbaru',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    Text(
+                      'Lihat Semua',
+                      style: TextStyle(
+                        color: Color(0xFF2563EB),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 36),
+                const SizedBox(height: 20),
 
-          // PESANAN HEADER
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Pesanan Terbaru',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
-
-              Text(
-                'Lihat Semua',
-                style: TextStyle(
-                  color: Color(0xFF2563EB),
-                  fontWeight: FontWeight.w500,
+                // ORDER CARD 1
+                _buildOrderCard(
+                  title: 'Perbaikan AC',
+                  customer: 'Ahmad Rizki',
+                  date: '20/2/2026',
+                  status: 'Selesai',
+                  statusColor: const Color(0xFF16A34A),
+                  statusBg: const Color(0xFFDCFCE7),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 16),
+
+                // ORDER CARD 2
+                _buildOrderCard(
+                  title: 'Angkut Barang',
+                  customer: 'Siti Nur',
+                  date: '24/2/2026',
+                  status: 'Dalam Proses',
+                  statusColor: const Color(0xFFD97706),
+                  statusBg: const Color(0xFFFEF3C7),
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
-
-          const SizedBox(height: 20),
-
-          // ORDER CARD 1
-          _buildOrderCard(
-            title: 'Perbaikan AC',
-            customer: 'Ahmad Rizki',
-            date: '20/2/2026',
-            status: 'Selesai',
-            statusColor: Color(0xFF16A34A),
-            statusBg: Color(0xFFDCFCE7),
-          ),
-
-          const SizedBox(height: 16),
-
-          // ORDER CARD 2
-          _buildOrderCard(
-            title: 'Angkut Barang',
-            customer: 'Siti Nur',
-            date: '24/2/2026',
-            status: 'Dalam Proses',
-            statusColor: Color(0xFFD97706),
-            statusBg: Color(0xFFFEF3C7),
-          ),
-
-          const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ]
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   // CATEGORY CARD
   Widget _buildCategoryCard({
@@ -272,33 +313,37 @@ class CustomerHome extends ConsumerWidget {
     required Color iconColor,
     required Color bgColor,
     required String title,
+    required VoidCallback onTap, // <--- Menambahkan parameter aksi klik
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-      ),
+    return GestureDetector(
+      onTap: onTap, // <--- Membungkus dengan GestureDetector agar bisa diklik
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+        ),
 
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(18),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Icon(icon, color: iconColor, size: 30),
             ),
-            child: Icon(icon, color: iconColor, size: 30),
-          ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          ),
-        ],
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
       ),
     );
   }

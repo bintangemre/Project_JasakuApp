@@ -269,6 +269,9 @@ export type usersWhereInput = {
   profiles_customer?: Prisma.XOR<Prisma.Profiles_customerNullableScalarRelationFilter, Prisma.profiles_customerWhereInput> | null
   provider_locations?: Prisma.XOR<Prisma.Provider_locationsNullableScalarRelationFilter, Prisma.provider_locationsWhereInput> | null
   provider_profiles?: Prisma.XOR<Prisma.Provider_profilesNullableScalarRelationFilter, Prisma.provider_profilesWhereInput> | null
+  reviews_reviews_customer_idTousers?: Prisma.ReviewsListRelationFilter
+  reviews_reviews_provider_idTousers?: Prisma.ReviewsListRelationFilter
+  user_devices?: Prisma.User_devicesListRelationFilter
   roles?: Prisma.XOR<Prisma.RolesScalarRelationFilter, Prisma.rolesWhereInput>
 }
 
@@ -289,6 +292,9 @@ export type usersOrderByWithRelationInput = {
   profiles_customer?: Prisma.profiles_customerOrderByWithRelationInput
   provider_locations?: Prisma.provider_locationsOrderByWithRelationInput
   provider_profiles?: Prisma.provider_profilesOrderByWithRelationInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsOrderByRelationAggregateInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsOrderByRelationAggregateInput
+  user_devices?: Prisma.user_devicesOrderByRelationAggregateInput
   roles?: Prisma.rolesOrderByWithRelationInput
 }
 
@@ -312,6 +318,9 @@ export type usersWhereUniqueInput = Prisma.AtLeast<{
   profiles_customer?: Prisma.XOR<Prisma.Profiles_customerNullableScalarRelationFilter, Prisma.profiles_customerWhereInput> | null
   provider_locations?: Prisma.XOR<Prisma.Provider_locationsNullableScalarRelationFilter, Prisma.provider_locationsWhereInput> | null
   provider_profiles?: Prisma.XOR<Prisma.Provider_profilesNullableScalarRelationFilter, Prisma.provider_profilesWhereInput> | null
+  reviews_reviews_customer_idTousers?: Prisma.ReviewsListRelationFilter
+  reviews_reviews_provider_idTousers?: Prisma.ReviewsListRelationFilter
+  user_devices?: Prisma.User_devicesListRelationFilter
   roles?: Prisma.XOR<Prisma.RolesScalarRelationFilter, Prisma.rolesWhereInput>
 }, "id" | "email" | "phone">
 
@@ -367,6 +376,9 @@ export type usersCreateInput = {
   profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesCreateNestedManyWithoutUsersInput
   roles: Prisma.rolesCreateNestedOneWithoutUsersInput
 }
 
@@ -387,6 +399,9 @@ export type usersUncheckedCreateInput = {
   profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsUncheckedCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesUncheckedCreateNestedManyWithoutUsersInput
 }
 
 export type usersUpdateInput = {
@@ -405,6 +420,9 @@ export type usersUpdateInput = {
   profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUpdateManyWithoutUsersNestedInput
   roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
 }
 
@@ -425,6 +443,9 @@ export type usersUncheckedUpdateInput = {
   profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUncheckedUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUncheckedUpdateManyWithoutUsersNestedInput
 }
 
 export type usersCreateManyInput = {
@@ -658,6 +679,48 @@ export type usersUpdateOneRequiredWithoutProvider_locationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.usersUpdateToOneWithWhereWithoutProvider_locationsInput, Prisma.usersUpdateWithoutProvider_locationsInput>, Prisma.usersUncheckedUpdateWithoutProvider_locationsInput>
 }
 
+export type usersCreateNestedOneWithoutReviews_reviews_customer_idTousersInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutReviews_reviews_customer_idTousersInput, Prisma.usersUncheckedCreateWithoutReviews_reviews_customer_idTousersInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutReviews_reviews_customer_idTousersInput
+  connect?: Prisma.usersWhereUniqueInput
+}
+
+export type usersCreateNestedOneWithoutReviews_reviews_provider_idTousersInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutReviews_reviews_provider_idTousersInput, Prisma.usersUncheckedCreateWithoutReviews_reviews_provider_idTousersInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutReviews_reviews_provider_idTousersInput
+  connect?: Prisma.usersWhereUniqueInput
+}
+
+export type usersUpdateOneRequiredWithoutReviews_reviews_customer_idTousersNestedInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutReviews_reviews_customer_idTousersInput, Prisma.usersUncheckedCreateWithoutReviews_reviews_customer_idTousersInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutReviews_reviews_customer_idTousersInput
+  upsert?: Prisma.usersUpsertWithoutReviews_reviews_customer_idTousersInput
+  connect?: Prisma.usersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.usersUpdateToOneWithWhereWithoutReviews_reviews_customer_idTousersInput, Prisma.usersUpdateWithoutReviews_reviews_customer_idTousersInput>, Prisma.usersUncheckedUpdateWithoutReviews_reviews_customer_idTousersInput>
+}
+
+export type usersUpdateOneRequiredWithoutReviews_reviews_provider_idTousersNestedInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutReviews_reviews_provider_idTousersInput, Prisma.usersUncheckedCreateWithoutReviews_reviews_provider_idTousersInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutReviews_reviews_provider_idTousersInput
+  upsert?: Prisma.usersUpsertWithoutReviews_reviews_provider_idTousersInput
+  connect?: Prisma.usersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.usersUpdateToOneWithWhereWithoutReviews_reviews_provider_idTousersInput, Prisma.usersUpdateWithoutReviews_reviews_provider_idTousersInput>, Prisma.usersUncheckedUpdateWithoutReviews_reviews_provider_idTousersInput>
+}
+
+export type usersCreateNestedOneWithoutUser_devicesInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutUser_devicesInput, Prisma.usersUncheckedCreateWithoutUser_devicesInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutUser_devicesInput
+  connect?: Prisma.usersWhereUniqueInput
+}
+
+export type usersUpdateOneRequiredWithoutUser_devicesNestedInput = {
+  create?: Prisma.XOR<Prisma.usersCreateWithoutUser_devicesInput, Prisma.usersUncheckedCreateWithoutUser_devicesInput>
+  connectOrCreate?: Prisma.usersCreateOrConnectWithoutUser_devicesInput
+  upsert?: Prisma.usersUpsertWithoutUser_devicesInput
+  connect?: Prisma.usersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.usersUpdateToOneWithWhereWithoutUser_devicesInput, Prisma.usersUpdateWithoutUser_devicesInput>, Prisma.usersUncheckedUpdateWithoutUser_devicesInput>
+}
+
 export type usersCreateWithoutCustom_task_proposalsInput = {
   id?: string
   email?: string | null
@@ -673,6 +736,9 @@ export type usersCreateWithoutCustom_task_proposalsInput = {
   profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesCreateNestedManyWithoutUsersInput
   roles: Prisma.rolesCreateNestedOneWithoutUsersInput
 }
 
@@ -692,6 +758,9 @@ export type usersUncheckedCreateWithoutCustom_task_proposalsInput = {
   profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsUncheckedCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesUncheckedCreateNestedManyWithoutUsersInput
 }
 
 export type usersCreateOrConnectWithoutCustom_task_proposalsInput = {
@@ -725,6 +794,9 @@ export type usersUpdateWithoutCustom_task_proposalsInput = {
   profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUpdateManyWithoutUsersNestedInput
   roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
 }
 
@@ -744,6 +816,9 @@ export type usersUncheckedUpdateWithoutCustom_task_proposalsInput = {
   profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUncheckedUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUncheckedUpdateManyWithoutUsersNestedInput
 }
 
 export type usersCreateWithoutCustom_tasksInput = {
@@ -761,6 +836,9 @@ export type usersCreateWithoutCustom_tasksInput = {
   profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesCreateNestedManyWithoutUsersInput
   roles: Prisma.rolesCreateNestedOneWithoutUsersInput
 }
 
@@ -780,6 +858,9 @@ export type usersUncheckedCreateWithoutCustom_tasksInput = {
   profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsUncheckedCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesUncheckedCreateNestedManyWithoutUsersInput
 }
 
 export type usersCreateOrConnectWithoutCustom_tasksInput = {
@@ -813,6 +894,9 @@ export type usersUpdateWithoutCustom_tasksInput = {
   profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUpdateManyWithoutUsersNestedInput
   roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
 }
 
@@ -832,6 +916,9 @@ export type usersUncheckedUpdateWithoutCustom_tasksInput = {
   profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUncheckedUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUncheckedUpdateManyWithoutUsersNestedInput
 }
 
 export type usersCreateWithoutRolesInput = {
@@ -850,6 +937,9 @@ export type usersCreateWithoutRolesInput = {
   profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesCreateNestedManyWithoutUsersInput
 }
 
 export type usersUncheckedCreateWithoutRolesInput = {
@@ -868,6 +958,9 @@ export type usersUncheckedCreateWithoutRolesInput = {
   profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsUncheckedCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesUncheckedCreateNestedManyWithoutUsersInput
 }
 
 export type usersCreateOrConnectWithoutRolesInput = {
@@ -928,6 +1021,9 @@ export type usersCreateWithoutProfiles_customerInput = {
   custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
   provider_locations?: Prisma.provider_locationsCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesCreateNestedManyWithoutUsersInput
   roles: Prisma.rolesCreateNestedOneWithoutUsersInput
 }
 
@@ -947,6 +1043,9 @@ export type usersUncheckedCreateWithoutProfiles_customerInput = {
   custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
   provider_locations?: Prisma.provider_locationsUncheckedCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesUncheckedCreateNestedManyWithoutUsersInput
 }
 
 export type usersCreateOrConnectWithoutProfiles_customerInput = {
@@ -980,6 +1079,9 @@ export type usersUpdateWithoutProfiles_customerInput = {
   custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUpdateManyWithoutUsersNestedInput
   roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
 }
 
@@ -999,6 +1101,9 @@ export type usersUncheckedUpdateWithoutProfiles_customerInput = {
   custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUncheckedUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUncheckedUpdateManyWithoutUsersNestedInput
 }
 
 export type usersCreateWithoutProvider_profilesInput = {
@@ -1016,6 +1121,9 @@ export type usersCreateWithoutProvider_profilesInput = {
   custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
   profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesCreateNestedManyWithoutUsersInput
   roles: Prisma.rolesCreateNestedOneWithoutUsersInput
 }
 
@@ -1035,6 +1143,9 @@ export type usersUncheckedCreateWithoutProvider_profilesInput = {
   custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
   profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
   provider_locations?: Prisma.provider_locationsUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesUncheckedCreateNestedManyWithoutUsersInput
 }
 
 export type usersCreateOrConnectWithoutProvider_profilesInput = {
@@ -1068,6 +1179,9 @@ export type usersUpdateWithoutProvider_profilesInput = {
   custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
   profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUpdateManyWithoutUsersNestedInput
   roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
 }
 
@@ -1087,6 +1201,9 @@ export type usersUncheckedUpdateWithoutProvider_profilesInput = {
   custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
   profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUncheckedUpdateManyWithoutUsersNestedInput
 }
 
 export type usersCreateWithoutProvider_locationsInput = {
@@ -1104,6 +1221,9 @@ export type usersCreateWithoutProvider_locationsInput = {
   custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
   profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesCreateNestedManyWithoutUsersInput
   roles: Prisma.rolesCreateNestedOneWithoutUsersInput
 }
 
@@ -1123,6 +1243,9 @@ export type usersUncheckedCreateWithoutProvider_locationsInput = {
   custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
   profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
   provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesUncheckedCreateNestedManyWithoutUsersInput
 }
 
 export type usersCreateOrConnectWithoutProvider_locationsInput = {
@@ -1156,6 +1279,9 @@ export type usersUpdateWithoutProvider_locationsInput = {
   custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
   profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUpdateManyWithoutUsersNestedInput
   roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
 }
 
@@ -1175,6 +1301,309 @@ export type usersUncheckedUpdateWithoutProvider_locationsInput = {
   custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
   profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUncheckedUpdateManyWithoutUsersNestedInput
+}
+
+export type usersCreateWithoutReviews_reviews_customer_idTousersInput = {
+  id?: string
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
+  provider_locations?: Prisma.provider_locationsCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesCreateNestedManyWithoutUsersInput
+  roles: Prisma.rolesCreateNestedOneWithoutUsersInput
+}
+
+export type usersUncheckedCreateWithoutReviews_reviews_customer_idTousersInput = {
+  id?: string
+  role_id: number
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
+  provider_locations?: Prisma.provider_locationsUncheckedCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  user_devices?: Prisma.user_devicesUncheckedCreateNestedManyWithoutUsersInput
+}
+
+export type usersCreateOrConnectWithoutReviews_reviews_customer_idTousersInput = {
+  where: Prisma.usersWhereUniqueInput
+  create: Prisma.XOR<Prisma.usersCreateWithoutReviews_reviews_customer_idTousersInput, Prisma.usersUncheckedCreateWithoutReviews_reviews_customer_idTousersInput>
+}
+
+export type usersCreateWithoutReviews_reviews_provider_idTousersInput = {
+  id?: string
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
+  provider_locations?: Prisma.provider_locationsCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  user_devices?: Prisma.user_devicesCreateNestedManyWithoutUsersInput
+  roles: Prisma.rolesCreateNestedOneWithoutUsersInput
+}
+
+export type usersUncheckedCreateWithoutReviews_reviews_provider_idTousersInput = {
+  id?: string
+  role_id: number
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
+  provider_locations?: Prisma.provider_locationsUncheckedCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  user_devices?: Prisma.user_devicesUncheckedCreateNestedManyWithoutUsersInput
+}
+
+export type usersCreateOrConnectWithoutReviews_reviews_provider_idTousersInput = {
+  where: Prisma.usersWhereUniqueInput
+  create: Prisma.XOR<Prisma.usersCreateWithoutReviews_reviews_provider_idTousersInput, Prisma.usersUncheckedCreateWithoutReviews_reviews_provider_idTousersInput>
+}
+
+export type usersUpsertWithoutReviews_reviews_customer_idTousersInput = {
+  update: Prisma.XOR<Prisma.usersUpdateWithoutReviews_reviews_customer_idTousersInput, Prisma.usersUncheckedUpdateWithoutReviews_reviews_customer_idTousersInput>
+  create: Prisma.XOR<Prisma.usersCreateWithoutReviews_reviews_customer_idTousersInput, Prisma.usersUncheckedCreateWithoutReviews_reviews_customer_idTousersInput>
+  where?: Prisma.usersWhereInput
+}
+
+export type usersUpdateToOneWithWhereWithoutReviews_reviews_customer_idTousersInput = {
+  where?: Prisma.usersWhereInput
+  data: Prisma.XOR<Prisma.usersUpdateWithoutReviews_reviews_customer_idTousersInput, Prisma.usersUncheckedUpdateWithoutReviews_reviews_customer_idTousersInput>
+}
+
+export type usersUpdateWithoutReviews_reviews_customer_idTousersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
+  provider_locations?: Prisma.provider_locationsUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUpdateManyWithoutUsersNestedInput
+  roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
+}
+
+export type usersUncheckedUpdateWithoutReviews_reviews_customer_idTousersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role_id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
+  provider_locations?: Prisma.provider_locationsUncheckedUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUncheckedUpdateManyWithoutUsersNestedInput
+}
+
+export type usersUpsertWithoutReviews_reviews_provider_idTousersInput = {
+  update: Prisma.XOR<Prisma.usersUpdateWithoutReviews_reviews_provider_idTousersInput, Prisma.usersUncheckedUpdateWithoutReviews_reviews_provider_idTousersInput>
+  create: Prisma.XOR<Prisma.usersCreateWithoutReviews_reviews_provider_idTousersInput, Prisma.usersUncheckedCreateWithoutReviews_reviews_provider_idTousersInput>
+  where?: Prisma.usersWhereInput
+}
+
+export type usersUpdateToOneWithWhereWithoutReviews_reviews_provider_idTousersInput = {
+  where?: Prisma.usersWhereInput
+  data: Prisma.XOR<Prisma.usersUpdateWithoutReviews_reviews_provider_idTousersInput, Prisma.usersUncheckedUpdateWithoutReviews_reviews_provider_idTousersInput>
+}
+
+export type usersUpdateWithoutReviews_reviews_provider_idTousersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
+  provider_locations?: Prisma.provider_locationsUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUpdateManyWithoutUsersNestedInput
+  roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
+}
+
+export type usersUncheckedUpdateWithoutReviews_reviews_provider_idTousersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role_id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
+  provider_locations?: Prisma.provider_locationsUncheckedUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUncheckedUpdateManyWithoutUsersNestedInput
+}
+
+export type usersCreateWithoutUser_devicesInput = {
+  id?: string
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedManyWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerCreateNestedOneWithoutUsersInput
+  provider_locations?: Prisma.provider_locationsCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+  roles: Prisma.rolesCreateNestedOneWithoutUsersInput
+}
+
+export type usersUncheckedCreateWithoutUser_devicesInput = {
+  id?: string
+  role_id: number
+  email?: string | null
+  phone?: string | null
+  password_hash?: string | null
+  google_id?: string | null
+  is_phone_verified?: boolean | null
+  is_email_verified?: boolean | null
+  status?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutUsersInput
+  custom_tasks?: Prisma.custom_tasksUncheckedCreateNestedManyWithoutUsersInput
+  profiles_customer?: Prisma.profiles_customerUncheckedCreateNestedOneWithoutUsersInput
+  provider_locations?: Prisma.provider_locationsUncheckedCreateNestedOneWithoutUsersInput
+  provider_profiles?: Prisma.provider_profilesUncheckedCreateNestedOneWithoutUsersInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_customer_idTousersInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedCreateNestedManyWithoutUsers_reviews_provider_idTousersInput
+}
+
+export type usersCreateOrConnectWithoutUser_devicesInput = {
+  where: Prisma.usersWhereUniqueInput
+  create: Prisma.XOR<Prisma.usersCreateWithoutUser_devicesInput, Prisma.usersUncheckedCreateWithoutUser_devicesInput>
+}
+
+export type usersUpsertWithoutUser_devicesInput = {
+  update: Prisma.XOR<Prisma.usersUpdateWithoutUser_devicesInput, Prisma.usersUncheckedUpdateWithoutUser_devicesInput>
+  create: Prisma.XOR<Prisma.usersCreateWithoutUser_devicesInput, Prisma.usersUncheckedCreateWithoutUser_devicesInput>
+  where?: Prisma.usersWhereInput
+}
+
+export type usersUpdateToOneWithWhereWithoutUser_devicesInput = {
+  where?: Prisma.usersWhereInput
+  data: Prisma.XOR<Prisma.usersUpdateWithoutUser_devicesInput, Prisma.usersUncheckedUpdateWithoutUser_devicesInput>
+}
+
+export type usersUpdateWithoutUser_devicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateManyWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
+  provider_locations?: Prisma.provider_locationsUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  roles?: Prisma.rolesUpdateOneRequiredWithoutUsersNestedInput
+}
+
+export type usersUncheckedUpdateWithoutUser_devicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role_id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  google_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_phone_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  is_email_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutUsersNestedInput
+  custom_tasks?: Prisma.custom_tasksUncheckedUpdateManyWithoutUsersNestedInput
+  profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
+  provider_locations?: Prisma.provider_locationsUncheckedUpdateOneWithoutUsersNestedInput
+  provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
 }
 
 export type usersCreateManyRolesInput = {
@@ -1206,6 +1635,9 @@ export type usersUpdateWithoutRolesInput = {
   profiles_customer?: Prisma.profiles_customerUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUpdateManyWithoutUsersNestedInput
 }
 
 export type usersUncheckedUpdateWithoutRolesInput = {
@@ -1224,6 +1656,9 @@ export type usersUncheckedUpdateWithoutRolesInput = {
   profiles_customer?: Prisma.profiles_customerUncheckedUpdateOneWithoutUsersNestedInput
   provider_locations?: Prisma.provider_locationsUncheckedUpdateOneWithoutUsersNestedInput
   provider_profiles?: Prisma.provider_profilesUncheckedUpdateOneWithoutUsersNestedInput
+  reviews_reviews_customer_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_customer_idTousersNestedInput
+  reviews_reviews_provider_idTousers?: Prisma.reviewsUncheckedUpdateManyWithoutUsers_reviews_provider_idTousersNestedInput
+  user_devices?: Prisma.user_devicesUncheckedUpdateManyWithoutUsersNestedInput
 }
 
 export type usersUncheckedUpdateManyWithoutRolesInput = {
@@ -1247,11 +1682,17 @@ export type usersUncheckedUpdateManyWithoutRolesInput = {
 export type UsersCountOutputType = {
   custom_task_proposals: number
   custom_tasks: number
+  reviews_reviews_customer_idTousers: number
+  reviews_reviews_provider_idTousers: number
+  user_devices: number
 }
 
 export type UsersCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   custom_task_proposals?: boolean | UsersCountOutputTypeCountCustom_task_proposalsArgs
   custom_tasks?: boolean | UsersCountOutputTypeCountCustom_tasksArgs
+  reviews_reviews_customer_idTousers?: boolean | UsersCountOutputTypeCountReviews_reviews_customer_idTousersArgs
+  reviews_reviews_provider_idTousers?: boolean | UsersCountOutputTypeCountReviews_reviews_provider_idTousersArgs
+  user_devices?: boolean | UsersCountOutputTypeCountUser_devicesArgs
 }
 
 /**
@@ -1278,6 +1719,27 @@ export type UsersCountOutputTypeCountCustom_tasksArgs<ExtArgs extends runtime.Ty
   where?: Prisma.custom_tasksWhereInput
 }
 
+/**
+ * UsersCountOutputType without action
+ */
+export type UsersCountOutputTypeCountReviews_reviews_customer_idTousersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.reviewsWhereInput
+}
+
+/**
+ * UsersCountOutputType without action
+ */
+export type UsersCountOutputTypeCountReviews_reviews_provider_idTousersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.reviewsWhereInput
+}
+
+/**
+ * UsersCountOutputType without action
+ */
+export type UsersCountOutputTypeCountUser_devicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.user_devicesWhereInput
+}
+
 
 export type usersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1296,6 +1758,9 @@ export type usersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   profiles_customer?: boolean | Prisma.users$profiles_customerArgs<ExtArgs>
   provider_locations?: boolean | Prisma.users$provider_locationsArgs<ExtArgs>
   provider_profiles?: boolean | Prisma.users$provider_profilesArgs<ExtArgs>
+  reviews_reviews_customer_idTousers?: boolean | Prisma.users$reviews_reviews_customer_idTousersArgs<ExtArgs>
+  reviews_reviews_provider_idTousers?: boolean | Prisma.users$reviews_reviews_provider_idTousersArgs<ExtArgs>
+  user_devices?: boolean | Prisma.users$user_devicesArgs<ExtArgs>
   roles?: boolean | Prisma.rolesDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.UsersCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["users"]>
@@ -1351,6 +1816,9 @@ export type usersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   profiles_customer?: boolean | Prisma.users$profiles_customerArgs<ExtArgs>
   provider_locations?: boolean | Prisma.users$provider_locationsArgs<ExtArgs>
   provider_profiles?: boolean | Prisma.users$provider_profilesArgs<ExtArgs>
+  reviews_reviews_customer_idTousers?: boolean | Prisma.users$reviews_reviews_customer_idTousersArgs<ExtArgs>
+  reviews_reviews_provider_idTousers?: boolean | Prisma.users$reviews_reviews_provider_idTousersArgs<ExtArgs>
+  user_devices?: boolean | Prisma.users$user_devicesArgs<ExtArgs>
   roles?: boolean | Prisma.rolesDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.UsersCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1369,6 +1837,9 @@ export type $usersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     profiles_customer: Prisma.$profiles_customerPayload<ExtArgs> | null
     provider_locations: Prisma.$provider_locationsPayload<ExtArgs> | null
     provider_profiles: Prisma.$provider_profilesPayload<ExtArgs> | null
+    reviews_reviews_customer_idTousers: Prisma.$reviewsPayload<ExtArgs>[]
+    reviews_reviews_provider_idTousers: Prisma.$reviewsPayload<ExtArgs>[]
+    user_devices: Prisma.$user_devicesPayload<ExtArgs>[]
     roles: Prisma.$rolesPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1782,6 +2253,9 @@ export interface Prisma__usersClient<T, Null = never, ExtArgs extends runtime.Ty
   profiles_customer<T extends Prisma.users$profiles_customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$profiles_customerArgs<ExtArgs>>): Prisma.Prisma__profiles_customerClient<runtime.Types.Result.GetResult<Prisma.$profiles_customerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   provider_locations<T extends Prisma.users$provider_locationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$provider_locationsArgs<ExtArgs>>): Prisma.Prisma__provider_locationsClient<runtime.Types.Result.GetResult<Prisma.$provider_locationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   provider_profiles<T extends Prisma.users$provider_profilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$provider_profilesArgs<ExtArgs>>): Prisma.Prisma__provider_profilesClient<runtime.Types.Result.GetResult<Prisma.$provider_profilesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  reviews_reviews_customer_idTousers<T extends Prisma.users$reviews_reviews_customer_idTousersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$reviews_reviews_customer_idTousersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$reviewsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reviews_reviews_provider_idTousers<T extends Prisma.users$reviews_reviews_provider_idTousersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$reviews_reviews_provider_idTousersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$reviewsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  user_devices<T extends Prisma.users$user_devicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.users$user_devicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$user_devicesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   roles<T extends Prisma.rolesDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.rolesDefaultArgs<ExtArgs>>): Prisma.Prisma__rolesClient<runtime.Types.Result.GetResult<Prisma.$rolesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2326,6 +2800,78 @@ export type users$provider_profilesArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.provider_profilesInclude<ExtArgs> | null
   where?: Prisma.provider_profilesWhereInput
+}
+
+/**
+ * users.reviews_reviews_customer_idTousers
+ */
+export type users$reviews_reviews_customer_idTousersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the reviews
+   */
+  select?: Prisma.reviewsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the reviews
+   */
+  omit?: Prisma.reviewsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.reviewsInclude<ExtArgs> | null
+  where?: Prisma.reviewsWhereInput
+  orderBy?: Prisma.reviewsOrderByWithRelationInput | Prisma.reviewsOrderByWithRelationInput[]
+  cursor?: Prisma.reviewsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReviewsScalarFieldEnum | Prisma.ReviewsScalarFieldEnum[]
+}
+
+/**
+ * users.reviews_reviews_provider_idTousers
+ */
+export type users$reviews_reviews_provider_idTousersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the reviews
+   */
+  select?: Prisma.reviewsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the reviews
+   */
+  omit?: Prisma.reviewsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.reviewsInclude<ExtArgs> | null
+  where?: Prisma.reviewsWhereInput
+  orderBy?: Prisma.reviewsOrderByWithRelationInput | Prisma.reviewsOrderByWithRelationInput[]
+  cursor?: Prisma.reviewsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReviewsScalarFieldEnum | Prisma.ReviewsScalarFieldEnum[]
+}
+
+/**
+ * users.user_devices
+ */
+export type users$user_devicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the user_devices
+   */
+  select?: Prisma.user_devicesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the user_devices
+   */
+  omit?: Prisma.user_devicesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.user_devicesInclude<ExtArgs> | null
+  where?: Prisma.user_devicesWhereInput
+  orderBy?: Prisma.user_devicesOrderByWithRelationInput | Prisma.user_devicesOrderByWithRelationInput[]
+  cursor?: Prisma.user_devicesWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.User_devicesScalarFieldEnum | Prisma.User_devicesScalarFieldEnum[]
 }
 
 /**

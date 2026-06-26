@@ -1,4 +1,4 @@
-package com.example.jasaku_app
+package com.jasaku.app
 
 import io.flutter.embedding.android.FlutterActivity
 

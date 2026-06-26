@@ -403,7 +403,9 @@ export const ModelName = {
   users: 'users',
   profiles_customer: 'profiles_customer',
   provider_profiles: 'provider_profiles',
-  provider_locations: 'provider_locations'
+  provider_locations: 'provider_locations',
+  reviews: 'reviews',
+  user_devices: 'user_devices'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -419,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "categories" | "custom_task_proposals" | "custom_tasks" | "customer_payment_methods" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_payout_methods" | "provider_service_prices" | "provider_services" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations"
+    modelProps: "categories" | "custom_task_proposals" | "custom_tasks" | "customer_payment_methods" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_payout_methods" | "provider_service_prices" | "provider_services" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations" | "reviews" | "user_devices"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1903,6 +1905,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    reviews: {
+      payload: Prisma.$reviewsPayload<ExtArgs>
+      fields: Prisma.reviewsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.reviewsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.reviewsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload>
+        }
+        findFirst: {
+          args: Prisma.reviewsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.reviewsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload>
+        }
+        findMany: {
+          args: Prisma.reviewsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload>[]
+        }
+        create: {
+          args: Prisma.reviewsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload>
+        }
+        createMany: {
+          args: Prisma.reviewsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.reviewsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload>[]
+        }
+        delete: {
+          args: Prisma.reviewsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload>
+        }
+        update: {
+          args: Prisma.reviewsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload>
+        }
+        deleteMany: {
+          args: Prisma.reviewsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.reviewsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.reviewsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload>[]
+        }
+        upsert: {
+          args: Prisma.reviewsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$reviewsPayload>
+        }
+        aggregate: {
+          args: Prisma.ReviewsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReviews>
+        }
+        groupBy: {
+          args: Prisma.reviewsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReviewsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.reviewsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReviewsCountAggregateOutputType> | number
+        }
+      }
+    }
+    user_devices: {
+      payload: Prisma.$user_devicesPayload<ExtArgs>
+      fields: Prisma.user_devicesFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.user_devicesFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.user_devicesFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload>
+        }
+        findFirst: {
+          args: Prisma.user_devicesFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.user_devicesFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload>
+        }
+        findMany: {
+          args: Prisma.user_devicesFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload>[]
+        }
+        create: {
+          args: Prisma.user_devicesCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload>
+        }
+        createMany: {
+          args: Prisma.user_devicesCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.user_devicesCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload>[]
+        }
+        delete: {
+          args: Prisma.user_devicesDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload>
+        }
+        update: {
+          args: Prisma.user_devicesUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload>
+        }
+        deleteMany: {
+          args: Prisma.user_devicesDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.user_devicesUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.user_devicesUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload>[]
+        }
+        upsert: {
+          args: Prisma.user_devicesUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_devicesPayload>
+        }
+        aggregate: {
+          args: Prisma.User_devicesAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUser_devices>
+        }
+        groupBy: {
+          args: Prisma.user_devicesGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.User_devicesGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.user_devicesCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.User_devicesCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1946,7 +2096,8 @@ export const CategoriesScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  icon_url: 'icon_url'
 } as const
 
 export type CategoriesScalarFieldEnum = (typeof CategoriesScalarFieldEnum)[keyof typeof CategoriesScalarFieldEnum]
@@ -2183,7 +2334,9 @@ export const Provider_profilesScalarFieldEnum = {
   rating: 'rating',
   total_jobs: 'total_jobs',
   created_at: 'created_at',
-  updated_at: 'updated_at'
+  updated_at: 'updated_at',
+  total_reviews: 'total_reviews',
+  portfolios: 'portfolios'
 } as const
 
 export type Provider_profilesScalarFieldEnum = (typeof Provider_profilesScalarFieldEnum)[keyof typeof Provider_profilesScalarFieldEnum]
@@ -2196,6 +2349,33 @@ export const Provider_locationsScalarFieldEnum = {
 } as const
 
 export type Provider_locationsScalarFieldEnum = (typeof Provider_locationsScalarFieldEnum)[keyof typeof Provider_locationsScalarFieldEnum]
+
+
+export const ReviewsScalarFieldEnum = {
+  id: 'id',
+  order_id: 'order_id',
+  customer_id: 'customer_id',
+  provider_id: 'provider_id',
+  rating: 'rating',
+  review: 'review',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ReviewsScalarFieldEnum = (typeof ReviewsScalarFieldEnum)[keyof typeof ReviewsScalarFieldEnum]
+
+
+export const User_devicesScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  fcm_token: 'fcm_token',
+  device_type: 'device_type',
+  device_name: 'device_name',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type User_devicesScalarFieldEnum = (typeof User_devicesScalarFieldEnum)[keyof typeof User_devicesScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2419,6 +2599,8 @@ export type GlobalOmitConfig = {
   profiles_customer?: Prisma.profiles_customerOmit
   provider_profiles?: Prisma.provider_profilesOmit
   provider_locations?: Prisma.provider_locationsOmit
+  reviews?: Prisma.reviewsOmit
+  user_devices?: Prisma.user_devicesOmit
 }
 
 /* Types for Logging */

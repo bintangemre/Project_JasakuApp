@@ -1,0 +1,14 @@
+import {Router} from 'express';
+import { createOrder, getOrderDetails, receiveOrderStatus, getProviderOrders, getCustomerOrders,  } from './orders.controller';
+import { authenticate } from '../../middleware/auth.middleware';
+import { isCustomer, isProvider } from '../../middleware/role.middleware';
+
+const router = Router();
+
+router.post('/orders', authenticate, isCustomer, createOrder);
+router.get('/orders/:orderId', authenticate, getOrderDetails);
+router.patch('/orders/:orderId/status', authenticate, isProvider, receiveOrderStatus);
+router.get('/provider/orders', authenticate, isProvider, getProviderOrders);
+router.get('/customer/orders', authenticate, isCustomer, getCustomerOrders);
+
+export default router;

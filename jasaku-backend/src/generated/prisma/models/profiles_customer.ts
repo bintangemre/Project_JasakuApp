@@ -214,6 +214,7 @@ export type profiles_customerWhereInput = {
   avatar_url?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
+  orders?: Prisma.OrdersListRelationFilter
   users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
 }
 
@@ -227,6 +228,7 @@ export type profiles_customerOrderByWithRelationInput = {
   avatar_url?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  orders?: Prisma.ordersOrderByRelationAggregateInput
   users?: Prisma.usersOrderByWithRelationInput
 }
 
@@ -243,6 +245,7 @@ export type profiles_customerWhereUniqueInput = Prisma.AtLeast<{
   avatar_url?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
+  orders?: Prisma.OrdersListRelationFilter
   users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
 }, "id" | "user_id">
 
@@ -285,6 +288,7 @@ export type profiles_customerCreateInput = {
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
+  orders?: Prisma.ordersCreateNestedManyWithoutProfiles_customerInput
   users: Prisma.usersCreateNestedOneWithoutProfiles_customerInput
 }
 
@@ -298,6 +302,7 @@ export type profiles_customerUncheckedCreateInput = {
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProfiles_customerInput
 }
 
 export type profiles_customerUpdateInput = {
@@ -309,6 +314,7 @@ export type profiles_customerUpdateInput = {
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orders?: Prisma.ordersUpdateManyWithoutProfiles_customerNestedInput
   users?: Prisma.usersUpdateOneRequiredWithoutProfiles_customerNestedInput
 }
 
@@ -322,6 +328,7 @@ export type profiles_customerUncheckedUpdateInput = {
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutProfiles_customerNestedInput
 }
 
 export type profiles_customerCreateManyInput = {
@@ -357,6 +364,11 @@ export type profiles_customerUncheckedUpdateManyInput = {
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type Profiles_customerScalarRelationFilter = {
+  is?: Prisma.profiles_customerWhereInput
+  isNot?: Prisma.profiles_customerWhereInput
 }
 
 export type Profiles_customerNullableScalarRelationFilter = {
@@ -400,6 +412,20 @@ export type profiles_customerMinOrderByAggregateInput = {
   updated_at?: Prisma.SortOrder
 }
 
+export type profiles_customerCreateNestedOneWithoutOrdersInput = {
+  create?: Prisma.XOR<Prisma.profiles_customerCreateWithoutOrdersInput, Prisma.profiles_customerUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.profiles_customerCreateOrConnectWithoutOrdersInput
+  connect?: Prisma.profiles_customerWhereUniqueInput
+}
+
+export type profiles_customerUpdateOneRequiredWithoutOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.profiles_customerCreateWithoutOrdersInput, Prisma.profiles_customerUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.profiles_customerCreateOrConnectWithoutOrdersInput
+  upsert?: Prisma.profiles_customerUpsertWithoutOrdersInput
+  connect?: Prisma.profiles_customerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.profiles_customerUpdateToOneWithWhereWithoutOrdersInput, Prisma.profiles_customerUpdateWithoutOrdersInput>, Prisma.profiles_customerUncheckedUpdateWithoutOrdersInput>
+}
+
 export type profiles_customerCreateNestedOneWithoutUsersInput = {
   create?: Prisma.XOR<Prisma.profiles_customerCreateWithoutUsersInput, Prisma.profiles_customerUncheckedCreateWithoutUsersInput>
   connectOrCreate?: Prisma.profiles_customerCreateOrConnectWithoutUsersInput
@@ -432,6 +458,70 @@ export type profiles_customerUncheckedUpdateOneWithoutUsersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.profiles_customerUpdateToOneWithWhereWithoutUsersInput, Prisma.profiles_customerUpdateWithoutUsersInput>, Prisma.profiles_customerUncheckedUpdateWithoutUsersInput>
 }
 
+export type profiles_customerCreateWithoutOrdersInput = {
+  id?: string
+  full_name: string
+  nickname?: string | null
+  birth_date?: Date | string | null
+  gender?: string | null
+  avatar_url?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  users: Prisma.usersCreateNestedOneWithoutProfiles_customerInput
+}
+
+export type profiles_customerUncheckedCreateWithoutOrdersInput = {
+  id?: string
+  user_id: string
+  full_name: string
+  nickname?: string | null
+  birth_date?: Date | string | null
+  gender?: string | null
+  avatar_url?: string | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+}
+
+export type profiles_customerCreateOrConnectWithoutOrdersInput = {
+  where: Prisma.profiles_customerWhereUniqueInput
+  create: Prisma.XOR<Prisma.profiles_customerCreateWithoutOrdersInput, Prisma.profiles_customerUncheckedCreateWithoutOrdersInput>
+}
+
+export type profiles_customerUpsertWithoutOrdersInput = {
+  update: Prisma.XOR<Prisma.profiles_customerUpdateWithoutOrdersInput, Prisma.profiles_customerUncheckedUpdateWithoutOrdersInput>
+  create: Prisma.XOR<Prisma.profiles_customerCreateWithoutOrdersInput, Prisma.profiles_customerUncheckedCreateWithoutOrdersInput>
+  where?: Prisma.profiles_customerWhereInput
+}
+
+export type profiles_customerUpdateToOneWithWhereWithoutOrdersInput = {
+  where?: Prisma.profiles_customerWhereInput
+  data: Prisma.XOR<Prisma.profiles_customerUpdateWithoutOrdersInput, Prisma.profiles_customerUncheckedUpdateWithoutOrdersInput>
+}
+
+export type profiles_customerUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  users?: Prisma.usersUpdateOneRequiredWithoutProfiles_customerNestedInput
+}
+
+export type profiles_customerUncheckedUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
 export type profiles_customerCreateWithoutUsersInput = {
   id?: string
   full_name: string
@@ -441,6 +531,7 @@ export type profiles_customerCreateWithoutUsersInput = {
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
+  orders?: Prisma.ordersCreateNestedManyWithoutProfiles_customerInput
 }
 
 export type profiles_customerUncheckedCreateWithoutUsersInput = {
@@ -452,6 +543,7 @@ export type profiles_customerUncheckedCreateWithoutUsersInput = {
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProfiles_customerInput
 }
 
 export type profiles_customerCreateOrConnectWithoutUsersInput = {
@@ -479,6 +571,7 @@ export type profiles_customerUpdateWithoutUsersInput = {
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orders?: Prisma.ordersUpdateManyWithoutProfiles_customerNestedInput
 }
 
 export type profiles_customerUncheckedUpdateWithoutUsersInput = {
@@ -490,8 +583,38 @@ export type profiles_customerUncheckedUpdateWithoutUsersInput = {
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutProfiles_customerNestedInput
 }
 
+
+/**
+ * Count Type Profiles_customerCountOutputType
+ */
+
+export type Profiles_customerCountOutputType = {
+  orders: number
+}
+
+export type Profiles_customerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  orders?: boolean | Profiles_customerCountOutputTypeCountOrdersArgs
+}
+
+/**
+ * Profiles_customerCountOutputType without action
+ */
+export type Profiles_customerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Profiles_customerCountOutputType
+   */
+  select?: Prisma.Profiles_customerCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * Profiles_customerCountOutputType without action
+ */
+export type Profiles_customerCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ordersWhereInput
+}
 
 
 export type profiles_customerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -504,7 +627,9 @@ export type profiles_customerSelect<ExtArgs extends runtime.Types.Extensions.Int
   avatar_url?: boolean
   created_at?: boolean
   updated_at?: boolean
+  orders?: boolean | Prisma.profiles_customer$ordersArgs<ExtArgs>
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.Profiles_customerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["profiles_customer"]>
 
 export type profiles_customerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -547,7 +672,9 @@ export type profiles_customerSelectScalar = {
 
 export type profiles_customerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "birth_date" | "gender" | "avatar_url" | "created_at" | "updated_at", ExtArgs["result"]["profiles_customer"]>
 export type profiles_customerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  orders?: boolean | Prisma.profiles_customer$ordersArgs<ExtArgs>
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.Profiles_customerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type profiles_customerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
@@ -559,6 +686,7 @@ export type profiles_customerIncludeUpdateManyAndReturn<ExtArgs extends runtime.
 export type $profiles_customerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "profiles_customer"
   objects: {
+    orders: Prisma.$ordersPayload<ExtArgs>[]
     users: Prisma.$usersPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -965,6 +1093,7 @@ readonly fields: profiles_customerFieldRefs;
  */
 export interface Prisma__profiles_customerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  orders<T extends Prisma.profiles_customer$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.profiles_customer$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ordersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   users<T extends Prisma.usersDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.usersDefaultArgs<ExtArgs>>): Prisma.Prisma__usersClient<runtime.Types.Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1402,6 +1531,30 @@ export type profiles_customerDeleteManyArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many profiles_customers to delete.
    */
   limit?: number
+}
+
+/**
+ * profiles_customer.orders
+ */
+export type profiles_customer$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the orders
+   */
+  select?: Prisma.ordersSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the orders
+   */
+  omit?: Prisma.ordersOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ordersInclude<ExtArgs> | null
+  where?: Prisma.ordersWhereInput
+  orderBy?: Prisma.ordersOrderByWithRelationInput | Prisma.ordersOrderByWithRelationInput[]
+  cursor?: Prisma.ordersWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrdersScalarFieldEnum | Prisma.OrdersScalarFieldEnum[]
 }
 
 /**

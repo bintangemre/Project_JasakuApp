@@ -29,11 +29,13 @@ export type AggregateProvider_profiles = {
 export type Provider_profilesAvgAggregateOutputType = {
   rating: runtime.Decimal | null
   total_jobs: number | null
+  total_reviews: number | null
 }
 
 export type Provider_profilesSumAggregateOutputType = {
   rating: runtime.Decimal | null
   total_jobs: number | null
+  total_reviews: number | null
 }
 
 export type Provider_profilesMinAggregateOutputType = {
@@ -56,6 +58,7 @@ export type Provider_profilesMinAggregateOutputType = {
   total_jobs: number | null
   created_at: Date | null
   updated_at: Date | null
+  total_reviews: number | null
 }
 
 export type Provider_profilesMaxAggregateOutputType = {
@@ -78,6 +81,7 @@ export type Provider_profilesMaxAggregateOutputType = {
   total_jobs: number | null
   created_at: Date | null
   updated_at: Date | null
+  total_reviews: number | null
 }
 
 export type Provider_profilesCountAggregateOutputType = {
@@ -100,6 +104,8 @@ export type Provider_profilesCountAggregateOutputType = {
   total_jobs: number
   created_at: number
   updated_at: number
+  total_reviews: number
+  portfolios: number
   _all: number
 }
 
@@ -107,11 +113,13 @@ export type Provider_profilesCountAggregateOutputType = {
 export type Provider_profilesAvgAggregateInputType = {
   rating?: true
   total_jobs?: true
+  total_reviews?: true
 }
 
 export type Provider_profilesSumAggregateInputType = {
   rating?: true
   total_jobs?: true
+  total_reviews?: true
 }
 
 export type Provider_profilesMinAggregateInputType = {
@@ -134,6 +142,7 @@ export type Provider_profilesMinAggregateInputType = {
   total_jobs?: true
   created_at?: true
   updated_at?: true
+  total_reviews?: true
 }
 
 export type Provider_profilesMaxAggregateInputType = {
@@ -156,6 +165,7 @@ export type Provider_profilesMaxAggregateInputType = {
   total_jobs?: true
   created_at?: true
   updated_at?: true
+  total_reviews?: true
 }
 
 export type Provider_profilesCountAggregateInputType = {
@@ -178,6 +188,8 @@ export type Provider_profilesCountAggregateInputType = {
   total_jobs?: true
   created_at?: true
   updated_at?: true
+  total_reviews?: true
+  portfolios?: true
   _all?: true
 }
 
@@ -287,6 +299,8 @@ export type Provider_profilesGroupByOutputType = {
   total_jobs: number | null
   created_at: Date | null
   updated_at: Date | null
+  total_reviews: number | null
+  portfolios: string[]
   _count: Provider_profilesCountAggregateOutputType | null
   _avg: Provider_profilesAvgAggregateOutputType | null
   _sum: Provider_profilesSumAggregateOutputType | null
@@ -332,6 +346,9 @@ export type provider_profilesWhereInput = {
   total_jobs?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
   created_at?: Prisma.DateTimeNullableFilter<"provider_profiles"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"provider_profiles"> | Date | string | null
+  total_reviews?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
+  portfolios?: Prisma.StringNullableListFilter<"provider_profiles">
+  orders?: Prisma.OrdersListRelationFilter
   users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
 }
 
@@ -355,6 +372,9 @@ export type provider_profilesOrderByWithRelationInput = {
   total_jobs?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  total_reviews?: Prisma.SortOrderInput | Prisma.SortOrder
+  portfolios?: Prisma.SortOrder
+  orders?: Prisma.ordersOrderByRelationAggregateInput
   users?: Prisma.usersOrderByWithRelationInput
 }
 
@@ -381,6 +401,9 @@ export type provider_profilesWhereUniqueInput = Prisma.AtLeast<{
   total_jobs?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
   created_at?: Prisma.DateTimeNullableFilter<"provider_profiles"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"provider_profiles"> | Date | string | null
+  total_reviews?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
+  portfolios?: Prisma.StringNullableListFilter<"provider_profiles">
+  orders?: Prisma.OrdersListRelationFilter
   users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
 }, "id" | "user_id">
 
@@ -404,6 +427,8 @@ export type provider_profilesOrderByWithAggregationInput = {
   total_jobs?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  total_reviews?: Prisma.SortOrderInput | Prisma.SortOrder
+  portfolios?: Prisma.SortOrder
   _count?: Prisma.provider_profilesCountOrderByAggregateInput
   _avg?: Prisma.provider_profilesAvgOrderByAggregateInput
   _max?: Prisma.provider_profilesMaxOrderByAggregateInput
@@ -434,6 +459,8 @@ export type provider_profilesScalarWhereWithAggregatesInput = {
   total_jobs?: Prisma.IntNullableWithAggregatesFilter<"provider_profiles"> | number | null
   created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"provider_profiles"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableWithAggregatesFilter<"provider_profiles"> | Date | string | null
+  total_reviews?: Prisma.IntNullableWithAggregatesFilter<"provider_profiles"> | number | null
+  portfolios?: Prisma.StringNullableListFilter<"provider_profiles">
 }
 
 export type provider_profilesCreateInput = {
@@ -455,6 +482,9 @@ export type provider_profilesCreateInput = {
   total_jobs?: number | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersCreateNestedManyWithoutProvider_profilesInput
   users: Prisma.usersCreateNestedOneWithoutProvider_profilesInput
 }
 
@@ -478,6 +508,9 @@ export type provider_profilesUncheckedCreateInput = {
   total_jobs?: number | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProvider_profilesInput
 }
 
 export type provider_profilesUpdateInput = {
@@ -499,6 +532,9 @@ export type provider_profilesUpdateInput = {
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUpdateManyWithoutProvider_profilesNestedInput
   users?: Prisma.usersUpdateOneRequiredWithoutProvider_profilesNestedInput
 }
 
@@ -522,6 +558,9 @@ export type provider_profilesUncheckedUpdateInput = {
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutProvider_profilesNestedInput
 }
 
 export type provider_profilesCreateManyInput = {
@@ -544,6 +583,8 @@ export type provider_profilesCreateManyInput = {
   total_jobs?: number | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
 }
 
 export type provider_profilesUpdateManyMutationInput = {
@@ -565,6 +606,8 @@ export type provider_profilesUpdateManyMutationInput = {
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
 }
 
 export type provider_profilesUncheckedUpdateManyInput = {
@@ -587,11 +630,26 @@ export type provider_profilesUncheckedUpdateManyInput = {
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+}
+
+export type Provider_profilesScalarRelationFilter = {
+  is?: Prisma.provider_profilesWhereInput
+  isNot?: Prisma.provider_profilesWhereInput
 }
 
 export type Provider_profilesNullableScalarRelationFilter = {
   is?: Prisma.provider_profilesWhereInput | null
   isNot?: Prisma.provider_profilesWhereInput | null
+}
+
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
 }
 
 export type provider_profilesCountOrderByAggregateInput = {
@@ -614,11 +672,14 @@ export type provider_profilesCountOrderByAggregateInput = {
   total_jobs?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
+  total_reviews?: Prisma.SortOrder
+  portfolios?: Prisma.SortOrder
 }
 
 export type provider_profilesAvgOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   total_jobs?: Prisma.SortOrder
+  total_reviews?: Prisma.SortOrder
 }
 
 export type provider_profilesMaxOrderByAggregateInput = {
@@ -641,6 +702,7 @@ export type provider_profilesMaxOrderByAggregateInput = {
   total_jobs?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
+  total_reviews?: Prisma.SortOrder
 }
 
 export type provider_profilesMinOrderByAggregateInput = {
@@ -663,11 +725,27 @@ export type provider_profilesMinOrderByAggregateInput = {
   total_jobs?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
+  total_reviews?: Prisma.SortOrder
 }
 
 export type provider_profilesSumOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   total_jobs?: Prisma.SortOrder
+  total_reviews?: Prisma.SortOrder
+}
+
+export type provider_profilesCreateNestedOneWithoutOrdersInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutOrdersInput, Prisma.provider_profilesUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutOrdersInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+}
+
+export type provider_profilesUpdateOneRequiredWithoutOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutOrdersInput, Prisma.provider_profilesUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutOrdersInput
+  upsert?: Prisma.provider_profilesUpsertWithoutOrdersInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.provider_profilesUpdateToOneWithWhereWithoutOrdersInput, Prisma.provider_profilesUpdateWithoutOrdersInput>, Prisma.provider_profilesUncheckedUpdateWithoutOrdersInput>
 }
 
 export type provider_profilesCreateNestedOneWithoutUsersInput = {
@@ -702,6 +780,127 @@ export type provider_profilesUncheckedUpdateOneWithoutUsersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.provider_profilesUpdateToOneWithWhereWithoutUsersInput, Prisma.provider_profilesUpdateWithoutUsersInput>, Prisma.provider_profilesUncheckedUpdateWithoutUsersInput>
 }
 
+export type provider_profilesCreateportfoliosInput = {
+  set: string[]
+}
+
+export type provider_profilesUpdateportfoliosInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type provider_profilesCreateWithoutOrdersInput = {
+  id?: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  is_active?: boolean | null
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  users: Prisma.usersCreateNestedOneWithoutProvider_profilesInput
+}
+
+export type provider_profilesUncheckedCreateWithoutOrdersInput = {
+  id?: string
+  user_id: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  is_active?: boolean | null
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+}
+
+export type provider_profilesCreateOrConnectWithoutOrdersInput = {
+  where: Prisma.provider_profilesWhereUniqueInput
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutOrdersInput, Prisma.provider_profilesUncheckedCreateWithoutOrdersInput>
+}
+
+export type provider_profilesUpsertWithoutOrdersInput = {
+  update: Prisma.XOR<Prisma.provider_profilesUpdateWithoutOrdersInput, Prisma.provider_profilesUncheckedUpdateWithoutOrdersInput>
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutOrdersInput, Prisma.provider_profilesUncheckedCreateWithoutOrdersInput>
+  where?: Prisma.provider_profilesWhereInput
+}
+
+export type provider_profilesUpdateToOneWithWhereWithoutOrdersInput = {
+  where?: Prisma.provider_profilesWhereInput
+  data: Prisma.XOR<Prisma.provider_profilesUpdateWithoutOrdersInput, Prisma.provider_profilesUncheckedUpdateWithoutOrdersInput>
+}
+
+export type provider_profilesUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  users?: Prisma.usersUpdateOneRequiredWithoutProvider_profilesNestedInput
+}
+
+export type provider_profilesUncheckedUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+}
+
 export type provider_profilesCreateWithoutUsersInput = {
   id?: string
   full_name: string
@@ -721,6 +920,9 @@ export type provider_profilesCreateWithoutUsersInput = {
   total_jobs?: number | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersCreateNestedManyWithoutProvider_profilesInput
 }
 
 export type provider_profilesUncheckedCreateWithoutUsersInput = {
@@ -742,6 +944,9 @@ export type provider_profilesUncheckedCreateWithoutUsersInput = {
   total_jobs?: number | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProvider_profilesInput
 }
 
 export type provider_profilesCreateOrConnectWithoutUsersInput = {
@@ -779,6 +984,9 @@ export type provider_profilesUpdateWithoutUsersInput = {
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUpdateManyWithoutProvider_profilesNestedInput
 }
 
 export type provider_profilesUncheckedUpdateWithoutUsersInput = {
@@ -800,8 +1008,40 @@ export type provider_profilesUncheckedUpdateWithoutUsersInput = {
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutProvider_profilesNestedInput
 }
 
+
+/**
+ * Count Type Provider_profilesCountOutputType
+ */
+
+export type Provider_profilesCountOutputType = {
+  orders: number
+}
+
+export type Provider_profilesCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  orders?: boolean | Provider_profilesCountOutputTypeCountOrdersArgs
+}
+
+/**
+ * Provider_profilesCountOutputType without action
+ */
+export type Provider_profilesCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Provider_profilesCountOutputType
+   */
+  select?: Prisma.Provider_profilesCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * Provider_profilesCountOutputType without action
+ */
+export type Provider_profilesCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ordersWhereInput
+}
 
 
 export type provider_profilesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -824,7 +1064,11 @@ export type provider_profilesSelect<ExtArgs extends runtime.Types.Extensions.Int
   total_jobs?: boolean
   created_at?: boolean
   updated_at?: boolean
+  total_reviews?: boolean
+  portfolios?: boolean
+  orders?: boolean | Prisma.provider_profiles$ordersArgs<ExtArgs>
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.Provider_profilesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_profiles"]>
 
 export type provider_profilesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -847,6 +1091,8 @@ export type provider_profilesSelectCreateManyAndReturn<ExtArgs extends runtime.T
   total_jobs?: boolean
   created_at?: boolean
   updated_at?: boolean
+  total_reviews?: boolean
+  portfolios?: boolean
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_profiles"]>
 
@@ -870,6 +1116,8 @@ export type provider_profilesSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   total_jobs?: boolean
   created_at?: boolean
   updated_at?: boolean
+  total_reviews?: boolean
+  portfolios?: boolean
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_profiles"]>
 
@@ -893,11 +1141,15 @@ export type provider_profilesSelectScalar = {
   total_jobs?: boolean
   created_at?: boolean
   updated_at?: boolean
+  total_reviews?: boolean
+  portfolios?: boolean
 }
 
-export type provider_profilesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "gender" | "birth_date" | "phone" | "address" | "domicile" | "profile_photo" | "ktp_photo" | "selfie_photo" | "is_verified" | "verification_status" | "is_active" | "rating" | "total_jobs" | "created_at" | "updated_at", ExtArgs["result"]["provider_profiles"]>
+export type provider_profilesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "gender" | "birth_date" | "phone" | "address" | "domicile" | "profile_photo" | "ktp_photo" | "selfie_photo" | "is_verified" | "verification_status" | "is_active" | "rating" | "total_jobs" | "created_at" | "updated_at" | "total_reviews" | "portfolios", ExtArgs["result"]["provider_profiles"]>
 export type provider_profilesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  orders?: boolean | Prisma.provider_profiles$ordersArgs<ExtArgs>
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.Provider_profilesCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type provider_profilesIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
@@ -909,6 +1161,7 @@ export type provider_profilesIncludeUpdateManyAndReturn<ExtArgs extends runtime.
 export type $provider_profilesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "provider_profiles"
   objects: {
+    orders: Prisma.$ordersPayload<ExtArgs>[]
     users: Prisma.$usersPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -931,6 +1184,8 @@ export type $provider_profilesPayload<ExtArgs extends runtime.Types.Extensions.I
     total_jobs: number | null
     created_at: Date | null
     updated_at: Date | null
+    total_reviews: number | null
+    portfolios: string[]
   }, ExtArgs["result"]["provider_profiles"]>
   composites: {}
 }
@@ -1325,6 +1580,7 @@ readonly fields: provider_profilesFieldRefs;
  */
 export interface Prisma__provider_profilesClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  orders<T extends Prisma.provider_profiles$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.provider_profiles$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ordersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   users<T extends Prisma.usersDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.usersDefaultArgs<ExtArgs>>): Prisma.Prisma__usersClient<runtime.Types.Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1374,6 +1630,8 @@ export interface provider_profilesFieldRefs {
   readonly total_jobs: Prisma.FieldRef<"provider_profiles", 'Int'>
   readonly created_at: Prisma.FieldRef<"provider_profiles", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"provider_profiles", 'DateTime'>
+  readonly total_reviews: Prisma.FieldRef<"provider_profiles", 'Int'>
+  readonly portfolios: Prisma.FieldRef<"provider_profiles", 'String[]'>
 }
     
 
@@ -1772,6 +2030,30 @@ export type provider_profilesDeleteManyArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many provider_profiles to delete.
    */
   limit?: number
+}
+
+/**
+ * provider_profiles.orders
+ */
+export type provider_profiles$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the orders
+   */
+  select?: Prisma.ordersSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the orders
+   */
+  omit?: Prisma.ordersOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ordersInclude<ExtArgs> | null
+  where?: Prisma.ordersWhereInput
+  orderBy?: Prisma.ordersOrderByWithRelationInput | Prisma.ordersOrderByWithRelationInput[]
+  cursor?: Prisma.ordersWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrdersScalarFieldEnum | Prisma.OrdersScalarFieldEnum[]
 }
 
 /**

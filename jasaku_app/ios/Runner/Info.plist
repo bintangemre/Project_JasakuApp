@@ -45,5 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Location permissions for Geolocator -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Kami memerlukan akses lokasi Anda untuk menampilkan profil dan menerima pesanan dari pelanggan terdekat.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Kami memerlukan akses lokasi Anda untuk tracking real-time dan menampilkan profil kepada pelanggan.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Kami memerlukan akses lokasi Anda untuk tracking real-time dan menampilkan profil kepada pelanggan.</string>
 </dict>
 </plist>

@@ -1,6 +1,9 @@
 import { prisma } from '../../config/prisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';   
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export class AuthService {
   
@@ -40,48 +43,111 @@ export class AuthService {
 
 
   //untuk Jasa (provider)
-  async registerProvider(full_name: string, nickname: string, email: string, password: string, phone: string, birthDate: Date, gender: string, address: string, domicile: string, profile_photo?: string, ktp_photo?: string, selfie_photo?: string) {
-    // Cek email sudah terdaftar
-    const existing = await prisma.users.findUnique({ where: { email } });
-    if (existing) throw new Error('Email sudah terdaftar');
+  //untuk Jasa (provider) - Versi Atomik Sekaligus Menyimpan Keahlian & Tarif
+async registerProvider(
+  full_name: string, 
+  nickname: string, 
+  email: string, 
+  password: string, 
+  phone: string, 
+  birthDate: Date, 
+  gender: string, 
+  address: string, 
+  domicile: string, 
+  profile_photo?: string, 
+  ktp_photo?: string, 
+  selfie_photo?: string, 
+  portfolios?: string[], // 🟢 Tambahkan tampungan portofolio opsional
+  services?: Array<{ 
+    serviceId: string; 
+    description: string; 
+    prices: Array<{ pricingTypeId: string; price: number }> 
+  }>
+) {
+  // 1. Cek apakah email sudah terdaftar di sistem Jasaku
+  const existing = await prisma.users.findUnique({ where: { email } });
+  if (existing) throw new Error('Email sudah terdaftar');
 
-    const role = await prisma.roles.findUnique({ where: { name: 'provider' } });
-    if (!role) throw new Error('Role provider tidak ditemukan');
+  // 2. Ambil master role khusus provider
+  const role = await prisma.roles.findUnique({ where: { name: 'provider' } });
+  if (!role) throw new Error('Role provider tidak ditemukan');
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+  // 3. Hash password secara aman
+  const hashedPassword = await bcrypt.hash(password, 12);
 
-    const result = await prisma.$transaction(async (tx) => {
-      const newUser = await tx.users.create({
-        data: {
-          email,
-          password_hash: hashedPassword,
-          role_id: role.id,
-          phone
-        }
-      });
-
-      // Gunakan fullName (sesuai parameter)
-      const profile = await tx.provider_profiles.create({
-        data: { 
-          user_id: newUser.id, 
-          full_name: full_name,
-          nickname: nickname,
-          birth_date: new Date(birthDate), // Pastikan formatnya Date jika di DB adalah Timestamp
-          gender: gender,
-          address: address,
-          domicile: domicile,
-          profile_photo: profile_photo || null,
-          ktp_photo: ktp_photo || null,
-          selfie_photo: selfie_photo || null
-        }
-      });
-      
-      return { newUser, profile };
+  // 4. JALANKAN SATU TRANSAKSI UTUH (ATOMIK)
+  const result = await prisma.$transaction(async (tx) => {
+    
+    // A. Buat Akun Utama di tabel users
+    const newUser = await tx.users.create({
+      data: {
+        email,
+        password_hash: hashedPassword,
+        role_id: role.id,
+        phone
+      }
     });
 
-    const token = this.generateToken(result.newUser.id, role.name);
-    return { token, user: { id: result.newUser.id, email: result.newUser.email, role: role.name }, profile: result.profile };
-  }
+    // B. Buat Data Profil Lengkap beserta Foto Dokumen & Portofolio
+    const profile = await tx.provider_profiles.create({
+      data: { 
+        user_id: newUser.id, 
+        full_name: full_name,
+        nickname: nickname,
+        birth_date: new Date(birthDate),
+        gender: gender,
+        address: address,
+        domicile: domicile,
+        profile_photo: profile_photo || null,
+        ktp_photo: ktp_photo || null,
+        selfie_photo: selfie_photo || null,
+        portfolios: portfolios || [], // 🟢 Otomatis tersimpan sebagai array string url
+        is_available: true // Default aktif siap menerima kerjaan awal
+      }
+    });
+    
+    // C. SIMPAN KEAHLIAN & TARIF SEKALIGUS (Jika dikirim dari Flutter)
+    if (services && services.length > 0) {
+      // Ambil seluruh master tipe harga untuk auto-fill data unit di DB
+      const masterPricingTypes = await tx.pricing_types.findMany();
+
+      for (const service of services) {
+        // Buat baris baru di tabel penghubung provider_services
+        const newProviderService = await tx.provider_services.create({
+          data: {
+            provider_id: newUser.id,
+            service_id: service.serviceId,
+            description: service.description
+          }
+        });
+
+        // Map data harga dengan unit otomatis dari tabel master pricing_types
+        const priceData = service.prices.map(p => {
+          const typeInfo = masterPricingTypes.find((t: any) => t.id === p.pricingTypeId);
+          return {
+            provider_service_id: newProviderService.id,
+            pricing_type_id: p.pricingTypeId,
+            price: p.price,
+            unit: typeInfo?.default_unit || null // Isi unit otomatis (misal: 'hari', 'jam', 'meter')
+          };
+        });
+
+        // Masukkan semua rincian tarif harga ke tabel harga provider
+        await tx.provider_service_prices.createMany({ data: priceData });
+      }
+    }
+    
+    return { newUser, profile };
+  });
+
+  // 5. Generate token internal Jasaku untuk auto-login setelah register sukses
+  const token = this.generateToken(result.newUser.id, role.name);
+  return { 
+    token, 
+    user: { id: result.newUser.id, email: result.newUser.email, role: role.name }, 
+    profile: result.profile 
+  };
+}
 
  //register admin langsung masuk ke tabel users tanpa profile karena tidak diperlukan
   async registerAdmin(email: string, password: string, name: string, phone?: string) {
@@ -115,6 +181,71 @@ export class AuthService {
     const token = this.generateToken(user.id, user.roles.name);
 
     return { token, user: { id: user.id, email: user.email, role: user.roles.name }, profile: user.profiles_customer || user.provider_profiles };
+  }
+
+  // ==========================================
+  // 5. FITUR BARU: LOGIN & REGISTER VIA GOOGLE
+  // ==========================================
+  async loginWithGoogle(idToken: string) {
+    // 1. Verifikasi token ke Google
+    const ticket = await client.verifyIdToken({
+      idToken: idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) throw new Error('Gagal mendapatkan payload dari Google');
+    
+    const { email, name } = payload;
+
+    // 2. Cari apakah user dengan email tersebut sudah terdaftar di database Jasaku
+    let user = await prisma.users.findUnique({
+      where: { email },
+      include: { roles: true, profiles_customer: true, provider_profiles: true }
+    });
+
+    let roleName = 'customer'; // Default role jika membuat akun baru via Google
+
+    if (!user) {
+      // 3. Jika belum terdaftar, daftarkan otomatis sebagai CUSTOMER via Prisma Transaction
+      const role = await prisma.roles.findUnique({ where: { name: 'customer' } });
+      if (!role) throw new Error('Role customer tidak ditemukan');
+
+      user = await prisma.$transaction(async (tx) => {
+        const newUser = await tx.users.create({
+          data: {
+            email,
+            password_hash: null, // Kosongkan password karena login menggunakan Google OAuth
+            role_id: role.id,
+          },
+          include: { roles: true, profiles_customer: true, provider_profiles: true }
+        });
+
+        const newProfile = await tx.profiles_customer.create({
+          data: {
+            user_id: newUser.id,
+            full_name: name || 'Google User',
+          }
+        });
+
+        // Masukkan kembali profil yang baru dibuat ke objek user agar strukturnya konsisten saat dikembalikan
+        newUser.profiles_customer = newProfile;
+        return newUser;
+      });
+
+      roleName = role.name;
+    } else {
+      roleName = user.roles.name;
+    }
+
+    // 4. Generate token internal Jasaku menggunakan function pembantu class
+    const token = this.generateToken(user.id, roleName);
+
+    return { 
+      token, 
+      user: { id: user.id, email: user.email, role: roleName }, 
+      profile: user.profiles_customer || user.provider_profiles 
+    };
   }
 
   private generateToken(userId: string, role: string) {

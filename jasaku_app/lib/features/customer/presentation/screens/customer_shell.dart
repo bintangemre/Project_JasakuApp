@@ -2,9 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../screens/customer_home.dart';
-import '../screens/customer_orders.dart';
 import '../screens/customer_profile.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
 
 class CustomerShell extends ConsumerStatefulWidget {
   const CustomerShell({super.key});
@@ -18,7 +16,6 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
 
   static const List<Widget> _pages = [
     CustomerHome(),
-    CustomerOrders(),
     CustomerProfile(),
   ];
 

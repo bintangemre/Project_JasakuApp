@@ -1,20 +1,20 @@
-// Layar register shared untuk customer dan provider menggunakan backend Jasaku App.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
-  const RegisterScreen({super.key});
+class CustomerRegisterScreen extends ConsumerStatefulWidget {
+  const CustomerRegisterScreen({super.key});
 
   @override
-  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<CustomerRegisterScreen> createState() =>
+      _CustomerRegisterScreenState();
 }
 
-class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+class _CustomerRegisterScreenState
+    extends ConsumerState<CustomerRegisterScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
-  String _role = 'customer';
 
   @override
   void dispose() {
@@ -36,26 +36,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
-    bool success;
-    if (_role == 'customer') {
-      success = await ref
-          .read(authProvider.notifier)
-          .registerCustomer(email: email, password: password, name: name);
-    } else {
-      success = await ref
-          .read(authProvider.notifier)
-          .registerProvider(
-            fullName: name,
-            nickname: '',
-            email: email,
-            password: password,
-            phone: '',
-            birthDate: '',
-            gender: '',
-            address: '',
-            domicile: '',
-          );
-    }
+    final success = await ref
+        .read(authProvider.notifier)
+        .registerCustomer(email: email, password: password, name: name);
 
     if (!mounted) return;
 
@@ -73,7 +56,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('Daftar Akun')),
+      appBar: AppBar(title: const Text('Daftar Akun Customer')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -94,23 +77,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 controller: _passwordCtrl,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: _role,
-                decoration: const InputDecoration(
-                  labelText: 'Daftar Sebagai',
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'customer', child: Text('Customer')),
-                  DropdownMenuItem(value: 'provider', child: Text('Provider')),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _role = value);
-                  }
-                },
               ),
               const SizedBox(height: 20),
               SizedBox(
