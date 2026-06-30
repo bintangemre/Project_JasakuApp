@@ -40,6 +40,7 @@ export const JsonNull = runtime.JsonNull;
 export const AnyNull = runtime.AnyNull;
 export const ModelName = {
     categories: 'categories',
+    admin_payment_accounts: 'admin_payment_accounts',
     custom_task_proposals: 'custom_task_proposals',
     custom_tasks: 'custom_tasks',
     customer_payment_methods: 'customer_payment_methods',
@@ -59,7 +60,8 @@ export const ModelName = {
     profiles_customer: 'profiles_customer',
     provider_profiles: 'provider_profiles',
     provider_locations: 'provider_locations',
-    reviews: 'reviews'
+    reviews: 'reviews',
+    user_devices: 'user_devices'
 };
 /*
  * Enums
@@ -76,6 +78,17 @@ export const CategoriesScalarFieldEnum = {
     description: 'description',
     created_at: 'created_at',
     icon_url: 'icon_url'
+};
+export const Admin_payment_accountsScalarFieldEnum = {
+    id: 'id',
+    type: 'type',
+    account_name: 'account_name',
+    account_number: 'account_number',
+    provider_name: 'provider_name',
+    qris_image_url: 'qris_image_url',
+    is_active: 'is_active',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
 };
 export const Custom_task_proposalsScalarFieldEnum = {
     id: 'id',
@@ -241,7 +254,8 @@ export const Provider_profilesScalarFieldEnum = {
     total_jobs: 'total_jobs',
     created_at: 'created_at',
     updated_at: 'updated_at',
-    total_reviews: 'total_reviews'
+    total_reviews: 'total_reviews',
+    portfolios: 'portfolios'
 };
 export const Provider_locationsScalarFieldEnum = {
     id: 'id',
@@ -255,6 +269,15 @@ export const ReviewsScalarFieldEnum = {
     provider_id: 'provider_id',
     rating: 'rating',
     review: 'review',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+};
+export const User_devicesScalarFieldEnum = {
+    id: 'id',
+    user_id: 'user_id',
+    fcm_token: 'fcm_token',
+    device_type: 'device_type',
+    device_name: 'device_name',
     created_at: 'created_at',
     updated_at: 'updated_at'
 };

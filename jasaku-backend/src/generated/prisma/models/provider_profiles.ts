@@ -54,6 +54,7 @@ export type Provider_profilesMinAggregateOutputType = {
   is_verified: boolean | null
   verification_status: string | null
   is_active: boolean | null
+  onboarding_completed: boolean | null
   rating: runtime.Decimal | null
   total_jobs: number | null
   created_at: Date | null
@@ -77,6 +78,7 @@ export type Provider_profilesMaxAggregateOutputType = {
   is_verified: boolean | null
   verification_status: string | null
   is_active: boolean | null
+  onboarding_completed: boolean | null
   rating: runtime.Decimal | null
   total_jobs: number | null
   created_at: Date | null
@@ -100,6 +102,7 @@ export type Provider_profilesCountAggregateOutputType = {
   is_verified: number
   verification_status: number
   is_active: number
+  onboarding_completed: number
   rating: number
   total_jobs: number
   created_at: number
@@ -138,6 +141,7 @@ export type Provider_profilesMinAggregateInputType = {
   is_verified?: true
   verification_status?: true
   is_active?: true
+  onboarding_completed?: true
   rating?: true
   total_jobs?: true
   created_at?: true
@@ -161,6 +165,7 @@ export type Provider_profilesMaxAggregateInputType = {
   is_verified?: true
   verification_status?: true
   is_active?: true
+  onboarding_completed?: true
   rating?: true
   total_jobs?: true
   created_at?: true
@@ -184,6 +189,7 @@ export type Provider_profilesCountAggregateInputType = {
   is_verified?: true
   verification_status?: true
   is_active?: true
+  onboarding_completed?: true
   rating?: true
   total_jobs?: true
   created_at?: true
@@ -295,6 +301,7 @@ export type Provider_profilesGroupByOutputType = {
   is_verified: boolean | null
   verification_status: string | null
   is_active: boolean | null
+  onboarding_completed: boolean | null
   rating: runtime.Decimal | null
   total_jobs: number | null
   created_at: Date | null
@@ -342,6 +349,7 @@ export type provider_profilesWhereInput = {
   is_verified?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
   verification_status?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   is_active?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
+  onboarding_completed?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
   rating?: Prisma.DecimalNullableFilter<"provider_profiles"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
   created_at?: Prisma.DateTimeNullableFilter<"provider_profiles"> | Date | string | null
@@ -368,6 +376,7 @@ export type provider_profilesOrderByWithRelationInput = {
   is_verified?: Prisma.SortOrderInput | Prisma.SortOrder
   verification_status?: Prisma.SortOrderInput | Prisma.SortOrder
   is_active?: Prisma.SortOrderInput | Prisma.SortOrder
+  onboarding_completed?: Prisma.SortOrderInput | Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
   total_jobs?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -397,6 +406,7 @@ export type provider_profilesWhereUniqueInput = Prisma.AtLeast<{
   is_verified?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
   verification_status?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   is_active?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
+  onboarding_completed?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
   rating?: Prisma.DecimalNullableFilter<"provider_profiles"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
   created_at?: Prisma.DateTimeNullableFilter<"provider_profiles"> | Date | string | null
@@ -423,6 +433,7 @@ export type provider_profilesOrderByWithAggregationInput = {
   is_verified?: Prisma.SortOrderInput | Prisma.SortOrder
   verification_status?: Prisma.SortOrderInput | Prisma.SortOrder
   is_active?: Prisma.SortOrderInput | Prisma.SortOrder
+  onboarding_completed?: Prisma.SortOrderInput | Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
   total_jobs?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -455,6 +466,7 @@ export type provider_profilesScalarWhereWithAggregatesInput = {
   is_verified?: Prisma.BoolNullableWithAggregatesFilter<"provider_profiles"> | boolean | null
   verification_status?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
   is_active?: Prisma.BoolNullableWithAggregatesFilter<"provider_profiles"> | boolean | null
+  onboarding_completed?: Prisma.BoolNullableWithAggregatesFilter<"provider_profiles"> | boolean | null
   rating?: Prisma.DecimalNullableWithAggregatesFilter<"provider_profiles"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.IntNullableWithAggregatesFilter<"provider_profiles"> | number | null
   created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"provider_profiles"> | Date | string | null
@@ -478,6 +490,7 @@ export type provider_profilesCreateInput = {
   is_verified?: boolean | null
   verification_status?: string | null
   is_active?: boolean | null
+  onboarding_completed?: boolean | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -504,6 +517,7 @@ export type provider_profilesUncheckedCreateInput = {
   is_verified?: boolean | null
   verification_status?: string | null
   is_active?: boolean | null
+  onboarding_completed?: boolean | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -528,6 +542,7 @@ export type provider_profilesUpdateInput = {
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -554,6 +569,7 @@ export type provider_profilesUncheckedUpdateInput = {
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -579,6 +595,7 @@ export type provider_profilesCreateManyInput = {
   is_verified?: boolean | null
   verification_status?: string | null
   is_active?: boolean | null
+  onboarding_completed?: boolean | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -602,6 +619,7 @@ export type provider_profilesUpdateManyMutationInput = {
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -626,6 +644,7 @@ export type provider_profilesUncheckedUpdateManyInput = {
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -668,6 +687,7 @@ export type provider_profilesCountOrderByAggregateInput = {
   is_verified?: Prisma.SortOrder
   verification_status?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
+  onboarding_completed?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   total_jobs?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -698,6 +718,7 @@ export type provider_profilesMaxOrderByAggregateInput = {
   is_verified?: Prisma.SortOrder
   verification_status?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
+  onboarding_completed?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   total_jobs?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -721,6 +742,7 @@ export type provider_profilesMinOrderByAggregateInput = {
   is_verified?: Prisma.SortOrder
   verification_status?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
+  onboarding_completed?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   total_jobs?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -804,6 +826,7 @@ export type provider_profilesCreateWithoutOrdersInput = {
   is_verified?: boolean | null
   verification_status?: string | null
   is_active?: boolean | null
+  onboarding_completed?: boolean | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -829,6 +852,7 @@ export type provider_profilesUncheckedCreateWithoutOrdersInput = {
   is_verified?: boolean | null
   verification_status?: string | null
   is_active?: boolean | null
+  onboarding_completed?: boolean | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -868,6 +892,7 @@ export type provider_profilesUpdateWithoutOrdersInput = {
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -893,6 +918,7 @@ export type provider_profilesUncheckedUpdateWithoutOrdersInput = {
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -916,6 +942,7 @@ export type provider_profilesCreateWithoutUsersInput = {
   is_verified?: boolean | null
   verification_status?: string | null
   is_active?: boolean | null
+  onboarding_completed?: boolean | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -940,6 +967,7 @@ export type provider_profilesUncheckedCreateWithoutUsersInput = {
   is_verified?: boolean | null
   verification_status?: string | null
   is_active?: boolean | null
+  onboarding_completed?: boolean | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -980,6 +1008,7 @@ export type provider_profilesUpdateWithoutUsersInput = {
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1004,6 +1033,7 @@ export type provider_profilesUncheckedUpdateWithoutUsersInput = {
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1060,6 +1090,7 @@ export type provider_profilesSelect<ExtArgs extends runtime.Types.Extensions.Int
   is_verified?: boolean
   verification_status?: boolean
   is_active?: boolean
+  onboarding_completed?: boolean
   rating?: boolean
   total_jobs?: boolean
   created_at?: boolean
@@ -1087,6 +1118,7 @@ export type provider_profilesSelectCreateManyAndReturn<ExtArgs extends runtime.T
   is_verified?: boolean
   verification_status?: boolean
   is_active?: boolean
+  onboarding_completed?: boolean
   rating?: boolean
   total_jobs?: boolean
   created_at?: boolean
@@ -1112,6 +1144,7 @@ export type provider_profilesSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   is_verified?: boolean
   verification_status?: boolean
   is_active?: boolean
+  onboarding_completed?: boolean
   rating?: boolean
   total_jobs?: boolean
   created_at?: boolean
@@ -1137,6 +1170,7 @@ export type provider_profilesSelectScalar = {
   is_verified?: boolean
   verification_status?: boolean
   is_active?: boolean
+  onboarding_completed?: boolean
   rating?: boolean
   total_jobs?: boolean
   created_at?: boolean
@@ -1145,7 +1179,7 @@ export type provider_profilesSelectScalar = {
   portfolios?: boolean
 }
 
-export type provider_profilesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "gender" | "birth_date" | "phone" | "address" | "domicile" | "profile_photo" | "ktp_photo" | "selfie_photo" | "is_verified" | "verification_status" | "is_active" | "rating" | "total_jobs" | "created_at" | "updated_at" | "total_reviews" | "portfolios", ExtArgs["result"]["provider_profiles"]>
+export type provider_profilesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "gender" | "birth_date" | "phone" | "address" | "domicile" | "profile_photo" | "ktp_photo" | "selfie_photo" | "is_verified" | "verification_status" | "is_active" | "onboarding_completed" | "rating" | "total_jobs" | "created_at" | "updated_at" | "total_reviews" | "portfolios", ExtArgs["result"]["provider_profiles"]>
 export type provider_profilesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Prisma.provider_profiles$ordersArgs<ExtArgs>
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
@@ -1180,6 +1214,7 @@ export type $provider_profilesPayload<ExtArgs extends runtime.Types.Extensions.I
     is_verified: boolean | null
     verification_status: string | null
     is_active: boolean | null
+    onboarding_completed: boolean | null
     rating: runtime.Decimal | null
     total_jobs: number | null
     created_at: Date | null
@@ -1626,6 +1661,7 @@ export interface provider_profilesFieldRefs {
   readonly is_verified: Prisma.FieldRef<"provider_profiles", 'Boolean'>
   readonly verification_status: Prisma.FieldRef<"provider_profiles", 'String'>
   readonly is_active: Prisma.FieldRef<"provider_profiles", 'Boolean'>
+  readonly onboarding_completed: Prisma.FieldRef<"provider_profiles", 'Boolean'>
   readonly rating: Prisma.FieldRef<"provider_profiles", 'Decimal'>
   readonly total_jobs: Prisma.FieldRef<"provider_profiles", 'Int'>
   readonly created_at: Prisma.FieldRef<"provider_profiles", 'DateTime'>

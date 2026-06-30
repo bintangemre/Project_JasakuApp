@@ -8,9 +8,18 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export class AuthService {
   
   async registerCustomer(email: string, password: string, name: string, phone?: string, gender?: string, birthDate?: Date) {
+    // Normalisasi: empty string → null (unik constraint aman)
+    const normalizedPhone = phone?.trim() || null;
+
     // Cek email sudah terdaftar
     const existing = await prisma.users.findUnique({ where: { email } });
     if (existing) throw new Error('Email sudah terdaftar');
+
+    // Cek nomor telepon sudah terdaftar
+    if (normalizedPhone) {
+      const phoneExists = await prisma.users.findUnique({ where: { phone: normalizedPhone } });
+      if (phoneExists) throw new Error('Nomor telepon sudah terdaftar');
+    }
 
     // Cari role berdasarkan name
     const role = await prisma.roles.findUnique({ where: { name: 'customer' } });
@@ -26,7 +35,7 @@ export class AuthService {
           email,
           password_hash: hashedPassword,
           role_id: role.id,
-          phone
+          phone: normalizedPhone
         }
       });
 
@@ -57,16 +66,25 @@ async registerProvider(
   profile_photo?: string, 
   ktp_photo?: string, 
   selfie_photo?: string, 
-  portfolios?: string[], // 🟢 Tambahkan tampungan portofolio opsional
+  portfolios?: string[],
   services?: Array<{ 
     serviceId: string; 
     description: string; 
     prices: Array<{ pricingTypeId: string; price: number }> 
   }>
 ) {
+  // Normalisasi: empty string → null
+  const normalizedPhone = phone?.trim() || null;
+
   // 1. Cek apakah email sudah terdaftar di sistem Jasaku
   const existing = await prisma.users.findUnique({ where: { email } });
   if (existing) throw new Error('Email sudah terdaftar');
+
+  // 1b. Cek apakah nomor telepon sudah terdaftar
+  if (normalizedPhone) {
+    const phoneExists = await prisma.users.findUnique({ where: { phone: normalizedPhone } });
+    if (phoneExists) throw new Error('Nomor telepon sudah terdaftar');
+  }
 
   // 2. Ambil master role khusus provider
   const role = await prisma.roles.findUnique({ where: { name: 'provider' } });
@@ -84,7 +102,7 @@ async registerProvider(
         email,
         password_hash: hashedPassword,
         role_id: role.id,
-        phone
+        phone: normalizedPhone
       }
     });
 
@@ -96,13 +114,13 @@ async registerProvider(
         nickname: nickname,
         birth_date: new Date(birthDate),
         gender: gender,
+        phone: normalizedPhone,
         address: address,
         domicile: domicile,
         profile_photo: profile_photo || null,
         ktp_photo: ktp_photo || null,
         selfie_photo: selfie_photo || null,
         portfolios: portfolios || [], // 🟢 Otomatis tersimpan sebagai array string url
-        is_available: true // Default aktif siap menerima kerjaan awal
       }
     });
     
@@ -149,10 +167,16 @@ async registerProvider(
   };
 }
 
- //register admin langsung masuk ke tabel users tanpa profile karena tidak diperlukan
+  //register admin langsung masuk ke tabel users tanpa profile karena tidak diperlukan
   async registerAdmin(email: string, password: string, name: string, phone?: string) {
+    const normalizedPhone = phone?.trim() || null;
+
     const existing = await prisma.users.findUnique({ where: { email } });
     if (existing) throw new Error('Email sudah terdaftar');
+    if (normalizedPhone) {
+      const phoneExists = await prisma.users.findUnique({ where: { phone: normalizedPhone } });
+      if (phoneExists) throw new Error('Nomor telepon sudah terdaftar');
+    }
     const role = await prisma.roles.findUnique({ where: { name: 'admin' } });
     if (!role) throw new Error('Role admin tidak ditemukan');
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -161,7 +185,7 @@ async registerProvider(
         email,
         password_hash: hashedPassword,
         role_id: role.id,
-        phone
+        phone: normalizedPhone
       }    
   });
     const token = this.generateToken(user.id, role.name);
@@ -178,9 +202,31 @@ async registerProvider(
     const isValid = await bcrypt.compare(password, user.password_hash || '');
     if (!isValid) throw new Error('Email atau password salah');
 
+    // Cek verifikasi untuk role provider
+    if (user.roles.name === 'provider') {
+      const profile = user.provider_profiles;
+      if (profile) {
+        if (profile.verification_status === 'pending') {
+          throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
+        }
+        if (profile.verification_status === 'rejected') {
+          throw new Error('Akun Anda ditolak. Silakan hubungi admin untuk informasi lebih lanjut.');
+        }
+      }
+    }
+
     const token = this.generateToken(user.id, user.roles.name);
 
-    return { token, user: { id: user.id, email: user.email, role: user.roles.name }, profile: user.profiles_customer || user.provider_profiles };
+    const profile = user.profiles_customer || user.provider_profiles;
+    const extra = profile && 'verification_status' in profile
+      ? { verification_status: (profile as any).verification_status, onboarding_completed: (profile as any).onboarding_completed ?? true }
+      : {};
+
+    return {
+      token,
+      user: { id: user.id, email: user.email, role: user.roles.name },
+      profile: { ...profile, ...extra }
+    };
   }
 
   // ==========================================
@@ -236,15 +282,31 @@ async registerProvider(
       roleName = role.name;
     } else {
       roleName = user.roles.name;
+
+      // Cek verifikasi untuk role provider yang sudah terdaftar
+      if (roleName === 'provider' && user.provider_profiles) {
+        const profile = user.provider_profiles;
+        if (profile.verification_status === 'pending') {
+          throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
+        }
+        if (profile.verification_status === 'rejected') {
+          throw new Error('Akun Anda ditolak. Silakan hubungi admin untuk informasi lebih lanjut.');
+        }
+      }
     }
 
     // 4. Generate token internal Jasaku menggunakan function pembantu class
     const token = this.generateToken(user.id, roleName);
 
+    const profile = user.profiles_customer || user.provider_profiles;
+    const extra = profile && 'verification_status' in profile
+      ? { verification_status: (profile as any).verification_status, onboarding_completed: (profile as any).onboarding_completed ?? true }
+      : {};
+
     return { 
       token, 
       user: { id: user.id, email: user.email, role: roleName }, 
-      profile: user.profiles_customer || user.provider_profiles 
+      profile: { ...profile, ...extra }
     };
   }
 
@@ -254,5 +316,43 @@ async registerProvider(
       process.env.JWT_SECRET!,
       { expiresIn: process.env.JWT_EXPIRES_IN as any }
     );
+  }
+
+  // ==========================================
+  // OTP Sederhana (in-memory, untuk development)
+  // ==========================================
+  private otpStore = new Map<string, { otp: string; email: string; phone: string; expiresAt: Date }>();
+
+  async sendOtp(email: string, phone: string) {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 menit
+
+    this.otpStore.set(email, { otp, email, phone, expiresAt });
+
+    // Untuk development, log OTP ke console
+    console.log(`[OTP] Email: ${email}, OTP: ${otp}, berlaku hingga: ${expiresAt}`);
+
+    return { message: 'OTP berhasil dikirim', otp }; // TODO: Hapus otp di production
+  }
+
+  async verifyOtp(email: string, phone: string, otp: string) {
+    const stored = this.otpStore.get(email);
+    if (!stored) throw new Error('OTP tidak ditemukan. Kirim ulang OTP.');
+
+    if (new Date() > stored.expiresAt) {
+      this.otpStore.delete(email);
+      throw new Error('OTP sudah kadaluwarsa. Kirim ulang OTP.');
+    }
+
+    if (stored.otp !== otp) throw new Error('OTP salah.');
+
+    // Tandai user sebagai terverifikasi
+    await prisma.users.updateMany({
+      where: { email },
+      data: { is_phone_verified: true, is_email_verified: true }
+    });
+
+    this.otpStore.delete(email);
+    return { message: 'Verifikasi berhasil' };
   }
 }

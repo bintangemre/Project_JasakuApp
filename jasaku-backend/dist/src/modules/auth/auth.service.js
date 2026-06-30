@@ -34,16 +34,22 @@ export class AuthService {
         return { token, user: { id: result.newUser.id, email: result.newUser.email, role: role.name }, profile: result.profile };
     }
     //untuk Jasa (provider)
-    async registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, services) {
-        // Cek email sudah terdaftar
+    //untuk Jasa (provider) - Versi Atomik Sekaligus Menyimpan Keahlian & Tarif
+    async registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, // 🟢 Tambahkan tampungan portofolio opsional
+    services) {
+        // 1. Cek apakah email sudah terdaftar di sistem Jasaku
         const existing = await prisma.users.findUnique({ where: { email } });
         if (existing)
             throw new Error('Email sudah terdaftar');
+        // 2. Ambil master role khusus provider
         const role = await prisma.roles.findUnique({ where: { name: 'provider' } });
         if (!role)
             throw new Error('Role provider tidak ditemukan');
+        // 3. Hash password secara aman
         const hashedPassword = await bcrypt.hash(password, 12);
+        // 4. JALANKAN SATU TRANSAKSI UTUH (ATOMIK)
         const result = await prisma.$transaction(async (tx) => {
+            // A. Buat Akun Utama di tabel users
             const newUser = await tx.users.create({
                 data: {
                     email,
@@ -52,64 +58,59 @@ export class AuthService {
                     phone
                 }
             });
-            // Gunakan fullName (sesuai parameter)
+            // B. Buat Data Profil Lengkap beserta Foto Dokumen & Portofolio
             const profile = await tx.provider_profiles.create({
                 data: {
                     user_id: newUser.id,
                     full_name: full_name,
                     nickname: nickname,
-                    birth_date: new Date(birthDate), // Pastikan formatnya Date jika di DB adalah Timestamp
+                    birth_date: new Date(birthDate),
                     gender: gender,
+                    phone: phone,
                     address: address,
                     domicile: domicile,
                     profile_photo: profile_photo || null,
                     ktp_photo: ktp_photo || null,
-                    selfie_photo: selfie_photo || null
+                    selfie_photo: selfie_photo || null,
+                    portfolios: portfolios || [], // 🟢 Otomatis tersimpan sebagai array string url
                 }
             });
-            // Simpan services dan prices jika ada
+            // C. SIMPAN KEAHLIAN & TARIF SEKALIGUS (Jika dikirim dari Flutter)
             if (services && services.length > 0) {
+                // Ambil seluruh master tipe harga untuk auto-fill data unit di DB
+                const masterPricingTypes = await tx.pricing_types.findMany();
                 for (const service of services) {
-                    // Ambil master pricing types untuk auto-fill unit
-                    const masterPricingTypes = await tx.pricing_types.findMany();
-                    // Buat atau update provider service
-                    const existingProviderService = await tx.provider_services.findFirst({
-                        where: {
+                    // Buat baris baru di tabel penghubung provider_services
+                    const newProviderService = await tx.provider_services.create({
+                        data: {
                             provider_id: newUser.id,
-                            service_id: service.serviceId
+                            service_id: service.serviceId,
+                            description: service.description
                         }
                     });
-                    let providerServiceId;
-                    if (existingProviderService) {
-                        providerServiceId = existingProviderService.id;
-                    }
-                    else {
-                        const newProviderService = await tx.provider_services.create({
-                            data: {
-                                provider_id: newUser.id,
-                                service_id: service.serviceId,
-                                description: service.description
-                            }
-                        });
-                        providerServiceId = newProviderService.id;
-                    }
-                    // Map data harga dengan unit otomatis dari pricing_types
+                    // Map data harga dengan unit otomatis dari tabel master pricing_types
                     const priceData = service.prices.map(p => {
                         const typeInfo = masterPricingTypes.find((t) => t.id === p.pricingTypeId);
                         return {
-                            provider_service_id: providerServiceId,
+                            provider_service_id: newProviderService.id,
                             pricing_type_id: p.pricingTypeId,
                             price: p.price,
-                            unit: typeInfo?.default_unit || null
+                            unit: typeInfo?.default_unit || null // Isi unit otomatis (misal: 'hari', 'jam', 'meter')
                         };
                     });
+                    // Masukkan semua rincian tarif harga ke tabel harga provider
                     await tx.provider_service_prices.createMany({ data: priceData });
                 }
             }
             return { newUser, profile };
         });
+        // 5. Generate token internal Jasaku untuk auto-login setelah register sukses
         const token = this.generateToken(result.newUser.id, role.name);
-        return { token, user: { id: result.newUser.id, email: result.newUser.email, role: role.name }, profile: result.profile };
+        return {
+            token,
+            user: { id: result.newUser.id, email: result.newUser.email, role: role.name },
+            profile: result.profile
+        };
     }
     //register admin langsung masuk ke tabel users tanpa profile karena tidak diperlukan
     async registerAdmin(email, password, name, phone) {
@@ -202,5 +203,35 @@ export class AuthService {
     }
     generateToken(userId, role) {
         return jwt.sign({ userId, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+    }
+    // ==========================================
+    // OTP Sederhana (in-memory, untuk development)
+    // ==========================================
+    otpStore = new Map();
+    async sendOtp(email, phone) {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 menit
+        this.otpStore.set(email, { otp, email, phone, expiresAt });
+        // Untuk development, log OTP ke console
+        console.log(`[OTP] Email: ${email}, OTP: ${otp}, berlaku hingga: ${expiresAt}`);
+        return { message: 'OTP berhasil dikirim', otp }; // TODO: Hapus otp di production
+    }
+    async verifyOtp(email, phone, otp) {
+        const stored = this.otpStore.get(email);
+        if (!stored)
+            throw new Error('OTP tidak ditemukan. Kirim ulang OTP.');
+        if (new Date() > stored.expiresAt) {
+            this.otpStore.delete(email);
+            throw new Error('OTP sudah kadaluwarsa. Kirim ulang OTP.');
+        }
+        if (stored.otp !== otp)
+            throw new Error('OTP salah.');
+        // Tandai user sebagai terverifikasi
+        await prisma.users.updateMany({
+            where: { email },
+            data: { is_phone_verified: true, is_email_verified: true }
+        });
+        this.otpStore.delete(email);
+        return { message: 'Verifikasi berhasil' };
     }
 }

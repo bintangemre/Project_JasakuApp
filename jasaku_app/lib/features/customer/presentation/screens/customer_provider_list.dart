@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart' as latlong;
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
 import 'customer_orders.dart';
@@ -86,44 +88,116 @@ class ProviderListScreen extends StatelessWidget {
     required this.servicesName,
   });
 
-  // FUNGSI AMBIL DATA DARI BACKEND EXPRESS.JS (VERSI DETEKSI ERROR)
+  Future<Position> _getCurrentLocation() async {
+    bool enabled = await Geolocator.isLocationServiceEnabled();
+    if (!enabled) {
+      throw Exception('Layanan lokasi tidak aktif. Aktifkan GPS.');
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw Exception('Izin lokasi ditolak.');
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception(
+          'Izin lokasi ditolak permanen. Atur di pengaturan perangkat.');
+    }
+
+    return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+  }
+
+  String _formatDistance(double meters) {
+    if (meters < 1000) {
+      return '${meters.round()} m';
+    }
+    return '${(meters / 1000).toStringAsFixed(1)} km';
+  }
+
   Future<List<ProviderModel>> _fetchProviderList() async {
     try {
       final response = await ApiClient().dio.get(
         '${ApiEndpoints.getProvidersByServiceWithoutDistance}/$servicesId',
       );
-      // 👇 TARUH DI SINI
-      debugPrint("=== RAW RESPONSE ===");
-      debugPrint(response.data.toString());
-      debugPrint("=== END RESPONSE ===");
 
       if (response.data == null || response.data['data'] == null) {
         return [];
       }
 
+      List<ProviderModel> providers;
+
       if (response.data['data'] is! List) {
         if (response.data['data'] is Map<String, dynamic>) {
-          return [
+          providers = [
             ProviderModel.fromJson(
               response.data['data'] as Map<String, dynamic>,
             ),
           ];
+        } else {
+          return [];
         }
-        return [];
+      } else {
+        final dataList = response.data['data'] as List<dynamic>;
+        providers = dataList
+            .map((item) {
+              try {
+                return ProviderModel.fromJson(item as Map<String, dynamic>);
+              } catch (e) {
+                debugPrint("Gagal parsing satu item provider: $e");
+                return null;
+              }
+            })
+            .whereType<ProviderModel>()
+            .toList();
       }
 
-      final dataList = response.data['data'] as List<dynamic>;
-      return dataList
-          .map((item) {
-            try {
-              return ProviderModel.fromJson(item as Map<String, dynamic>);
-            } catch (e) {
-              debugPrint("Gagal parsing satu item provider: $e");
-              return null;
-            }
-          })
-          .whereType<ProviderModel>()
-          .toList();
+      Position? userPos;
+      try {
+        userPos = await _getCurrentLocation();
+      } catch (e) {
+        debugPrint("Gagal mendapat lokasi: $e");
+        return providers;
+      }
+
+      final distanceCalc = latlong.Distance();
+      final userLatLng = latlong.LatLng(userPos.latitude, userPos.longitude);
+
+      for (final provider in providers) {
+        if (provider.lat != null && provider.lng != null) {
+          final providerLatLng =
+              latlong.LatLng(provider.lat!, provider.lng!);
+          final meters = distanceCalc.as(
+            latlong.LengthUnit.Meter,
+            userLatLng,
+            providerLatLng,
+          );
+          final distance = (provider.distance = _formatDistance(meters));
+          debugPrint("Jarak ke ${provider.name}: $distance");
+        }
+      }
+
+      providers.sort((a, b) {
+        if (a.distance == null && b.distance == null) return 0;
+        if (a.distance == null) return 1;
+        if (b.distance == null) return -1;
+        return 0;
+      });
+
+      providers.sort((a, b) {
+        if (a.lat == null || a.lng == null) return 1;
+        if (b.lat == null || b.lng == null) return -1;
+        final distA = distanceCalc.as(
+            latlong.LengthUnit.Meter, userLatLng, latlong.LatLng(a.lat!, a.lng!));
+        final distB = distanceCalc.as(
+            latlong.LengthUnit.Meter, userLatLng, latlong.LatLng(b.lat!, b.lng!));
+        return distA.compareTo(distB);
+      });
+
+      return providers;
     } on DioException catch (e) {
       debugPrint("=== DIO ERROR ===");
       debugPrint("URL: ${e.requestOptions.uri}");
@@ -806,13 +880,15 @@ class ProviderModel {
   final String name;
   final String? image;
   final String? location;
-  final String? distance;
+  String? distance;
   final double? rating;
   final int? jobsDone;
   final int? basePrice;
   final String? pricingTypeId;
   final int? experience;
   final String? aboutMe;
+  final double? lat;
+  final double? lng;
 
   ProviderModel({
     required this.id,
@@ -826,6 +902,8 @@ class ProviderModel {
     this.pricingTypeId,
     this.experience,
     this.aboutMe,
+    this.lat,
+    this.lng,
   });
 
   factory ProviderModel.fromJson(Map<String, dynamic> json) {
@@ -889,6 +967,9 @@ class ProviderModel {
           expRaw is num ? expRaw.toInt() : int.tryParse(expRaw.toString());
     }
 
+    final parsedLat = (locationData?['lat'] as num?)?.toDouble();
+    final parsedLng = (locationData?['lng'] as num?)?.toDouble();
+
     return ProviderModel(
       id:
           profileData?['provider_id']?.toString() ??
@@ -905,11 +986,13 @@ class ProviderModel {
       jobsDone: parsedJobs,
       basePrice: parsedPrice,
       pricingTypeId: pricingTypeId,
-      experience: parsedExperience, // ✅ Sekarang aman
+      experience: parsedExperience,
       aboutMe:
           json['description']?.toString() ??
           serviceData?['description']?.toString() ??
           'Deskripsi belum tersedia',
+      lat: parsedLat,
+      lng: parsedLng,
     );
   }
 }

@@ -12,5 +12,5 @@ const checkRole = (...roles: string[]) => {
 
 export const isAdmin    = checkRole('admin');
 export const isCustomer = checkRole('customer');
-export const isProvider = checkRole('jasa');
-export const isAny      = checkRole('admin', 'customer', 'jasa');
+export const isProvider = checkRole('provider');
+export const isAny      = checkRole('admin', 'customer', 'provider');

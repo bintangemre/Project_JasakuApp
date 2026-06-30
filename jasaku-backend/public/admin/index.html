@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jasaku Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="app.css">
+  <script src="app.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body x-data="adminApp" x-cloak class="h-full" x-init="init()">
+  <!-- Toast -->
+  <div x-data x-show="$store.toast.show" class="fixed top-5 right-5 z-[100] toast-enter pointer-events-none">
+    <div class="pointer-events-auto flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-xl text-sm font-medium"
+      :class="$store.toast.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : $store.toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-sky-50 text-sky-800 border border-sky-200'">
+      <i class="fas" :class="$store.toast.type === 'success' ? 'fa-check-circle text-emerald-500' : $store.toast.type === 'error' ? 'fa-exclamation-circle text-red-500' : 'fa-info-circle text-sky-500'"></i>
+      <span x-text="$store.toast.msg"></span>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div x-data x-show="$store.confirm.show" class="modal-backdrop" @click="$store.confirm.show = false"></div>
+  <div x-data x-show="$store.confirm.show" class="modal-content">
+    <div class="modal-box text-center max-w-sm">
+      <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-exclamation-triangle text-red-500 text-xl"></i></div>
+      <p class="text-gray-700 font-medium mb-6" x-text="$store.confirm.msg"></p>
+      <div class="flex gap-3 justify-center">
+        <button class="btn-secondary btn-sm px-6 py-2.5" @click="$store.confirm.show = false; $store.confirm.resolve?.(false)">Batal</button>
+        <button class="btn-danger btn-sm px-6 py-2.5" @click="$store.confirm.show = false; $store.confirm.resolve?.(true)"><i class="fas fa-trash mr-1"></i>Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN PAGE -->
+  <div x-data="loginPage" x-show="$store.nav.page === 'login'" x-init="init()" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 p-4">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-white/15 backdrop-blur rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg ring-1 ring-white/20"><i class="fas fa-store text-white text-2xl"></i></div>
+        <h1 class="text-3xl font-bold text-white">Jasaku</h1>
+        <p class="text-indigo-200/80 text-sm mt-1">Admin Dashboard</p>
+      </div>
+      <div class="bg-white/95 backdrop-blur rounded-2xl p-8 shadow-2xl ring-1 ring-white/20">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Masuk</h2>
+        <form @submit.prevent="login" class="space-y-4">
+          <div>
+            <label class="form-label">Email</label>
+            <input type="email" x-model="email" class="form-input" placeholder="admin@jasaku.com" required autocomplete="email">
+          </div>
+          <div>
+            <label class="form-label">Kata Sandi</label>
+            <input type="password" x-model="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <p x-show="error" x-text="error" class="text-red-500 text-sm font-medium"></p>
+          <button type="submit" :disabled="loading" class="btn-primary w-full py-3">
+            <i x-show="loading" class="fas fa-spinner fa-spin"></i>
+            <i x-show="!loading" class="fas fa-sign-in-alt"></i>
+            <span x-text="loading ? 'Memproses...' : 'Masuk'"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div x-show="$store.nav.page !== 'login'" class="flex h-screen bg-gray-50 overflow-hidden">
+    <!-- DESKTOP SIDEBAR -->
+    <div class="hidden md:flex flex-col bg-gradient-to-b from-indigo-900 via-indigo-800 to-indigo-950 text-white shrink-0 transition-all duration-300 ease-in-out relative overflow-hidden"
+         :class="$store.sidebar.collapsed ? 'w-[68px]' : 'w-64'">
+      <!-- Logo -->
+      <div class="flex items-center h-16 px-5 border-b border-white/10 shrink-0" :class="$store.sidebar.collapsed ? 'justify-center px-0' : ''">
+        <div class="flex items-center gap-3 overflow-hidden flex-1" :class="$store.sidebar.collapsed ? 'justify-center' : ''">
+          <div class="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-white/10"><i class="fas fa-store text-white text-sm"></i></div>
+          <div x-show="!$store.sidebar.collapsed" class="overflow-hidden transition-all duration-300">
+            <h1 class="font-bold text-sm whitespace-nowrap">Jasaku</h1>
+            <p class="text-indigo-200/60 text-[10px] whitespace-nowrap">Admin Dashboard</p>
+          </div>
+        </div>
+        <button x-show="!$store.sidebar.collapsed" @click="$store.sidebar.collapsed = true" class="text-white/30 hover:text-white transition-colors shrink-0 ml-2" title="Ciutkan"><i class="fas fa-chevron-left text-xs"></i></button>
+      </div>
+
+      <!-- Menu -->
+      <nav class="flex-1 p-2 space-y-0.5 overflow-y-auto overflow-x-hidden sidebar-scroll">
+        <template x-for="item in menu" :key="item.id">
+          <div>
+            <div x-show="!$store.sidebar.collapsed && item.header" class="text-[10px] uppercase tracking-widest text-white/30 px-3 pt-4 pb-1 font-semibold select-none" x-text="item.header"></div>
+            <div class="sidebar-item group relative" :class="{ 'active': $store.nav.page === item.id }" @click="navigate(item.id)" :title="$store.sidebar.collapsed ? item.label : ''">
+              <i class="fas text-sm w-5 text-center shrink-0" :class="item.icon"></i>
+              <span x-show="!$store.sidebar.collapsed" class="overflow-hidden transition-all duration-200" x-text="item.label"></span>
+            </div>
+          </div>
+        </template>
+      </nav>
+
+      <!-- Bottom -->
+      <div class="p-2 border-t border-white/10 shrink-0 space-y-0.5">
+        <button x-show="$store.sidebar.collapsed" @click="$store.sidebar.collapsed = false" class="sidebar-item w-full justify-center text-white/30 hover:text-white" title="Perluas"><i class="fas fa-chevron-right text-sm"></i></button>
+        <div class="sidebar-item text-white/40 hover:text-white" :class="$store.sidebar.collapsed ? 'justify-center' : ''" @click="toggleDark()" :title="$store.sidebar.collapsed ? 'Tema' : ''">
+          <i x-show="!$store.theme.dark" class="fas fa-moon text-sm w-5 text-center shrink-0"></i>
+          <i x-show="$store.theme.dark" class="fas fa-sun text-sm w-5 text-center shrink-0 text-amber-300"></i>
+          <span x-show="!$store.sidebar.collapsed" class="overflow-hidden transition-all duration-200" x-text="$store.theme.dark ? 'Terang' : 'Gelap'"></span>
+        </div>
+        <div class="sidebar-item text-red-300/70 hover:text-red-200 hover:bg-white/5" :class="$store.sidebar.collapsed ? 'justify-center' : ''" @click="logout()" title="Keluar">
+          <i class="fas fa-sign-out-alt text-sm w-5 text-center shrink-0"></i>
+          <span x-show="!$store.sidebar.collapsed" class="overflow-hidden">Keluar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE SIDEBAR -->
+    <div class="md:hidden">
+      <div x-show="$store.mobile.show" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30" @click="$store.mobile.show = false" x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"></div>
+      <div x-show="$store.mobile.show" class="fixed inset-y-0 left-0 w-72 bg-gradient-to-b from-indigo-900 via-indigo-800 to-indigo-950 text-white z-40 shadow-2xl" x-transition:enter="transition-all duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0">
+        <div class="p-5 border-b border-white/10 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center"><i class="fas fa-store text-white text-sm"></i></div>
+            <span class="font-bold text-sm">Jasaku</span>
+          </div>
+          <button @click="$store.mobile.show = false" class="text-white/40 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="p-3 space-y-1 overflow-y-auto h-[calc(100%-73px)]">
+          <template x-for="item in menu" :key="item.id">
+            <div>
+              <div x-show="item.header" class="text-[10px] uppercase tracking-widest text-white/30 px-3 pt-3 pb-1 font-semibold" x-text="item.header"></div>
+              <div class="sidebar-item" :class="{ 'active': $store.nav.page === item.id }" @click="navigate(item.id); $store.mobile.show = false">
+                <i class="fas text-sm w-5 text-center" :class="item.icon"></i><span x-text="item.label"></span>
+              </div>
+            </div>
+          </template>
+          <div class="sidebar-item text-red-300/70 mt-4" @click="logout(); $store.mobile.show = false"><i class="fas fa-sign-out-alt text-sm w-5 text-center"></i><span>Keluar</span></div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Top Bar -->
+      <header class="bg-white border-b border-gray-100 px-4 md:px-6 h-16 flex items-center justify-between shadow-sm shrink-0">
+        <div class="flex items-center gap-4 min-w-0">
+          <button class="md:hidden text-gray-400 hover:text-gray-600 transition-colors" @click="$store.mobile.show = true"><i class="fas fa-bars text-lg"></i></button>
+          <button class="hidden md:flex text-gray-400 hover:text-gray-600 transition-colors" @click="$store.sidebar.collapsed = !$store.sidebar.collapsed"><i class="fas fa-bars text-lg"></i></button>
+          <div class="min-w-0">
+            <h2 class="text-base md:text-lg font-semibold text-gray-800 truncate" x-text="pageTitle"></h2>
+            <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">Dashboard / <span x-text="pageTitle" class="text-indigo-600 font-medium"></span></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <span class="text-xs text-gray-400 hidden sm:block truncate max-w-[120px]" x-text="getUser().email || ''"></span>
+          <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center ring-2 ring-indigo-200"><span class="text-xs font-bold text-indigo-600" x-text="getUser().email ? getUser().email[0].toUpperCase() : 'A'"></span></div>
+        </div>
+      </header>
+
+      <!-- Pages -->
+      <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+        <!-- DASHBOARD -->
+        <div x-data="dashboardPage" x-init="init()" x-show="$store.nav.page === 'dashboard'">
+          <template x-if="loading">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <template x-for="i in 4"><div class="stat-card p-0 overflow-hidden"><div class="w-full"><div class="skeleton h-20 w-full rounded-2xl"></div></div></div></template>
+            </div>
+          </template>
+          <template x-if="!loading">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 page-enter">
+              <div class="stat-card"><div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0"><i class="fas fa-users text-indigo-600 text-lg"></i></div><div class="min-w-0"><p class="text-xs text-gray-500 font-medium">Total Pengguna</p><p class="text-2xl font-bold text-gray-800 mt-1" x-text="stats?.totalUsers || 0"></p></div></div>
+              <div class="stat-card"><div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0"><i class="fas fa-hard-hat text-emerald-600 text-lg"></i></div><div class="min-w-0"><p class="text-xs text-gray-500 font-medium">Total Mitra</p><p class="text-2xl font-bold text-gray-800 mt-1" x-text="stats?.totalProviders || 0"></p></div></div>
+              <div class="stat-card"><div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center shrink-0"><i class="fas fa-tools text-amber-600 text-lg"></i></div><div class="min-w-0"><p class="text-xs text-gray-500 font-medium">Total Layanan</p><p class="text-2xl font-bold text-gray-800 mt-1" x-text="stats?.totalServices || 0"></p></div></div>
+              <div class="stat-card"><div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center shrink-0"><i class="fas fa-clipboard-list text-rose-600 text-lg"></i></div><div class="min-w-0"><p class="text-xs text-gray-500 font-medium">Total Pesanan</p><p class="text-2xl font-bold text-gray-800 mt-1" x-text="stats?.totalOrders || 0"></p></div></div>
+            </div>
+          </template>
+        </div>
+
+        <!-- PROVIDERS -->
+        <div x-data="providersPage" x-init="init()" x-show="$store.nav.page === 'providers'" class="page-enter">
+          <div class="card p-0 overflow-hidden">
+            <div class="p-5 pb-0 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex gap-1 bg-gray-100 rounded-xl p-1">
+                <button class="filter-tab" :class="filter === 'all' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'" @click="filter = 'all'; load()">Semua</button>
+                <button class="filter-tab" :class="filter === 'pending' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'" @click="filter = 'pending'; load()">Pending</button>
+              </div>
+              <span class="text-xs text-gray-400" x-text="providers.length + ' mitra'"></span>
+            </div>
+            <div class="p-5 pt-3">
+              <template x-if="loading">
+                <div class="space-y-3"><template x-for="i in 5"><div class="skeleton h-12 rounded-xl"></div></template></div>
+              </template>
+              <template x-if="!loading && providers.length === 0">
+                <div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-hard-hat text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Belum ada mitra</p><p class="text-gray-300 text-xs mt-1">Mitra akan muncul setelah mendaftar</p></div>
+              </template>
+              <template x-if="!loading && providers.length > 0">
+                <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Email</th><th>No. HP</th><th>Status</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                  <template x-for="p in providers" :key="p.id">
+                    <tr><td class="font-medium text-gray-800"><span x-text="p.full_name || '-'"></span></td><td class="text-gray-500" x-text="p.users?.email || '-'"></td><td class="text-gray-500" x-text="p.phone || '-'"></td><td><span class="badge" :class="p.is_verified ? 'badge-success' : 'badge-warning'" x-text="p.is_verified ? 'Terverifikasi' : 'Pending'"></span></td><td class="text-right"><button x-show="!p.is_verified" @click="verifyProvider(p.id)" class="btn-success btn-sm"><i class="fas fa-check mr-1"></i>Terima</button><button x-show="p.is_verified" @click="unverifyProvider(p.id)" class="btn-danger btn-sm"><i class="fas fa-ban mr-1"></i>Tolak</button></td></tr>
+                  </template>
+                </tbody></table></div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- CUSTOMERS -->
+        <div x-data="customersPage" x-init="init()" x-show="$store.nav.page === 'customers'" class="page-enter">
+          <div class="card p-0 overflow-hidden">
+            <div class="p-5 pb-0 flex items-center justify-between"><span class="text-xs text-gray-400" x-text="customers.length + ' pelanggan'"></span></div>
+            <div class="p-5 pt-3">
+              <template x-if="loading"><div class="space-y-3"><template x-for="i in 5"><div class="skeleton h-12 rounded-xl"></div></template></div></template>
+              <template x-if="!loading && customers.length === 0"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-users text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Belum ada pelanggan</p></div></template>
+              <template x-if="!loading && customers.length > 0">
+                <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Email</th><th>No. HP</th><th>Status</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                  <template x-for="c in customers" :key="c.id">
+                    <tr><td class="font-medium text-gray-800"><span x-text="c.full_name || '-'"></span></td><td class="text-gray-500" x-text="c.users?.email || '-'"></td><td class="text-gray-500" x-text="c.users?.phone || '-'"></td><td><span class="badge" :class="c.users?.status === 'banned' ? 'badge-danger' : 'badge-success'" x-text="c.users?.status === 'banned' ? 'Diblokir' : 'Aktif'"></span></td><td class="text-right"><button x-show="c.users?.status !== 'banned'" @click="banCustomer(c.id)" class="btn-danger btn-sm"><i class="fas fa-ban mr-1"></i>Blokir</button><button x-show="c.users?.status === 'banned'" @click="unbanCustomer(c.id)" class="btn-success btn-sm"><i class="fas fa-check mr-1"></i>Aktifkan</button></td></tr>
+                  </template>
+                </tbody></table></div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- CATEGORIES -->
+        <div x-data="categoriesPage" x-init="init()" x-show="$store.nav.page === 'categories'" class="page-enter">
+          <div class="card p-0 overflow-hidden">
+            <div class="p-5 pb-0 flex items-center justify-between gap-3">
+              <span class="text-xs text-gray-400" x-text="categories.length + ' kategori'"></span>
+              <button @click="openCreate()" class="btn-primary btn-sm"><i class="fas fa-plus mr-1"></i>Tambah</button>
+            </div>
+            <div class="p-5 pt-3">
+              <template x-if="loading"><div class="space-y-3"><template x-for="i in 5"><div class="skeleton h-12 rounded-xl"></div></template></div></template>
+              <template x-if="!loading && categories.length === 0"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-tags text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Belum ada kategori</p><p class="text-gray-300 text-xs mt-1">Klik "Tambah" untuk membuat kategori pertama</p></div></template>
+              <template x-if="!loading && categories.length > 0">
+                <div class="table-wrap"><table><thead><tr><th>Ikon</th><th>Nama</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                  <template x-for="cat in categories" :key="cat.id">
+                    <tr><td><div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center"><i class="fas text-indigo-600 text-sm" :class="'fa-' + (cat.icon || 'tag')"></i></div></td><td class="font-medium text-gray-800" x-text="cat.name"></td><td class="text-right"><button @click="openEdit(cat)" class="text-indigo-600 hover:text-indigo-800 mr-3 transition-colors"><i class="fas fa-edit"></i></button><button @click="confirmDelete(cat.id)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button></td></tr>
+                  </template>
+                </tbody></table></div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- SERVICES -->
+        <div x-data="servicesPage" x-init="init()" x-show="$store.nav.page === 'services'" class="page-enter">
+          <div class="card p-0 overflow-hidden">
+            <div class="p-5 pb-0 flex flex-wrap items-center justify-between gap-3">
+              <select x-model="selectedCategoryId" @change="load()" class="form-select max-w-xs text-sm">
+                <option value="">Pilih kategori...</option>
+                <template x-for="cat in categories" :key="cat.id"><option :value="cat.id" x-text="cat.name"></option></template>
+              </select>
+              <button @click="openCreate()" :disabled="!selectedCategoryId" class="btn-primary btn-sm"><i class="fas fa-plus mr-1"></i>Tambah</button>
+            </div>
+            <div class="p-5 pt-3">
+              <template x-if="loading"><div class="space-y-3"><template x-for="i in 3"><div class="skeleton h-12 rounded-xl"></div></template></div></template>
+              <template x-if="!loading && !selectedCategoryId"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-tools text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Pilih kategori</p><p class="text-gray-300 text-xs mt-1">Pilih kategori untuk melihat layanan di dalamnya</p></div></template>
+              <template x-if="!loading && selectedCategoryId && services.length === 0"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-box-open text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Belum ada layanan</p><p class="text-gray-300 text-xs mt-1">Klik "Tambah" untuk membuat layanan baru</p></div></template>
+              <template x-if="!loading && services.length > 0">
+                <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Deskripsi</th><th>Harga</th><th>Durasi</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                  <template x-for="s in services" :key="s.id">
+                    <tr><td class="font-medium text-gray-800" x-text="s.name"></td><td class="text-gray-500 max-w-[200px] truncate" x-text="s.description || '-'"></td><td class="font-medium tabular-nums" x-text="'Rp ' + Number(s.price).toLocaleString('id-ID')"></td><td class="text-gray-500" x-text="s.duration ? s.duration + ' menit' : '-'"></td><td class="text-right"><button @click="openEdit(s)" class="text-indigo-600 hover:text-indigo-800 mr-3 transition-colors"><i class="fas fa-edit"></i></button><button @click="confirmDelete(s.id)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button></td></tr>
+                  </template>
+                </tbody></table></div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAYMENTS -->
+        <div x-data="paymentsPage" x-init="init()" x-show="$store.nav.page === 'payments'" class="page-enter">
+          <div class="card p-0 overflow-hidden">
+            <div class="p-5 pb-0 flex items-center justify-between gap-3">
+              <span class="text-xs text-gray-400" x-text="accounts.length + ' rekening'"></span>
+              <button @click="openCreate()" class="btn-primary btn-sm"><i class="fas fa-plus mr-1"></i>Tambah</button>
+            </div>
+            <div class="p-5 pt-3">
+              <template x-if="loading"><div class="space-y-3"><template x-for="i in 3"><div class="skeleton h-16 rounded-xl"></div></template></div></template>
+              <template x-if="!loading && accounts.length === 0"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-credit-card text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Belum ada rekening tujuan</p><p class="text-gray-300 text-xs mt-1">Tambah rekening bank, e-wallet, atau QRIS untuk pembayaran</p></div></template>
+              <template x-if="!loading && accounts.length > 0">
+                <div class="table-wrap"><table><thead><tr><th>Tipe</th><th>Nama Akun</th><th>No. Rekening</th><th>Penyedia</th><th>QRIS</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                  <template x-for="a in accounts" :key="a.id">
+                    <tr><td><span class="badge" :class="a.type === 'bank_transfer' ? 'badge-info' : a.type === 'e_wallet' ? 'badge-success' : 'badge-warning'" x-text="formatType(a.type)"></span></td><td class="font-medium text-gray-800" x-text="a.account_name"></td><td class="text-gray-500 font-mono text-xs" x-text="a.account_number"></td><td class="text-gray-500" x-text="a.provider_name || '-'"></td><td><template x-if="a.qris_image_url"><button @click="openQris(a)" class="text-indigo-600 hover:text-indigo-800 underline text-xs font-medium"><i class="fas fa-image mr-1"></i>Lihat QRIS</button></template><template x-if="!a.qris_image_url"><label class="text-indigo-500 hover:text-indigo-700 cursor-pointer text-xs font-medium"><i class="fas fa-upload mr-1"></i>Upload<input type="file" accept="image/*" class="hidden" @change="uploadQris(a.id, $event)"></label></template></td><td class="text-right"><button @click="openEdit(a)" class="text-indigo-600 hover:text-indigo-800 mr-3 transition-colors"><i class="fas fa-edit"></i></button><button @click="confirmDelete(a.id)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button></td></tr>
+                  </template>
+                </tbody></table></div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRICING TYPES -->
+        <div x-data="pricingPage" x-init="init()" x-show="$store.nav.page === 'pricing-types'" class="page-enter">
+          <div class="card p-0 overflow-hidden">
+            <div class="p-5 pb-0 flex flex-wrap items-center justify-between gap-3">
+              <select x-model="selectedCategoryId" @change="load()" class="form-select max-w-xs text-sm">
+                <option value="">Pilih kategori...</option>
+                <template x-for="cat in categories" :key="cat.id"><option :value="cat.id" x-text="cat.name"></option></template>
+              </select>
+              <button @click="openCreate()" :disabled="!selectedCategoryId" class="btn-primary btn-sm"><i class="fas fa-plus mr-1"></i>Tambah</button>
+            </div>
+            <div class="p-5 pt-3">
+              <template x-if="loading"><div class="space-y-3"><template x-for="i in 3"><div class="skeleton h-12 rounded-xl"></div></template></div></template>
+              <template x-if="!loading && !selectedCategoryId"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-dollar-sign text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Pilih kategori</p><p class="text-gray-300 text-xs mt-1">Pilih kategori untuk melihat tipe harga</p></div></template>
+              <template x-if="!loading && selectedCategoryId && types.length === 0"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-tag text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Belum ada tipe harga</p><p class="text-gray-300 text-xs mt-1">Klik "Tambah" untuk membuat tipe harga baru</p></div></template>
+              <template x-if="!loading && types.length > 0">
+                <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Harga</th><th>Durasi</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                  <template x-for="t in types" :key="t.id">
+                    <tr><td class="font-medium text-gray-800" x-text="t.name"></td><td class="font-medium tabular-nums" x-text="'Rp ' + Number(t.price).toLocaleString('id-ID')"></td><td class="text-gray-500" x-text="t.duration ? t.duration + ' menit' : '-'"></td><td class="text-right"><button @click="confirmDelete(t.id)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button></td></tr>
+                  </template>
+                </tbody></table></div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY MODAL -->
+  <div x-data="categoryModal" x-show="show" x-cloak>
+    <div class="modal-backdrop" @click="close()" x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"></div>
+    <div class="modal-content"><div class="modal-box">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800" x-text="isEdit ? 'Edit Kategori' : 'Tambah Kategori'"></h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
+      <form @submit.prevent="save" class="space-y-4">
+        <div><label class="form-label">Nama Kategori</label><input type="text" x-model="form.name" class="form-input" placeholder="cth: Elektronik, Plumbing" required></div>
+        <div><label class="form-label">Ikon</label>
+          <div class="icon-picker">
+            <template x-for="icon in icons" :key="icon">
+              <div :class="form.icon === icon ? 'bg-indigo-100 border-indigo-400 text-indigo-600' : 'border-gray-200 text-gray-400 hover:border-gray-300'" @click="form.icon = icon"><i class="fas" :class="'fa-' + icon"></i></div>
+            </template>
+          </div>
+        </div>
+        <div class="flex gap-3 justify-end pt-2"><button type="button" class="btn-secondary" @click="close()">Batal</button><button type="submit" class="btn-primary"><i class="fas fa-save mr-1"></i>Simpan</button></div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- SERVICE MODAL -->
+  <div x-data="serviceModal" x-show="show" x-cloak>
+    <div class="modal-backdrop" @click="close()"></div>
+    <div class="modal-content"><div class="modal-box">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800" x-text="isEdit ? 'Edit Layanan' : 'Tambah Layanan'"></h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
+      <form @submit.prevent="save" class="space-y-4">
+        <div><label class="form-label">Nama Layanan</label><input type="text" x-model="form.name" class="form-input" placeholder="cth: Service AC" required></div>
+        <div><label class="form-label">Deskripsi</label><textarea x-model="form.description" class="form-input" rows="3" placeholder="Deskripsi layanan..."></textarea></div>
+        <div class="grid grid-cols-2 gap-4"><div><label class="form-label">Harga (Rp)</label><input type="number" x-model="form.price" class="form-input" placeholder="0" required></div><div><label class="form-label">Durasi (menit)</label><input type="number" x-model="form.duration" class="form-input" placeholder="60"></div></div>
+        <div class="flex gap-3 justify-end pt-2"><button type="button" class="btn-secondary" @click="close()">Batal</button><button type="submit" class="btn-primary"><i class="fas fa-save mr-1"></i>Simpan</button></div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- PAYMENT MODAL -->
+  <div x-data="paymentModal" x-show="show" x-cloak>
+    <div class="modal-backdrop" @click="close()"></div>
+    <div class="modal-content"><div class="modal-box">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800" x-text="isEdit ? 'Edit Rekening' : 'Tambah Rekening'"></h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
+      <form @submit.prevent="save" class="space-y-4">
+        <div><label class="form-label">Tipe</label><select x-model="form.type" class="form-select"><option value="bank_transfer">Bank Transfer</option><option value="e_wallet">E-Wallet</option><option value="qris">QRIS</option></select></div>
+        <div><label class="form-label">Nama Pemilik</label><input type="text" x-model="form.account_name" class="form-input" placeholder="cth: PT Jasaku" required></div>
+        <div><label class="form-label">Nomor Rekening</label><input type="text" x-model="form.account_number" class="form-input" placeholder="1234567890" required></div>
+        <div><label class="form-label">Nama Bank / Penyedia</label><input type="text" x-model="form.provider_name" class="form-input" placeholder="BCA, GoPay, DANA, dll" required></div>
+        <div class="flex gap-3 justify-end pt-2"><button type="button" class="btn-secondary" @click="close()">Batal</button><button type="submit" class="btn-primary"><i class="fas fa-save mr-1"></i>Simpan</button></div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- QRIS MODAL -->
+  <div x-data="qrisModal" x-show="show" x-cloak>
+    <div class="modal-backdrop" @click="close()"></div>
+    <div class="modal-content"><div class="modal-box max-w-md text-center">
+      <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-semibold text-gray-800">QRIS</h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
+      <img :src="url" class="max-w-full mx-auto rounded-xl shadow-md border border-gray-100">
+      <p class="text-xs text-gray-400 mt-3 font-medium" x-text="name"></p>
+    </div></div>
+  </div>
+
+  <!-- PRICING MODAL -->
+  <div x-data="pricingModal" x-show="show" x-cloak>
+    <div class="modal-backdrop" @click="close()"></div>
+    <div class="modal-content"><div class="modal-box">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800">Tambah Tipe Harga</h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
+      <form @submit.prevent="save" class="space-y-4">
+        <div><label class="form-label">Nama</label><input type="text" x-model="form.name" class="form-input" placeholder="cth: Standar, Premium" required></div>
+        <div class="grid grid-cols-2 gap-4"><div><label class="form-label">Harga (Rp)</label><input type="number" x-model="form.price" class="form-input" placeholder="0" required></div><div><label class="form-label">Durasi (menit)</label><input type="number" x-model="form.duration" class="form-input" placeholder="60"></div></div>
+        <div class="flex gap-3 justify-end pt-2"><button type="button" class="btn-secondary" @click="close()">Batal</button><button type="submit" class="btn-primary"><i class="fas fa-save mr-1"></i>Simpan</button></div>
+      </form>
+    </div></div>
+  </div>
+
+  <script>
+    document.querySelector('html').setAttribute('x-data', 'adminApp');
+    const sidebarMenu = [
+      { id: 'dashboard', label: 'Beranda', icon: 'fa-chart-pie', header: 'Utama' },
+      { id: 'providers', label: 'Mitra', icon: 'fa-hard-hat', header: 'Manajemen' },
+      { id: 'customers', label: 'Pelanggan', icon: 'fa-users' },
+      { id: 'categories', label: 'Kategori', icon: 'fa-tags', header: 'Konten' },
+      { id: 'services', label: 'Layanan', icon: 'fa-tools' },
+      { id: 'payments', label: 'Pembayaran', icon: 'fa-credit-card' },
+      { id: 'pricing-types', label: 'Tipe Harga', icon: 'fa-dollar-sign' },
+    ];
+
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('sidebar', () => ({
+        menu: sidebarMenu
+      }));
+
+      Alpine.data('loginPage', () => ({
+        email: '', password: '', error: '', loading: false,
+        init() { requireAuth(); },
+        async login() {
+          this.loading = true; this.error = '';
+          try {
+            const res = await fetch(API_BASE + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: this.email, password: this.password }) });
+            const json = await res.json();
+            if (!json.success) { this.error = json.message || 'Login gagal'; return; }
+            localStorage.setItem('admin_token', json.data.token);
+            localStorage.setItem('admin_user', JSON.stringify(json.data.user));
+            navigate('dashboard');
+          } catch (e) { this.error = 'Gagal terhubung ke server'; }
+          finally { this.loading = false; }
+        }
+      }));
+
+      Alpine.data('dashboardPage', () => ({
+        loading: true, stats: null,
+        init() { requireAuth(); this.load(); },
+        async load() {
+          this.loading = true;
+          try { this.stats = await apiFetch('/admin/dashboard'); } catch (e) { toast(e.message, 'error'); }
+          finally { this.loading = false; }
+        }
+      }));
+
+      Alpine.data('providersPage', () => ({
+        loading: true, providers: [], filter: 'all',
+        init() { requireAuth(); this.load(); },
+        async load() {
+          this.loading = true;
+          try { this.providers = await apiFetch('/admin/providers' + (this.filter === 'pending' ? '?pending=true' : '')); } catch (e) { toast(e.message, 'error'); }
+          finally { this.loading = false; }
+        },
+        async verifyProvider(id) { try { await apiFetch('/admin/providers/' + id + '/verify', { method: 'PATCH', body: JSON.stringify({ status: 'verified' }) }); toast('Mitra diverifikasi'); this.load(); } catch (e) { toast(e.message, 'error'); } },
+        async unverifyProvider(id) { const ok = await confirmModal('Tolak mitra ini?'); if (!ok) return; try { await apiFetch('/admin/providers/' + id + '/unverify', { method: 'PATCH' }); toast('Mitra ditolak'); this.load(); } catch (e) { toast(e.message, 'error'); } }
+      }));
+
+      Alpine.data('customersPage', () => ({
+        loading: true, customers: [],
+        init() { requireAuth(); this.load(); },
+        async load() { this.loading = true; try { this.customers = await apiFetch('/admin/customers'); } catch (e) { toast(e.message, 'error'); } finally { this.loading = false; } },
+        async banCustomer(id) { const ok = await confirmModal('Blokir pelanggan ini?'); if (!ok) return; try { await apiFetch('/admin/customers/' + id + '/ban', { method: 'PATCH' }); toast('Pelanggan diblokir'); this.load(); } catch (e) { toast(e.message, 'error'); } },
+        async unbanCustomer(id) { try { await apiFetch('/admin/customers/' + id + '/unban', { method: 'PATCH' }); toast('Pelanggan diaktifkan'); this.load(); } catch (e) { toast(e.message, 'error'); } }
+      }));
+
+      Alpine.data('categoriesPage', () => ({
+        loading: true, categories: [],
+        init() { requireAuth(); this.load(); },
+        async load() { this.loading = true; try { this.categories = await apiFetch('/admin/categories'); } catch (e) { toast(e.message, 'error'); } finally { this.loading = false; } },
+        openCreate() { Alpine.store('categoryModal').openCreate(); },
+        openEdit(cat) { Alpine.store('categoryModal').openEdit(cat); },
+        async confirmDelete(id) { const ok = await confirmModal('Hapus kategori ini?'); if (!ok) return; try { await apiFetch('/admin/categories/' + id, { method: 'DELETE' }); toast('Kategori dihapus'); this.load(); } catch (e) { toast(e.message, 'error'); } }
+      }));
+
+      const icons = ['wrench', 'bolt', 'paintbrush', 'droplets', 'snowflake', 'wind', 'trash', 'sparkles', 'tools', 'cog', 'fan', 'fire', 'water', 'leaf', 'home', 'plug', 'recycle'];
+      Alpine.store('categoryModal', { show: false, isEdit: false, editId: null, form: { name: '', icon: 'tag' } });
+      Alpine.data('categoryModal', () => ({
+        show: false, isEdit: false, editId: null, form: { name: '', icon: 'tag' }, icons,
+        init() { this.$store.categoryModal = this; },
+        openCreate() { this.isEdit = false; this.editId = null; this.form = { name: '', icon: 'tag' }; this.show = true; },
+        openEdit(cat) { this.isEdit = true; this.editId = cat.id; this.form = { name: cat.name, icon: cat.icon || 'tag' }; this.show = true; },
+        close() { this.show = false; },
+        async save() {
+          try {
+            if (this.isEdit) { await apiFetch('/admin/categories/' + this.editId, { method: 'PUT', body: JSON.stringify(this.form) }); toast('Kategori diperbarui'); }
+            else { await apiFetch('/admin/categories', { method: 'POST', body: JSON.stringify(this.form) }); toast('Kategori ditambahkan'); }
+            this.close(); Alpine.store('nav').page = 'categories';
+            document.querySelector('[x-data="categoriesPage"]')?.__x?.$data.load();
+          } catch (e) { toast(e.message, 'error'); }
+        }
+      }));
+
+      Alpine.data('servicesPage', () => ({
+        loading: false, services: [], categories: [], selectedCategoryId: '',
+        init() { requireAuth(); this.loadCategories(); },
+        async loadCategories() { try { this.categories = await apiFetch('/admin/categories'); } catch (e) { toast(e.message, 'error'); } },
+        async load() { if (!this.selectedCategoryId) { this.services = []; return; } this.loading = true; try { this.services = await apiFetch('/admin/categories/' + this.selectedCategoryId + '/services'); } catch (e) { toast(e.message, 'error'); } finally { this.loading = false; } },
+        openCreate() { Alpine.store('serviceModal').openCreate(this.selectedCategoryId); },
+        openEdit(s) { Alpine.store('serviceModal').openEdit(s); },
+        async confirmDelete(id) { const ok = await confirmModal('Hapus layanan ini?'); if (!ok) return; try { await apiFetch('/admin/services/' + id, { method: 'DELETE' }); toast('Layanan dihapus'); this.load(); } catch (e) { toast(e.message, 'error'); } }
+      }));
+
+      Alpine.store('serviceModal', { show: false, isEdit: false, editId: null, form: { name: '', description: '', price: '', duration: '', category_id: '' } });
+      Alpine.data('serviceModal', () => ({
+        show: false, isEdit: false, editId: null, form: { name: '', description: '', price: '', duration: '', category_id: '' },
+        init() { this.$store.serviceModal = this; },
+        openCreate(categoryId) { this.isEdit = false; this.editId = null; this.form = { name: '', description: '', price: '', duration: '', category_id: categoryId }; this.show = true; },
+        openEdit(s) { this.isEdit = true; this.editId = s.id; this.form = { name: s.name, description: s.description || '', price: Number(s.price).toString(), duration: s.duration ? Number(s.duration).toString() : '', category_id: s.category_id }; this.show = true; },
+        close() { this.show = false; },
+        async save() {
+          try {
+            if (this.isEdit) { await apiFetch('/admin/services/' + this.editId, { method: 'PUT', body: JSON.stringify(this.form) }); toast('Layanan diperbarui'); }
+            else { await apiFetch('/admin/categories/' + this.form.category_id + '/services', { method: 'POST', body: JSON.stringify(this.form) }); toast('Layanan ditambahkan'); }
+            this.close(); Alpine.store('nav').page = 'services';
+            document.querySelector('[x-data="servicesPage"]')?.__x?.$data.load();
+          } catch (e) { toast(e.message, 'error'); }
+        }
+      }));
+
+      Alpine.data('paymentsPage', () => ({
+        loading: true, accounts: [],
+        init() { requireAuth(); this.load(); },
+        async load() { this.loading = true; try { this.accounts = await apiFetch('/admin/payment-accounts'); } catch (e) { toast(e.message, 'error'); } finally { this.loading = false; } },
+        formatType(t) { return { bank_transfer: 'Bank Transfer', e_wallet: 'E-Wallet', qris: 'QRIS' }[t] || t; },
+        openCreate() { Alpine.store('paymentModal').openCreate(); },
+        openEdit(a) { Alpine.store('paymentModal').openEdit(a); },
+        async confirmDelete(id) { const ok = await confirmModal('Hapus rekening ini?'); if (!ok) return; try { await apiFetch('/admin/payment-accounts/' + id, { method: 'DELETE' }); toast('Rekening dihapus'); this.load(); } catch (e) { toast(e.message, 'error'); } },
+        async uploadQris(id, event) { const file = event.target.files[0]; if (!file) return; const fd = new FormData(); fd.append('qris', file); try { await apiFetch('/admin/payment-accounts/' + id + '/qris-upload', { method: 'POST', body: fd }); toast('QRIS berhasil diupload'); this.load(); } catch (e) { toast(e.message, 'error'); } },
+        openQris(a) { Alpine.store('qrisModal').open(a.qris_image_url, a.account_name); }
+      }));
+
+      Alpine.store('paymentModal', { show: false, isEdit: false, editId: null, form: { type: 'bank_transfer', account_name: '', account_number: '', provider_name: '' } });
+      Alpine.data('paymentModal', () => ({
+        show: false, isEdit: false, editId: null, form: { type: 'bank_transfer', account_name: '', account_number: '', provider_name: '' },
+        init() { this.$store.paymentModal = this; },
+        openCreate() { this.isEdit = false; this.editId = null; this.form = { type: 'bank_transfer', account_name: '', account_number: '', provider_name: '' }; this.show = true; },
+        openEdit(a) { this.isEdit = true; this.editId = a.id; this.form = { type: a.type, account_name: a.account_name, account_number: a.account_number, provider_name: a.provider_name || '' }; this.show = true; },
+        close() { this.show = false; },
+        async save() {
+          try {
+            if (this.isEdit) { await apiFetch('/admin/payment-accounts/' + this.editId, { method: 'PUT', body: JSON.stringify(this.form) }); toast('Rekening diperbarui'); }
+            else { await apiFetch('/admin/payment-accounts', { method: 'POST', body: JSON.stringify(this.form) }); toast('Rekening ditambahkan'); }
+            this.close(); Alpine.store('nav').page = 'payments';
+            document.querySelector('[x-data="paymentsPage"]')?.__x?.$data.load();
+          } catch (e) { toast(e.message, 'error'); }
+        }
+      }));
+
+      Alpine.store('qrisModal', { show: false, url: '', name: '' });
+      Alpine.data('qrisModal', () => ({
+        show: false, url: '', name: '',
+        init() { this.$store.qrisModal = this; },
+        open(url, name) { this.url = url; this.name = name; this.show = true; },
+        close() { this.show = false; }
+      }));
+
+      Alpine.data('pricingPage', () => ({
+        loading: false, types: [], categories: [], selectedCategoryId: '',
+        init() { requireAuth(); this.loadCategories(); },
+        async loadCategories() { try { this.categories = await apiFetch('/admin/categories'); } catch (e) { toast(e.message, 'error'); } },
+        async load() { if (!this.selectedCategoryId) { this.types = []; return; } this.loading = true; try { const all = await apiFetch('/admin/categories/' + this.selectedCategoryId + '/pricing-types'); this.types = Array.isArray(all) ? all : []; } catch (e) { toast(e.message, 'error'); } finally { this.loading = false; } },
+        openCreate() { Alpine.store('pricingModal').openCreate(this.selectedCategoryId); },
+        async confirmDelete(id) { const ok = await confirmModal('Hapus tipe harga ini?'); if (!ok) return; try { await apiFetch('/admin/pricing-types/' + id, { method: 'DELETE' }); toast('Tipe harga dihapus'); this.load(); } catch (e) { toast(e.message, 'error'); } }
+      }));
+
+      Alpine.store('pricingModal', { show: false, form: { name: '', price: '', duration: '', category_id: '' } });
+      Alpine.data('pricingModal', () => ({
+        show: false, form: { name: '', price: '', duration: '', category_id: '' },
+        init() { this.$store.pricingModal = this; },
+        openCreate(categoryId) { this.form = { name: '', price: '', duration: '', category_id: categoryId }; this.show = true; },
+        close() { this.show = false; },
+        async save() {
+          try {
+            await apiFetch('/admin/categories/' + this.form.category_id + '/pricing-types', { method: 'POST', body: JSON.stringify(this.form) });
+            toast('Tipe harga ditambahkan'); this.close(); Alpine.store('nav').page = 'pricing-types';
+            document.querySelector('[x-data="pricingPage"]')?.__x?.$data.load();
+          } catch (e) { toast(e.message, 'error'); }
+        }
+      }));
+    });
+  </script>
+</body>
+</html>

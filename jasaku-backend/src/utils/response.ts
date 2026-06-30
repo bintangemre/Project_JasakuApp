@@ -4,6 +4,6 @@ export const successResponse = (res: Response, data: any, message = 'Success', s
   return res.status(statusCode).json({ success: true, message, data });
 };
 
-export const errorResponse = (res: Response, message: string, statusCode = 400, errors?: any) => {
+export const errorResponse = (res: Response, message: string, statusCode = 500, errors?: any) => {
   return res.status(statusCode).json({ success: false, message, errors });
 };

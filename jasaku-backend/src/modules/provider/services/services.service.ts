@@ -88,10 +88,10 @@ export class ProviderServicesService {
     }
 
     // fitur: aktif dan non aktif atau siap kerja atau tidak siap kerja jika siap maka atifkan jika tidak siap maka non aktifkan fitur ini digunakan untuk menandai apakah provider siap menerima orderan atau tidak, jika tidak siap maka provider tidak akan muncul di pencarian pelanggan
-    async setProviderAvailability(providerId: string, isAvailable: boolean) {
+    async setProviderAvailability(providerId: string, isActive: boolean) {
         return await prisma.provider_profiles.update({
-            where: { provider_id: providerId },
-            data: { is_available: isAvailable }
+            where: { user_id: providerId },
+            data: { is_active: isActive }
         });
     }
 }

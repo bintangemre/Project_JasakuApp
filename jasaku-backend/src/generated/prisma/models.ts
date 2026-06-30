@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/categories'
+export type * from './models/admin_payment_accounts'
 export type * from './models/custom_task_proposals'
 export type * from './models/custom_tasks'
 export type * from './models/customer_payment_methods'

@@ -1,0 +1,260 @@
+## 2026-06-29 — P0 IMPLEMENTASI
+
+### Added
+- jasaku-backend/src/modules/orders/orders.service.ts — State machine VALID_TRANSITIONS untuk validasi status order
+- jasaku-backend/src/modules/orders/orders.service.ts — cancelOrder method (customer cancel)
+- jasaku-backend/src/modules/orders/orders.controller.ts — cancelOrder handler
+- jasaku-backend/src/modules/orders/orders.routes.ts — Route POST /orders/:orderId/cancel
+- jasaku-backend/src/modules/reviews/reviews.controller.ts — createReview, getProviderReviews handlers
+- jasaku-backend/src/modules/reviews/reviews.routes.ts — Routes POST /reviews, GET /reviews/provider/:providerId
+- jasaku-backend/src/modules/payments/payments.service.ts — getPaymentMethods, createPayment, updatePaymentStatus, getPaymentByOrder, saveCustomerPaymentMethod, getCustomerPaymentMethods
+- jasaku-backend/src/modules/payments/payments.controller.ts — 5 handlers (getPaymentMethods, createPayment, getPaymentByOrder, savePaymentMethod, getCustomerPaymentMethods)
+- jasaku-backend/src/modules/payments/payments.routes.ts — 5 routes (GET /payment-methods, POST /payments, GET /payments/order/:orderId, POST /payment-methods/save, GET /payment-methods/mine)
+- jasaku-backend/src/modules/admin/admin.service.ts — Full admin service (dashboard, verifyProvider, CRUD categories/services/pricing-types, ban/unban user)
+- jasaku-backend/src/modules/admin/admin.controller.ts — 14 handler functions
+- jasaku-backend/src/modules/admin/admin.routes.ts — 14 admin routes
+- jasaku_app/lib/core/constants/api_endpoints.dart — Tambah endpoints: cancelOrder, admin, reviews, payments
+
+### Changed
+- jasaku-backend/src/modules/orders/orders.service.ts — receiveOrderStatus: now supports full lifecycle (accepted, rejected, on_the_way, arrived, in_progress, completed) + notification triggers for each status
+- jasaku-backend/src/modules/orders/orders.service.ts — createOrder: active status check includes on_the_way & arrived
+- jasaku-backend/src/modules/orders/orders.routes.ts — PATCH /orders/:orderId/status uses isAny middleware (service handles auth)
+- jasaku-backend/src/modules/orders/orders.service.ts — Notification di createOrder pakai pesan tanpa serviceId raw
+- jasaku-backend/src/app.ts — Mount: reviewsRoutes di /api, paymentsRoutes di /api, adminRoutes di /api/admin
+
+---
+
+### Fixed
+- jasaku-backend/src/modules/services/services.service.ts — Fix 3 bugs di getProvidersByService:
+  - `u.avatar_url` → `pp.profile_photo` (field avatar_url tdk ada di users)
+  - `GROUP BY p.id` → `u.id` (tabel p tdk pernah di-define)
+  - `u.role = 'provider'` → JOIN roles r ON u.role_id = r.id WHERE r.name = 'provider'
+- jasaku-backend/src/modules/orders/orders.service.ts — Fix findNearbyProviders: `u.role = 'provider'` → JOIN roles
+- jasaku-backend/src/modules/provider/services/services.service.ts — Fix setProviderAvailability:
+  - `where: { provider_id }` → `where: { user_id }`
+  - `data: { is_available }` → `data: { is_active }`
+- jasaku-backend/src/modules/costum-tasks/custom-tasks.service.ts — Fix 3 bugs:
+  - `custom_task_offers` → `custom_task_proposals` (model name berbeda)
+  - `offered_price` → `price` (field name berbeda)
+  - `custom_task_id` di create order → dihapus (field tdk ada di model orders)
+- jasaku-backend/src/modules/payments/payments.service.ts — Fix: query name & description di customer_payment_methods → type & account_name (field tdk ada)
+- jasaku-backend/src/modules/reviews/reviews.service.ts — Fix: `customers` → `users_reviews_customer_idTousers` (relasi tdk ada), tambah createReview & getReviewByOrder
+
+### Added
+- jasaku-backend/src/modules/auth/auth.service.ts — Tambah method sendOtp & verifyOtp (in-memory OTP store)
+- jasaku-backend/src/modules/auth/auth.controller.ts — Tambah handler sendOtp & verifyOtp
+- jasaku-backend/src/modules/auth/auth.routes.ts — Tambah route POST /send-otp & /verify-otp
+- jasaku-backend/src/modules/notifications/notifications.controller.ts — Tambah handler registerDevice (upsert fcm_token)
+- jasaku-backend/src/modules/notifications/notifications.routes.ts — Tambah route POST /devices/register
+- jasaku-backend/src/app.ts — Mount notificationRoutes di /api/notifications
+- jasaku_app/lib/core/constants/api_endpoints.dart — Tambah sendOtp, verifyOtp, registerDevice endpoints
+
+### Changed
+- jasaku_app/lib/features/auth/data/auth_repository.dart — Fix URL OTP: pake ApiEndpoints constants (sebelumnya hardcode tanpa /api prefix)
+- jasaku_app/lib/features/orders/presentation/providers/orders_provider.dart — Fix: ganti Dio() dengan ApiClient().dio supaya JWT interceptor kepakai
+
+---
+
+2026-06-27
+- Fixed: jasaku-backend/src/middleware/role.middleware.ts — Ubah role check 'jasa' ke 'provider' pada isProvider & isAny (403 error)
+- Fixed: jasaku-backend/src/modules/orders/orders.controller.ts — Ganti req.user.id ke req.user.userId (4 tempat) agar sesuai payload JWT
+- Fixed: jasaku-backend/src/modules/orders/orders.service.ts — Hapus select location (Unsupported geometry) & created_at (field tdk ada) dari order_locations di getOrderDetails & getProviderOrders
+- Fixed: jasaku-backend/src/modules/orders/orders.service.ts — Hapus select pricing_type (relasi tdk ada di model order_items) dari getOrderDetails & getProviderOrders
+- Fixed: jasaku-backend/src/modules/orders/orders.service.ts — Ganti service ke services (nama relasi Prisma yg benar) di getOrderDetails & getProviderOrders
+- Fixed: jasaku-backend/src/utils/response.ts — Ubah default errorResponse statusCode dari 400 ke 500
+
+Root cause: Query Prisma di orders.service.ts memilih field/relasi (location, created_at, pricing_type, service) yang tidak ada di model Prisma, menyebabkan runtime error. Error ditangkap catch lalu errorResponse default 400 sehingga dikira bad request oleh Flutter (DioException).
+
+---
+
+## 2026-06-29 — AUDIT & PLAN IMPLEMENTASI
+
+### AUDIT SUMMARY
+Setelah audit menyeluruh terhadap project, ditemukan:
+- 14 database bugs (7 HIGH, 3 MEDIUM, 4 LOW)
+- 28 endpoint API belum dibuat
+- 15 file Flutter kosong (stub/placeholder)
+- 6 route module belum di-mount di app.ts
+- 1 Flutter bug HIGH (order form tanpa JWT interceptor)
+- 1 Flutter bug HIGH (OTP URL tanpa prefix /api)
+- Swagger coverage hanya 23%
+
+### PRIORITAS IMPLEMENTASI
+
+#### P0 — CRITICAL (Harus diperbaiki sekarang)
+1. Fix DB query bugs di services.service.ts:
+   - `u.avatar_url` → ganti ke join profiles_customer
+   - `GROUP BY p.id` → ganti ke alias yg benar
+   - `u.role = 'provider'` → ganti ke join roles
+2. Fix setProviderAvailability di provider/services/services.service.ts:
+   - `provider_id` → `user_id`
+   - `is_available` → `is_active`
+3. Fix custom-tasks.service.ts:
+   - `custom_task_offers` → `custom_task_proposals`
+   - `offered_price` → `price`
+   - `custom_task_id` → hapus (tdk ada di model orders)
+4. Fix payments.service.ts: hapus query name & description
+5. Fix reviews.service.ts: `customers` → `users_reviews_customer_idTousers`
+6. Buat OTP endpoints (send-otp, verify-otp) di backend
+7. Buat FCM device token registration endpoint
+8. Fix Flutter: OTP URL tambah prefix /api
+9. Fix Flutter: orderFormProvider pakai ApiClient().dio
+
+#### P1 — HIGH (Fitur inti)
+1. Lengkapi lifecycle status order: on_the_way, arrived, cancelled
+2. Implementasi Review module (CRUD)
+3. Implementasi Payment module (COD + rekber)
+4. Implementasi Admin module
+5. Mount notification routes + trigger events
+6. Tambah input validation (Zod)
+7. Checkout flow Flutter lengkap
+8. Riwayat pesanan Customer + Provider di Flutter
+
+#### P2 — MEDIUM (Tracking & Notifikasi)
+1. API tracking real-time
+2. Flutter tracking map (flutter_map + OSM)
+3. FCM Flutter integration lengkap
+4. WebSocket (Socket.io) untuk location streaming
+5. Notifikasi semua trigger event
+
+#### P3 — LOWER (Enhancement)
+1. Custom tasks (backend + frontend)
+2. Admin Web Dashboard (React.js / Vue.js)
+3. Swagger docs lengkap
+4. Security headers, rate limiting, logging
+5. TypeScript DTO strict types
+6. Queue system untuk order tumpang tindih (RULE 2)
+7. Future date order handling (RULE 1)
+8. Ganti hardcoded data Flutter ke API calls
+
+---
+
+## 2026-06-29 — P1-7 FIX CHECKOUT FLOW
+
+### Fixed
+- jasaku_app/lib/features/customer/presentation/screens/customer_orders.dart:
+  - `customerId: "GANTI_DENGAN_AUTH_USER_ID"` → `ref.read(authProvider).user?.id ?? ''` (ambil dari auth state)
+  - `"MASUKKAN_URL_CREATE_ORDER_KAMU"` → `ApiEndpoints.createOrder` (pake konstanta endpoint)
+  - Tambah import `ApiEndpoints` dan `authProvider`
+
+---
+
+## 2026-06-29 — P1-8 ORDER HISTORY SCREENS
+
+### Added
+- jasaku_app/lib/features/orders/domain/models/order_model.dart — OrderModel dengan fromCustomerJson & fromProviderJson factories, statusLabel, formattedDate, formattedPrice helpers
+- jasaku_app/lib/features/orders/presentation/providers/order_list_provider.dart — OrderListNotifier + customerOrderListProvider & providerOrderListProvider (StateNotifier)
+- jasaku_app/lib/features/orders/presentation/pages/customer_order_list_page.dart — Riwayat pesanan customer (list card, pull-to-refresh, empty/error/loading states)
+- jasaku_app/lib/features/orders/presentation/pages/provider_order_list_page.dart — Riwayat pesanan provider (mirip customer, tampilkan nama pelanggan & alamat)
+
+### Changed
+- jasaku_app/lib/features/customer/presentation/screens/customer_shell.dart — Tambah CustomerOrderListPage di index 2 (Pesanan), fix _pages list length dari 2→4, ganti const ke final
+- jasaku_app/lib/features/provider/presentation/screens/provider_shell.dart — Ganti ProviderHistoryPage placeholder dengan ProviderOrderListPage
+
+### Removed
+- jasaku_app/lib/features/orders/domain/models/order_repository.dart (0 bytes, empty stub)
+- jasaku_app/lib/features/orders/data/repositories/order_repository_impl.dart (0 bytes, empty stub)
+- jasaku_app/lib/features/orders/presentation/pages/customer_orders_page.dart (0 bytes, empty stub)
+
+---
+
+## 2026-06-29 — P1-7 FIX TWO 500 ERRORS ON ORDER SUBMIT
+
+### Fixed (Round 1: PostGIS + Notification crash)
+- jasaku-backend/src/modules/orders/orders.service.ts: Ganti `tx.order_locations.create({ location: { type: "Point", ... } })` dengan raw SQL `ST_SetSRID(ST_MakePoint(...))` karena field `location` adalah `Unsupported("geometry")` di Prisma — Prisma tidak bisa handle PostGIS geometry via `.create()`
+- jasaku-backend/src/modules/orders/orders.service.ts: Bungkus `NotificationService.sendToUser` di try-catch agar kegagalan notifikasi (misal Firebase belum dikonfigurasi) tidak menggagalkan pembuatan order
+- jasaku_app/lib/features/orders/presentation/providers/orders_provider.dart: Tangkap `DioException` dan extract `response.data['message']` dari server, bukan menampilkan pesan Dio generic
+
+### Fixed (Round 2: FK constraint — wrong ID type)
+Root cause: Schema `orders.customer_id → profiles_customer.id` dan `orders.provider_id → provider_profiles.id`, tapi semua kode pakai `users.id` (dari JWT) untuk field2 tsb. Karena setiap user punya profile dengan UUID berbeda, FK constraint selalu violated.
+
+- **createOrder**: lookup `profiles_customer.id` & `provider_profiles.id` dari `users.id` sebelum transaksi, pakai profile IDs di `orders.create`
+- **getCustomerOrders**: translate `users.id` → `profiles_customer.id` sebelum query
+- **getProviderOrders**: translate `users.id` → `provider_profiles.id` sebelum query
+- **receiveOrderStatus**: translate `users.id` → `provider_profiles.id` untuk comparison & active order check; juga fix notifikasi pakai `users.id` (bukan profile ID)
+- **getTodayOrders**: translate `users.id` → `provider_profiles.id` sebelum query
+- **cancelOrder**: translate `users.id` → `profiles_customer.id` untuk comparison; fix notifikasi pakai `users.id`
+- Semua notifikasi `sendToUser` sekarang dikirim dengan `users.id` karena `user_devices.user_id → users.id`
+
+---
+
+## 2026-06-29 — P1-7 ADD PAYMENT METHOD SELECTION TO CHECKOUT
+
+### Added
+- jasaku_app/lib/features/orders/presentation/providers/orders_provider.dart: `submitNewOrder` now accepts `paymentMethod` & `paymentAmount` params, performs two-step submit (create order → create payment with orderId)
+- jasaku_app/lib/features/customer/presentation/screens/customer_orders.dart: Card "Metode Pembayaran" dengan radio button (COD, Transfer Bank, QRIS, E-Wallet) sebelum tombol Konfirmasi Pesanan
+
+### Changed
+- `customer_orders.dart`: Submit flow now passes `_selectedPaymentMethod` and `grandTotal` ke provider untuk membuat payment setelah order sukses
+
+---
+
+## 2026-06-30 — Rencana #1 & #2: Hapus Tab Cari + Payment Screens
+
+### Rencana #1: Hapus Tab "Cari" di Customer Shell
+- **Removed:** `customer_shell.dart` tab "Cari" (index 1) yang sebelumnya mengarah ke CustomerProfile (bug navigasi)
+- Bottom nav sekarang: **Beranda | Pesanan | Chat** (3 item)
+- Hapus import `customer_profile.dart`
+- Sesuaikan `_onTap` index untuk badge notifikasi (dari 2 → 1)
+
+### Rencana #2: Admin Payment Accounts (Rekber) + Provider Payout
+
+#### Prisma
+- **Added:** `admin_payment_accounts` model dengan fields: type, account_name, account_number, provider_name, qris_image_url, is_active
+
+#### Backend — Admin Payment Accounts (di admin module)
+- `admin.service.ts`: Tambah `getPaymentAccounts`, `createPaymentAccount`, `updatePaymentAccount`, `deletePaymentAccount`
+- `admin.controller.ts`: Handler CRUD payment accounts
+- `admin.routes.ts`: Routes GET/POST/PUT/DELETE `/admin/payment-accounts`
+
+#### Backend — Provider Payout Methods (modul baru)
+- **Created:** `src/modules/provider/payout/` — `payout.service.ts`, `payout.controller.ts`, `payout.routes.ts`
+- CRUD untuk provider mengisi rekening/ewallet penerimaan dana
+- Routes: GET/POST/PUT/DELETE `/api/provider/payout-methods` (hanya provider)
+
+#### Backend — Update Payments Service
+- `payments.service.ts`: `getPaymentMethods()` sekarang query dari tabel `admin_payment_accounts` (bukan hardcode)
+- Output includes: account_name, account_number, provider_name, qris_image_url untuk tiap metode
+
+#### Backend — app.ts
+- Register `providerPayoutRoutes` di `/api/provider`
+
+#### Flutter — Payment Feature
+- **Created:** `lib/features/payments/` — domain/models, data, presentation/widgets, presentation/screens
+- `payment_method_model.dart`: Model `PaymentMethod` + `PayoutMethod`
+- `payment_repository.dart`: API calls untuk payment methods & payout methods
+- `payment_method_picker.dart`: Widget ambil metode pembayaran dari API (ganti hardcode)
+- `payment_methods_screen.dart`: Screen lihat metode pembayaran rekber admin
+- `provider_payout_screen.dart`: Screen provider CRUD rekening/ewallet payout
+
+#### Flutter — Updates
+- `customer_orders.dart`: Ganti hardcode `_paymentMethods` → `PaymentMethodPicker` widget
+- `provider_profile.dart`: Tambah menu navigasi ke `ProviderPayoutScreen`
+
+---
+
+### Rencana #2 Lanjutan — QRIS Upload + Admin Web Dashboard
+
+#### Backend — QRIS Upload
+- `admin.controller.ts`: Tambah `uploadQrisImage` handler (multer single file)
+- `admin.routes.ts`: Route `POST /payment-accounts/:id/qris-upload` dengan `upload.single('qris')`
+- `services.routes.ts`: Ubah `isCustomer` → `isAny` untuk GET categories agar admin web bisa akses
+
+#### Backend — Fix
+- `admin.controller.ts`: Tambah `deletePricingType` handler & export
+- `admin.routes.ts`: Route `DELETE /pricing-types/:id`
+
+#### Admin Web Dashboard (HTML/JS)
+- **Created:** `public/admin/` — 9 files:
+  - `app.js`: Shared auth helper, API fetch wrapper, sidebar, layout
+  - `login.html`: Login form → POST /api/auth/login
+  - `dashboard.html`: Kartu statistik (Alpine.js)
+  - `providers.html`: Tabel provider + verifikasi (Terima/Tolak)
+  - `customers.html`: Tabel customer + Ban/Unban
+  - `categories.html`: CRUD kategori dengan modal form
+  - `services.html`: CRUD layanan per kategori
+  - `payments.html`: CRUD rekber admin + upload QRIS
+  - `pricing-types.html`: CRUD tipe harga per kategori
+- Tech: Tailwind CSS CDN + Alpine.js CDN + vanilla JS fetch
+- `app.ts`: Tambah `app.use('/admin', express.static('public/admin'))`
+- Akses: `http://IP_LAPTOP:3000/admin/dashboard.html`

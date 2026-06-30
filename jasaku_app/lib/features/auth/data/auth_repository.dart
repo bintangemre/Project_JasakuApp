@@ -40,23 +40,23 @@ class AuthRepository {
     }
   }
 
-  Future<Map<String, dynamic>> registerProvider({
-    required String fullName,
-    required String nickname,
-    required String email,
-    required String password,
-    required String phone,
-    required String birthDate,
-    required String gender,
-    required String address,
-    required String domicile,
-    String? profilePhotoPath,
-    String? ktpPhotoPath,
-    String? selfiePhotoPath,
-    List<File>? portfolioFiles, // 🟢 Menyertakan file portofolio opsional
-    required List<Map<String, dynamic>>
-    selectedServices, // 🟢 Menyertakan array keahlian & tarif
-  }) async {
+Future<Map<String, dynamic>> registerProvider({
+  required String fullName,
+  required String nickname,
+  required String email,
+  required String password,
+  required String phone,
+  required String birthDate,
+  required String gender,
+  required String address,
+  required String domicile,
+  String? profilePhotoPath,
+  String? ktpPhotoPath,
+  String? selfiePhotoPath,
+  List<File>? portfolioFiles,
+  required List<Map<String, dynamic>> selectedServices,
+}) async {
+  try {
     // 1. Inisialisasi Objek FormData untuk Multipart Request
     final Map<String, dynamic> formDataMap = {
       'full_name': fullName,
@@ -70,7 +70,6 @@ class AuthRepository {
       'domicile': domicile,
 
       // Mengirimkan array objek services dengan mengubahnya menjadi string JSON
-      // agar bisa diterima sebagai teks oleh Express.js di dalam Multipart form
       'services': jsonEncode(selectedServices),
     };
 
@@ -99,6 +98,7 @@ class AuthRepository {
     // 3. Bungkus array file portofolio opsional (jika ada)
     if (portfolioFiles != null && portfolioFiles.isNotEmpty) {
       final List<MultipartFile> portfolioMultipartList = [];
+
       for (var file in portfolioFiles) {
         portfolioMultipartList.add(
           await MultipartFile.fromFile(
@@ -107,8 +107,8 @@ class AuthRepository {
           ),
         );
       }
-      formDataMap['portfolios'] =
-          portfolioMultipartList; // Dikirim sebagai array berkas
+
+      formDataMap['portfolios'] = portfolioMultipartList;
     }
 
     // 4. Konversi Map menjadi FormData resmi Dio
@@ -120,14 +120,16 @@ class AuthRepository {
       data: formData,
       options: Options(
         headers: {
-          // Beri tahu backend bahwa request ini membawa file fisik
           'Content-Type': 'multipart/form-data',
         },
       ),
     );
 
     return response.data as Map<String, dynamic>;
+  } on DioException catch (e) {
+    throw _handleError(e);
   }
+}
 
   Future<Map<String, dynamic>> login({
     required String email,
@@ -160,7 +162,7 @@ class AuthRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '${ApiEndpoints.baseUrl}/auth/verify-otp',
+        ApiEndpoints.verifyOtp,
         data: {'otp': otp, 'email': email, 'phone': phone},
       );
       return response.data as Map<String, dynamic>;
@@ -175,7 +177,7 @@ class AuthRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '${ApiEndpoints.baseUrl}/auth/send-otp',
+        ApiEndpoints.sendOtp,
         data: {'email': email, 'phone': phone},
       );
       return response.data as Map<String, dynamic>;

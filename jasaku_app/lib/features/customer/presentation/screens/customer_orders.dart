@@ -9,6 +9,9 @@ import 'package:image_picker/image_picker.dart'; // Impor Pengelola Kamera & Gal
 
 import '../../../orders/presentation/providers/orders_provider.dart';
 import '../../../orders/domain/models/order_payload_model.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../notifications/presentation/providers/notification_provider.dart';
+import '../../../payments/presentation/widgets/payment_method_picker.dart';
 
 class CustomerOrdersPage extends ConsumerStatefulWidget {
   final String providerId;
@@ -46,6 +49,9 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
   // 🟢 STATE UNTUK MENAMPUNG FILE FOTO YANG DIPILIH
   final List<File> _selectedImages = [];
   final ImagePicker _picker = ImagePicker();
+
+  // 🟢 STATE METODE PEMBAYARAN
+  String _selectedPaymentMethod = 'cod';
 
   @override
   void initState() {
@@ -179,6 +185,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Pesanan Berhasil Dibuat!")),
         );
+        ref.read(unreadNotifProvider.notifier).state++;
         Navigator.pop(context);
       } else if (next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -447,12 +454,19 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                         ),
                       ),
                     ],
+                    // KARTU 6: METODE PEMBAYARAN
+                    const Text("Metode Pembayaran", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    PaymentMethodPicker(
+                      selectedId: _selectedPaymentMethod,
+                      onChanged: (id) => setState(() => _selectedPaymentMethod = id),
+                    ),
                     const SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
-      
+       
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -499,7 +513,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       final payload = OrderPayloadModel(
-                        customerId: "GANTI_DENGAN_AUTH_USER_ID", 
+                        customerId: ref.read(authProvider).user?.id ?? '', 
                         providerId: widget.providerId,
                         serviceId: widget.serviceId,
                         pricingTypeId: widget.pricingTypeId,
@@ -514,8 +528,9 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                       );
 
                       ref.read(orderFormProvider.notifier).submitNewOrder(
-                        payload,
-                        "MASUKKAN_URL_CREATE_ORDER_KAMU",
+                        payload: payload,
+                        paymentMethod: _selectedPaymentMethod,
+                        paymentAmount: grandTotal,
                       );
                     }
                   },

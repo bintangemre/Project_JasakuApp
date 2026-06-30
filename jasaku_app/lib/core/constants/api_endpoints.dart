@@ -1,6 +1,6 @@
 // Defines backend API endpoint URLs for shared Jasaku App network calls.
 class ApiEndpoints {
-  static const String baseUrl = 'http://10.25.4.20:3000';
+  static const String baseUrl = 'http://10.244.34.20:3000';
   static const String login = '$baseUrl/api/auth/login';
   static const String loginGoogle = '$baseUrl/api/auth/login/google';
   static const String registerCustomer = '$baseUrl/api/auth/register/customer';
@@ -19,5 +19,48 @@ class ApiEndpoints {
   static const String getOrderDetails = '$baseUrl/api/orders/orders/'; // + {orderId}
   static const String getCustomerOrders = '$baseUrl/api/orders/customer/orders';
   static const String getProviderOrders = '$baseUrl/api/orders/provider/orders';
+  static const String getProviderRequests = '$baseUrl/api/orders/provider/requests';
   static const String updateOrderStatus = '$baseUrl/api/orders/orders/'; // + {orderId}/status
+
+  // OTP
+  static const String sendOtp = '$baseUrl/api/auth/send-otp';
+  static const String verifyOtp = '$baseUrl/api/auth/verify-otp';
+
+  // FCM Device
+  static const String registerDevice = '$baseUrl/api/notifications/devices/register';
+
+  // Reviews
+  static const String createReview = '$baseUrl/api/reviews';
+  static const String getProviderReviews = '$baseUrl/api/reviews/provider/'; // + {providerId}
+
+  // Payments
+  static const String paymentMethods = '$baseUrl/api/payment-methods';
+  static const String createPayment = '$baseUrl/api/payments';
+  static const String getPaymentByOrder = '$baseUrl/api/payments/order/'; // + {orderId}
+  static const String savePaymentMethod = '$baseUrl/api/payment-methods/save';
+  static const String getMyPaymentMethods = '$baseUrl/api/payment-methods/mine';
+
+  // Order status tracking
+  static const String cancelOrder = '$baseUrl/api/orders/orders/'; // + {orderId}/cancel
+  static const String getOrderTracking = '$baseUrl/api/orders/orders/'; // + {orderId}/tracking
+  static const String getProviderLocation = '$baseUrl/api/locations/provider/'; // + {providerId}
+
+  // Admin
+  static const String adminDashboard = '$baseUrl/api/admin/dashboard';
+  static const String adminPendingProviders = '$baseUrl/api/admin/providers/pending';
+  static const String adminVerifyProvider = '$baseUrl/api/admin/providers/'; // + {providerId}/verify
+  static const String adminAllProviders = '$baseUrl/api/admin/providers';
+  static const String adminAllCustomers = '$baseUrl/api/admin/customers';
+  static const String adminBanUser = '$baseUrl/api/admin/users/'; // + {userId}/ban
+  static const String adminCreateCategory = '$baseUrl/api/admin/categories';
+  static const String adminCreateService = '$baseUrl/api/admin/services';
+
+  // Customer Profile
+  static const String customerProfile = '$baseUrl/api/customer/profile';
+
+  // Provider Dashboard
+  static const String providerProfile = '$baseUrl/api/provider/profile';
+  static const String providerServices = '$baseUrl/api/provider/services';
+  static const String providerAvailability = '$baseUrl/api/provider/profile/availability';
+  static const String providerCompleteOnboarding = '$baseUrl/api/provider/profile/complete';
 }

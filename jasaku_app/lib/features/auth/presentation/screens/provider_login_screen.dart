@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
+import 'provider_profile_completion_screen.dart';
+import 'provider_verification_pending_screen.dart';
 
 class ProviderLoginScreen extends ConsumerStatefulWidget {
   const ProviderLoginScreen({super.key});
@@ -22,6 +24,44 @@ class _ProviderLoginScreenState extends ConsumerState<ProviderLoginScreen> {
     super.dispose();
   }
 
+  void _afterLogin() {
+    final onboarding = ref.read(authProvider).onboardingCompleted;
+    if (onboarding == false) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (_) => const ProviderProfileCompletionScreen()),
+      );
+    } else {
+      Navigator.pushReplacementNamed(context, '/provider/shell');
+    }
+  }
+
+  bool _handleVerificationError(String? error) {
+    if (error == null) return false;
+    if (error.contains('belum diverifikasi')) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ProviderVerificationPendingScreen(
+              status: 'pending'),
+        ),
+      );
+      return true;
+    }
+    if (error.contains('ditolak')) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ProviderVerificationPendingScreen(
+              status: 'rejected'),
+        ),
+      );
+      return true;
+    }
+    return false;
+  }
+
   Future<void> _loginWithGoogle() async {
     final success = await ref
         .read(authProvider.notifier)
@@ -30,7 +70,14 @@ class _ProviderLoginScreenState extends ConsumerState<ProviderLoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      Navigator.pushReplacementNamed(context, '/provider/shell');
+      _afterLogin();
+    } else if (!_handleVerificationError(
+        ref.read(authProvider).error)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ref.read(authProvider).error ?? 'Login gagal'),
+        ),
+      );
     }
   }
 
@@ -52,7 +99,14 @@ class _ProviderLoginScreenState extends ConsumerState<ProviderLoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      Navigator.pushReplacementNamed(context, '/provider/shell');
+      _afterLogin();
+    } else if (!_handleVerificationError(
+        ref.read(authProvider).error)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ref.read(authProvider).error ?? 'Login gagal'),
+        ),
+      );
     }
   }
 

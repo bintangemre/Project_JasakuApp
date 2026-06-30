@@ -47,6 +47,11 @@ export { Prisma }
  */
 export type categories = Prisma.categoriesModel
 /**
+ * Model admin_payment_accounts
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type admin_payment_accounts = Prisma.admin_payment_accountsModel
+/**
  * Model custom_task_proposals
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */

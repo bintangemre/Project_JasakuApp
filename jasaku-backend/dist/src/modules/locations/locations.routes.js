@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { updateLocation } from "./locations.controller";
-import { authenticate } from "../../middleware/auth.middleware"; // Pastikan path benar
+import { updateLocation, getProviderLocation } from "./locations.controller";
+import { authenticate } from "../../middleware/auth.middleware";
 const router = Router();
-// Endpoint untuk update lokasi provider
 router.put("/update", authenticate, updateLocation);
+router.get("/provider/:providerId", authenticate, getProviderLocation);
 export default router;

@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   categories: 'categories',
+  admin_payment_accounts: 'admin_payment_accounts',
   custom_task_proposals: 'custom_task_proposals',
   custom_tasks: 'custom_tasks',
   customer_payment_methods: 'customer_payment_methods',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "categories" | "custom_task_proposals" | "custom_tasks" | "customer_payment_methods" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_payout_methods" | "provider_service_prices" | "provider_services" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations" | "reviews" | "user_devices"
+    modelProps: "categories" | "admin_payment_accounts" | "custom_task_proposals" | "custom_tasks" | "customer_payment_methods" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_payout_methods" | "provider_service_prices" | "provider_services" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations" | "reviews" | "user_devices"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -496,6 +497,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.categoriesCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CategoriesCountAggregateOutputType> | number
+        }
+      }
+    }
+    admin_payment_accounts: {
+      payload: Prisma.$admin_payment_accountsPayload<ExtArgs>
+      fields: Prisma.admin_payment_accountsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.admin_payment_accountsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.admin_payment_accountsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+        }
+        findFirst: {
+          args: Prisma.admin_payment_accountsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.admin_payment_accountsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+        }
+        findMany: {
+          args: Prisma.admin_payment_accountsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>[]
+        }
+        create: {
+          args: Prisma.admin_payment_accountsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+        }
+        createMany: {
+          args: Prisma.admin_payment_accountsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.admin_payment_accountsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>[]
+        }
+        delete: {
+          args: Prisma.admin_payment_accountsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+        }
+        update: {
+          args: Prisma.admin_payment_accountsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+        }
+        deleteMany: {
+          args: Prisma.admin_payment_accountsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.admin_payment_accountsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.admin_payment_accountsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>[]
+        }
+        upsert: {
+          args: Prisma.admin_payment_accountsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+        }
+        aggregate: {
+          args: Prisma.Admin_payment_accountsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAdmin_payment_accounts>
+        }
+        groupBy: {
+          args: Prisma.admin_payment_accountsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Admin_payment_accountsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.admin_payment_accountsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Admin_payment_accountsCountAggregateOutputType> | number
         }
       }
     }
@@ -2103,6 +2178,21 @@ export const CategoriesScalarFieldEnum = {
 export type CategoriesScalarFieldEnum = (typeof CategoriesScalarFieldEnum)[keyof typeof CategoriesScalarFieldEnum]
 
 
+export const Admin_payment_accountsScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  account_name: 'account_name',
+  account_number: 'account_number',
+  provider_name: 'provider_name',
+  qris_image_url: 'qris_image_url',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Admin_payment_accountsScalarFieldEnum = (typeof Admin_payment_accountsScalarFieldEnum)[keyof typeof Admin_payment_accountsScalarFieldEnum]
+
+
 export const Custom_task_proposalsScalarFieldEnum = {
   id: 'id',
   task_id: 'task_id',
@@ -2331,6 +2421,7 @@ export const Provider_profilesScalarFieldEnum = {
   is_verified: 'is_verified',
   verification_status: 'verification_status',
   is_active: 'is_active',
+  onboarding_completed: 'onboarding_completed',
   rating: 'rating',
   total_jobs: 'total_jobs',
   created_at: 'created_at',
@@ -2437,6 +2528,13 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'Decimal'
  */
 export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -2461,13 +2559,6 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -2580,6 +2671,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   categories?: Prisma.categoriesOmit
+  admin_payment_accounts?: Prisma.admin_payment_accountsOmit
   custom_task_proposals?: Prisma.custom_task_proposalsOmit
   custom_tasks?: Prisma.custom_tasksOmit
   customer_payment_methods?: Prisma.customer_payment_methodsOmit

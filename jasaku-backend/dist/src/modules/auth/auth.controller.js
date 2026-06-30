@@ -13,10 +13,25 @@ const registerCustomer = async (req, res) => {
 };
 const registerProvider = async (req, res) => {
     try {
-        const { full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, services } = req.body;
+        // 1. Ambil data teks biasa dari req.body
+        const { full_name, nickname, email, password, phone, birthDate, gender, address, domicile, services } = req.body;
+        // 2. 🟢 KUNCI PERBAIKAN 1: Ubah string JSON services menjadi Array Objek asli kembali
+        let parsedServices = [];
+        if (services) {
+            parsedServices = typeof services === 'string' ? JSON.parse(services) : services;
+        }
+        // 3. 🟢 KUNCI PERBAIKAN 2: Tangkap file gambar fisik dari req.files (sesuaikan dengan nama field di multer kamu)
+        const profile_photo = req.files?.['profile_photo']?.[0]?.path || req.body.profile_photo;
+        const ktp_photo = req.files?.['ktp_photo']?.[0]?.path || req.body.ktp_photo;
+        const selfie_photo = req.files?.['selfie_photo']?.[0]?.path || req.body.selfie_photo;
+        // Tangkap array gambar portofolio opsional
+        const portfolios = req.files?.['portfolios']?.map((file) => file.path) || [];
         const authService = new AuthService();
-        const result = await authService.registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, services);
-        return successResponse(res, result, 'Registrasi provider berhasil, silakan upload dokumen', 201);
+        // 4. Kirim data yang sudah bersih dan matang ke database via service
+        const result = await authService.registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, // Kirim array string url/path portofolio
+        parsedServices // Kirim array objek services yang sudah valid
+        );
+        return successResponse(res, result, 'Registrasi penyedia layanan berhasil', 201);
     }
     catch (err) {
         return errorResponse(res, err.message);
@@ -55,4 +70,32 @@ const loginWithGoogle = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
-export { registerCustomer, registerProvider, registerAdmin, login, loginWithGoogle };
+const sendOtp = async (req, res) => {
+    try {
+        const { email, phone } = req.body;
+        if (!email || !phone) {
+            return errorResponse(res, 'Email dan nomor HP harus diisi', 400);
+        }
+        const authService = new AuthService();
+        const result = await authService.sendOtp(email, phone);
+        return successResponse(res, result, 'OTP berhasil dikirim');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const verifyOtp = async (req, res) => {
+    try {
+        const { email, phone, otp } = req.body;
+        if (!email || !phone || !otp) {
+            return errorResponse(res, 'Email, nomor HP, dan OTP harus diisi', 400);
+        }
+        const authService = new AuthService();
+        const result = await authService.verifyOtp(email, phone, otp);
+        return successResponse(res, result, 'Verifikasi OTP berhasil');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export { registerCustomer, registerProvider, registerAdmin, login, loginWithGoogle, sendOtp, verifyOtp };

@@ -633,10 +633,6 @@ export type usersUncheckedUpdateManyWithoutRolesNestedInput = {
   deleteMany?: Prisma.usersScalarWhereInput | Prisma.usersScalarWhereInput[]
 }
 
-export type NullableBoolFieldUpdateOperationsInput = {
-  set?: boolean | null
-}
-
 export type usersCreateNestedOneWithoutProfiles_customerInput = {
   create?: Prisma.XOR<Prisma.usersCreateWithoutProfiles_customerInput, Prisma.usersUncheckedCreateWithoutProfiles_customerInput>
   connectOrCreate?: Prisma.usersCreateOrConnectWithoutProfiles_customerInput

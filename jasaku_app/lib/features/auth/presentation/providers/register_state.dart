@@ -1,0 +1,19 @@
+import 'dart:io';
+
+class RegisterState {
+  String phone = '';
+  List<Map<String, dynamic>> selectedServices = [];
+  String fullName = '';
+  String nickname = '';
+  String email = '';
+  String password = '';
+  String birthDate = '';
+  String gender = '';
+  String address = '';
+  String domicile = '';
+  String? profilePhotoPath;
+  String? ktpPhotoPath;
+  String? selfiePhotoPath;
+  List<File> portfolioFiles = [];
+  bool termsAgreed = false;
+}

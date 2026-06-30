@@ -1,24 +1,33 @@
-// Wrapper untuk Flutter Secure Storage yang menyimpan dan mengambil JWT untuk kedua app.
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class StorageService {
-  static const _storage = FlutterSecureStorage();
   static const _tokenKey = 'jwt_token';
+  static const _storage = FlutterSecureStorage();
 
   static Future<void> saveToken(String token) async {
-    await _storage.write(key: _tokenKey, value: token);
+    try {
+      await _storage.write(key: _tokenKey, value: token);
+    } catch (_) {
+      // Fallback untuk platform yang tidak support (misal some web configs)
+    }
   }
 
   static Future<String?> getToken() async {
-    return await _storage.read(key: _tokenKey);
+    try {
+      return await _storage.read(key: _tokenKey);
+    } catch (_) {
+      return null;
+    }
   }
 
   static Future<void> deleteToken() async {
-    await _storage.delete(key: _tokenKey);
+    try {
+      await _storage.delete(key: _tokenKey);
+    } catch (_) {}
   }
 
   static Future<bool> hasToken() async {
-    final token = await _storage.read(key: _tokenKey);
+    final token = await getToken();
     return token != null;
   }
 }

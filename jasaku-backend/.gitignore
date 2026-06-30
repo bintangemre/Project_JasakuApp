@@ -6,4 +6,7 @@ node_modules
 
 /firebase/jasaku-app-251a8-firebase-adminsdk-fbsvc-4c381e3f6a.json
 # Firebase Admin SDK Credentials
-jasaku-backend/src/config/firebase/*.json
+src/config/firebase/*.json
+
+# Uploaded files
+uploads/

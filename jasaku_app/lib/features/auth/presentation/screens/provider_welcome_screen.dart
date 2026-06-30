@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'provider_login_screen.dart';
-import 'provider_register_screen.dart';
+import 'provider_register_category_screen.dart';
+import '../providers/register_state.dart';
 
 class ProviderWelcomeScreen extends StatelessWidget {
   const ProviderWelcomeScreen({super.key});
@@ -114,7 +115,7 @@ class ProviderWelcomeScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ProviderRegisterScreen(),
+                              builder: (_) => ProviderRegisterCategoryScreen(state: RegisterState()),
                             ),
                           );
                         },

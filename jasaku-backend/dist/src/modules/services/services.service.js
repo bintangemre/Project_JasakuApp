@@ -28,9 +28,9 @@ export class CategoriesService {
         const offset = (page - 1) * limit;
         const providers = await prisma.$queryRaw `
             SELECT 
-                p.id as provider_id,
-                u.full_name,
-                u.avatar_url,
+                u.id as provider_id,
+                pp.full_name,
+                pp.profile_photo,
                 pl.address,
                 ST_DistanceSphere(
                     pl.location, 
@@ -38,19 +38,21 @@ export class CategoriesService {
                 ) as distance_meters,
                 ps.description,
                 MIN(psp.price) as min_price,
-                p.rating  //asumsukan rating provider, pastikan ada kolom rating di tabel provider_profiles atau buat view untuk menghitung rating berdasarkan reviews
+                pp.rating
             FROM provider_services ps
             JOIN users u ON ps.provider_id = u.id
+            JOIN roles r ON u.role_id = r.id
+            JOIN provider_profiles pp ON u.id = pp.user_id
             JOIN provider_locations pl ON u.id = pl.provider_id
             LEFT JOIN provider_service_prices psp ON psp.provider_service_id = ps.id
             WHERE ps.service_id = ${serviceId}::uuid
-            GROUP BY p.id, u.id, pl.id, ps.id
+              AND r.name = 'provider'
+            GROUP BY u.id, pp.id, pl.id, ps.id
             HAVING ST_DistanceSphere(pl.location, ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)) <= ${radiusInMeters}
             ORDER BY distance_meters ASC
             LIMIT ${limit} OFFSET ${offset}
         `;
         return providers;
-        // Catatan: Pastikan indeks GiST sudah dibuat pada kolom location di provider_locations untuk performa optimal
     }
     // ini sebagai contoh tampilan saja karena belum ada jarak 
     // menampilkan list provider yang sudah terdaftar berdasarkan layanan yang dipilih pelanggan, namun belum menampilkan jarak dari pelanggan ke provider
@@ -81,7 +83,7 @@ export class CategoriesService {
                 provider_profiles: {
                     select: {
                         full_name: true,
-                        avatar_url: true,
+                        profile_photo: true,
                         rating: true,
                         total_jobs: true,
                         address: true,
@@ -106,7 +108,7 @@ export class CategoriesService {
                             provider_id: service.provider_id,
                             users: {
                                 full_name: user.provider_profiles?.full_name ?? null,
-                                avatar_url: user.provider_profiles?.avatar_url ?? null,
+                                profile_photo: user.provider_profiles?.profile_photo ?? null,
                             },
                             provider_locations: user.provider_locations
                                 ? [

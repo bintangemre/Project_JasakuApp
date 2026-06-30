@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   categories: 'categories',
+  admin_payment_accounts: 'admin_payment_accounts',
   custom_task_proposals: 'custom_task_proposals',
   custom_tasks: 'custom_tasks',
   customer_payment_methods: 'customer_payment_methods',
@@ -100,6 +101,21 @@ export const CategoriesScalarFieldEnum = {
 } as const
 
 export type CategoriesScalarFieldEnum = (typeof CategoriesScalarFieldEnum)[keyof typeof CategoriesScalarFieldEnum]
+
+
+export const Admin_payment_accountsScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  account_name: 'account_name',
+  account_number: 'account_number',
+  provider_name: 'provider_name',
+  qris_image_url: 'qris_image_url',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Admin_payment_accountsScalarFieldEnum = (typeof Admin_payment_accountsScalarFieldEnum)[keyof typeof Admin_payment_accountsScalarFieldEnum]
 
 
 export const Custom_task_proposalsScalarFieldEnum = {
@@ -330,6 +346,7 @@ export const Provider_profilesScalarFieldEnum = {
   is_verified: 'is_verified',
   verification_status: 'verification_status',
   is_active: 'is_active',
+  onboarding_completed: 'onboarding_completed',
   rating: 'rating',
   total_jobs: 'total_jobs',
   created_at: 'created_at',

@@ -3,8 +3,15 @@ import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes';
 import servicesRoutes from './modules/services/services.routes';
 import providerServicesRoutes from './modules/provider/services/services.routes';
+import providerProfileRoutes from './modules/provider/profile/profile.routes';
 import locationsRoutes from './modules/locations/locations.routes';
 import ordersRoutes from './modules/orders/orders.routes';
+import notificationRoutes from './modules/notifications/notifications.routes';
+import reviewsRoutes from './modules/reviews/reviews.routes';
+import paymentsRoutes from './modules/payments/payments.routes';
+import adminRoutes from './modules/admin/admin.routes';
+import customerProfileRoutes from './modules/customer/profile/profile.routes';
+import providerPayoutRoutes from './modules/provider/payout/payout.routes';
 import dotenv from 'dotenv';
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger";
@@ -14,12 +21,41 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
+app.use('/admin', express.static('public/admin'));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/locations', locationsRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/provider/services', providerServicesRoutes);
+app.use('/api/provider', providerProfileRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api', reviewsRoutes);
+app.use('/api', paymentsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/customer', customerProfileRoutes);
+app.use('/api/provider', providerPayoutRoutes);
+// Periodic cleanup: hard-delete cancelled/rejected orders older than 2 minutes
+const cleanupInterval = 60_000; // every 60s
+setInterval(async () => {
+    try {
+        const { prisma } = await import('./config/prisma');
+        const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+        const result = await prisma.orders.deleteMany({
+            where: {
+                status: { in: ["cancelled", "rejected"] },
+                created_at: { lt: twoMinutesAgo }
+            }
+        });
+        if (result.count > 0) {
+            console.log(`🧹 Cleaned up ${result.count} stale cancelled/rejected orders`);
+        }
+    }
+    catch (err) {
+        // silent
+    }
+}, cleanupInterval);
 const PORT = process.env.PORT || 3000;
 app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`============= JASAKU BACKEND =============`);

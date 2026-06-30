@@ -1,0 +1,54 @@
+# Progress Log
+
+## 2026-06-30 — Perbaikan Dashboard Provider & Review System
+
+### Backend (`jasaku-backend/`)
+
+#### Sesi 1 — Order, Review, dan Dashboard Provider
+
+- **Modified** `src/modules/orders/orders.service.ts`:
+  - Hapus `deleteMany` cascade dari `getCustomerOrders` dan `getProviderOrders` yang menyebabkan 500 error
+  - Perbaiki `updated_at` → `created_at` di `getCustomerOrders` (field tidak ada di tabel)
+  - Tambah increment `total_jobs` di `receiveOrderStatus` saat status `completed`
+  - Perbaiki query `getCustomerOrders` dan `getProviderOrders` agar tidak menyertakan relasi yang memicu cascade
+
+- **Modified** `src/app.ts`:
+  - Gunakan dynamic import (`import()` alih-alih `require()`) untuk prisma agar tidak crash di startup
+  - Tambah interval periodic cleanup (hapus cancelled orders > 2 menit) setiap 60 detik
+
+- **Modified** `src/modules/reviews/reviews.service.ts`:
+  - Tambah update `provider_profiles.rating` (avg) dan `total_reviews` (count) setelah review dibuat
+  - *Bug:* `agg._count._all` — TypeScript error karena `_count: true` return `number`, bukan object
+
+#### Sesi 2 — Fix TypeScript & Rekalkulasi Profil
+
+- **Fixed** `src/modules/reviews/reviews.service.ts`:
+  - `agg._count._all` → `agg._count` (type mismatch fix)
+
+- **Modified** `src/modules/provider/profile/profile.controller.ts`:
+  - `getProfile` sekarang rekalkulasi `total_jobs`, `total_reviews`, `rating` dari data aktual (orders + reviews) setiap kali dipanggil
+  - Update `provider_profiles` dengan hasil rekalkulasi (backfill data lama)
+  - Ambil `profileId` dari relasi `users → provider_profiles`, sehingga queries konsisten
+
+### Flutter App (`jasaku_app/`)
+
+#### Sesi 1 — UI Review & Dashboard Real Data
+
+- **Created** `lib/features/reviews/presentation/widgets/review_bottom_sheet.dart`:
+  - Bottom sheet untuk customer memberi rating (1-5 bintang) dan ulasan
+  - Tombol submit → POST ke `/api/reviews`
+  - Navigasi otomatis kembali setelah submit
+
+- **Modified** `lib/features/customer/home/customer_home.dart`:
+  - Ganti data dummy dengan `customerHomeOrdersProvider` (Riverpod)
+  - Tampilkan order aktif (in_progress/arrived) dan riwayat (completed/cancelled)
+  - Tombol review muncul di card order completed
+
+- **Modified** `lib/features/orders/presentation/pages/order_detail_page.dart`:
+  - Tambah tombol "Beri Rating" untuk order dengan status `completed` dan belum di-review
+
+### Catatan
+
+- `performance` di dashboard Flutter dihitung lokal: `(completed orders / total orders) * 100`, bukan dari API
+- Backend perlu di-restart setiap kali ada perubahan file `.ts`
+- Prisma Client digenerate in-repo di `src/generated/prisma/` — jalankan `npx prisma generate` jika schema berubah

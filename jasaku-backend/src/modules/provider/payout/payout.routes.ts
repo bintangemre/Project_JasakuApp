@@ -1,0 +1,13 @@
+import { Router } from "express";
+import { authenticate } from "../../../middleware/auth.middleware";
+import { isProvider } from "../../../middleware/role.middleware";
+import { getPayoutMethods, createPayoutMethod, updatePayoutMethod, deletePayoutMethod } from "./payout.controller";
+
+const router = Router();
+
+router.get("/payout-methods", authenticate, isProvider, getPayoutMethods);
+router.post("/payout-methods", authenticate, isProvider, createPayoutMethod);
+router.put("/payout-methods/:id", authenticate, isProvider, updatePayoutMethod);
+router.delete("/payout-methods/:id", authenticate, isProvider, deletePayoutMethod);
+
+export default router;

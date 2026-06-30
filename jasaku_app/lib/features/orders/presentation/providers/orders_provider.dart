@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
-
+import '../../../../core/network/api_client.dart';
+import '../../../../core/constants/api_endpoints.dart';
 import '../../domain/models/order_payload_model.dart';
 
-// State manajemen penanda loading aplikasi
 class OrderFormState {
   final bool isLoading;
   final String? errorMessage;
@@ -17,29 +17,45 @@ class OrderFormState {
 }
 
 class OrderFormNotifier extends StateNotifier<OrderFormState> {
-  final Dio _dio; // Inject Dio Client milikmu di sini
+  final Dio _dio;
   OrderFormNotifier(this._dio) : super(OrderFormState());
 
-  Future<void> submitNewOrder(OrderPayloadModel payload, String url) async {
+  Future<void> submitNewOrder({
+    required OrderPayloadModel payload,
+    required String paymentMethod,
+    required double paymentAmount,
+  }) async {
     state = OrderFormState(isLoading: true);
     try {
-      final response = await _dio.post(url, data: payload.toJson());
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        state = OrderFormState(isLoading: false, isSuccess: true);
-      } else {
-        state = OrderFormState(
-          isLoading: false,
-          errorMessage: "Gagal membuat pesanan",
-        );
+      final orderResponse = await _dio.post(ApiEndpoints.createOrder, data: payload.toJson());
+      if (orderResponse.statusCode != 200 && orderResponse.statusCode != 201) {
+        state = OrderFormState(isLoading: false, errorMessage: "Gagal membuat pesanan");
+        return;
       }
+
+      final orderId = orderResponse.data['data']?['id'] as String?;
+      if (orderId == null) {
+        state = OrderFormState(isLoading: false, errorMessage: "Gagal mendapatkan ID pesanan");
+        return;
+      }
+
+      await _dio.post(ApiEndpoints.createPayment, data: {
+        'orderId': orderId,
+        'method': paymentMethod,
+        'amount': paymentAmount,
+      });
+
+      state = OrderFormState(isLoading: false, isSuccess: true);
+    } on DioException catch (e) {
+      final message = e.response?.data?['message'] as String? ?? e.message ?? 'Gagal membuat pesanan';
+      state = OrderFormState(isLoading: false, errorMessage: message);
     } catch (e) {
       state = OrderFormState(isLoading: false, errorMessage: e.toString());
     }
   }
 }
 
-// Ganti 'Dio()' dengan ApiClient().dio milikmu jika menggunakan custom class
 final orderFormProvider =
     StateNotifierProvider<OrderFormNotifier, OrderFormState>((ref) {
-      return OrderFormNotifier(Dio());
+      return OrderFormNotifier(ApiClient().dio);
     });

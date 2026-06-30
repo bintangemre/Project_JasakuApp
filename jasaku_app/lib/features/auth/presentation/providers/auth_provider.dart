@@ -9,14 +9,18 @@ class AuthState {
   final UserModel? user;
   final bool isLoading;
   final String? error;
+  final bool? onboardingCompleted;
 
-  const AuthState({this.user, this.isLoading = false, this.error});
+  const AuthState(
+      {this.user, this.isLoading = false, this.error, this.onboardingCompleted});
 
-  AuthState copyWith({UserModel? user, bool? isLoading, String? error}) {
+  AuthState copyWith(
+      {UserModel? user, bool? isLoading, String? error, bool? onboardingCompleted}) {
     return AuthState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
     );
   }
 }
@@ -135,7 +139,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
         return false;
       }
-      state = AuthState(user: user);
+      final onboardingCompleted =
+          result['data']?['profile']?['onboarding_completed'] as bool?;
+      state = AuthState(user: user, onboardingCompleted: onboardingCompleted);
       return true;
     } catch (e) {
       state = AuthState(error: e.toString());
@@ -206,12 +212,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         }
 
         // Simpan token JWT internal dari backend ke local repository (jika ada handler-nya di repo)
-        if (data['token'] != null) {
-          // await _repo.saveToken(data['token']); // Aktifkan jika repo kamu memiliki fungsi ini
-        }
+      if (data['token'] != null) {
+        // await _repo.saveToken(data['token']); // Aktifkan jika repo kamu memiliki fungsi ini
+      }
 
-        state = AuthState(user: user);
-        return true;
+      final onboardingCompleted =
+          data['profile']?['onboarding_completed'] as bool?;
+      state = AuthState(user: user, onboardingCompleted: onboardingCompleted);
+      return true;
       } else {
         state = AuthState(error: result['message'] ?? 'Login Google Gagal');
         return false;

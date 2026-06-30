@@ -294,6 +294,13 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
 
     if (!mounted) return;
 
+    if (!success) {
+  final errorMsg = ref.read(authProvider).error ?? 'Registrasi gagal. Silakan coba lagi.';
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(errorMsg), backgroundColor: Colors.red),
+  );
+}
+
     if (success) {
       // 2. WAJIB: Arahkan ke Halaman Izin Lokasi terlebih dahulu
       // Menunggu apakah mitra memberikan izin lokasi atau tidak

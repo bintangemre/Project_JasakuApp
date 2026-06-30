@@ -37,7 +37,7 @@ class AuthService {
     String idToken,
     String expectedRole,
   ) async {
-    final url = Uri.parse('http://10.25.4.20:3000/api/auth/login/google');
+    final url = Uri.parse('http://10.244.34.20:3000/api/auth/login/google');
 
     final response = await http.post(
       url,
