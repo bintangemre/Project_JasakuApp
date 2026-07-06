@@ -14,6 +14,18 @@ class RegisterState {
   String? profilePhotoPath;
   String? ktpPhotoPath;
   String? selfiePhotoPath;
+  String? ijazahPhotoPath;
+  List<Map<String, dynamic>> certificates = [];
   List<File> portfolioFiles = [];
   bool termsAgreed = false;
+
+  // OCR KTP
+  String? ocrNik;
+  String? ocrFullName;
+  String? ocrBirthPlace;
+  String? ocrBirthDate;
+  String? ocrAddress;
+
+  // Liveness
+  Map<String, dynamic>? livenessData;
 }

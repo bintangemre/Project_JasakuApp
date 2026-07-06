@@ -29,6 +29,7 @@ class CustomerProfileData {
   final String? nickname;
   final String? birthDate;
   final String? gender;
+  final String? address;
   final String? avatarUrl;
 
   CustomerProfileData({
@@ -37,6 +38,7 @@ class CustomerProfileData {
     this.nickname,
     this.birthDate,
     this.gender,
+    this.address,
     this.avatarUrl,
   });
 
@@ -47,6 +49,7 @@ class CustomerProfileData {
       nickname: json['nickname'] as String?,
       birthDate: json['birth_date'] as String?,
       gender: json['gender'] as String?,
+      address: json['address'] as String?,
       avatarUrl: json['avatar_url'] as String?,
     );
   }

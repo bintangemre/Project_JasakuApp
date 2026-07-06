@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { postTask, getAvailableTasks, getMyTasks, getTaskDetail, acceptTask, } from './custom-tasks.controller';
+import { authenticate } from '../../middleware/auth.middleware';
+import { isCustomer, isProvider } from '../../middleware/role.middleware';
+import { validate } from '../../middleware/validate.middleware';
+import { createCustomTaskSchema, } from '../../middleware/schemas';
+const router = Router();
+router.post('/', authenticate, isCustomer, validate(createCustomTaskSchema), postTask);
+router.get('/available', authenticate, isProvider, getAvailableTasks);
+router.get('/mine', authenticate, isCustomer, getMyTasks);
+router.get('/:taskId', authenticate, getTaskDetail);
+router.post('/:taskId/accept', authenticate, isProvider, acceptTask);
+export default router;

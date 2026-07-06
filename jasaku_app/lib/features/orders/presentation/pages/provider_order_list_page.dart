@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../domain/models/order_model.dart';
 import '../providers/order_list_provider.dart';
 
@@ -154,6 +156,10 @@ class _ProviderOrderListPageState extends ConsumerState<ProviderOrderListPage> {
                           const SizedBox(height: 2),
                           Text(order.address!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                         ],
+                        if (order.lat != null && order.lng != null) ...[
+                          const SizedBox(height: 8),
+                          _buildMiniMap(order.lat!, order.lng!),
+                        ],
                       ],
                     ),
                   ),
@@ -173,6 +179,41 @@ class _ProviderOrderListPageState extends ConsumerState<ProviderOrderListPage> {
                 children: [
                   Text('Rp ${order.formattedPrice}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF00A651))),
                   Text(order.formattedDate, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniMap(double lat, double lng) {
+    final point = LatLng(lat, lng);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        height: 100,
+        width: double.infinity,
+        child: IgnorePointer(
+          child: FlutterMap(
+            options: MapOptions(
+              initialCenter: point,
+              initialZoom: 14.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.jasaku.app',
+              ),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: point,
+                    width: 30,
+                    height: 30,
+                    child: const Icon(Icons.person_pin_circle, color: Colors.red, size: 28),
+                  ),
                 ],
               ),
             ],

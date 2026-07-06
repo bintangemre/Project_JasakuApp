@@ -258,3 +258,81 @@ Root cause: Schema `orders.customer_id → profiles_customer.id` dan `orders.pro
 - Tech: Tailwind CSS CDN + Alpine.js CDN + vanilla JS fetch
 - `app.ts`: Tambah `app.use('/admin', express.static('public/admin'))`
 - Akses: `http://IP_LAPTOP:3000/admin/dashboard.html`
+
+## 2026-07-01 — Registrasi Provider Flow + Profile Completion + Customer Jarak Terdekat
+
+### Backend (`jasaku-backend/`)
+
+#### Sesi 1 — Auth & Provider Registration
+
+- **Modified** `src/modules/auth/auth.service.ts`:
+  - `login()`: setelah password cocok, jika role=provider → cek `verification_status`. Pending throw error, Rejected throw error
+  - `loginWithGoogle()`: sama untuk existing provider user
+  - Response login include `verification_status` & `onboarding_completed`
+  - `registerProvider`, `registerCustomer`, `registerAdmin`: normalisasi `phone?.trim() || null` + cek uniqueness pakai `normalizedPhone` (fix empty string → null untuk unique constraint)
+- **Modified** `prisma/schema.prisma`: tambah field `onboarding_completed Boolean @default(false)` di model `provider_profiles`
+
+#### Sesi 2 — Admin Dashboard (Web SPA)
+
+- **Created** `public/admin/index.html`: Admin dashboard SPA (login + dashboard + providers + customers + categories + services + payments + pricing-types), Tailwind CDN + Alpine.js + vanilla JS
+- **Created** `public/admin/app.js`: Alpine.js store dark mode, utility functions
+- **Created** `public/admin/app.css`: Dark mode theme + responsive sidebar
+- **Modified** `src/app.ts`: Tambah `app.use('/admin', express.static('public/admin'))`, route `/admin` → redirect ke `/admin/`
+- **Modified** `src/middleware/schemas.ts`: `verifyProviderSchema` — `status` optional + default `'verified'`
+- **Modified** `src/modules/admin/admin.service.ts`: `verifyProvider` / `unverifyProvider` — `where: id` fix (dari `user_id`)
+
+#### Sesi 3 — Provider Profile Completion
+
+- **Created** `src/modules/provider/profile/profile.service.ts`: `completeOnboarding()` — transaksi atomik update foto (upload), harga per layanan (update provider_service_prices), payout method (create/update), set `onboarding_completed = true`
+- **Created** `src/modules/provider/profile/profile.controller.ts`: `completeOnboarding` handler — parse multipart form-data (fields + file)
+- **Created** `src/modules/provider/profile/profile.routes.ts`: `PATCH /profile/complete` — authenticated + multipart upload
+- **Modified** `src/modules/provider/services/services.service.ts`: `getProviderServices` — ambil provider_services + prices + pricing_types untuk ditampilkan di form
+- **Fixed** `src/modules/provider/services/services.routes.ts`: route `GET /services` → `GET /`, `PUT /services/update-service` → `PUT /update-service` (router sudah di‑mount di `/api/provider/services`, jadi path double `/services` menyebabkan 404)
+
+#### Sesi 4 — Customer Jarak Terdekat
+
+- **Modified** `src/modules/services/services.service.ts`: `getProvidersByServiceWithoutDistance` — tambah raw SQL `ST_Y(geometry)` dan `ST_X(geometry)` untuk extract lat/lng dari PostGIS di response
+- **Modified** `src/modules/locations/locations.service.ts`: `getProviderLocation` — `ST_Y`/`ST_X` extract koordinat
+
+### Flutter App (`jasaku_app/`)
+
+#### Sesi 1 — Auth & Registration Flow
+
+- **Created** `lib/features/auth/presentation/providers/register_state.dart`: State container lintas screen registrasi (hapus `isPhoneVerified`, ganti field2 standar)
+- **Created** `lib/features/auth/presentation/screens/provider_register_category_screen.dart`: Pilih kategori + layanan dari API `/available-services`
+- **Created** `lib/features/auth/presentation/screens/provider_register_personal_screen.dart`: Form data diri (nama, email, password, tgl lahir, gender, alamat, domisili) — **Fixed** `_next()` sekarang simpan `phone` ke `widget.state.phone`
+- **Created** `lib/features/auth/presentation/screens/provider_register_document_screen.dart`: Upload KTP, selfie, portfolio — **Fixed** `_pickImage` pakai `showModalBottomSheet` dengan opsi Galeri & Kamera
+- **Created** `lib/features/auth/presentation/screens/provider_register_terms_screen.dart`: Setuju Syarat & Ketentuan + link ke FAQ/T&C
+- **Created** `lib/features/auth/presentation/screens/provider_register_success_screen.dart`: Sukses kirim pendaftaran, tunggu verifikasi admin
+- **Deleted** `lib/features/auth/presentation/screens/provider_otp_verification_screen.dart`: Dihapus karena Firebase Phone Auth gagal (billing)
+- **Deleted** `lib/features/auth/presentation/screens/provider_register_phone_screen.dart`: Dihapus
+- **Created** `lib/features/auth/presentation/screens/provider_verification_pending_screen.dart`: 2 mode (pending/rejected) — icon, warna, pesan beda
+- **Created** `lib/features/auth/presentation/screens/provider_profile_completion_screen.dart`: 3 section (foto opsional, atur harga per layanan + pricing type, metode penerimaan bank/ewallet), submit multipart ke `PATCH /profile/complete`
+- **Created** `lib/features/auth/presentation/screens/provider_faq_screen.dart`: 11 FAQ collapsible (ExpansionTile)
+- **Created** `lib/features/auth/presentation/screens/provider_terms_screen.dart`: 13 pasal Syarat & Ketentuan (ListView)
+- **Modified** `lib/features/auth/presentation/screens/provider_welcome_screen.dart`: Navigasi langsung ke `ProviderRegisterCategoryScreen`
+- **Modified** `lib/features/auth/presentation/screens/provider_login_screen.dart`: Login sukses → cek `onboardingCompleted`. Jika `false` → `ProfileCompletionScreen`, jika `true` → `ProviderShell`. Juga handle error verification (pending → PendingScreen, rejected → PendingScreen(rejected))
+- **Modified** `lib/features/auth/presentation/providers/auth_provider.dart`: `AuthState` tambah field `onboardingCompleted`, disimpan dari response login
+- **Modified** `lib/features/auth/data/auth_repository.dart`: Tambah parsing `onboarding_completed` dari response
+- **Modified** `lib/main_provider.dart`: Route `/faq`, `/terms`, `/register` → category screen
+
+#### Sesi 2 — Customer Jarak Terdekat
+
+- **Modified** `lib/features/customer/presentation/screens/customer_provider_list.dart`:
+  - `geolocator`: minta izin lokasi → dapat `Position` (lat/lng customer)
+  - `latlong2` (Haversine): hitung jarak tiap provider dalam meter
+  - Sortir: terdekat → terjauh
+  - Tampilkan: `distance` field diisi "500 m" / "2.3 km"
+  - Jika lokasi gagal (izin ditolak / GPS mati) → tampilkan tanpa sortir jarak
+
+#### Sesi 3 — Dependencies
+
+- **Modified** `pubspec.yaml`: + `geolocator ^11.0.0`, + `latlong2 ^0.9.1`
+
+### Catatan
+
+- Firebase Phone Auth ditiadakan karena butuh Blaze plan (bayar). OTP dihapus dari flow registrasi.
+- `onboarding_completed` column ditambahkan via `prisma db execute` (raw SQL), bukan `prisma migrate dev` karena schema drift.
+- `router.get('/services')` di `services.routes.ts` menyebabkan double `/services` karena router di‑mount di `/api/provider/services`. Diperbaiki dengan ganti route path ke `get('/')`.
+- `.gitignore` di `jasaku-backend/` diperbaiki: path firebase JSON dari `jasaku-backend/src/config/firebase/*.json` → `src/config/firebase/*.json` (relatif ke lokasi `.gitignore`). Ditambah `uploads/`.
+- Git history di‑rewrite (`git reset --soft HEAD~2`) untuk hapus file firebase service account JSON dari commit sebelumnya (push protection GitHub menolak secret).

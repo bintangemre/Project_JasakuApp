@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../domain/models/customer_profile_model.dart';
+import '../../../orders/presentation/pages/customer_order_list_page.dart';
+import '../../../reports/presentation/pages/report_form_page.dart';
+import '../../../reports/presentation/pages/report_history_page.dart';
+import 'customer_edit_info_page.dart';
 import '../providers/customer_profile_provider.dart';
-import '../../../orders/domain/models/order_model.dart';
 
 class CustomerProfile extends ConsumerStatefulWidget {
   const CustomerProfile({super.key});
@@ -16,64 +18,21 @@ class CustomerProfile extends ConsumerStatefulWidget {
 }
 
 class _CustomerProfileState extends ConsumerState<CustomerProfile> {
-  List<OrderModel> _completedOrders = [];
-  bool _loadingOrders = false;
-
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
       ref.read(customerProfileProvider.notifier).fetchProfile();
-      _fetchCompletedOrders();
     });
-  }
-
-  Future<void> _fetchCompletedOrders() async {
-    setState(() => _loadingOrders = true);
-    try {
-      final res = await ApiClient().dio.get(ApiEndpoints.getCustomerOrders);
-      final list = res.data['data'] as List? ?? [];
-      final orders = list.map((e) => OrderModel.fromCustomerJson(e as Map<String, dynamic>)).toList();
-      setState(() => _completedOrders = orders.where((o) => o.status == 'completed').toList());
-    } catch (_) {}
-    setState(() => _loadingOrders = false);
   }
 
   Future<void> _pickAndUploadAvatar() async {
     final picker = ImagePicker();
-    final file = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, maxHeight: 512);
+    final file =
+        await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, maxHeight: 512);
     if (file == null) return;
-    final err = await ref.read(customerProfileProvider.notifier).uploadAvatar(file.path);
-    if (err != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
-    }
-  }
-
-  void _showEditDialog(String title, String current, {bool multiline = false, required ValueChanged<String> onSave}) {
-    final controller = TextEditingController(text: current);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: multiline
-            ? TextField(controller: controller, maxLines: 3, decoration: const InputDecoration(border: OutlineInputBorder()))
-            : TextField(controller: controller, decoration: const InputDecoration(border: OutlineInputBorder())),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              onSave(controller.text);
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _saveName(String newName) async {
-    final err = await ref.read(customerProfileProvider.notifier).updateProfile(fullName: newName);
+    final err =
+        await ref.read(customerProfileProvider.notifier).uploadAvatar(file.path);
     if (err != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
     }
@@ -81,66 +40,87 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AuthState>(authProvider, (prev, next) {
+      if (prev?.user?.id != next.user?.id && next.user != null) {
+        Future.microtask(() {
+          ref.read(customerProfileProvider.notifier).fetchProfile();
+        });
+      }
+    });
     final profileState = ref.watch(customerProfileProvider);
     final authState = ref.watch(authProvider);
     final profile = profileState.data;
     final profileData = profile?.profile;
+    final displayName = profileData?.fullName ?? authState.user?.displayName ?? 'Customer';
+    final email = profile?.email ?? authState.user?.email ?? '-';
+    final phone = profile?.phone ?? '-';
+    final nickname = profileData?.nickname;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Profil Saya'),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        foregroundColor: AppColors.textPrimary,
         elevation: 0,
+        centerTitle: true,
       ),
       body: profileState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : profileState.error != null
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.cloud_off, size: 64, color: Colors.grey),
-                    const SizedBox(height: 16),
-                    const Text('Gagal memuat profil', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Text(profileState.error!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: () => ref.read(customerProfileProvider.notifier).fetchProfile(),
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Coba Lagi'),
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.cloud_off_rounded,
+                            size: 64, color: AppColors.textHint),
+                        const SizedBox(height: 16),
+                        const Text('Gagal memuat profil',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text(profileState.error!,
+                            textAlign: TextAlign.center,
+                            style:
+                                const TextStyle(color: AppColors.textSecondary)),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () =>
+                              ref.read(customerProfileProvider.notifier).fetchProfile(),
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: const Text('Coba Lagi'),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildProfileCard(displayName, email, nickname),
+                      const SizedBox(height: 16),
+                      _buildInfoAkun(email, phone),
+                      const SizedBox(height: 20),
+                      _buildMenuSection(),
+                      const SizedBox(height: 20),
+                      _buildLogout(),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
                 ),
-              ),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _buildAvatarSection(profileData, profileState.isSaving, authState.user?.displayName ?? 'Customer'),
-                  const SizedBox(height: 16),
-                  _buildInfoAkun(profile),
-                  const SizedBox(height: 16),
-                  _buildDataDiri(profileData),
-                  const SizedBox(height: 16),
-                  _buildRiwayatPesanan(),
-                  const SizedBox(height: 16),
-                  _buildLogout(),
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
     );
   }
 
-  Widget _buildAvatarSection(CustomerProfileData? data, bool isSaving, String displayName) {
+  Widget _buildProfileCard(String name, String email, String? nickname) {
+    final profileState = ref.watch(customerProfileProvider);
+    final data = profileState.data?.profile;
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         child: Column(
@@ -148,13 +128,15 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
             Stack(
               children: [
                 CircleAvatar(
-                  radius: 50,
+                  radius: 48,
                   backgroundColor: Colors.grey.shade200,
                   backgroundImage: data?.avatarUrl != null
-                      ? NetworkImage('${ApiEndpoints.baseUrl}${data!.avatarUrl}')
+                      ? NetworkImage(
+                          '${ApiEndpoints.baseUrl}${data!.avatarUrl}')
                       : null,
                   child: data?.avatarUrl == null
-                      ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                      ? const Icon(Icons.person_rounded,
+                          size: 48, color: AppColors.textHint)
                       : null,
                 ),
                 Positioned(
@@ -163,116 +145,234 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                   child: GestureDetector(
                     onTap: _pickAndUploadAvatar,
                     child: Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(7),
                       decoration: const BoxDecoration(
-                        color: Color(0xFF2563EB),
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: isSaving
-                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                      child: profileState.isSaving
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.camera_alt_rounded,
+                              size: 14, color: Colors.white),
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Text(data?.fullName ?? displayName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoAkun(CustomerProfileModel? profile) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Info Akun', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const Divider(),
-            _infoRow(Icons.email_outlined, 'Email', profile?.email ?? '-'),
-            const SizedBox(height: 8),
-            _infoRow(Icons.phone_outlined, 'No. HP', profile?.phone ?? '-'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDataDiri(CustomerProfileData? data) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Informasi Data Diri', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const Divider(),
-            _editableRow(Icons.person_outline, 'Nama Lengkap', data?.fullName ?? '-', () {
-              _showEditDialog('Ubah Nama Lengkap', data?.fullName ?? '', onSave: _saveName);
-            }),
-            const SizedBox(height: 8),
-            _infoRow(Icons.face_outlined, 'Nama Panggilan', data?.nickname ?? '-'),
-            const SizedBox(height: 8),
-            _infoRow(Icons.cake_outlined, 'Tanggal Lahir', data?.birthDate ?? '-'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRiwayatPesanan() {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Riwayat Pemesanan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text('${_completedOrders.length} pesanan', style: const TextStyle(color: Colors.grey, fontSize: 13)),
-              ],
+            Text(
+              name,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
             ),
-            const Divider(),
-            if (_loadingOrders)
-              const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()))
-            else if (_completedOrders.isEmpty)
-              const Padding(padding: EdgeInsets.all(16), child: Text('Belum ada pesanan selesai', style: TextStyle(color: Colors.grey)))
-            else
-              ...(_completedOrders.take(5).map((o) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                          child: const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(o.providerName ?? 'Provider', style: const TextStyle(fontWeight: FontWeight.w500)),
-                              Text(o.formattedDate, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                            ],
-                          ),
-                        ),
-                        Text('Rp ${o.formattedPrice}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
-                      ],
-                    ),
-                  ))),
+            if (nickname != null && nickname.isNotEmpty) ...[
+              const SizedBox(height: 2),
+              Text(
+                '@$nickname',
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+            const SizedBox(height: 4),
+            Text(
+              email,
+              style: const TextStyle(
+                color: AppColors.textHint,
+                fontSize: 13,
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoAkun(String email, String phone) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () async {
+          final changed = await Navigator.of(context).push<bool>(
+            MaterialPageRoute(builder: (_) => const CustomerEditInfoPage()),
+          );
+          if (changed == true && mounted) {
+            ref.read(customerProfileProvider.notifier).fetchProfile();
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.person_outline, color: AppColors.primary, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Info Akun',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      email,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textHint,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: AppColors.textHint, size: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuSection() {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      child: Column(
+        children: [
+          _menuTile(
+            icon: Icons.receipt_long_outlined,
+            color: AppColors.primary,
+            title: 'Riwayat Pesanan',
+            subtitle: 'Lihat pesanan yang sudah selesai',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CustomerOrderListPage()),
+              );
+            },
+          ),
+          const Divider(height: 1, indent: 56, endIndent: 16),
+          _menuTile(
+            icon: Icons.shield_outlined,
+            color: Colors.orange,
+            title: 'Laporkan Masalah',
+            subtitle: 'Laporkan bug, pembayaran, atau pesanan palsu',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ReportFormPage()),
+              );
+            },
+          ),
+          const Divider(height: 1, indent: 56, endIndent: 16),
+          _menuTile(
+            icon: Icons.history_outlined,
+            color: AppColors.success,
+            title: 'Riwayat Laporan',
+            subtitle: 'Cek status laporan yang sudah dikirim',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ReportHistoryPage()),
+              );
+            },
+          ),
+          const Divider(height: 1, indent: 56, endIndent: 16),
+          _menuTile(
+            icon: Icons.info_outline,
+            color: AppColors.textSecondary,
+            title: 'Tentang Aplikasi',
+            subtitle: 'Versi 1.0.0 · Jasaku',
+            onTap: _showAboutApp,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAboutApp() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Tentang Jasaku'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Jasaku',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Aplikasi jasa home-service untuk kebutuhan harianmu.',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+            SizedBox(height: 16),
+            Text('Versi: 1.0.0'),
+            SizedBox(height: 4),
+            Text('© 2026 Jasaku Apps'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Tutup'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _menuTile({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: color, size: 22),
+      ),
+      title: Text(title,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+      subtitle: Text(subtitle,
+          style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
+      trailing: const Icon(Icons.chevron_right, color: AppColors.textHint, size: 20),
+      onTap: onTap,
     );
   }
 
@@ -284,37 +384,17 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
           ref.read(authProvider.notifier).logout();
           Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
         },
-        icon: const Icon(Icons.logout, color: Colors.red),
-        label: const Text('Logout', style: TextStyle(color: Colors.red)),
+        icon: const Icon(Icons.logout_rounded, color: AppColors.error),
+        label: const Text('Logout',
+            style: TextStyle(color: AppColors.error)),
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Colors.red),
+          side: const BorderSide(color: AppColors.error),
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _infoRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Colors.grey),
-        const SizedBox(width: 12),
-        SizedBox(width: 110, child: Text(label, style: const TextStyle(color: Colors.grey))),
-        Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500))),
-      ],
-    );
-  }
-
-  Widget _editableRow(IconData icon, String label, String value, VoidCallback onEdit) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Colors.grey),
-        const SizedBox(width: 12),
-        SizedBox(width: 110, child: Text(label, style: const TextStyle(color: Colors.grey))),
-        Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500))),
-        GestureDetector(onTap: onEdit, child: const Icon(Icons.edit, size: 18, color: Color(0xFF2563EB))),
-      ],
     );
   }
 }

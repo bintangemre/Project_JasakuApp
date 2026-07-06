@@ -1,6 +1,31 @@
 import { prisma } from "../../../config/prisma";
 
 export class ProfileService {
+  async getFullProfile(userId: string) {
+    const profile = await prisma.provider_profiles.findUnique({
+      where: { user_id: userId },
+    });
+
+    const services = await prisma.provider_services.findMany({
+      where: { provider_id: userId },
+      include: {
+        services: true,
+        provider_service_prices: {
+          include: { pricing_types: true },
+        },
+      },
+    });
+
+    let payoutMethods: any[] = [];
+    if (profile) {
+      payoutMethods = await prisma.provider_payout_methods.findMany({
+        where: { provider_id: profile.id },
+      });
+    }
+
+    return { profile, services, payoutMethods };
+  }
+
   async completeOnboarding(
     userId: string,
     data: {
@@ -80,6 +105,38 @@ export class ProfileService {
         where: { user_id: userId },
         data: { onboarding_completed: true },
       });
+    });
+  }
+
+  async updateProfile(
+    userId: string,
+    data: {
+      full_name?: string;
+      nickname?: string;
+      gender?: string;
+      birth_date?: string;
+      phone?: string;
+      address?: string;
+      domicile?: string;
+      profile_photo?: string;
+      portfolios?: string[];
+    }
+  ) {
+    const updateData: any = {};
+    if (data.full_name !== undefined) updateData.full_name = data.full_name;
+    if (data.nickname !== undefined) updateData.nickname = data.nickname;
+    if (data.gender !== undefined) updateData.gender = data.gender;
+    if (data.birth_date !== undefined) updateData.birth_date = new Date(data.birth_date);
+    if (data.phone !== undefined) updateData.phone = data.phone?.trim() || null;
+    if (data.address !== undefined) updateData.address = data.address;
+    if (data.domicile !== undefined) updateData.domicile = data.domicile;
+    if (data.profile_photo !== undefined) updateData.profile_photo = data.profile_photo;
+    if (data.portfolios !== undefined) updateData.portfolios = data.portfolios;
+    if (Object.keys(updateData).length === 0) return;
+
+    await prisma.provider_profiles.update({
+      where: { user_id: userId },
+      data: updateData,
     });
   }
 }

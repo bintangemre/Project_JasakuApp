@@ -8,11 +8,15 @@ class OrderFormState {
   final bool isLoading;
   final String? errorMessage;
   final bool isSuccess;
+  final String? orderId;
+  final String? paymentMethod;
 
   OrderFormState({
     this.isLoading = false,
     this.errorMessage,
     this.isSuccess = false,
+    this.orderId,
+    this.paymentMethod,
   });
 }
 
@@ -27,7 +31,10 @@ class OrderFormNotifier extends StateNotifier<OrderFormState> {
   }) async {
     state = OrderFormState(isLoading: true);
     try {
-      final orderResponse = await _dio.post(ApiEndpoints.createOrder, data: payload.toJson());
+      final orderResponse = await _dio.post(ApiEndpoints.createOrder, data: {
+        ...payload.toJson(),
+        'paymentMethod': paymentMethod,
+      });
       if (orderResponse.statusCode != 200 && orderResponse.statusCode != 201) {
         state = OrderFormState(isLoading: false, errorMessage: "Gagal membuat pesanan");
         return;
@@ -45,7 +52,7 @@ class OrderFormNotifier extends StateNotifier<OrderFormState> {
         'amount': paymentAmount,
       });
 
-      state = OrderFormState(isLoading: false, isSuccess: true);
+      state = OrderFormState(isLoading: false, isSuccess: true, orderId: orderId, paymentMethod: paymentMethod);
     } on DioException catch (e) {
       final message = e.response?.data?['message'] as String? ?? e.message ?? 'Gagal membuat pesanan';
       state = OrderFormState(isLoading: false, errorMessage: message);

@@ -65,15 +65,165 @@ function confirmModal(msg) {
   });
 }
 
+function getFileUrl(path) {
+  if (!path) return '#';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return window.location.origin + '/' + path.replace(/\\/g, '/');
+}
+
+function promptModal(msg) {
+  return new Promise((resolve) => {
+    const store = Alpine.store('prompt');
+    store.msg = msg;
+    store.value = '';
+    store.show = true;
+    store.resolve = resolve;
+  });
+}
+
 document.addEventListener('alpine:init', () => {
   Alpine.store('nav', { page: 'login' });
   Alpine.store('toast', { show: false, msg: '', type: 'success' });
   Alpine.store('confirm', { show: false, msg: '', resolve: null });
+  Alpine.store('prompt', { show: false, msg: '', value: '', resolve: null });
   Alpine.store('mobile', { show: false });
   Alpine.store('sidebar', { collapsed: false });
   Alpine.store('theme', {
     dark: localStorage.getItem('dark') === 'true' || (!localStorage.getItem('dark') && window.matchMedia('(prefers-color-scheme: dark)').matches)
   });
+
+  Alpine.data('providersPage', () => ({
+    loading: true,
+    providers: [],
+    filter: 'all',
+    init() { requireAuth(); this.load(); },
+    async load() {
+      this.loading = true;
+      try {
+        this.providers = await apiFetch('/admin/providers' + (this.filter === 'pending' ? '?pending=true' : ''));
+      } catch (e) { toast(e.message, 'error'); }
+      finally { this.loading = false; }
+    },
+    async verifyProvider(id, notes) {
+      try {
+        await apiFetch('/admin/providers/' + id + '/verify', {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'verified', notes: notes || '' })
+        });
+        toast('Mitra diverifikasi');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+    },
+    async rejectProvider(id) {
+      const notes = await promptModal('Alasan penolakan / saran perbaikan:');
+      if (notes === null) return;
+      try {
+        await apiFetch('/admin/providers/' + id + '/verify', {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'rejected', notes })
+        });
+        toast('Mitra ditolak dengan catatan');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+    },
+    async unverifyProvider(id) {
+      const ok = await confirmModal('Kembalikan mitra ke status pending?');
+      if (!ok) return;
+      try {
+        await apiFetch('/admin/providers/' + id + '/unverify', { method: 'PATCH' });
+        toast('Status mitra dikembalikan ke pending');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+    },
+    viewProviderDetail(id) {
+      Alpine.store('nav').selectedProviderId = id;
+      navigate('provider-detail');
+    }
+  }));
+
+  Alpine.data('providerDetailPage', () => ({
+    loading: true,
+    provider: null,
+    error: null,
+    activeTab: 'profile',
+    init() {
+      requireAuth();
+      this.load();
+    },
+    async load() {
+      const id = Alpine.store('nav').selectedProviderId;
+      if (!id) { navigate('providers'); return; }
+      this.loading = true;
+      this.error = null;
+      try {
+        this.provider = await apiFetch('/admin/providers/' + id + '/detail');
+      } catch (e) { this.error = e.message; toast(e.message, 'error'); }
+      finally { this.loading = false; }
+    },
+    goBack() { navigate('providers'); },
+    async approveFromDetail() {
+      const notes = await promptModal('Catatan (opsional):');
+      if (notes === null) return;
+      try {
+        await apiFetch('/admin/providers/' + this.provider.id + '/verify', {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'verified', notes })
+        });
+        toast('Mitra berhasil diverifikasi');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+    },
+    async rejectFromDetail() {
+      const notes = await promptModal('Alasan penolakan / saran perbaikan:');
+      if (notes === null) return;
+      try {
+        await apiFetch('/admin/providers/' + this.provider.id + '/verify', {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'rejected', notes })
+        });
+        toast('Mitra ditolak dengan catatan');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+    },
+    async resetToPending() {
+      const ok = await confirmModal('Kembalikan mitra ke status pending?');
+      if (!ok) return;
+      try {
+        await apiFetch('/admin/providers/' + this.provider.id + '/unverify', { method: 'PATCH' });
+        toast('Status dikembalikan ke pending');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+    }
+  }));
+
+  Alpine.data('customersPage', () => ({
+    loading: true,
+    customers: [],
+    init() { requireAuth(); this.load(); },
+    async load() {
+      this.loading = true;
+      try {
+        this.customers = await apiFetch('/admin/customers');
+      } catch (e) { toast(e.message, 'error'); }
+      finally { this.loading = false; }
+    },
+    async banUser(id) {
+      const ok = await confirmModal('Ban pelanggan ini?');
+      if (!ok) return;
+      try {
+        await apiFetch('/admin/customers/' + id + '/ban', { method: 'PATCH' });
+        toast('Pelanggan di-ban');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+    },
+    async unbanUser(id) {
+      try {
+        await apiFetch('/admin/customers/' + id + '/unban', { method: 'PATCH' });
+        toast('Ban dicabut');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+    }
+  }));
 
   Alpine.data('adminApp', () => ({
     init() {
@@ -87,7 +237,7 @@ document.addEventListener('alpine:init', () => {
     },
     menu: sidebarMenu,
     get pageTitle() {
-      const map = { dashboard: 'Beranda', providers: 'Mitra', customers: 'Pelanggan', categories: 'Kategori', services: 'Layanan', payments: 'Pembayaran', 'pricing-types': 'Tipe Harga' };
+      const map = { dashboard: 'Beranda', 'confirm-payment': 'Konfirmasi Bayar', 'custom-tasks': 'Custom Task', extensions: 'Ekstensi', providers: 'Mitra', 'provider-detail': 'Detail Mitra', customers: 'Pelanggan', categories: 'Kategori', services: 'Layanan', payments: 'Pembayaran', 'pricing-types': 'Tipe Harga', reports: 'Laporan' };
       return map[Alpine.store('nav').page] || '';
     }
   }));

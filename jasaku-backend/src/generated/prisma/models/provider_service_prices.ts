@@ -427,14 +427,6 @@ export type provider_service_pricesUncheckedUpdateManyWithoutPricing_typesNested
   deleteMany?: Prisma.provider_service_pricesScalarWhereInput | Prisma.provider_service_pricesScalarWhereInput[]
 }
 
-export type DecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
 export type provider_service_pricesCreateNestedManyWithoutProvider_servicesInput = {
   create?: Prisma.XOR<Prisma.provider_service_pricesCreateWithoutProvider_servicesInput, Prisma.provider_service_pricesUncheckedCreateWithoutProvider_servicesInput> | Prisma.provider_service_pricesCreateWithoutProvider_servicesInput[] | Prisma.provider_service_pricesUncheckedCreateWithoutProvider_servicesInput[]
   connectOrCreate?: Prisma.provider_service_pricesCreateOrConnectWithoutProvider_servicesInput | Prisma.provider_service_pricesCreateOrConnectWithoutProvider_servicesInput[]

@@ -1,6 +1,7 @@
-// Screen service utama untuk pelanggan, melihat daftar kategori layanan dan penyedia jasa.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/constants/api_endpoints.dart';
 import 'customer_providers_by_category.dart';
 
 class CustomerServices extends ConsumerWidget {
@@ -8,28 +9,8 @@ class CustomerServices extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // List data kategori lokal sementara (disamakan dengan di Home)
-    final List<Map<String, dynamic>> categories = [
-      {
-        'id': 'eba91362-4c0a-4045-bcca-51da9263a35d', // sesuaikan id dari database nanti
-        'title': 'Perbaikan Bangunan',
-        'icon': Icons.home_repair_service,
-        'iconColor': const Color(0xFFFF6B00),
-        'bgColor': const Color(0xFFFFEDD5),
-      },
-      {
-        'id': 'a7003a03-7318-41e0-8ece-f4810e80abf7',
-        'title': 'Perbaikan Kelistrikan',
-        'icon': Icons.bolt,
-        'iconColor': const Color(0xFFD4A100),
-        'bgColor': const Color(0xFFFEF3C7),
-      },
-    ];
-
     return Scaffold(
-      backgroundColor: const Color(
-        0xFFF8FAFC,
-      ), // Warna abu-abu terang netral (slate 50)
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -46,30 +27,69 @@ class CustomerServices extends ConsumerWidget {
           ),
         ),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(20),
-        itemCount: categories.length,
-        separatorBuilder:
-            (context, index) =>
-                const SizedBox(height: 16), // Jarak antar daftar
-        itemBuilder: (context, index) {
-          final item = categories[index];
-          return _buildCategoryListTile(
-            context: context,
-            title: item['title'],
-            icon: item['icon'],
-            iconColor: item['iconColor'],
-            bgColor: item['bgColor'],
-            onTap: () {
-              // TODO: Lanjut ke bagian dalam kategori (Menampilkan list penyedia jasa berdasarkan ID)
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder:
-                      (_) => CustomerProvidersByCategory(
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: ApiClient().dio.get(ApiEndpoints.getAllCategories).then((res) {
+          final data = res.data['data'] as List<dynamic>? ?? [];
+          return data.map((c) {
+            final rawName = c['name'] as String? ?? '';
+            final name = rawName.trim();
+            IconData icon;
+            Color iconColor;
+            Color bgColor;
+            String? imagePath;
+            if (name.contains('listrik') || name.contains('Listrik') || name.contains('KELISTRIKAN')) {
+              icon = Icons.electric_bolt;
+              iconColor = const Color(0xFFFFB300);
+              bgColor = const Color(0xFFFEF3C7);
+              imagePath = 'assets/icons/icon_perbaikan_kelistrikan.png';
+            } else if (name.contains('Bangunan') || name.contains('bangunan')) {
+              icon = Icons.home_repair_service;
+              iconColor = const Color(0xFFFF6B00);
+              bgColor = const Color(0xFFFFEDD5);
+              imagePath = 'assets/icons/icon_perbaikan_bangunan.png';
+            } else {
+              icon = Icons.category;
+              iconColor = Colors.grey;
+              bgColor = const Color(0xFFF1F5F9);
+            }
+            return {
+              'id': c['id'] as String,
+              'title': name,
+              'icon': icon,
+              'iconColor': iconColor,
+              'bgColor': bgColor,
+              'imagePath': imagePath,
+            };
+          }).toList();
+        }),
+        builder: (context, snapshot) {
+          final categories = snapshot.data ?? [];
+          if (categories.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(20),
+            itemCount: categories.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            itemBuilder: (context, index) {
+              final item = categories[index];
+              return _buildCategoryListTile(
+                context: context,
+                title: item['title'],
+                icon: item['icon'] as IconData,
+                iconColor: item['iconColor'] as Color,
+                bgColor: item['bgColor'] as Color,
+                imagePath: item['imagePath'] as String?,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => CustomerProvidersByCategory(
                         categoryId: item['id'].toString(),
                         categoryName: item['title'],
                       ),
-                ),
+                    ),
+                  );
+                },
               );
             },
           );
@@ -86,6 +106,7 @@ class CustomerServices extends ConsumerWidget {
     required Color iconColor,
     required Color bgColor,
     required VoidCallback onTap,
+    String? imagePath,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -111,7 +132,12 @@ class CustomerServices extends ConsumerWidget {
                 color: bgColor,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(icon, color: iconColor, size: 28),
+              child: imagePath != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(imagePath, width: 28, height: 28, fit: BoxFit.cover),
+                    )
+                  : Icon(icon, color: iconColor, size: 28),
             ),
 
             const SizedBox(width: 16),

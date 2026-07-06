@@ -12,6 +12,7 @@ import '../../../orders/domain/models/order_payload_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 import '../../../payments/presentation/widgets/payment_method_picker.dart';
+import '../../../payments/presentation/screens/payment_instruction_screen.dart';
 
 class CustomerOrdersPage extends ConsumerStatefulWidget {
   final String providerId;
@@ -50,8 +51,8 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
   final List<File> _selectedImages = [];
   final ImagePicker _picker = ImagePicker();
 
-  // 🟢 STATE METODE PEMBAYARAN
-  String _selectedPaymentMethod = 'cod';
+  // 🟢 STATE METODE PEMBAYARAN — selalu rekber
+  String _selectedPaymentMethod = '';
 
   @override
   void initState() {
@@ -182,11 +183,19 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
 
     ref.listen<OrderFormState>(orderFormProvider, (previous, next) {
       if (next.isSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Pesanan Berhasil Dibuat!")),
-        );
         ref.read(unreadNotifProvider.notifier).state++;
-        Navigator.pop(context);
+        if (next.orderId != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PaymentInstructionScreen(
+                orderId: next.orderId!,
+                paymentMethodId: next.paymentMethod ?? '',
+                totalAmount: grandTotal,
+              ),
+            ),
+          );
+        }
       } else if (next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error: ${next.errorMessage}")),
@@ -322,7 +331,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                           ),
                           children: [
                             TileLayer(
-                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
                               userAgentPackageName: 'com.jasaku.app',
                             ),
                             MarkerLayer(
@@ -331,7 +340,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                                   point: _selectedLocation,
                                   width: 40,
                                   height: 40,
-                                  child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+                                  child: const Icon(Icons.person_pin_circle, color: Colors.red, size: 36),
                                 ),
                               ],
                             ),

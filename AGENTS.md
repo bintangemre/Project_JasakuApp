@@ -33,6 +33,15 @@ Jasaku is a home-service marketplace with two packages in this monorepo.
 | Test | `flutter test` |
 | Codegen | `dart run build_runner build` |
 | Build APK | `flutter build apk` (or `--target lib/main_customer.dart` / `main_provider.dart`) |
+| Run with ORS | Add `--dart-define=ORS_API_KEY=YOUR_KEY` for route directions |
+
+**Maps & Routing**:
+- **Tile provider**: CartoDB Voyager (`light_all`) — gratis, no API key
+- **Route directions**: OpenRouteService (ORS) — gratis tier, butuh API key via `--dart-define=ORS_API_KEY=...`
+- **RoutingService** di `lib/services/routing_service.dart` — panggil ORS API, return `List<LatLng>`
+- **Provider location tracker** di `lib/features/location/presentation/providers/location_tracker_provider.dart` — kirim lokasi ke `PUT /api/locations/update` tiap 30 detik via `Geolocator.getPositionStream()`
+- **Provider dashboard** menampilkan map dengan: marker biru (provider live), marker merah (customer), polyline rute
+- **Order tracking page** menampilkan rute antara provider dan customer
 
 **Test**: Single smoke test at `test/widget_test.dart` hitting the stale `main.dart`. Real tests not yet written.
 

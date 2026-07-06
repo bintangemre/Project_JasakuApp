@@ -5,6 +5,7 @@ import 'features/auth/presentation/screens/customer_login_screen.dart';
 import 'features/auth/presentation/screens/customer_register_screen.dart';
 import 'features/customer/presentation/screens/customer_shell.dart';
 import 'core/bootstrap.dart';
+import 'core/theme/app_theme.dart';
 
 
 void main() {
@@ -21,13 +22,9 @@ class JasakuCustomerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // title ambil name pengguna
       title: 'Jasaku',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: const Color(0xFF1E40AF),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.customerTheme,
       initialRoute: '/login',
       routes: {
         '/login': (_) => const CustomerLoginScreen(),

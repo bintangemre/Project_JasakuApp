@@ -29,7 +29,6 @@ class _ProviderProfileCompletionScreenState
   final Map<String, TextEditingController> _priceControllers = {};
   final Map<String, TextEditingController> _descControllers = {};
 
-  // Payout
   bool _usePayout = false;
   String _payoutType = 'bank';
   final _payoutProviderCtrl = TextEditingController();
@@ -209,13 +208,15 @@ class _ProviderProfileCompletionScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lengkapi Profil'),
-        backgroundColor: Colors.transparent,
+        centerTitle: true,
+        backgroundColor: cs.surface,
         elevation: 0,
-        foregroundColor: Colors.black,
+        foregroundColor: cs.onSurface,
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -227,55 +228,62 @@ class _ProviderProfileCompletionScreenState
                   children: [
                     Text(
                       'Satu langkah lagi!',
-                      style: theme.textTheme.titleLarge
+                      style: theme.textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Atur harga layanan dan metode penerimaan sebelum mulai.',
                       style: TextStyle(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: cs.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
 
-                    // Profile Photo
-                    _buildPhotoSection(),
-                    const SizedBox(height: 24),
+                    _buildSectionHeader(
+                        Icons.photo_camera_outlined, 'Foto Profil', cs),
+                    const SizedBox(height: 12),
+                    _buildPhotoSection(cs),
+                    const SizedBox(height: 28),
 
-                    // Service Prices
-                    Text('Atur Harga Layanan',
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold)),
+                    _buildSectionHeader(
+                        Icons.price_change_outlined, 'Atur Harga Layanan', cs),
                     const SizedBox(height: 12),
                     if (_services.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 24),
-                        child: Text(
-                          'Tidak ada layanan terdaftar.',
-                          style: TextStyle(color: Colors.grey),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 32),
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text('Tidak ada layanan terdaftar.',
+                              style: TextStyle(color: cs.onSurfaceVariant)),
                         ),
                       )
                     else
-                      ..._services.map((svc) => _buildServiceCard(svc)),
+                      ..._services.map((svc) => _buildServiceCard(svc, cs)),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
 
-                    // Payout Section
-                    _buildPayoutSection(),
-                    const SizedBox(height: 32),
+                    _buildSectionHeader(Icons.account_balance_wallet_outlined,
+                        'Metode Penerimaan', cs),
+                    const SizedBox(height: 12),
+                    _buildPayoutSection(cs),
+                    const SizedBox(height: 36),
 
-                    // Submit
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: 52,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F766E),
-                          foregroundColor: Colors.white,
+                          backgroundColor: cs.primary,
+                          foregroundColor: cs.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
+                          elevation: 0,
                         ),
                         onPressed: _submitting ? null : _submit,
                         child: _submitting
@@ -295,7 +303,21 @@ class _ProviderProfileCompletionScreenState
     );
   }
 
-  Widget _buildPhotoSection() {
+  Widget _buildSectionHeader(IconData icon, String title, ColorScheme cs) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: cs.primary),
+        const SizedBox(width: 8),
+        Text(title,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildPhotoSection(ColorScheme cs) {
     final hasPhoto = _profilePhotoPath != null;
     return GestureDetector(
       onTap: _pickPhoto,
@@ -303,35 +325,76 @@ class _ProviderProfileCompletionScreenState
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: hasPhoto ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
+          color: hasPhoto
+              ? cs.primaryContainer.withValues(alpha: 0.3)
+              : cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: hasPhoto ? const Color(0xFF00A651) : const Color(0xFFE2E8F0),
+            color: hasPhoto ? cs.primary : cs.outlineVariant,
+            width: hasPhoto ? 1.5 : 1,
           ),
         ),
         child: Row(
           children: [
-            Icon(
-              hasPhoto ? Icons.check_circle : Icons.cloud_upload_outlined,
-              color: hasPhoto ? const Color(0xFF00A651) : const Color(0xFF7A7A7A),
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: hasPhoto
+                    ? cs.primaryContainer
+                    : cs.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                hasPhoto ? Icons.check_circle : Icons.cloud_upload_outlined,
+                color: hasPhoto ? cs.primary : cs.onSurfaceVariant,
+                size: 24,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                hasPhoto
-                    ? 'Foto Profil: ${_profilePhotoPath!.split('/').last}'
-                    : 'Upload Foto Profil (Opsional)',
-                style: const TextStyle(fontSize: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    hasPhoto
+                        ? 'Foto Profil'
+                        : 'Upload Foto Profil (Opsional)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: hasPhoto ? cs.primary : cs.onSurface,
+                    ),
+                  ),
+                  if (hasPhoto)
+                    Text(
+                      _profilePhotoPath!.split('/').last,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: cs.onSurfaceVariant,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  if (!hasPhoto)
+                    Text(
+                      'Tambahkan foto agar profil lebih menarik',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFF7A7A7A)),
+            Icon(Icons.chevron_right,
+                color: hasPhoto ? cs.primary : cs.onSurfaceVariant),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildServiceCard(Map<String, dynamic> svc) {
+  Widget _buildServiceCard(Map<String, dynamic> svc, ColorScheme cs) {
     final svcId = svc['id'] as String;
     final serviceName = svc['services']?['name'] as String? ?? 'Layanan';
     final pricing = _getPricingForService(svc);
@@ -339,21 +402,42 @@ class _ProviderProfileCompletionScreenState
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: cs.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(serviceName,
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.miscellaneous_services_outlined,
+                    size: 18, color: cs.primary),
+                const SizedBox(width: 8),
+                Text(serviceName,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w600)),
+              ],
+            ),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _descControllers[svcId],
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Deskripsi',
-                border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: cs.outlineVariant),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: cs.primary, width: 1.5),
+                ),
                 isDense: true,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               ),
               maxLines: 2,
             ),
@@ -362,7 +446,8 @@ class _ProviderProfileCompletionScreenState
               final ptId = pt['id'] as String;
               final key = '${svcId}_$ptId';
               final unit = pt['default_unit'] as String? ?? '';
-              final label = (pt['name'] as String? ?? '').replaceAll('_', ' ');
+              final label =
+                  (pt['name'] as String? ?? '').replaceAll('_', ' ');
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: TextFormField(
@@ -370,10 +455,26 @@ class _ProviderProfileCompletionScreenState
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: label,
-                    hintText: 'Rp',
+                    hintText: 'Masukkan harga',
+                    hintStyle: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)),
                     suffixText: '/$unit',
-                    border: const OutlineInputBorder(),
+                    suffixStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                    prefixText: 'Rp ',
+                    prefixStyle:
+                        TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: cs.outlineVariant),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: cs.primary, width: 1.5),
+                    ),
                     isDense: true,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   ),
                 ),
               );
@@ -384,73 +485,107 @@ class _ProviderProfileCompletionScreenState
     );
   }
 
-  Widget _buildPayoutSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+  Widget _buildPayoutSection(ColorScheme cs) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: cs.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text('Metode Penerimaan (Opsional)',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold)),
+            Row(
+              children: [
+                Expanded(
+                  child: Text('Aktifkan metode penerimaan',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: cs.onSurface)),
+                ),
+                Switch(
+                  value: _usePayout,
+                  activeColor: cs.primary,
+                  onChanged: (v) => setState(() => _usePayout = v),
+                ),
+              ],
             ),
-            Switch(
-              value: _usePayout,
-              activeColor: const Color(0xFF0F766E),
-              onChanged: (v) => setState(() => _usePayout = v),
-            ),
+            if (!_usePayout)
+              Text('Atur rekening bank atau e-wallet untuk menerima pembayaran',
+                  style: TextStyle(
+                      fontSize: 12, color: cs.onSurfaceVariant)),
+            if (_usePayout) ...[
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: _payoutType,
+                decoration: InputDecoration(
+                  labelText: 'Tipe',
+                  labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: cs.outlineVariant),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: cs.primary, width: 1.5),
+                  ),
+                  isDense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'bank', child: Text('Bank')),
+                  DropdownMenuItem(
+                      value: 'ewallet', child: Text('E-Wallet')),
+                ],
+                onChanged: (v) {
+                  if (v != null) setState(() => _payoutType = v);
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _payoutProviderCtrl,
+                decoration: _inputDecor(
+                    _payoutType == 'bank' ? 'Nama Bank' : 'Nama E-Wallet',
+                    cs),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _payoutAccountCtrl,
+                decoration: _inputDecor('Nomor Rekening / Akun', cs),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _payoutNameCtrl,
+                decoration: _inputDecor('Nama Pemilik', cs),
+              ),
+            ],
           ],
         ),
-        if (_usePayout) ...[
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            value: _payoutType,
-            decoration: const InputDecoration(
-              labelText: 'Tipe',
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-            items: const [
-              DropdownMenuItem(value: 'bank', child: Text('Bank')),
-              DropdownMenuItem(value: 'ewallet', child: Text('E-Wallet')),
-            ],
-            onChanged: (v) {
-              if (v != null) setState(() => _payoutType = v);
-            },
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _payoutProviderCtrl,
-            decoration: InputDecoration(
-              labelText:
-                  _payoutType == 'bank' ? 'Nama Bank' : 'Nama E-Wallet',
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _payoutAccountCtrl,
-            decoration: InputDecoration(
-              labelText: 'Nomor Rekening / Akun',
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _payoutNameCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Nama Pemilik',
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-          ),
-        ],
-      ],
+      ),
+    );
+  }
+
+  InputDecoration _inputDecor(String label, ColorScheme cs) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: cs.onSurfaceVariant),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: cs.outlineVariant),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: cs.primary, width: 1.5),
+      ),
+      isDense: true,
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     );
   }
 }

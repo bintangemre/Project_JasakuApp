@@ -52,3 +52,209 @@
 - `performance` di dashboard Flutter dihitung lokal: `(completed orders / total orders) * 100`, bukan dari API
 - Backend perlu di-restart setiap kali ada perubahan file `.ts`
 - Prisma Client digenerate in-repo di `src/generated/prisma/` — jalankan `npx prisma generate` jika schema berubah
+
+## 2026-07-01 — Registrasi Flow + Profile Completion + Fix Bugs
+
+### Backend
+- Normalisasi phone (empty → null) di registerProvider, registerCustomer, registerAdmin — fix unique constraint
+- Login verification check: pending/rejected provider ditolak login
+- Login response include `verification_status` & `onboarding_completed`
+- `PATCH /api/provider/profile/complete` — complete onboarding endpoint (services + payout + photo)
+- Route fix: `services.routes.ts` double `/services` → `GET /` dan `PUT /update-service`
+- Customer getProvidersByServiceWithoutDistance: extract lat/lng via ST_Y/ST_X
+- `.gitignore` fix: path firebase + uploads
+
+### Flutter
+- Registrasi 5-step baru (Category → Personal → Document → Terms → Success)
+- Hapus OTP screen (Firebase billing blocked)
+- ProfileCompletionScreen: atur harga + payout + foto
+- VerificationPendingScreen: pending/rejected state
+- Customer provider list: geolocator + Haversine sort by jarak
+- Fix: upload kamera bottomsheet, phone tersimpan ke state
+
+## 2026-07-01 (Sesi 2) — Bug Fixes + UI Profile + Login Screen
+
+### Backend
+
+- **Fixed** `src/modules/provider/profile/profile.controller.ts:17` — `provider` → `provider_profiles` di orders.count (Prisma reject unknown relation)
+- **Fixed** `src/modules/auth/auth.service.ts` — login auto-set `onboarding_completed` pakai `provider_service_prices.count` bukan `provider_services.count` (provider baru punya services tapi belum punya prices)
+- **Fixed** `src/config/prisma.ts` — tambah `transactionOptions: { maxWait: 5000, timeout: 15000 }` (default 5000ms keburu timeout untuk operasi multipart)
+- **Fixed** `src/modules/provider/profile/profile.controller.ts` — tambah `normalizePath()` untuk prepend `/` ke file paths (profile_photo, portfolios) agar URL konsisten dengan customer
+- **Modified** `src/modules/provider/profile/profile.controller.ts` — tambah `console.error` logging di catch blocks
+
+### Flutter
+
+- **Modified** `lib/features/auth/presentation/screens/provider_register_terms_screen.dart` — track `_faqOpened` & `_termsOpened`, checkbox + lanjut aktif hanya jika kedua dokumen sudah dibuka
+- **Modified** `lib/features/auth/presentation/screens/provider_profile_completion_screen.dart` — rewrite UI: section header icon, card styling services, input konsisten tema, photo section lebih baik
+- **Modified** `lib/features/provider/presentation/screens/provider_profile_page.dart`:
+  - Card styling rapi, info rows visual hierarchy, stats cards
+  - Tambah tombol logout dengan konfirmasi dialog
+  - Revert ExpansionTile → langsung tampilkan nilai (user feedback)
+  - Tambah `ApiEndpoints.baseUrl` prefix ke NetworkImage (fix foto + portfolio tidak muncul)
+- **Deleted** `lib/features/provider/presentation/screens/provider_profile.dart` — placeholder lama yg tidak dipakai
+- **Modified** `lib/features/auth/presentation/screens/provider_login_screen.dart` — redesign UI: icon + judul Jasaku Mitra, card putih shadow, input filled rounded, hapus tombol "Masuk dengan Google" + divider
+- **Fixed** Image URLs: semua NetworkImage di profile page pakai `${ApiEndpoints.baseUrl}$path` (sama seperti customer_profile.dart)
+
+## 2026-07-02 — Provider Location Maps (lat/lng API + Mini Map UI)
+
+### Backend (`jasaku-backend/`)
+
+- **Modified** `src/modules/custom-tasks/custom-tasks.service.ts`:
+  - `getAvailableTasks()` — tambah `ST_Y(ct.location::geometry) as lat, ST_X(ct.location::geometry) as lng` di kedua query (dengan & tanpa geo filter)
+  - `getMyTasks()` — tambah `ST_Y/ST_X` raw SQL select
+  - `getMyBids()` — tambah post-processing: `$queryRaw` ambil lat/lng dari `custom_tasks.location` untuk setiap task ID, lalu merge ke `custom_tasks` nested object via `(as Record<string, unknown>)`
+
+- **Modified** `src/modules/orders/orders.service.ts`:
+  - `getProviderOrders()` — setelah Prisma `findMany`, jalankan `$queryRaw` ambil `ST_Y/ST_X` dari `order_locations.location`, inject ke `order_locations[0]`
+  - `getProviderRequests()` — pattern identik dengan `getProviderOrders()`
+
+### Flutter App (`jasaku_app/`)
+
+- **Modified** `lib/features/custom_tasks/data/models/custom_task_model.dart`:
+  - Tambah field `lat` (`double?`) dan `lng` (`double?`)
+  - Parse dari JSON via `double.tryParse()`
+  - Sertakan di `toJson()`
+
+- **Modified** `lib/features/custom_tasks/data/models/custom_task_bid_model.dart`:
+  - `NestedCustomTask` — tambah field `lat` (`double?`) dan `lng` (`double?`)
+  - Parse dari JSON, nilai null-safe
+
+- **Modified** `lib/features/orders/domain/models/order_model.dart`:
+  - Tambah field `lat` (`double?`) dan `lng` (`double?`)
+  - `fromProviderJson()` — parse `lat`/`lng` dari `order_locations[0]`
+
+- **Modified** `lib/features/custom_tasks/presentation/widgets/custom_task_card.dart`:
+  - Import `flutter_map` dan `latlong2`
+  - Tambah `_buildMiniMap(lat, lng)` — widget 100px `FlutterMap` + OSM tiles + red marker, dibungkus `IgnorePointer`
+  - Sisipkan di card antara address row dan divider jika `lat != null && lng != null`
+
+- **Modified** `lib/features/provider/presentation/screens/provider_requests_page.dart`:
+  - Import `flutter_map` dan `latlong2`
+  - Tambah `_buildMiniMap(lat, lng)` method (pattern identik)
+  - Sisipkan mini map di tiap request card setelah address text
+
+- **Modified** `lib/features/orders/presentation/pages/provider_order_list_page.dart`:
+  - Import `flutter_map` dan `latlong2`
+  - Tambah `_buildMiniMap(lat, lng)` method
+  - Sisipkan mini map di tiap order card setelah address text
+
+### Verification
+
+- `flutter analyze` — ✅ 0 new issues (6 pre-existing warnings di file lain)
+- Backend `tsc --noEmit` — tidak dijalankan (tidak ada typecheck script; pre-existing errors hanya di `prisma.config.ts` dan `firebase/admin.ts`)
+
+## 2026-07-07 — Identity Verification System (OCR KTP + Liveness + Face Matching)
+
+### Arsitektur
+
+Sistem verifikasi identitas provider terdiri dari 4 prioritas yang diimplementasikan berurutan:
+1. **Tabel identity_verifications** — menyimpan hasil OCR, face match, liveness
+2. **OCR KTP on-device** — ML Kit Text Recognition (Latin) untuk baca NIK/Nama/Alamat dari foto KTP
+3. **Face matching** — InsightFace Python microservice untuk bandingkan face embedding KTP vs selfie
+4. **Liveness detection** — 3 challenge: kedip → senyum → miringkan kepala via ML Kit Face Detection
+
+### Backend (`jasaku-backend/`)
+
+- **Modified** `prisma/schema.prisma`:
+  - Tambah model `identity_verifications` dengan fields: `nik`, `ocr_full_name`, `ocr_birth_place`, `ocr_birth_date`, `ocr_address`, `ocr_raw_result` (Json), `face_match_score`, `face_match_status`, `liveness_data` (Json), `liveness_status`, `verified_at`
+  - Relation ke `provider_profiles` (one-to-one, onDelete Cascade)
+  - Index on `provider_id`
+  - Tambah relasi balik `identity_verifications?` di `provider_profiles`
+
+- **Modified** `src/modules/auth/auth.service.ts`:
+  - `registerProvider()` — tambah 6 parameter baru: `ocr_nik`, `ocr_full_name`, `ocr_birth_place`, `ocr_birth_date`, `ocr_address`, `liveness_data`
+  - Di dalam transaksi, buat `identity_verifications` record setelah profile, isi OCR fields + `liveness_status` (passed/failed berdasarkan completed challenges)
+  - Setelah transaksi, panggil `runFaceMatchAsync()` non-blocking jika KTP & selfie tersedia
+
+- **Modified** `src/modules/auth/auth.controller.ts`:
+  - `registerProvider()` — parse `ocr_nik`, `ocr_full_name`, `ocr_birth_place`, `ocr_birth_date`, `ocr_address`, `liveness_data` dari request body
+  - Parse `liveness_data` dari JSON string
+  - Kirim semua OCR + liveness params ke service
+
+- **Modified** `src/modules/admin/admin.service.ts`:
+  - `getProviderDetail()` — include `identity_verifications: true` di Prisma query
+
+- **Created** `src/config/face_client.ts`:
+  - `compareFaces(ktpPath, selfiePath)` — POST multipart ke face-service, return `{ similarity, match }`
+  - `runFaceMatchAsync(providerId, ktpPath, selfiePath)` — panggil face service lalu update `identity_verifications.face_match_score` + `face_match_status`
+  - Timeout 30 detik, catch error agar tidak blocking register flow
+
+- **Modified** `.env`:
+  - Tambah `FACE_SERVICE_URL="http://localhost:5001"`
+
+- **Created** `face-service/requirements.txt`:
+  - Flask, insightface, opencv-python, numpy, Pillow, gunicorn
+
+- **Created** `face-service/app.py`:
+  - Flask server port 5001
+  - InsightFace `buffalo_l` model (CPU ExecutionProvider)
+  - `POST /compare` — terima `ktp_image` + `selfie_image` (base64 atau file path), deteksi face, ekstrak embedding, hitung cosine similarity
+  - Threshold 0.45 (env `SIMILARITY_THRESHOLD`), return `{ similarity, threshold, match }`
+  - `GET /health` — health check
+
+- **Modified** `package.json` — tambah dependencies: `axios`, `form-data`
+
+### Flutter App (`jasaku_app/`)
+
+- **Modified** `pubspec.yaml`:
+  - Tambah `google_mlkit_text_recognition: ^0.14.0` — OCR on-device
+  - Tambah `google_mlkit_face_detection: ^0.12.0` — face detection & liveness
+  - Tambah `camera: ^0.11.1` — kamera preview untuk liveness screen
+
+- **Modified** `lib/features/auth/presentation/providers/register_state.dart`:
+  - Tambah 6 field: `ocrNik`, `ocrFullName`, `ocrBirthPlace`, `ocrBirthDate`, `ocrAddress`, `livenessData`
+
+- **Created** `lib/features/auth/presentation/screens/ktp_scanner_screen.dart`:
+  - Bottom sheet: pilih kamera/gallery
+  - OCR via `TextRecognizer(script: TextRecognitionScript.latin)` + `InputImage.fromFile()`
+  - Parsing otomatis: regex NIK (16 digit), cari keyword "Nama", "Tempat Lahir", "Alamat"
+  - Tampilkan hasil OCR dalam card hijau dengan fields: NIK, Nama, Tempat Lahir, Tanggal Lahir, Alamat
+  - Tombol "Konfirmasi" (return data ke document screen) atau "Ulangi"
+
+- **Created** `lib/features/auth/presentation/screens/liveness_screen.dart`:
+  - Kamera depan via `camera` package
+  - ML Kit Face Detection dengan `enableClassification: true` (smilingProbability, eyeOpenProbability)
+  - 3 challenge berurutan dengan step indicator:
+    1. **Kedip** — deteksi `leftEyeOpenProbability < 0.3 && rightEyeOpenProbability < 0.3` lalu buka lagi > 0.5
+    2. **Senyum** — deteksi `smilingProbability > 0.7`
+    3. **Miring** — deteksi `headEulerAngleY.abs() > 15` lalu kembali < 8
+  - Auto-capture selfie via `takePicture()` setelah semua challenge lulus
+
+- **Modified** `lib/features/auth/presentation/screens/provider_register_document_screen.dart`:
+  - **Scan KTP** card (menggantikan KTP picker): preview foto + data OCR (NIK, Nama, Alamat) dalam card hijau
+  - **Verifikasi Wajah** card (menggantikan selfie picker): liveness status
+  - Tambah method `_openKtpScanner()`, `_openLiveness()`, `_buildScanKtpCard()`, `_buildLivenessCard()`, `_miniDataRow()`
+  - Validasi: scan KTP wajib (`_ktpPhotoPath != null` + `ocrNik != null`), verifikasi wajah wajib (`_selfiePhotoPath != null`)
+  - Submit kirim OCR + liveness data ke `registerProvider()`
+
+- **Modified** `lib/features/auth/presentation/providers/auth_provider.dart`:
+  - `registerProvider()` — tambah parameter OCR (5 field) + `livenessData` (Map)
+  - Forward ke `_repo.registerProvider()`
+
+- **Modified** `lib/features/auth/data/auth_repository.dart`:
+  - `registerProvider()` — tambah parameter OCR (5 field) + `livenessData`
+  - Kirim `ocr_nik`, `ocr_full_name`, `ocr_birth_place`, `ocr_birth_date`, `ocr_address`, `liveness_data` (JSON encoded) dalam FormData
+
+### Database
+- `npx prisma db push` — berhasil sync schema ke Supabase (identity_verifications table created)
+- Migration: `npx prisma migrate dev` requires reset (existing tables created outside Prisma), menggunakan `db push` sebagai alternatif
+
+### Catatan
+- `flutter analyze` — ✅ all auth module clean (2 pre-existing warnings di provider_register_screen.dart — unused widget)
+- Backend `tsc --noEmit` — ✅ my code compiles clean (1 pre-existing error di prisma.config.ts)
+- Face service perlu dijalankan terpisah: `cd face-service && pip install -r requirements.txt && python app.py`
+- Face match adalah non-blocking (tidak akan blocking registrasi jika face-service down)
+- Liveness data disimpan sebagai JSON di kolom `liveness_data` (JsonB)
+
+## 2026-07-06 — Redesign Halaman Home Customer (Gojek-like)
+
+### Flutter App (`jasaku_app/`)
+
+- **Modified** `lib/features/customer/presentation/screens/customer_home.dart`:
+  - Redesain total halaman home customer agar menyerupai tampilan Gojek
+  - Header: greeting + icon notifikasi (bell badge) + search bar putih "Cari layanan..."
+  - Grid layanan: 2 baris × 4 kolom ikon lingkaran ala Gojek (menggantikan 2 card kategori sebelumnya)
+  - Promo banner: horizontal scroll dengan 2 card promo (Jasaku Mitra & Custom Task)
+  - Pesanan terbaru: dipertahankan dengan styling card lebih ringan + shadow
+  - Hapus navigasi ke profile dari header (diganti notifikasi bell)
+  - Gunakan `unreadNotifProvider` untuk badge notifikasi

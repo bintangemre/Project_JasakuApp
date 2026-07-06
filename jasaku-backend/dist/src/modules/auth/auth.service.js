@@ -5,10 +5,18 @@ import { OAuth2Client } from 'google-auth-library';
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export class AuthService {
     async registerCustomer(email, password, name, phone, gender, birthDate) {
+        // Normalisasi: empty string → null (unik constraint aman)
+        const normalizedPhone = phone?.trim() || null;
         // Cek email sudah terdaftar
         const existing = await prisma.users.findUnique({ where: { email } });
         if (existing)
             throw new Error('Email sudah terdaftar');
+        // Cek nomor telepon sudah terdaftar
+        if (normalizedPhone) {
+            const phoneExists = await prisma.users.findUnique({ where: { phone: normalizedPhone } });
+            if (phoneExists)
+                throw new Error('Nomor telepon sudah terdaftar');
+        }
         // Cari role berdasarkan name
         const role = await prisma.roles.findUnique({ where: { name: 'customer' } });
         if (!role)
@@ -22,7 +30,7 @@ export class AuthService {
                     email,
                     password_hash: hashedPassword,
                     role_id: role.id,
-                    phone
+                    phone: normalizedPhone
                 }
             });
             const profile = await tx.profiles_customer.create({
@@ -35,12 +43,19 @@ export class AuthService {
     }
     //untuk Jasa (provider)
     //untuk Jasa (provider) - Versi Atomik Sekaligus Menyimpan Keahlian & Tarif
-    async registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, // 🟢 Tambahkan tampungan portofolio opsional
-    services) {
+    async registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, ijazah_photo, certificate_files, certificates, services) {
+        // Normalisasi: empty string → null
+        const normalizedPhone = phone?.trim() || null;
         // 1. Cek apakah email sudah terdaftar di sistem Jasaku
         const existing = await prisma.users.findUnique({ where: { email } });
         if (existing)
             throw new Error('Email sudah terdaftar');
+        // 1b. Cek apakah nomor telepon sudah terdaftar
+        if (normalizedPhone) {
+            const phoneExists = await prisma.users.findUnique({ where: { phone: normalizedPhone } });
+            if (phoneExists)
+                throw new Error('Nomor telepon sudah terdaftar');
+        }
         // 2. Ambil master role khusus provider
         const role = await prisma.roles.findUnique({ where: { name: 'provider' } });
         if (!role)
@@ -55,7 +70,7 @@ export class AuthService {
                     email,
                     password_hash: hashedPassword,
                     role_id: role.id,
-                    phone
+                    phone: normalizedPhone
                 }
             });
             // B. Buat Data Profil Lengkap beserta Foto Dokumen & Portofolio
@@ -66,16 +81,42 @@ export class AuthService {
                     nickname: nickname,
                     birth_date: new Date(birthDate),
                     gender: gender,
-                    phone: phone,
+                    phone: normalizedPhone,
                     address: address,
                     domicile: domicile,
                     profile_photo: profile_photo || null,
                     ktp_photo: ktp_photo || null,
                     selfie_photo: selfie_photo || null,
-                    portfolios: portfolios || [], // 🟢 Otomatis tersimpan sebagai array string url
+                    portfolios: portfolios || [],
                 }
             });
-            // C. SIMPAN KEAHLIAN & TARIF SEKALIGUS (Jika dikirim dari Flutter)
+            // C. Simpan Ijazah
+            if (ijazah_photo) {
+                await tx.provider_documents.create({
+                    data: {
+                        provider_id: profile.id,
+                        type: 'ijazah',
+                        file_url: ijazah_photo,
+                        description: 'Ijazah',
+                    }
+                });
+            }
+            // D. Simpan Sertifikat Penunjang
+            if (certificate_files && certificate_files.length > 0 && certificates) {
+                for (let i = 0; i < certificate_files.length; i++) {
+                    const certInfo = certificates[i] || { categoryId: '', description: '' };
+                    await tx.provider_documents.create({
+                        data: {
+                            provider_id: profile.id,
+                            type: 'certificate',
+                            file_url: certificate_files[i],
+                            category_id: certInfo.categoryId || null,
+                            description: certInfo.description || 'Sertifikat',
+                        }
+                    });
+                }
+            }
+            // E. SIMPAN KEAHLIAN & TARIF SEKALIGUS (Jika dikirim dari Flutter)
             if (services && services.length > 0) {
                 // Ambil seluruh master tipe harga untuk auto-fill data unit di DB
                 const masterPricingTypes = await tx.pricing_types.findMany();
@@ -83,7 +124,7 @@ export class AuthService {
                     // Buat baris baru di tabel penghubung provider_services
                     const newProviderService = await tx.provider_services.create({
                         data: {
-                            provider_id: newUser.id,
+                            provider_id: profile.id,
                             service_id: service.serviceId,
                             description: service.description
                         }
@@ -114,9 +155,15 @@ export class AuthService {
     }
     //register admin langsung masuk ke tabel users tanpa profile karena tidak diperlukan
     async registerAdmin(email, password, name, phone) {
+        const normalizedPhone = phone?.trim() || null;
         const existing = await prisma.users.findUnique({ where: { email } });
         if (existing)
             throw new Error('Email sudah terdaftar');
+        if (normalizedPhone) {
+            const phoneExists = await prisma.users.findUnique({ where: { phone: normalizedPhone } });
+            if (phoneExists)
+                throw new Error('Nomor telepon sudah terdaftar');
+        }
         const role = await prisma.roles.findUnique({ where: { name: 'admin' } });
         if (!role)
             throw new Error('Role admin tidak ditemukan');
@@ -126,7 +173,7 @@ export class AuthService {
                 email,
                 password_hash: hashedPassword,
                 role_id: role.id,
-                phone
+                phone: normalizedPhone
             }
         });
         const token = this.generateToken(user.id, role.name);
@@ -142,8 +189,48 @@ export class AuthService {
         const isValid = await bcrypt.compare(password, user.password_hash || '');
         if (!isValid)
             throw new Error('Email atau password salah');
+        // Cek verifikasi untuk role provider
+        if (user.roles.name === 'provider') {
+            const profile = user.provider_profiles;
+            if (profile) {
+                if (profile.verification_status === 'pending') {
+                    throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
+                }
+                if (profile.verification_status === 'rejected') {
+                    const notes = profile.verification_notes ? ` Alasan: ${profile.verification_notes}` : '';
+                    throw new Error(`Akun Anda ditolak. Silakan perbaiki sesuai saran admin.${notes}`);
+                }
+                // Auto-set onboarding_completed untuk provider LAMA (sudah punya tarif, bukan baru daftar 5-step)
+                if (profile.verification_status === 'verified' && !profile.onboarding_completed) {
+                    const hasPricing = await prisma.provider_service_prices.count({
+                        where: {
+                            provider_services: { provider_id: user.id }
+                        }
+                    }) > 0;
+                    if (hasPricing) {
+                        await prisma.provider_profiles.update({
+                            where: { user_id: user.id },
+                            data: { onboarding_completed: true }
+                        });
+                        profile.onboarding_completed = true;
+                    }
+                }
+            }
+        }
         const token = this.generateToken(user.id, user.roles.name);
-        return { token, user: { id: user.id, email: user.email, role: user.roles.name }, profile: user.profiles_customer || user.provider_profiles };
+        const profile = user.profiles_customer || user.provider_profiles;
+        const extra = profile && 'verification_status' in profile
+            ? {
+                verification_status: profile.verification_status,
+                verification_notes: profile.verification_notes,
+                onboarding_completed: profile.onboarding_completed ?? true
+            }
+            : {};
+        return {
+            token,
+            user: { id: user.id, email: user.email, role: user.roles.name },
+            profile: { ...profile, ...extra }
+        };
     }
     // ==========================================
     // 5. FITUR BARU: LOGIN & REGISTER VIA GOOGLE
@@ -192,13 +279,47 @@ export class AuthService {
         }
         else {
             roleName = user.roles.name;
+            // Cek verifikasi untuk role provider yang sudah terdaftar
+            if (roleName === 'provider' && user.provider_profiles) {
+                const profile = user.provider_profiles;
+                if (profile.verification_status === 'pending') {
+                    throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
+                }
+                if (profile.verification_status === 'rejected') {
+                    const notes = profile.verification_notes ? ` Alasan: ${profile.verification_notes}` : '';
+                    throw new Error(`Akun Anda ditolak. Silakan perbaiki sesuai saran admin.${notes}`);
+                }
+                // Auto-set onboarding_completed untuk provider LAMA (sudah punya tarif, bukan baru daftar 5-step)
+                if (profile.verification_status === 'verified' && !profile.onboarding_completed) {
+                    const hasPricing = await prisma.provider_service_prices.count({
+                        where: {
+                            provider_services: { provider_id: user.id }
+                        }
+                    }) > 0;
+                    if (hasPricing) {
+                        await prisma.provider_profiles.update({
+                            where: { user_id: user.id },
+                            data: { onboarding_completed: true }
+                        });
+                        profile.onboarding_completed = true;
+                    }
+                }
+            }
         }
         // 4. Generate token internal Jasaku menggunakan function pembantu class
         const token = this.generateToken(user.id, roleName);
+        const profile = user.profiles_customer || user.provider_profiles;
+        const extra = profile && 'verification_status' in profile
+            ? {
+                verification_status: profile.verification_status,
+                verification_notes: profile.verification_notes,
+                onboarding_completed: profile.onboarding_completed ?? true
+            }
+            : {};
         return {
             token,
             user: { id: user.id, email: user.email, role: roleName },
-            profile: user.profiles_customer || user.provider_profiles
+            profile: { ...profile, ...extra }
         };
     }
     generateToken(userId, role) {
@@ -233,5 +354,36 @@ export class AuthService {
         });
         this.otpStore.delete(email);
         return { message: 'Verifikasi berhasil' };
+    }
+    async getProviderVerificationStatus(userId) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: userId },
+            select: {
+                id: true,
+                verification_status: true,
+                verification_notes: true,
+                is_verified: true,
+            }
+        });
+        if (!profile)
+            throw new Error('Profil provider tidak ditemukan');
+        return profile;
+    }
+    async resubmitProviderVerification(userId) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: userId }
+        });
+        if (!profile)
+            throw new Error('Profil provider tidak ditemukan');
+        if (profile.verification_status !== 'rejected') {
+            throw new Error('Status verifikasi saat ini tidak dapat diajukan ulang');
+        }
+        return await prisma.provider_profiles.update({
+            where: { user_id: userId },
+            data: {
+                verification_status: 'pending',
+                verification_notes: null,
+            }
+        });
     }
 }

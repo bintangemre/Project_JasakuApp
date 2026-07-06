@@ -1,14 +1,12 @@
 import { Router } from 'express';
-import { getPaymentMethods, createPayment, getPaymentByOrder, savePaymentMethod, getCustomerPaymentMethods, updatePaymentStatus } from './payments.controller';
+import { getPaymentMethods, createPayment, getPaymentByOrder, updatePaymentStatus } from './payments.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { isCustomer, isAdmin } from '../../middleware/role.middleware';
 import { validate } from '../../middleware/validate.middleware';
-import { createPaymentSchema, updatePaymentStatusSchema, savePaymentMethodSchema } from '../../middleware/schemas';
+import { createPaymentSchema, updatePaymentStatusSchema } from '../../middleware/schemas';
 const router = Router();
 router.get('/payment-methods', authenticate, getPaymentMethods);
 router.post('/payments', authenticate, isCustomer, validate(createPaymentSchema), createPayment);
 router.get('/payments/order/:orderId', authenticate, getPaymentByOrder);
 router.patch('/payments/:paymentId/status', authenticate, isAdmin, validate(updatePaymentStatusSchema), updatePaymentStatus);
-router.post('/payment-methods/save', authenticate, isCustomer, validate(savePaymentMethodSchema), savePaymentMethod);
-router.get('/payment-methods/mine', authenticate, isCustomer, getCustomerPaymentMethods);
 export default router;

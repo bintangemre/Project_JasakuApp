@@ -54,8 +54,6 @@ export class CategoriesService {
         `;
         return providers;
     }
-    // ini sebagai contoh tampilan saja karena belum ada jarak 
-    // menampilkan list provider yang sudah terdaftar berdasarkan layanan yang dipilih pelanggan, namun belum menampilkan jarak dari pelanggan ke provider
     async getProvidersByServiceWithoutDistance(serviceId) {
         const providerServices = await prisma.provider_services.findMany({
             where: { service_id: serviceId },
@@ -97,9 +95,22 @@ export class CategoriesService {
                 }
             }
         });
+        const locations = providerIds.length > 0
+            ? await prisma.$queryRaw `
+                SELECT 
+                    pl.provider_id,
+                    ST_Y(pl.location::geometry) as lat,
+                    ST_X(pl.location::geometry) as lng,
+                    pl.address
+                FROM provider_locations pl
+                WHERE pl.provider_id = ANY(${providerIds}::uuid[])
+              `
+            : [];
+        const locationByProviderId = Object.fromEntries(locations.map((loc) => [loc.provider_id, { lat: loc.lat, lng: loc.lng, address: loc.address }]));
         const userById = Object.fromEntries(users.map((user) => [user.id, user]));
         return providerServices.map((service) => {
             const user = userById[service.provider_id];
+            const loc = locationByProviderId[service.provider_id];
             return {
                 ...service,
                 provider_profiles: user
@@ -110,10 +121,12 @@ export class CategoriesService {
                                 full_name: user.provider_profiles?.full_name ?? null,
                                 profile_photo: user.provider_profiles?.profile_photo ?? null,
                             },
-                            provider_locations: user.provider_locations
+                            provider_locations: loc
                                 ? [
                                     {
-                                        address: user.provider_locations.address,
+                                        address: loc.address,
+                                        lat: loc.lat,
+                                        lng: loc.lng,
                                     }
                                 ]
                                 : [],

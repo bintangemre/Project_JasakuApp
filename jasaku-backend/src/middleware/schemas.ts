@@ -4,9 +4,9 @@ export const registerCustomerSchema = z.object({
     email: z.string().email('Email tidak valid'),
     password: z.string().min(6, 'Password minimal 6 karakter'),
     name: z.string().min(1, 'Nama wajib diisi'),
-    phone: z.string().optional(),
-    gender: z.string().optional(),
-    birthDate: z.string().optional(),
+    phone: z.string().nullish(),
+    gender: z.string().nullish(),
+    birthDate: z.string().nullish(),
 });
 
 export const loginSchema = z.object({
@@ -40,6 +40,7 @@ export const createOrderSchema = z.object({
     lat: z.number().min(-90).max(90, 'Latitude tidak valid'),
     lng: z.number().min(-180).max(180, 'Longitude tidak valid'),
     attachments: z.array(z.string()).max(5, 'Maksimal 5 lampiran').optional(),
+    paymentMethod: z.string().optional(),
 });
 
 export const updateOrderStatusSchema = z.object({
@@ -84,10 +85,38 @@ export const createServiceSchema = z.object({
 
 export const verifyProviderSchema = z.object({
     status: z.enum(['verified', 'rejected'] as const).optional().default('verified'),
+    notes: z.string().optional(),
 });
 
 export const registerDeviceSchema = z.object({
     fcmToken: z.string().min(1, 'fcmToken wajib diisi'),
     deviceType: z.string().min(1, 'deviceType wajib diisi'),
     deviceName: z.string().optional(),
+});
+
+export const createCustomTaskSchema = z.object({
+    title: z.string().min(1, 'Judul task wajib diisi').max(150, 'Maksimal 150 karakter'),
+    description: z.string().optional(),
+    budget_per_person: z.number().positive('Budget per orang harus lebih dari 0'),
+    required_people: z.number().int().min(1, 'Minimal 1 orang').default(1),
+    address: z.string().optional(),
+    lat: z.number().min(-90).max(90, 'Latitude tidak valid'),
+    lng: z.number().min(-180).max(180, 'Longitude tidak valid'),
+    locations: z.array(z.object({
+        label: z.string().optional(),
+        address: z.string().min(1, 'Alamat titik wajib diisi'),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+    })).optional().default([]),
+});
+
+export const submitBidSchema = z.object({
+    offeredPrice: z.number().positive('Harga penawaran harus lebih dari 0'),
+    message: z.string().min(1, 'Pesan wajib diisi'),
+});
+
+export const getAvailableTasksQuerySchema = z.object({
+    lat: z.coerce.number().min(-90).max(90).optional(),
+    lng: z.coerce.number().min(-180).max(180).optional(),
+    radius: z.coerce.number().positive().optional(),
 });

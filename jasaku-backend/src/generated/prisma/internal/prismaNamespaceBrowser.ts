@@ -53,18 +53,22 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   categories: 'categories',
   admin_payment_accounts: 'admin_payment_accounts',
-  custom_task_proposals: 'custom_task_proposals',
   custom_tasks: 'custom_tasks',
-  customer_payment_methods: 'customer_payment_methods',
+  task_locations: 'task_locations',
+  task_providers: 'task_providers',
   order_attachments: 'order_attachments',
   order_items: 'order_items',
   order_locations: 'order_locations',
   orders: 'orders',
   payments: 'payments',
   pricing_types: 'pricing_types',
+  provider_documents: 'provider_documents',
   provider_payout_methods: 'provider_payout_methods',
+  provider_schedules: 'provider_schedules',
   provider_service_prices: 'provider_service_prices',
   provider_services: 'provider_services',
+  reports: 'reports',
+  order_extensions: 'order_extensions',
   roles: 'roles',
   services: 'services',
   spatial_ref_sys: 'spatial_ref_sys',
@@ -73,6 +77,7 @@ export const ModelName = {
   provider_profiles: 'provider_profiles',
   provider_locations: 'provider_locations',
   reviews: 'reviews',
+  identity_verifications: 'identity_verifications',
   user_devices: 'user_devices'
 } as const
 
@@ -118,43 +123,47 @@ export const Admin_payment_accountsScalarFieldEnum = {
 export type Admin_payment_accountsScalarFieldEnum = (typeof Admin_payment_accountsScalarFieldEnum)[keyof typeof Admin_payment_accountsScalarFieldEnum]
 
 
-export const Custom_task_proposalsScalarFieldEnum = {
-  id: 'id',
-  task_id: 'task_id',
-  provider_id: 'provider_id',
-  price: 'price',
-  message: 'message',
-  status: 'status'
-} as const
-
-export type Custom_task_proposalsScalarFieldEnum = (typeof Custom_task_proposalsScalarFieldEnum)[keyof typeof Custom_task_proposalsScalarFieldEnum]
-
-
 export const Custom_tasksScalarFieldEnum = {
   id: 'id',
   customer_id: 'customer_id',
   title: 'title',
   description: 'description',
-  budget_min: 'budget_min',
-  budget_max: 'budget_max',
+  budget_per_person: 'budget_per_person',
+  required_people: 'required_people',
+  accepted_count: 'accepted_count',
+  platform_fee_rate: 'platform_fee_rate',
+  address: 'address',
   status: 'status',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 } as const
 
 export type Custom_tasksScalarFieldEnum = (typeof Custom_tasksScalarFieldEnum)[keyof typeof Custom_tasksScalarFieldEnum]
 
 
-export const Customer_payment_methodsScalarFieldEnum = {
+export const Task_locationsScalarFieldEnum = {
   id: 'id',
-  user_id: 'user_id',
-  type: 'type',
-  account_number: 'account_number',
-  account_name: 'account_name',
-  provider_name: 'provider_name',
-  created_at: 'created_at'
+  task_id: 'task_id',
+  label: 'label',
+  address: 'address',
+  stop_order: 'stop_order'
 } as const
 
-export type Customer_payment_methodsScalarFieldEnum = (typeof Customer_payment_methodsScalarFieldEnum)[keyof typeof Customer_payment_methodsScalarFieldEnum]
+export type Task_locationsScalarFieldEnum = (typeof Task_locationsScalarFieldEnum)[keyof typeof Task_locationsScalarFieldEnum]
+
+
+export const Task_providersScalarFieldEnum = {
+  id: 'id',
+  task_id: 'task_id',
+  provider_id: 'provider_id',
+  status: 'status',
+  accepted_at: 'accepted_at',
+  completed_at: 'completed_at',
+  payout_confirmed: 'payout_confirmed',
+  payout_at: 'payout_at'
+} as const
+
+export type Task_providersScalarFieldEnum = (typeof Task_providersScalarFieldEnum)[keyof typeof Task_providersScalarFieldEnum]
 
 
 export const Order_attachmentsScalarFieldEnum = {
@@ -193,8 +202,11 @@ export const OrdersScalarFieldEnum = {
   id: 'id',
   customer_id: 'customer_id',
   provider_id: 'provider_id',
+  custom_task_id: 'custom_task_id',
+  task_provider_id: 'task_provider_id',
   status: 'status',
   total_price: 'total_price',
+  platform_fee: 'platform_fee',
   description: 'description',
   work_date: 'work_date',
   created_at: 'created_at',
@@ -230,6 +242,19 @@ export const Pricing_typesScalarFieldEnum = {
 export type Pricing_typesScalarFieldEnum = (typeof Pricing_typesScalarFieldEnum)[keyof typeof Pricing_typesScalarFieldEnum]
 
 
+export const Provider_documentsScalarFieldEnum = {
+  id: 'id',
+  provider_id: 'provider_id',
+  type: 'type',
+  file_url: 'file_url',
+  category_id: 'category_id',
+  description: 'description',
+  created_at: 'created_at'
+} as const
+
+export type Provider_documentsScalarFieldEnum = (typeof Provider_documentsScalarFieldEnum)[keyof typeof Provider_documentsScalarFieldEnum]
+
+
 export const Provider_payout_methodsScalarFieldEnum = {
   id: 'id',
   provider_id: 'provider_id',
@@ -241,6 +266,18 @@ export const Provider_payout_methodsScalarFieldEnum = {
 } as const
 
 export type Provider_payout_methodsScalarFieldEnum = (typeof Provider_payout_methodsScalarFieldEnum)[keyof typeof Provider_payout_methodsScalarFieldEnum]
+
+
+export const Provider_schedulesScalarFieldEnum = {
+  id: 'id',
+  provider_id: 'provider_id',
+  work_date: 'work_date',
+  is_booked: 'is_booked',
+  order_id: 'order_id',
+  created_at: 'created_at'
+} as const
+
+export type Provider_schedulesScalarFieldEnum = (typeof Provider_schedulesScalarFieldEnum)[keyof typeof Provider_schedulesScalarFieldEnum]
 
 
 export const Provider_service_pricesScalarFieldEnum = {
@@ -264,6 +301,41 @@ export const Provider_servicesScalarFieldEnum = {
 } as const
 
 export type Provider_servicesScalarFieldEnum = (typeof Provider_servicesScalarFieldEnum)[keyof typeof Provider_servicesScalarFieldEnum]
+
+
+export const ReportsScalarFieldEnum = {
+  id: 'id',
+  reporter_id: 'reporter_id',
+  reporter_role: 'reporter_role',
+  order_id: 'order_id',
+  subject: 'subject',
+  description: 'description',
+  attachments: 'attachments',
+  status: 'status',
+  admin_response: 'admin_response',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  resolved_at: 'resolved_at'
+} as const
+
+export type ReportsScalarFieldEnum = (typeof ReportsScalarFieldEnum)[keyof typeof ReportsScalarFieldEnum]
+
+
+export const Order_extensionsScalarFieldEnum = {
+  id: 'id',
+  order_id: 'order_id',
+  provider_id: 'provider_id',
+  customer_id: 'customer_id',
+  requested_date: 'requested_date',
+  additional_cost: 'additional_cost',
+  platform_fee_rate: 'platform_fee_rate',
+  extension_count: 'extension_count',
+  status: 'status',
+  response_note: 'response_note',
+  created_at: 'created_at'
+} as const
+
+export type Order_extensionsScalarFieldEnum = (typeof Order_extensionsScalarFieldEnum)[keyof typeof Order_extensionsScalarFieldEnum]
 
 
 export const RolesScalarFieldEnum = {
@@ -322,6 +394,7 @@ export const Profiles_customerScalarFieldEnum = {
   nickname: 'nickname',
   birth_date: 'birth_date',
   gender: 'gender',
+  address: 'address',
   avatar_url: 'avatar_url',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -345,8 +418,12 @@ export const Provider_profilesScalarFieldEnum = {
   selfie_photo: 'selfie_photo',
   is_verified: 'is_verified',
   verification_status: 'verification_status',
+  verification_notes: 'verification_notes',
   is_active: 'is_active',
   onboarding_completed: 'onboarding_completed',
+  custom_task_enabled: 'custom_task_enabled',
+  service_available: 'service_available',
+  task_available: 'task_available',
   rating: 'rating',
   total_jobs: 'total_jobs',
   created_at: 'created_at',
@@ -381,6 +458,26 @@ export const ReviewsScalarFieldEnum = {
 export type ReviewsScalarFieldEnum = (typeof ReviewsScalarFieldEnum)[keyof typeof ReviewsScalarFieldEnum]
 
 
+export const Identity_verificationsScalarFieldEnum = {
+  id: 'id',
+  provider_id: 'provider_id',
+  nik: 'nik',
+  ocr_full_name: 'ocr_full_name',
+  ocr_birth_place: 'ocr_birth_place',
+  ocr_birth_date: 'ocr_birth_date',
+  ocr_address: 'ocr_address',
+  ocr_raw_result: 'ocr_raw_result',
+  face_match_score: 'face_match_score',
+  face_match_status: 'face_match_status',
+  liveness_data: 'liveness_data',
+  liveness_status: 'liveness_status',
+  created_at: 'created_at',
+  verified_at: 'verified_at'
+} as const
+
+export type Identity_verificationsScalarFieldEnum = (typeof Identity_verificationsScalarFieldEnum)[keyof typeof Identity_verificationsScalarFieldEnum]
+
+
 export const User_devicesScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
@@ -402,6 +499,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -416,4 +521,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

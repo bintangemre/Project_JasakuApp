@@ -41,18 +41,20 @@ export const AnyNull = runtime.AnyNull;
 export const ModelName = {
     categories: 'categories',
     admin_payment_accounts: 'admin_payment_accounts',
-    custom_task_proposals: 'custom_task_proposals',
     custom_tasks: 'custom_tasks',
-    customer_payment_methods: 'customer_payment_methods',
     order_attachments: 'order_attachments',
     order_items: 'order_items',
     order_locations: 'order_locations',
     orders: 'orders',
     payments: 'payments',
     pricing_types: 'pricing_types',
+    provider_documents: 'provider_documents',
     provider_payout_methods: 'provider_payout_methods',
+    provider_schedules: 'provider_schedules',
     provider_service_prices: 'provider_service_prices',
     provider_services: 'provider_services',
+    reports: 'reports',
+    order_extensions: 'order_extensions',
     roles: 'roles',
     services: 'services',
     spatial_ref_sys: 'spatial_ref_sys',
@@ -90,31 +92,17 @@ export const Admin_payment_accountsScalarFieldEnum = {
     created_at: 'created_at',
     updated_at: 'updated_at'
 };
-export const Custom_task_proposalsScalarFieldEnum = {
-    id: 'id',
-    task_id: 'task_id',
-    provider_id: 'provider_id',
-    price: 'price',
-    message: 'message',
-    status: 'status'
-};
 export const Custom_tasksScalarFieldEnum = {
     id: 'id',
     customer_id: 'customer_id',
+    provider_id: 'provider_id',
     title: 'title',
     description: 'description',
-    budget_min: 'budget_min',
-    budget_max: 'budget_max',
+    budget: 'budget',
+    address: 'address',
+    photos: 'photos',
+    deadline: 'deadline',
     status: 'status',
-    created_at: 'created_at'
-};
-export const Customer_payment_methodsScalarFieldEnum = {
-    id: 'id',
-    user_id: 'user_id',
-    type: 'type',
-    account_number: 'account_number',
-    account_name: 'account_name',
-    provider_name: 'provider_name',
     created_at: 'created_at'
 };
 export const Order_attachmentsScalarFieldEnum = {
@@ -141,8 +129,10 @@ export const OrdersScalarFieldEnum = {
     id: 'id',
     customer_id: 'customer_id',
     provider_id: 'provider_id',
+    custom_task_id: 'custom_task_id',
     status: 'status',
     total_price: 'total_price',
+    platform_fee: 'platform_fee',
     description: 'description',
     work_date: 'work_date',
     created_at: 'created_at',
@@ -166,6 +156,15 @@ export const Pricing_typesScalarFieldEnum = {
     default_unit: 'default_unit',
     category_id: 'category_id'
 };
+export const Provider_documentsScalarFieldEnum = {
+    id: 'id',
+    provider_id: 'provider_id',
+    type: 'type',
+    file_url: 'file_url',
+    category_id: 'category_id',
+    description: 'description',
+    created_at: 'created_at'
+};
 export const Provider_payout_methodsScalarFieldEnum = {
     id: 'id',
     provider_id: 'provider_id',
@@ -173,6 +172,14 @@ export const Provider_payout_methodsScalarFieldEnum = {
     provider_name: 'provider_name',
     account_number: 'account_number',
     account_name: 'account_name',
+    created_at: 'created_at'
+};
+export const Provider_schedulesScalarFieldEnum = {
+    id: 'id',
+    provider_id: 'provider_id',
+    work_date: 'work_date',
+    is_booked: 'is_booked',
+    order_id: 'order_id',
     created_at: 'created_at'
 };
 export const Provider_service_pricesScalarFieldEnum = {
@@ -188,6 +195,33 @@ export const Provider_servicesScalarFieldEnum = {
     provider_id: 'provider_id',
     service_id: 'service_id',
     description: 'description',
+    created_at: 'created_at'
+};
+export const ReportsScalarFieldEnum = {
+    id: 'id',
+    reporter_id: 'reporter_id',
+    reporter_role: 'reporter_role',
+    order_id: 'order_id',
+    subject: 'subject',
+    description: 'description',
+    attachments: 'attachments',
+    status: 'status',
+    admin_response: 'admin_response',
+    created_at: 'created_at',
+    updated_at: 'updated_at',
+    resolved_at: 'resolved_at'
+};
+export const Order_extensionsScalarFieldEnum = {
+    id: 'id',
+    order_id: 'order_id',
+    provider_id: 'provider_id',
+    customer_id: 'customer_id',
+    requested_date: 'requested_date',
+    additional_cost: 'additional_cost',
+    platform_fee_rate: 'platform_fee_rate',
+    extension_count: 'extension_count',
+    status: 'status',
+    response_note: 'response_note',
     created_at: 'created_at'
 };
 export const RolesScalarFieldEnum = {
@@ -249,7 +283,10 @@ export const Provider_profilesScalarFieldEnum = {
     selfie_photo: 'selfie_photo',
     is_verified: 'is_verified',
     verification_status: 'verification_status',
+    verification_notes: 'verification_notes',
     is_active: 'is_active',
+    onboarding_completed: 'onboarding_completed',
+    custom_task_enabled: 'custom_task_enabled',
     rating: 'rating',
     total_jobs: 'total_jobs',
     created_at: 'created_at',

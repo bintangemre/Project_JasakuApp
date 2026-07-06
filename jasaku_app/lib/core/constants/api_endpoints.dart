@@ -1,6 +1,6 @@
 // Defines backend API endpoint URLs for shared Jasaku App network calls.
 class ApiEndpoints {
-  static const String baseUrl = 'http://10.244.34.20:3000';
+  static const String baseUrl = 'http://10.241.188.20:3000';
   static const String login = '$baseUrl/api/auth/login';
   static const String loginGoogle = '$baseUrl/api/auth/login/google';
   static const String registerCustomer = '$baseUrl/api/auth/register/customer';
@@ -18,6 +18,7 @@ class ApiEndpoints {
   static const String createOrder = '$baseUrl/api/orders/orders';
   static const String getOrderDetails = '$baseUrl/api/orders/orders/'; // + {orderId}
   static const String getCustomerOrders = '$baseUrl/api/orders/customer/orders';
+  static const String getCustomerActiveOrders = '$baseUrl/api/orders/customer/orders?status=active';
   static const String getProviderOrders = '$baseUrl/api/orders/provider/orders';
   static const String getProviderRequests = '$baseUrl/api/orders/provider/requests';
   static const String updateOrderStatus = '$baseUrl/api/orders/orders/'; // + {orderId}/status
@@ -58,9 +59,29 @@ class ApiEndpoints {
   // Customer Profile
   static const String customerProfile = '$baseUrl/api/customer/profile';
 
+  // Custom Tasks
+  static const String customTasks = '$baseUrl/api/custom-tasks';
+  static const String customTasksAvailable = '$baseUrl/api/custom-tasks/available';
+  static const String customTasksMine = '$baseUrl/api/custom-tasks/mine';
+
+  // Reports
+  static const String createReport = '$baseUrl/api/reports';
+  static const String myReports = '$baseUrl/api/reports/mine';
+
   // Provider Dashboard
   static const String providerProfile = '$baseUrl/api/provider/profile';
   static const String providerServices = '$baseUrl/api/provider/services';
   static const String providerAvailability = '$baseUrl/api/provider/profile/availability';
   static const String providerCompleteOnboarding = '$baseUrl/api/provider/profile/complete';
+  static const String providerUpdateProfile = '$baseUrl/api/provider/profile';
+  static const String providerPayoutMethods = '$baseUrl/api/provider/payout-methods';
+
+  // Public provider status & schedule (customer view)
+  static String providerStatus(String providerId) => '$baseUrl/api/orders/provider/$providerId/status';
+  static String providerSchedule(String providerId) => '$baseUrl/api/orders/provider/$providerId/schedule';
+
+  // Extensions
+  static String requestExtension(String orderId) => '$baseUrl/api/orders/orders/$orderId/extend';
+  static const String adminPendingExtensions = '$baseUrl/api/admin/extensions/pending';
+  static String adminApproveExtension(String extensionId) => '$baseUrl/api/admin/extensions/$extensionId/approve';
 }

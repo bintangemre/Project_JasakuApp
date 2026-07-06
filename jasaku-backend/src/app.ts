@@ -12,6 +12,8 @@ import paymentsRoutes from './modules/payments/payments.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import customerProfileRoutes from './modules/customer/profile/profile.routes';
 import providerPayoutRoutes from './modules/provider/payout/payout.routes';
+import customTasksRoutes from './modules/custom-tasks/custom-tasks.routes';
+import reportsRoutes from './modules/reports/reports.routes';
 import dotenv from 'dotenv';
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
@@ -41,8 +43,10 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api', reviewsRoutes);
 app.use('/api', paymentsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/custom-tasks', customTasksRoutes);
 app.use('/api/customer', customerProfileRoutes);
 app.use('/api/provider', providerPayoutRoutes);
+app.use('/api/reports', reportsRoutes);
 
 // Periodic cleanup: hard-delete cancelled/rejected orders older than 2 minutes
 const cleanupInterval = 60_000; // every 60s
@@ -74,7 +78,10 @@ app.listen(Number(PORT), '0.0.0.0', () => {
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
+  console.error('========== UNHANDLED ERROR ==========');
+  console.error('URL:', req.method, req.originalUrl);
+  console.error(err.stack || err);
+  console.error('=====================================');
   res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 

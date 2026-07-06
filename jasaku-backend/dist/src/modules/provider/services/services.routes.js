@@ -6,6 +6,6 @@ const router = Router();
 router.get('/available-services', getAvailableServices);
 router.get('/available-pricing-types', getAvailablePricingTypes);
 // Protected endpoints - memerlukan autentikasi
-router.get('/services', authenticate, getProviderServices);
-router.put('/services/update-service', authenticate, updateProviderService);
+router.get('/', authenticate, getProviderServices);
+router.put('/update-service', authenticate, updateProviderService);
 export default router;

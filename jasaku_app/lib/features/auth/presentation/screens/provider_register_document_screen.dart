@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import '../providers/register_state.dart';
 import '../providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'provider_register_terms_screen.dart';
 import 'provider_register_success_screen.dart';
+import 'ktp_scanner_screen.dart';
+import 'liveness_screen.dart';
 
 class ProviderRegisterDocumentScreen extends ConsumerStatefulWidget {
   final RegisterState state;
@@ -25,7 +28,9 @@ class _ProviderRegisterDocumentScreenState
   String? _profilePhotoPath;
   String? _ktpPhotoPath;
   String? _selfiePhotoPath;
+  String? _ijazahPath;
   List<File> _portfolioFiles = [];
+  List<Map<String, dynamic>> _certificates = [];
 
   @override
   void initState() {
@@ -34,7 +39,9 @@ class _ProviderRegisterDocumentScreenState
     _profilePhotoPath = s.profilePhotoPath;
     _ktpPhotoPath = s.ktpPhotoPath;
     _selfiePhotoPath = s.selfiePhotoPath;
+    _ijazahPath = s.ijazahPhotoPath;
     _portfolioFiles = List.from(s.portfolioFiles);
+    _certificates = List.from(s.certificates);
   }
 
   Future<void> _pickImage(String type) async {
@@ -74,6 +81,7 @@ class _ProviderRegisterDocumentScreenState
         if (type == 'profile') _profilePhotoPath = x.path;
         if (type == 'ktp') _ktpPhotoPath = x.path;
         if (type == 'selfie') _selfiePhotoPath = x.path;
+        if (type == 'ijazah') _ijazahPath = x.path;
       });
     }
   }
@@ -95,11 +103,15 @@ class _ProviderRegisterDocumentScreenState
       return;
     }
     if (_ktpPhotoPath == null) {
-      _showError('Upload foto KTP');
+      _showError('Scan KTP terlebih dahulu');
+      return;
+    }
+    if (widget.state.ocrNik == null) {
+      _showError('Data KTP tidak terbaca, silakan scan ulang');
       return;
     }
     if (_selfiePhotoPath == null) {
-      _showError('Upload foto selfie');
+      _showError('Verifikasi wajah terlebih dahulu');
       return;
     }
 
@@ -107,6 +119,8 @@ class _ProviderRegisterDocumentScreenState
     s.profilePhotoPath = _profilePhotoPath;
     s.ktpPhotoPath = _ktpPhotoPath;
     s.selfiePhotoPath = _selfiePhotoPath;
+    s.ijazahPhotoPath = _ijazahPath;
+    s.certificates = _certificates.where((c) => c['filePath'] != null).toList();
     s.portfolioFiles = _portfolioFiles;
 
     final agreed = await Navigator.push<bool>(
@@ -148,8 +162,16 @@ class _ProviderRegisterDocumentScreenState
             profilePhotoPath: s.profilePhotoPath,
             ktpPhotoPath: s.ktpPhotoPath,
             selfiePhotoPath: s.selfiePhotoPath,
+            ijazahPhotoPath: s.ijazahPhotoPath,
+            certificates: s.certificates.isNotEmpty ? s.certificates : null,
             portfolioFiles: s.portfolioFiles.isNotEmpty ? s.portfolioFiles : null,
             services: s.selectedServices,
+            ocrNik: s.ocrNik,
+            ocrFullName: s.ocrFullName,
+            ocrBirthPlace: s.ocrBirthPlace,
+            ocrBirthDate: s.ocrBirthDate,
+            ocrAddress: s.ocrAddress,
+            livenessData: s.livenessData,
           );
 
       if (!mounted) return;
@@ -212,19 +234,9 @@ class _ProviderRegisterDocumentScreenState
                 onPick: () => _pickImage('profile'),
               ),
               const SizedBox(height: 12),
-              _buildUploadCard(
-                label: 'Foto KTP',
-                required: true,
-                path: _ktpPhotoPath,
-                onPick: () => _pickImage('ktp'),
-              ),
+              _buildScanKtpCard(),
               const SizedBox(height: 12),
-              _buildUploadCard(
-                label: 'Foto Selfie Pegang KTP',
-                required: true,
-                path: _selfiePhotoPath,
-                onPick: () => _pickImage('selfie'),
-              ),
+              _buildLivenessCard(),
               const SizedBox(height: 12),
               _buildUploadCard(
                 label: 'Portofolio (Opsional)',
@@ -234,6 +246,54 @@ class _ProviderRegisterDocumentScreenState
                     : null,
                 onPick: _pickPortfolio,
               ),
+              const SizedBox(height: 16),
+              const Divider(height: 1),
+              const SizedBox(height: 16),
+              _buildUploadCard(
+                label: 'Foto Ijazah',
+                required: false,
+                path: _ijazahPath,
+                onPick: () => _pickImage('ijazah'),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Sertifikat Penunjang (Opsional)',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  TextButton.icon(
+                    onPressed: _addCertificate,
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Tambah'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              if (_certificates.isEmpty)
+                GestureDetector(
+                  onTap: () {
+                    _addCertificate();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      final lastIndex = _certificates.length - 1;
+                      if (lastIndex >= 0) _pickCertificateFile(lastIndex);
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey.shade50,
+                    ),
+                    child: const Center(
+                      child: Text('Ketuk untuk menambah sertifikat',
+                          style: TextStyle(color: Colors.grey, fontSize: 13)),
+                    ),
+                  ),
+                )
+              else
+                ..._certificates.asMap().entries.map(
+                    (e) => _buildCertificateItem(e.key, e.value)),
               const SizedBox(height: 32),
               if (_submitting)
                 const Center(child: CircularProgressIndicator())
@@ -266,6 +326,362 @@ class _ProviderRegisterDocumentScreenState
     );
   }
 
+  void _addCertificate() {
+    setState(() {
+      _certificates.add({'filePath': null});
+    });
+  }
+
+  Future<void> _pickCertificateFile(int index) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx'],
+      );
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _certificates[index]['filePath'] = result.files.single.path;
+        });
+      } else if (mounted && result == null) {
+        // user cancelled
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal: $e')),
+        );
+      }
+    }
+  }
+
+  Widget _buildCertificateItem(int index, Map<String, dynamic> cert) {
+    final filePath = cert['filePath'] as String?;
+    final isImage = filePath != null && _isImageExtension(filePath);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(left: 12, right: 4, top: 12, bottom: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => _pickCertificateFile(index),
+            child: Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: filePath != null ? const Color(0xFF00A651) : Colors.grey.shade300),
+                color: filePath != null ? const Color(0xFFF0FDF4) : Colors.white,
+              ),
+              child: filePath != null && isImage
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(7),
+                      child: Image.file(
+                        File(filePath),
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Icon(Icons.insert_drive_file, color: Colors.grey.shade400),
+                      ),
+                    )
+                  : Icon(
+                      filePath != null ? Icons.insert_drive_file : Icons.add_photo_alternate_outlined,
+                      color: Colors.grey,
+                    ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _pickCertificateFile(index),
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      filePath != null ? filePath.split('/').last : 'Pilih file',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: filePath != null ? Colors.green.shade700 : Colors.grey),
+                    ),
+                    if (filePath == null)
+                      Text(
+                        'PDF, DOC, JPG, PNG, dll',
+                        style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+            onPressed: () => setState(() => _certificates.removeAt(index)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openKtpScanner() async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(builder: (_) => const KtpScannerScreen()),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _ktpPhotoPath = result['ktpPath'] as String?;
+        widget.state.ocrNik = result['nik'] as String?;
+        widget.state.ocrFullName = result['fullName'] as String?;
+        widget.state.ocrBirthPlace = result['birthPlace'] as String?;
+        widget.state.ocrBirthDate = result['birthDate'] as String?;
+        widget.state.ocrAddress = result['address'] as String?;
+      });
+    }
+  }
+
+  Future<void> _openLiveness() async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(builder: (_) => const LivenessScreen()),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _selfiePhotoPath = result['selfiePath'] as String?;
+        widget.state.livenessData = result['livenessData'] as Map<String, dynamic>?;
+      });
+    }
+  }
+
+  Widget _buildScanKtpCard() {
+    final hasOcr = widget.state.ocrNik != null;
+    final hasFile = _ktpPhotoPath != null;
+    return GestureDetector(
+      onTap: _openKtpScanner,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: hasFile ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: hasFile ? const Color(0xFF00A651) : const Color(0xFFE2E8F0),
+            width: hasFile ? 1.5 : 1,
+          ),
+        ),
+        child: hasFile
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(_ktpPhotoPath!),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 48, height: 48,
+                            color: Colors.grey.shade200,
+                            child: const Icon(Icons.broken_image, color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text('Scan KTP',
+                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                const Text(' *', style: TextStyle(color: Colors.red)),
+                              ],
+                            ),
+                            if (hasOcr)
+                              Text('NIK: ${widget.state.ocrNik}',
+                                  style: const TextStyle(fontSize: 11, color: Color(0xFF00A651))),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: Color(0xFF7A7A7A)),
+                    ],
+                  ),
+                  if (hasOcr) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0FDF4),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF86EFAC)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _miniDataRow('NIK', widget.state.ocrNik!),
+                          if (widget.state.ocrFullName != null) _miniDataRow('Nama', widget.state.ocrFullName!),
+                          if (widget.state.ocrAddress != null) _miniDataRow('Alamat', widget.state.ocrAddress!),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              )
+            : Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.document_scanner, color: Color(0xFF2563EB), size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Text('Scan KTP',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                            const Text(' *', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                        const Text('Deteksi otomatis + baca data',
+                            style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Color(0xFF7A7A7A)),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildLivenessCard() {
+    final hasLiveness = _selfiePhotoPath != null;
+    return GestureDetector(
+      onTap: _openLiveness,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: hasLiveness ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: hasLiveness ? const Color(0xFF00A651) : const Color(0xFFE2E8F0),
+            width: hasLiveness ? 1.5 : 1,
+          ),
+        ),
+        child: hasLiveness
+            ? Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      File(_selfiePhotoPath!),
+                      width: 48, height: 48,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 48, height: 48,
+                        color: Colors.grey.shade200,
+                        child: const Icon(Icons.broken_image, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Text('Verifikasi Wajah',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                            const Text(' *', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                        const Text('Liveness terverifikasi',
+                            style: TextStyle(fontSize: 11, color: Color(0xFF00A651))),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Color(0xFF7A7A7A)),
+                ],
+              )
+            : Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF0E0),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.face_retouching_natural, color: Color(0xFFFF6B00), size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Text('Verifikasi Wajah',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                            const Text(' *', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                        const Text('Kedip + Senyum + Miringkan kepala',
+                            style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Color(0xFF7A7A7A)),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _miniDataRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 50,
+            child: Text(label,
+                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+          ),
+          Expanded(
+            child: Text(value,
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                overflow: TextOverflow.ellipsis),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _isImageExtension(String path) {
+    final ext = path.split('.').last.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].contains(ext);
+  }
+
   Widget _buildUploadCard({
     required String label,
     required bool required,
@@ -277,7 +693,7 @@ class _ProviderRegisterDocumentScreenState
       onTap: onPick,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: hasFile ? const EdgeInsets.all(12) : const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: hasFile ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(12),
@@ -288,44 +704,81 @@ class _ProviderRegisterDocumentScreenState
             width: hasFile ? 1.5 : 1,
           ),
         ),
-        child: Row(
-          children: [
-            Icon(
-              hasFile ? Icons.check_circle : Icons.cloud_upload_outlined,
-              color: hasFile
-                  ? const Color(0xFF00A651)
-                  : const Color(0xFF7A7A7A),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: hasFile
+            ? Row(
                 children: [
-                  Row(
-                    children: [
-                      Text(label,
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w500)),
-                      if (required)
-                        const Text(' *',
-                            style: TextStyle(color: Colors.red)),
-                    ],
-                  ),
-                  if (hasFile)
-                    Text(
-                      path.length > 30
-                          ? '${path.substring(0, 27)}...'
-                          : path,
-                      style: const TextStyle(
-                          fontSize: 12, color: Color(0xFF00A651)),
-                      overflow: TextOverflow.ellipsis,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      File(path),
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 64,
+                        height: 64,
+                        color: Colors.grey.shade200,
+                        child: const Icon(Icons.broken_image, color: Colors.grey),
+                      ),
                     ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(label,
+                                  style: const TextStyle(
+                                      fontSize: 14, fontWeight: FontWeight.w500)),
+                            ),
+                            if (required)
+                              const Text(' *',
+                                  style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          path.split('/').last,
+                          style: const TextStyle(
+                              fontSize: 12, color: Color(0xFF00A651)),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Color(0xFF7A7A7A)),
+                ],
+              )
+            : Row(
+                children: [
+                  Icon(
+                    Icons.cloud_upload_outlined,
+                    color: const Color(0xFF7A7A7A),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(label,
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w500)),
+                            if (required)
+                              const Text(' *',
+                                  style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Color(0xFF7A7A7A)),
                 ],
               ),
-            ),
-            const Icon(Icons.chevron_right, color: Color(0xFF7A7A7A)),
-          ],
-        ),
       ),
     );
   }

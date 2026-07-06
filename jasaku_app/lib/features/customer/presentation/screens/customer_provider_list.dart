@@ -323,32 +323,53 @@ class ProviderListScreen extends StatelessWidget {
 
   // --- WIDGET KARTU MITRA (UI POLISH SESUAI FIGMA) ---
   Widget _buildProviderCard(BuildContext context, ProviderModel provider) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Foto Profil Bulat Bersih
-                CircleAvatar(
-                  radius: 32,
-                  backgroundColor: const Color(0xFFF1F5F9),
-                  backgroundImage: NetworkImage(
-                    provider.image ??
+    final isDisabled = !provider.isActive;
+    return Opacity(
+      opacity: isDisabled ? 0.5 : 1.0,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            if (isDisabled)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+                ),
+                child: const Text(
+                  'Sedang tidak tersedia',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFFDC2626),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Foto Profil Bulat Bersih
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: const Color(0xFFF1F5F9),
+                    backgroundImage: NetworkImage(
+                      provider.image ??
                         'https://ui-avatars.com/api/?name=${provider.name}&background=DBEAFE&color=1E40AF',
                   ),
                 ),
@@ -391,7 +412,7 @@ class ProviderListScreen extends StatelessWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              "${provider.location ?? 'Lokasi tidak diatur'} • ${provider.distance ?? '- km'}",
+                              "${provider.location ?? ''}${provider.location != null ? ' • ' : ''}${provider.distance ?? '- km'}",
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: Color(0xFF64748B),
@@ -421,7 +442,7 @@ class ProviderListScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "(312 ulasan)  •  ",
+                            "(${provider.totalReviews ?? 0} ulasan)  •  ",
                             style: const TextStyle(
                               fontSize: 11,
                               color: Color(0xFF94A3B8),
@@ -515,12 +536,13 @@ class ProviderListScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 }
 
 // --- DETAIL MITRA BOTTOM SHEET (SINKRON FIGMA) ---
-class DetailProviderSheet extends StatelessWidget {
+class DetailProviderSheet extends StatefulWidget {
   final ProviderModel provider;
   final String servicesId;
 
@@ -531,7 +553,98 @@ class DetailProviderSheet extends StatelessWidget {
   });
 
   @override
+  State<DetailProviderSheet> createState() => _DetailProviderSheetState();
+}
+
+class _DetailProviderSheetState extends State<DetailProviderSheet> {
+  bool _loadingStatus = true;
+  bool _hasActiveOrder = false;
+  bool _serviceAvailable = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStatus();
+  }
+
+  Future<void> _fetchStatus() async {
+    try {
+      debugPrint('[DetailProviderSheet] Fetching status for: ${widget.provider.id}');
+      final res = await ApiClient().dio.get(
+        ApiEndpoints.providerStatus(widget.provider.id),
+      );
+      debugPrint('[DetailProviderSheet] Status response: ${res.data}');
+      final data = res.data['data'] as Map<String, dynamic>? ?? {};
+      setState(() {
+        _hasActiveOrder = data['hasActiveOrder'] == true;
+        _serviceAvailable = data['is_active'] as bool? ?? true;
+        _loadingStatus = false;
+      });
+    } catch (e) {
+      debugPrint('[DetailProviderSheet] Status error: $e');
+      setState(() => _loadingStatus = false);
+    }
+  }
+
+  void _showScheduleDialog() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final res = await ApiClient().dio.get(
+        ApiEndpoints.providerSchedule(widget.provider.id),
+      );
+      final data = res.data['data'] as List<dynamic>? ?? [];
+      final bookedDates = data.map((e) {
+        final d = e['work_date'] as String;
+        return DateTime.parse(d);
+      }).toList();
+
+      if (!mounted) return;
+      Navigator.pop(context); // tutup loading
+
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Jadwal Mitra'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: bookedDates.isEmpty
+                ? const Text('Tidak ada jadwal yang diboking')
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: bookedDates.map((d) {
+                      final months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                      return ListTile(
+                        leading: const Icon(Icons.calendar_today, color: Color(0xFF2563EB)),
+                        title: Text('${d.day} ${months[d.month]} ${d.year}'),
+                      );
+                    }).toList(),
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Tutup'),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      Navigator.pop(context); // tutup loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal memuat jadwal mitra')),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = widget.provider;
     return DraggableScrollableSheet(
       initialChildSize: 0.85,
       maxChildSize: 0.95,
@@ -597,7 +710,7 @@ class DetailProviderSheet extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "${provider.location ?? 'Lokasi tidak diset'} • ${provider.distance ?? '- km'}",
+                                "${provider.location ?? ''}${provider.location != null ? ' • ' : ''}${provider.distance ?? '- km'}",
                                 style: const TextStyle(
                                   color: Color(0xFF64748B),
                                   fontSize: 13,
@@ -609,6 +722,62 @@ class DetailProviderSheet extends StatelessWidget {
                         ),
                       ],
                     ),
+                    // Warning jika mitra tidak tersedia
+                    if (!_loadingStatus && !_serviceAvailable) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFCA5A5)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.info_outline, color: Color(0xFFDC2626), size: 20),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Mitra sedang tidak tersedia',
+                                style: TextStyle(
+                                  color: Color(0xFF991B1B),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    // Warning jika mitra sedang mengerjakan orderan hari ini
+                    if (!_loadingStatus && _hasActiveOrder) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFCA5A5)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.info_outline, color: Color(0xFFDC2626), size: 20),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Tidak bisa order hari ini, silakan booking di hari lain',
+                                style: TextStyle(
+                                  color: Color(0xFF991B1B),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     // Baris Statistik/Metrik (Rating, Ulasan, Job, Pengalaman)
                     Container(
@@ -628,7 +797,7 @@ class DetailProviderSheet extends StatelessWidget {
                           ),
                           _buildStatItemRow(
                             Icons.rate_review_outlined,
-                            "312",
+                            "${provider.totalReviews ?? 0}",
                             "Ulasan",
                             const Color(0xFF64748B),
                           ),
@@ -680,9 +849,9 @@ class DetailProviderSheet extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    // Navigasi Tab (Info, Katalog, Alat, Ulasan)
+                    // Navigasi Tab (Info, Ulasan)
                     const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           "Info",
@@ -693,20 +862,7 @@ class DetailProviderSheet extends StatelessWidget {
                             decorationThickness: 2,
                           ),
                         ),
-                        Text(
-                          "Katalog",
-                          style: TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          "Alat",
-                          style: TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        SizedBox(width: 48),
                         Text(
                           "Ulasan",
                           style: TextStyle(
@@ -734,6 +890,87 @@ class DetailProviderSheet extends StatelessWidget {
                         height: 1.5,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (provider.portfolios.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      const Text(
+                        "Portofolio",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 100,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: provider.portfolios.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          itemBuilder: (_, i) {
+                            final url = provider.portfolios[i];
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: GestureDetector(
+                                onTap: () => _showImagePreview(context, url),
+                                child: Image.network(
+                                  '${ApiEndpoints.baseUrl}$url',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                    width: 100,
+                                    height: 100,
+                                    color: const Color(0xFFF1F5F9),
+                                    child: const Icon(Icons.broken_image, color: Color(0xFF94A3B8)),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    // Menu Jadwal Mitra
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        leading: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2563EB).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Color(0xFF2563EB),
+                            size: 20,
+                          ),
+                        ),
+                        title: const Text(
+                          'Jadwal Mitra',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: const Text(
+                          'Lihat jadwal yang sudah dibooking',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                        trailing: const Icon(
+                          Icons.chevron_right,
+                          color: Color(0xFF94A3B8),
+                        ),
+                        onTap: _showScheduleDialog,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -779,45 +1016,53 @@ class DetailProviderSheet extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            if (provider.pricingTypeId == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Tidak dapat memproses pesanan: pricing type tidak tersedia.',
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
+                          onPressed: (_hasActiveOrder || !_serviceAvailable)
+                              ? null
+                              : () {
+                                  if (provider.pricingTypeId == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Tidak dapat memproses pesanan: pricing type tidak tersedia.',
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
 
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => CustomerOrdersPage(
-                                      providerId: provider.id,
-                                      providerName: provider.name,
-                                      serviceId: servicesId,
-                                      pricingTypeId: provider.pricingTypeId!,
-                                      basePrice:
-                                          provider.basePrice?.toDouble() ?? 0.0,
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => CustomerOrdersPage(
+                                            providerId: provider.id,
+                                            providerName: provider.name,
+                                            serviceId: widget.servicesId,
+                                            pricingTypeId: provider.pricingTypeId!,
+                                            basePrice:
+                                                provider.basePrice?.toDouble() ?? 0.0,
+                                          ),
                                     ),
-                              ),
-                            );
-                          },
+                                  );
+                                },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
+                            backgroundColor: (_hasActiveOrder || !_serviceAvailable)
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF2563EB),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            "Pesan Sekarang",
-                            style: TextStyle(
+                          child: Text(
+                            !_serviceAvailable
+                                ? "Sedang Tidak Tersedia"
+                                : _hasActiveOrder
+                                    ? "Sedang Sibuk"
+                                    : "Pesan Sekarang",
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -872,6 +1117,28 @@ class DetailProviderSheet extends StatelessWidget {
       ],
     );
   }
+
+  void _showImagePreview(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: InteractiveViewer(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.network(
+              '${ApiEndpoints.baseUrl}$url',
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, color: Colors.white, size: 48),
+              loadingBuilder: (_, child, progress) => progress == null
+                  ? child
+                  : const Center(child: CircularProgressIndicator(color: Colors.white)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // --- MODEL DATA: PROVIDER MODEL (SUDAH FIXED TOTAL) ---
@@ -885,10 +1152,13 @@ class ProviderModel {
   final int? jobsDone;
   final int? basePrice;
   final String? pricingTypeId;
+  final int? totalReviews;
   final int? experience;
   final String? aboutMe;
+  final List<String> portfolios;
   final double? lat;
   final double? lng;
+  final bool isActive;
 
   ProviderModel({
     required this.id,
@@ -900,10 +1170,13 @@ class ProviderModel {
     this.jobsDone,
     this.basePrice,
     this.pricingTypeId,
+    this.totalReviews,
     this.experience,
     this.aboutMe,
+    this.portfolios = const [],
     this.lat,
     this.lng,
+    this.isActive = true,
   });
 
   factory ProviderModel.fromJson(Map<String, dynamic> json) {
@@ -959,6 +1232,14 @@ class ProviderModel {
           jobsRaw is num ? jobsRaw.toInt() : int.tryParse(jobsRaw.toString());
     }
 
+    // ✅ Parse total_reviews secara aman
+    int? parsedReviews;
+    final reviewsRaw = profileData?['total_reviews'];
+    if (reviewsRaw != null) {
+      parsedReviews =
+          reviewsRaw is num ? reviewsRaw.toInt() : int.tryParse(reviewsRaw.toString());
+    }
+
     // ✅ FIX UTAMA: Parse experience secara aman (bisa datang sebagai String "5" dari backend)
     int? parsedExperience;
     final expRaw = profileData?['experience'];
@@ -969,6 +1250,9 @@ class ProviderModel {
 
     final parsedLat = (locationData?['lat'] as num?)?.toDouble();
     final parsedLng = (locationData?['lng'] as num?)?.toDouble();
+
+    // ✅ Parse portfolios
+    final portfoliosRaw = profileData?['portfolios'] as List<dynamic>?;
 
     return ProviderModel(
       id:
@@ -984,8 +1268,10 @@ class ProviderModel {
       distance: null,
       rating: parsedRating ?? (json['rating'] as num?)?.toDouble(),
       jobsDone: parsedJobs,
+      totalReviews: parsedReviews,
       basePrice: parsedPrice,
       pricingTypeId: pricingTypeId,
+      portfolios: portfoliosRaw?.map((e) => e.toString()).toList() ?? [],
       experience: parsedExperience,
       aboutMe:
           json['description']?.toString() ??
@@ -993,6 +1279,7 @@ class ProviderModel {
           'Deskripsi belum tersedia',
       lat: parsedLat,
       lng: parsedLng,
+      isActive: profileData?['is_active'] as bool? ?? true,
     );
   }
 }

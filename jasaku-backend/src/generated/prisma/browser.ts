@@ -28,20 +28,20 @@ export type categories = Prisma.categoriesModel
  */
 export type admin_payment_accounts = Prisma.admin_payment_accountsModel
 /**
- * Model custom_task_proposals
- * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
- */
-export type custom_task_proposals = Prisma.custom_task_proposalsModel
-/**
  * Model custom_tasks
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type custom_tasks = Prisma.custom_tasksModel
 /**
- * Model customer_payment_methods
- * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ * Model task_locations
+ * 
  */
-export type customer_payment_methods = Prisma.customer_payment_methodsModel
+export type task_locations = Prisma.task_locationsModel
+/**
+ * Model task_providers
+ * 
+ */
+export type task_providers = Prisma.task_providersModel
 /**
  * Model order_attachments
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -73,10 +73,20 @@ export type payments = Prisma.paymentsModel
  */
 export type pricing_types = Prisma.pricing_typesModel
 /**
+ * Model provider_documents
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type provider_documents = Prisma.provider_documentsModel
+/**
  * Model provider_payout_methods
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type provider_payout_methods = Prisma.provider_payout_methodsModel
+/**
+ * Model provider_schedules
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type provider_schedules = Prisma.provider_schedulesModel
 /**
  * Model provider_service_prices
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -87,6 +97,16 @@ export type provider_service_prices = Prisma.provider_service_pricesModel
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type provider_services = Prisma.provider_servicesModel
+/**
+ * Model reports
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type reports = Prisma.reportsModel
+/**
+ * Model order_extensions
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type order_extensions = Prisma.order_extensionsModel
 /**
  * Model roles
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -128,6 +148,11 @@ export type provider_locations = Prisma.provider_locationsModel
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type reviews = Prisma.reviewsModel
+/**
+ * Model identity_verifications
+ * 
+ */
+export type identity_verifications = Prisma.identity_verificationsModel
 /**
  * Model user_devices
  * 

@@ -53,8 +53,12 @@ export type Provider_profilesMinAggregateOutputType = {
   selfie_photo: string | null
   is_verified: boolean | null
   verification_status: string | null
+  verification_notes: string | null
   is_active: boolean | null
   onboarding_completed: boolean | null
+  custom_task_enabled: boolean | null
+  service_available: boolean | null
+  task_available: boolean | null
   rating: runtime.Decimal | null
   total_jobs: number | null
   created_at: Date | null
@@ -77,8 +81,12 @@ export type Provider_profilesMaxAggregateOutputType = {
   selfie_photo: string | null
   is_verified: boolean | null
   verification_status: string | null
+  verification_notes: string | null
   is_active: boolean | null
   onboarding_completed: boolean | null
+  custom_task_enabled: boolean | null
+  service_available: boolean | null
+  task_available: boolean | null
   rating: runtime.Decimal | null
   total_jobs: number | null
   created_at: Date | null
@@ -101,8 +109,12 @@ export type Provider_profilesCountAggregateOutputType = {
   selfie_photo: number
   is_verified: number
   verification_status: number
+  verification_notes: number
   is_active: number
   onboarding_completed: number
+  custom_task_enabled: number
+  service_available: number
+  task_available: number
   rating: number
   total_jobs: number
   created_at: number
@@ -140,8 +152,12 @@ export type Provider_profilesMinAggregateInputType = {
   selfie_photo?: true
   is_verified?: true
   verification_status?: true
+  verification_notes?: true
   is_active?: true
   onboarding_completed?: true
+  custom_task_enabled?: true
+  service_available?: true
+  task_available?: true
   rating?: true
   total_jobs?: true
   created_at?: true
@@ -164,8 +180,12 @@ export type Provider_profilesMaxAggregateInputType = {
   selfie_photo?: true
   is_verified?: true
   verification_status?: true
+  verification_notes?: true
   is_active?: true
   onboarding_completed?: true
+  custom_task_enabled?: true
+  service_available?: true
+  task_available?: true
   rating?: true
   total_jobs?: true
   created_at?: true
@@ -188,8 +208,12 @@ export type Provider_profilesCountAggregateInputType = {
   selfie_photo?: true
   is_verified?: true
   verification_status?: true
+  verification_notes?: true
   is_active?: true
   onboarding_completed?: true
+  custom_task_enabled?: true
+  service_available?: true
+  task_available?: true
   rating?: true
   total_jobs?: true
   created_at?: true
@@ -300,8 +324,12 @@ export type Provider_profilesGroupByOutputType = {
   selfie_photo: string | null
   is_verified: boolean | null
   verification_status: string | null
+  verification_notes: string | null
   is_active: boolean | null
   onboarding_completed: boolean | null
+  custom_task_enabled: boolean | null
+  service_available: boolean
+  task_available: boolean
   rating: runtime.Decimal | null
   total_jobs: number | null
   created_at: Date | null
@@ -348,8 +376,12 @@ export type provider_profilesWhereInput = {
   selfie_photo?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   is_verified?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
   verification_status?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  verification_notes?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   is_active?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
   onboarding_completed?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
+  custom_task_enabled?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
+  service_available?: Prisma.BoolFilter<"provider_profiles"> | boolean
+  task_available?: Prisma.BoolFilter<"provider_profiles"> | boolean
   rating?: Prisma.DecimalNullableFilter<"provider_profiles"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
   created_at?: Prisma.DateTimeNullableFilter<"provider_profiles"> | Date | string | null
@@ -357,6 +389,10 @@ export type provider_profilesWhereInput = {
   total_reviews?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
   portfolios?: Prisma.StringNullableListFilter<"provider_profiles">
   orders?: Prisma.OrdersListRelationFilter
+  task_providers?: Prisma.Task_providersListRelationFilter
+  provider_documents?: Prisma.Provider_documentsListRelationFilter
+  provider_schedules?: Prisma.Provider_schedulesListRelationFilter
+  identity_verifications?: Prisma.XOR<Prisma.Identity_verificationsNullableScalarRelationFilter, Prisma.identity_verificationsWhereInput> | null
   users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
 }
 
@@ -375,8 +411,12 @@ export type provider_profilesOrderByWithRelationInput = {
   selfie_photo?: Prisma.SortOrderInput | Prisma.SortOrder
   is_verified?: Prisma.SortOrderInput | Prisma.SortOrder
   verification_status?: Prisma.SortOrderInput | Prisma.SortOrder
+  verification_notes?: Prisma.SortOrderInput | Prisma.SortOrder
   is_active?: Prisma.SortOrderInput | Prisma.SortOrder
   onboarding_completed?: Prisma.SortOrderInput | Prisma.SortOrder
+  custom_task_enabled?: Prisma.SortOrderInput | Prisma.SortOrder
+  service_available?: Prisma.SortOrder
+  task_available?: Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
   total_jobs?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -384,6 +424,10 @@ export type provider_profilesOrderByWithRelationInput = {
   total_reviews?: Prisma.SortOrderInput | Prisma.SortOrder
   portfolios?: Prisma.SortOrder
   orders?: Prisma.ordersOrderByRelationAggregateInput
+  task_providers?: Prisma.task_providersOrderByRelationAggregateInput
+  provider_documents?: Prisma.provider_documentsOrderByRelationAggregateInput
+  provider_schedules?: Prisma.provider_schedulesOrderByRelationAggregateInput
+  identity_verifications?: Prisma.identity_verificationsOrderByWithRelationInput
   users?: Prisma.usersOrderByWithRelationInput
 }
 
@@ -405,8 +449,12 @@ export type provider_profilesWhereUniqueInput = Prisma.AtLeast<{
   selfie_photo?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   is_verified?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
   verification_status?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  verification_notes?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   is_active?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
   onboarding_completed?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
+  custom_task_enabled?: Prisma.BoolNullableFilter<"provider_profiles"> | boolean | null
+  service_available?: Prisma.BoolFilter<"provider_profiles"> | boolean
+  task_available?: Prisma.BoolFilter<"provider_profiles"> | boolean
   rating?: Prisma.DecimalNullableFilter<"provider_profiles"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
   created_at?: Prisma.DateTimeNullableFilter<"provider_profiles"> | Date | string | null
@@ -414,6 +462,10 @@ export type provider_profilesWhereUniqueInput = Prisma.AtLeast<{
   total_reviews?: Prisma.IntNullableFilter<"provider_profiles"> | number | null
   portfolios?: Prisma.StringNullableListFilter<"provider_profiles">
   orders?: Prisma.OrdersListRelationFilter
+  task_providers?: Prisma.Task_providersListRelationFilter
+  provider_documents?: Prisma.Provider_documentsListRelationFilter
+  provider_schedules?: Prisma.Provider_schedulesListRelationFilter
+  identity_verifications?: Prisma.XOR<Prisma.Identity_verificationsNullableScalarRelationFilter, Prisma.identity_verificationsWhereInput> | null
   users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
 }, "id" | "user_id">
 
@@ -432,8 +484,12 @@ export type provider_profilesOrderByWithAggregationInput = {
   selfie_photo?: Prisma.SortOrderInput | Prisma.SortOrder
   is_verified?: Prisma.SortOrderInput | Prisma.SortOrder
   verification_status?: Prisma.SortOrderInput | Prisma.SortOrder
+  verification_notes?: Prisma.SortOrderInput | Prisma.SortOrder
   is_active?: Prisma.SortOrderInput | Prisma.SortOrder
   onboarding_completed?: Prisma.SortOrderInput | Prisma.SortOrder
+  custom_task_enabled?: Prisma.SortOrderInput | Prisma.SortOrder
+  service_available?: Prisma.SortOrder
+  task_available?: Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
   total_jobs?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -465,8 +521,12 @@ export type provider_profilesScalarWhereWithAggregatesInput = {
   selfie_photo?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
   is_verified?: Prisma.BoolNullableWithAggregatesFilter<"provider_profiles"> | boolean | null
   verification_status?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
+  verification_notes?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
   is_active?: Prisma.BoolNullableWithAggregatesFilter<"provider_profiles"> | boolean | null
   onboarding_completed?: Prisma.BoolNullableWithAggregatesFilter<"provider_profiles"> | boolean | null
+  custom_task_enabled?: Prisma.BoolNullableWithAggregatesFilter<"provider_profiles"> | boolean | null
+  service_available?: Prisma.BoolWithAggregatesFilter<"provider_profiles"> | boolean
+  task_available?: Prisma.BoolWithAggregatesFilter<"provider_profiles"> | boolean
   rating?: Prisma.DecimalNullableWithAggregatesFilter<"provider_profiles"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.IntNullableWithAggregatesFilter<"provider_profiles"> | number | null
   created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"provider_profiles"> | Date | string | null
@@ -489,8 +549,12 @@ export type provider_profilesCreateInput = {
   selfie_photo?: string | null
   is_verified?: boolean | null
   verification_status?: string | null
+  verification_notes?: string | null
   is_active?: boolean | null
   onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -498,6 +562,10 @@ export type provider_profilesCreateInput = {
   total_reviews?: number | null
   portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
   orders?: Prisma.ordersCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsCreateNestedOneWithoutProvider_profilesInput
   users: Prisma.usersCreateNestedOneWithoutProvider_profilesInput
 }
 
@@ -516,8 +584,12 @@ export type provider_profilesUncheckedCreateInput = {
   selfie_photo?: string | null
   is_verified?: boolean | null
   verification_status?: string | null
+  verification_notes?: string | null
   is_active?: boolean | null
   onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -525,6 +597,10 @@ export type provider_profilesUncheckedCreateInput = {
   total_reviews?: number | null
   portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
   orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedCreateNestedOneWithoutProvider_profilesInput
 }
 
 export type provider_profilesUpdateInput = {
@@ -541,8 +617,12 @@ export type provider_profilesUpdateInput = {
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -550,6 +630,10 @@ export type provider_profilesUpdateInput = {
   total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
   orders?: Prisma.ordersUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUpdateOneWithoutProvider_profilesNestedInput
   users?: Prisma.usersUpdateOneRequiredWithoutProvider_profilesNestedInput
 }
 
@@ -568,8 +652,12 @@ export type provider_profilesUncheckedUpdateInput = {
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -577,6 +665,10 @@ export type provider_profilesUncheckedUpdateInput = {
   total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
   orders?: Prisma.ordersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedUpdateOneWithoutProvider_profilesNestedInput
 }
 
 export type provider_profilesCreateManyInput = {
@@ -594,8 +686,12 @@ export type provider_profilesCreateManyInput = {
   selfie_photo?: string | null
   is_verified?: boolean | null
   verification_status?: string | null
+  verification_notes?: string | null
   is_active?: boolean | null
   onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -618,8 +714,12 @@ export type provider_profilesUpdateManyMutationInput = {
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -643,8 +743,12 @@ export type provider_profilesUncheckedUpdateManyInput = {
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -663,14 +767,6 @@ export type Provider_profilesNullableScalarRelationFilter = {
   isNot?: Prisma.provider_profilesWhereInput | null
 }
 
-export type StringNullableListFilter<$PrismaModel = never> = {
-  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
-  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
-  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  isEmpty?: boolean
-}
-
 export type provider_profilesCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
@@ -686,8 +782,12 @@ export type provider_profilesCountOrderByAggregateInput = {
   selfie_photo?: Prisma.SortOrder
   is_verified?: Prisma.SortOrder
   verification_status?: Prisma.SortOrder
+  verification_notes?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
   onboarding_completed?: Prisma.SortOrder
+  custom_task_enabled?: Prisma.SortOrder
+  service_available?: Prisma.SortOrder
+  task_available?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   total_jobs?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -717,8 +817,12 @@ export type provider_profilesMaxOrderByAggregateInput = {
   selfie_photo?: Prisma.SortOrder
   is_verified?: Prisma.SortOrder
   verification_status?: Prisma.SortOrder
+  verification_notes?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
   onboarding_completed?: Prisma.SortOrder
+  custom_task_enabled?: Prisma.SortOrder
+  service_available?: Prisma.SortOrder
+  task_available?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   total_jobs?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -741,8 +845,12 @@ export type provider_profilesMinOrderByAggregateInput = {
   selfie_photo?: Prisma.SortOrder
   is_verified?: Prisma.SortOrder
   verification_status?: Prisma.SortOrder
+  verification_notes?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
   onboarding_completed?: Prisma.SortOrder
+  custom_task_enabled?: Prisma.SortOrder
+  service_available?: Prisma.SortOrder
+  task_available?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   total_jobs?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -754,6 +862,20 @@ export type provider_profilesSumOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   total_jobs?: Prisma.SortOrder
   total_reviews?: Prisma.SortOrder
+}
+
+export type provider_profilesCreateNestedOneWithoutTask_providersInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutTask_providersInput, Prisma.provider_profilesUncheckedCreateWithoutTask_providersInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutTask_providersInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+}
+
+export type provider_profilesUpdateOneRequiredWithoutTask_providersNestedInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutTask_providersInput, Prisma.provider_profilesUncheckedCreateWithoutTask_providersInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutTask_providersInput
+  upsert?: Prisma.provider_profilesUpsertWithoutTask_providersInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.provider_profilesUpdateToOneWithWhereWithoutTask_providersInput, Prisma.provider_profilesUpdateWithoutTask_providersInput>, Prisma.provider_profilesUncheckedUpdateWithoutTask_providersInput>
 }
 
 export type provider_profilesCreateNestedOneWithoutOrdersInput = {
@@ -768,6 +890,34 @@ export type provider_profilesUpdateOneRequiredWithoutOrdersNestedInput = {
   upsert?: Prisma.provider_profilesUpsertWithoutOrdersInput
   connect?: Prisma.provider_profilesWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.provider_profilesUpdateToOneWithWhereWithoutOrdersInput, Prisma.provider_profilesUpdateWithoutOrdersInput>, Prisma.provider_profilesUncheckedUpdateWithoutOrdersInput>
+}
+
+export type provider_profilesCreateNestedOneWithoutProvider_documentsInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutProvider_documentsInput, Prisma.provider_profilesUncheckedCreateWithoutProvider_documentsInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutProvider_documentsInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+}
+
+export type provider_profilesUpdateOneRequiredWithoutProvider_documentsNestedInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutProvider_documentsInput, Prisma.provider_profilesUncheckedCreateWithoutProvider_documentsInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutProvider_documentsInput
+  upsert?: Prisma.provider_profilesUpsertWithoutProvider_documentsInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.provider_profilesUpdateToOneWithWhereWithoutProvider_documentsInput, Prisma.provider_profilesUpdateWithoutProvider_documentsInput>, Prisma.provider_profilesUncheckedUpdateWithoutProvider_documentsInput>
+}
+
+export type provider_profilesCreateNestedOneWithoutProvider_schedulesInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutProvider_schedulesInput, Prisma.provider_profilesUncheckedCreateWithoutProvider_schedulesInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutProvider_schedulesInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+}
+
+export type provider_profilesUpdateOneRequiredWithoutProvider_schedulesNestedInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutProvider_schedulesInput, Prisma.provider_profilesUncheckedCreateWithoutProvider_schedulesInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutProvider_schedulesInput
+  upsert?: Prisma.provider_profilesUpsertWithoutProvider_schedulesInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.provider_profilesUpdateToOneWithWhereWithoutProvider_schedulesInput, Prisma.provider_profilesUpdateWithoutProvider_schedulesInput>, Prisma.provider_profilesUncheckedUpdateWithoutProvider_schedulesInput>
 }
 
 export type provider_profilesCreateNestedOneWithoutUsersInput = {
@@ -811,6 +961,168 @@ export type provider_profilesUpdateportfoliosInput = {
   push?: string | string[]
 }
 
+export type provider_profilesCreateNestedOneWithoutIdentity_verificationsInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutIdentity_verificationsInput, Prisma.provider_profilesUncheckedCreateWithoutIdentity_verificationsInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutIdentity_verificationsInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+}
+
+export type provider_profilesUpdateOneRequiredWithoutIdentity_verificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.provider_profilesCreateWithoutIdentity_verificationsInput, Prisma.provider_profilesUncheckedCreateWithoutIdentity_verificationsInput>
+  connectOrCreate?: Prisma.provider_profilesCreateOrConnectWithoutIdentity_verificationsInput
+  upsert?: Prisma.provider_profilesUpsertWithoutIdentity_verificationsInput
+  connect?: Prisma.provider_profilesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.provider_profilesUpdateToOneWithWhereWithoutIdentity_verificationsInput, Prisma.provider_profilesUpdateWithoutIdentity_verificationsInput>, Prisma.provider_profilesUncheckedUpdateWithoutIdentity_verificationsInput>
+}
+
+export type provider_profilesCreateWithoutTask_providersInput = {
+  id?: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
+  is_active?: boolean | null
+  onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsCreateNestedOneWithoutProvider_profilesInput
+  users: Prisma.usersCreateNestedOneWithoutProvider_profilesInput
+}
+
+export type provider_profilesUncheckedCreateWithoutTask_providersInput = {
+  id?: string
+  user_id: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
+  is_active?: boolean | null
+  onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedCreateNestedOneWithoutProvider_profilesInput
+}
+
+export type provider_profilesCreateOrConnectWithoutTask_providersInput = {
+  where: Prisma.provider_profilesWhereUniqueInput
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutTask_providersInput, Prisma.provider_profilesUncheckedCreateWithoutTask_providersInput>
+}
+
+export type provider_profilesUpsertWithoutTask_providersInput = {
+  update: Prisma.XOR<Prisma.provider_profilesUpdateWithoutTask_providersInput, Prisma.provider_profilesUncheckedUpdateWithoutTask_providersInput>
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutTask_providersInput, Prisma.provider_profilesUncheckedCreateWithoutTask_providersInput>
+  where?: Prisma.provider_profilesWhereInput
+}
+
+export type provider_profilesUpdateToOneWithWhereWithoutTask_providersInput = {
+  where?: Prisma.provider_profilesWhereInput
+  data: Prisma.XOR<Prisma.provider_profilesUpdateWithoutTask_providersInput, Prisma.provider_profilesUncheckedUpdateWithoutTask_providersInput>
+}
+
+export type provider_profilesUpdateWithoutTask_providersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUpdateOneWithoutProvider_profilesNestedInput
+  users?: Prisma.usersUpdateOneRequiredWithoutProvider_profilesNestedInput
+}
+
+export type provider_profilesUncheckedUpdateWithoutTask_providersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedUpdateOneWithoutProvider_profilesNestedInput
+}
+
 export type provider_profilesCreateWithoutOrdersInput = {
   id?: string
   full_name: string
@@ -825,14 +1137,22 @@ export type provider_profilesCreateWithoutOrdersInput = {
   selfie_photo?: string | null
   is_verified?: boolean | null
   verification_status?: string | null
+  verification_notes?: string | null
   is_active?: boolean | null
   onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
   total_reviews?: number | null
   portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsCreateNestedOneWithoutProvider_profilesInput
   users: Prisma.usersCreateNestedOneWithoutProvider_profilesInput
 }
 
@@ -851,14 +1171,22 @@ export type provider_profilesUncheckedCreateWithoutOrdersInput = {
   selfie_photo?: string | null
   is_verified?: boolean | null
   verification_status?: string | null
+  verification_notes?: string | null
   is_active?: boolean | null
   onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
   total_reviews?: number | null
   portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedCreateNestedOneWithoutProvider_profilesInput
 }
 
 export type provider_profilesCreateOrConnectWithoutOrdersInput = {
@@ -891,14 +1219,22 @@ export type provider_profilesUpdateWithoutOrdersInput = {
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  task_providers?: Prisma.task_providersUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUpdateOneWithoutProvider_profilesNestedInput
   users?: Prisma.usersUpdateOneRequiredWithoutProvider_profilesNestedInput
 }
 
@@ -917,14 +1253,318 @@ export type provider_profilesUncheckedUpdateWithoutOrdersInput = {
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedUpdateOneWithoutProvider_profilesNestedInput
+}
+
+export type provider_profilesCreateWithoutProvider_documentsInput = {
+  id?: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
+  is_active?: boolean | null
+  onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsCreateNestedOneWithoutProvider_profilesInput
+  users: Prisma.usersCreateNestedOneWithoutProvider_profilesInput
+}
+
+export type provider_profilesUncheckedCreateWithoutProvider_documentsInput = {
+  id?: string
+  user_id: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
+  is_active?: boolean | null
+  onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedCreateNestedOneWithoutProvider_profilesInput
+}
+
+export type provider_profilesCreateOrConnectWithoutProvider_documentsInput = {
+  where: Prisma.provider_profilesWhereUniqueInput
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutProvider_documentsInput, Prisma.provider_profilesUncheckedCreateWithoutProvider_documentsInput>
+}
+
+export type provider_profilesUpsertWithoutProvider_documentsInput = {
+  update: Prisma.XOR<Prisma.provider_profilesUpdateWithoutProvider_documentsInput, Prisma.provider_profilesUncheckedUpdateWithoutProvider_documentsInput>
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutProvider_documentsInput, Prisma.provider_profilesUncheckedCreateWithoutProvider_documentsInput>
+  where?: Prisma.provider_profilesWhereInput
+}
+
+export type provider_profilesUpdateToOneWithWhereWithoutProvider_documentsInput = {
+  where?: Prisma.provider_profilesWhereInput
+  data: Prisma.XOR<Prisma.provider_profilesUpdateWithoutProvider_documentsInput, Prisma.provider_profilesUncheckedUpdateWithoutProvider_documentsInput>
+}
+
+export type provider_profilesUpdateWithoutProvider_documentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUpdateOneWithoutProvider_profilesNestedInput
+  users?: Prisma.usersUpdateOneRequiredWithoutProvider_profilesNestedInput
+}
+
+export type provider_profilesUncheckedUpdateWithoutProvider_documentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedUpdateOneWithoutProvider_profilesNestedInput
+}
+
+export type provider_profilesCreateWithoutProvider_schedulesInput = {
+  id?: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
+  is_active?: boolean | null
+  onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsCreateNestedOneWithoutProvider_profilesInput
+  users: Prisma.usersCreateNestedOneWithoutProvider_profilesInput
+}
+
+export type provider_profilesUncheckedCreateWithoutProvider_schedulesInput = {
+  id?: string
+  user_id: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
+  is_active?: boolean | null
+  onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsUncheckedCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedCreateNestedOneWithoutProvider_profilesInput
+}
+
+export type provider_profilesCreateOrConnectWithoutProvider_schedulesInput = {
+  where: Prisma.provider_profilesWhereUniqueInput
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutProvider_schedulesInput, Prisma.provider_profilesUncheckedCreateWithoutProvider_schedulesInput>
+}
+
+export type provider_profilesUpsertWithoutProvider_schedulesInput = {
+  update: Prisma.XOR<Prisma.provider_profilesUpdateWithoutProvider_schedulesInput, Prisma.provider_profilesUncheckedUpdateWithoutProvider_schedulesInput>
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutProvider_schedulesInput, Prisma.provider_profilesUncheckedCreateWithoutProvider_schedulesInput>
+  where?: Prisma.provider_profilesWhereInput
+}
+
+export type provider_profilesUpdateToOneWithWhereWithoutProvider_schedulesInput = {
+  where?: Prisma.provider_profilesWhereInput
+  data: Prisma.XOR<Prisma.provider_profilesUpdateWithoutProvider_schedulesInput, Prisma.provider_profilesUncheckedUpdateWithoutProvider_schedulesInput>
+}
+
+export type provider_profilesUpdateWithoutProvider_schedulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUpdateOneWithoutProvider_profilesNestedInput
+  users?: Prisma.usersUpdateOneRequiredWithoutProvider_profilesNestedInput
+}
+
+export type provider_profilesUncheckedUpdateWithoutProvider_schedulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedUpdateOneWithoutProvider_profilesNestedInput
 }
 
 export type provider_profilesCreateWithoutUsersInput = {
@@ -941,8 +1581,12 @@ export type provider_profilesCreateWithoutUsersInput = {
   selfie_photo?: string | null
   is_verified?: boolean | null
   verification_status?: string | null
+  verification_notes?: string | null
   is_active?: boolean | null
   onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -950,6 +1594,10 @@ export type provider_profilesCreateWithoutUsersInput = {
   total_reviews?: number | null
   portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
   orders?: Prisma.ordersCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsCreateNestedOneWithoutProvider_profilesInput
 }
 
 export type provider_profilesUncheckedCreateWithoutUsersInput = {
@@ -966,8 +1614,12 @@ export type provider_profilesUncheckedCreateWithoutUsersInput = {
   selfie_photo?: string | null
   is_verified?: boolean | null
   verification_status?: string | null
+  verification_notes?: string | null
   is_active?: boolean | null
   onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: number | null
   created_at?: Date | string | null
@@ -975,6 +1627,10 @@ export type provider_profilesUncheckedCreateWithoutUsersInput = {
   total_reviews?: number | null
   portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
   orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutProvider_profilesInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedCreateNestedOneWithoutProvider_profilesInput
 }
 
 export type provider_profilesCreateOrConnectWithoutUsersInput = {
@@ -1007,8 +1663,12 @@ export type provider_profilesUpdateWithoutUsersInput = {
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1016,6 +1676,10 @@ export type provider_profilesUpdateWithoutUsersInput = {
   total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
   orders?: Prisma.ordersUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUpdateOneWithoutProvider_profilesNestedInput
 }
 
 export type provider_profilesUncheckedUpdateWithoutUsersInput = {
@@ -1032,8 +1696,12 @@ export type provider_profilesUncheckedUpdateWithoutUsersInput = {
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1041,6 +1709,158 @@ export type provider_profilesUncheckedUpdateWithoutUsersInput = {
   total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
   orders?: Prisma.ordersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  identity_verifications?: Prisma.identity_verificationsUncheckedUpdateOneWithoutProvider_profilesNestedInput
+}
+
+export type provider_profilesCreateWithoutIdentity_verificationsInput = {
+  id?: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
+  is_active?: boolean | null
+  onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutProvider_profilesInput
+  users: Prisma.usersCreateNestedOneWithoutProvider_profilesInput
+}
+
+export type provider_profilesUncheckedCreateWithoutIdentity_verificationsInput = {
+  id?: string
+  user_id: string
+  full_name: string
+  nickname?: string | null
+  gender?: string | null
+  birth_date?: Date | string | null
+  phone?: string | null
+  address?: string | null
+  domicile?: string | null
+  profile_photo?: string | null
+  ktp_photo?: string | null
+  selfie_photo?: string | null
+  is_verified?: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
+  is_active?: boolean | null
+  onboarding_completed?: boolean | null
+  custom_task_enabled?: boolean | null
+  service_available?: boolean
+  task_available?: boolean
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: number | null
+  created_at?: Date | string | null
+  updated_at?: Date | string | null
+  total_reviews?: number | null
+  portfolios?: Prisma.provider_profilesCreateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_documents?: Prisma.provider_documentsUncheckedCreateNestedManyWithoutProvider_profilesInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutProvider_profilesInput
+}
+
+export type provider_profilesCreateOrConnectWithoutIdentity_verificationsInput = {
+  where: Prisma.provider_profilesWhereUniqueInput
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutIdentity_verificationsInput, Prisma.provider_profilesUncheckedCreateWithoutIdentity_verificationsInput>
+}
+
+export type provider_profilesUpsertWithoutIdentity_verificationsInput = {
+  update: Prisma.XOR<Prisma.provider_profilesUpdateWithoutIdentity_verificationsInput, Prisma.provider_profilesUncheckedUpdateWithoutIdentity_verificationsInput>
+  create: Prisma.XOR<Prisma.provider_profilesCreateWithoutIdentity_verificationsInput, Prisma.provider_profilesUncheckedCreateWithoutIdentity_verificationsInput>
+  where?: Prisma.provider_profilesWhereInput
+}
+
+export type provider_profilesUpdateToOneWithWhereWithoutIdentity_verificationsInput = {
+  where?: Prisma.provider_profilesWhereInput
+  data: Prisma.XOR<Prisma.provider_profilesUpdateWithoutIdentity_verificationsInput, Prisma.provider_profilesUncheckedUpdateWithoutIdentity_verificationsInput>
+}
+
+export type provider_profilesUpdateWithoutIdentity_verificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutProvider_profilesNestedInput
+  users?: Prisma.usersUpdateOneRequiredWithoutProvider_profilesNestedInput
+}
+
+export type provider_profilesUncheckedUpdateWithoutIdentity_verificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  verification_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verification_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  onboarding_completed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  custom_task_enabled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  service_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  task_available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  total_jobs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  total_reviews?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  portfolios?: Prisma.provider_profilesUpdateportfoliosInput | string[]
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_documents?: Prisma.provider_documentsUncheckedUpdateManyWithoutProvider_profilesNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutProvider_profilesNestedInput
 }
 
 
@@ -1050,10 +1870,16 @@ export type provider_profilesUncheckedUpdateWithoutUsersInput = {
 
 export type Provider_profilesCountOutputType = {
   orders: number
+  task_providers: number
+  provider_documents: number
+  provider_schedules: number
 }
 
 export type Provider_profilesCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Provider_profilesCountOutputTypeCountOrdersArgs
+  task_providers?: boolean | Provider_profilesCountOutputTypeCountTask_providersArgs
+  provider_documents?: boolean | Provider_profilesCountOutputTypeCountProvider_documentsArgs
+  provider_schedules?: boolean | Provider_profilesCountOutputTypeCountProvider_schedulesArgs
 }
 
 /**
@@ -1073,6 +1899,27 @@ export type Provider_profilesCountOutputTypeCountOrdersArgs<ExtArgs extends runt
   where?: Prisma.ordersWhereInput
 }
 
+/**
+ * Provider_profilesCountOutputType without action
+ */
+export type Provider_profilesCountOutputTypeCountTask_providersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.task_providersWhereInput
+}
+
+/**
+ * Provider_profilesCountOutputType without action
+ */
+export type Provider_profilesCountOutputTypeCountProvider_documentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.provider_documentsWhereInput
+}
+
+/**
+ * Provider_profilesCountOutputType without action
+ */
+export type Provider_profilesCountOutputTypeCountProvider_schedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.provider_schedulesWhereInput
+}
+
 
 export type provider_profilesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1089,8 +1936,12 @@ export type provider_profilesSelect<ExtArgs extends runtime.Types.Extensions.Int
   selfie_photo?: boolean
   is_verified?: boolean
   verification_status?: boolean
+  verification_notes?: boolean
   is_active?: boolean
   onboarding_completed?: boolean
+  custom_task_enabled?: boolean
+  service_available?: boolean
+  task_available?: boolean
   rating?: boolean
   total_jobs?: boolean
   created_at?: boolean
@@ -1098,6 +1949,10 @@ export type provider_profilesSelect<ExtArgs extends runtime.Types.Extensions.Int
   total_reviews?: boolean
   portfolios?: boolean
   orders?: boolean | Prisma.provider_profiles$ordersArgs<ExtArgs>
+  task_providers?: boolean | Prisma.provider_profiles$task_providersArgs<ExtArgs>
+  provider_documents?: boolean | Prisma.provider_profiles$provider_documentsArgs<ExtArgs>
+  provider_schedules?: boolean | Prisma.provider_profiles$provider_schedulesArgs<ExtArgs>
+  identity_verifications?: boolean | Prisma.provider_profiles$identity_verificationsArgs<ExtArgs>
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.Provider_profilesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provider_profiles"]>
@@ -1117,8 +1972,12 @@ export type provider_profilesSelectCreateManyAndReturn<ExtArgs extends runtime.T
   selfie_photo?: boolean
   is_verified?: boolean
   verification_status?: boolean
+  verification_notes?: boolean
   is_active?: boolean
   onboarding_completed?: boolean
+  custom_task_enabled?: boolean
+  service_available?: boolean
+  task_available?: boolean
   rating?: boolean
   total_jobs?: boolean
   created_at?: boolean
@@ -1143,8 +2002,12 @@ export type provider_profilesSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   selfie_photo?: boolean
   is_verified?: boolean
   verification_status?: boolean
+  verification_notes?: boolean
   is_active?: boolean
   onboarding_completed?: boolean
+  custom_task_enabled?: boolean
+  service_available?: boolean
+  task_available?: boolean
   rating?: boolean
   total_jobs?: boolean
   created_at?: boolean
@@ -1169,8 +2032,12 @@ export type provider_profilesSelectScalar = {
   selfie_photo?: boolean
   is_verified?: boolean
   verification_status?: boolean
+  verification_notes?: boolean
   is_active?: boolean
   onboarding_completed?: boolean
+  custom_task_enabled?: boolean
+  service_available?: boolean
+  task_available?: boolean
   rating?: boolean
   total_jobs?: boolean
   created_at?: boolean
@@ -1179,9 +2046,13 @@ export type provider_profilesSelectScalar = {
   portfolios?: boolean
 }
 
-export type provider_profilesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "gender" | "birth_date" | "phone" | "address" | "domicile" | "profile_photo" | "ktp_photo" | "selfie_photo" | "is_verified" | "verification_status" | "is_active" | "onboarding_completed" | "rating" | "total_jobs" | "created_at" | "updated_at" | "total_reviews" | "portfolios", ExtArgs["result"]["provider_profiles"]>
+export type provider_profilesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "gender" | "birth_date" | "phone" | "address" | "domicile" | "profile_photo" | "ktp_photo" | "selfie_photo" | "is_verified" | "verification_status" | "verification_notes" | "is_active" | "onboarding_completed" | "custom_task_enabled" | "service_available" | "task_available" | "rating" | "total_jobs" | "created_at" | "updated_at" | "total_reviews" | "portfolios", ExtArgs["result"]["provider_profiles"]>
 export type provider_profilesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Prisma.provider_profiles$ordersArgs<ExtArgs>
+  task_providers?: boolean | Prisma.provider_profiles$task_providersArgs<ExtArgs>
+  provider_documents?: boolean | Prisma.provider_profiles$provider_documentsArgs<ExtArgs>
+  provider_schedules?: boolean | Prisma.provider_profiles$provider_schedulesArgs<ExtArgs>
+  identity_verifications?: boolean | Prisma.provider_profiles$identity_verificationsArgs<ExtArgs>
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.Provider_profilesCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1196,6 +2067,10 @@ export type $provider_profilesPayload<ExtArgs extends runtime.Types.Extensions.I
   name: "provider_profiles"
   objects: {
     orders: Prisma.$ordersPayload<ExtArgs>[]
+    task_providers: Prisma.$task_providersPayload<ExtArgs>[]
+    provider_documents: Prisma.$provider_documentsPayload<ExtArgs>[]
+    provider_schedules: Prisma.$provider_schedulesPayload<ExtArgs>[]
+    identity_verifications: Prisma.$identity_verificationsPayload<ExtArgs> | null
     users: Prisma.$usersPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1213,8 +2088,12 @@ export type $provider_profilesPayload<ExtArgs extends runtime.Types.Extensions.I
     selfie_photo: string | null
     is_verified: boolean | null
     verification_status: string | null
+    verification_notes: string | null
     is_active: boolean | null
     onboarding_completed: boolean | null
+    custom_task_enabled: boolean | null
+    service_available: boolean
+    task_available: boolean
     rating: runtime.Decimal | null
     total_jobs: number | null
     created_at: Date | null
@@ -1616,6 +2495,10 @@ readonly fields: provider_profilesFieldRefs;
 export interface Prisma__provider_profilesClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   orders<T extends Prisma.provider_profiles$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.provider_profiles$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ordersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  task_providers<T extends Prisma.provider_profiles$task_providersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.provider_profiles$task_providersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$task_providersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  provider_documents<T extends Prisma.provider_profiles$provider_documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.provider_profiles$provider_documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$provider_documentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  provider_schedules<T extends Prisma.provider_profiles$provider_schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.provider_profiles$provider_schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$provider_schedulesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  identity_verifications<T extends Prisma.provider_profiles$identity_verificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.provider_profiles$identity_verificationsArgs<ExtArgs>>): Prisma.Prisma__identity_verificationsClient<runtime.Types.Result.GetResult<Prisma.$identity_verificationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   users<T extends Prisma.usersDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.usersDefaultArgs<ExtArgs>>): Prisma.Prisma__usersClient<runtime.Types.Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1660,8 +2543,12 @@ export interface provider_profilesFieldRefs {
   readonly selfie_photo: Prisma.FieldRef<"provider_profiles", 'String'>
   readonly is_verified: Prisma.FieldRef<"provider_profiles", 'Boolean'>
   readonly verification_status: Prisma.FieldRef<"provider_profiles", 'String'>
+  readonly verification_notes: Prisma.FieldRef<"provider_profiles", 'String'>
   readonly is_active: Prisma.FieldRef<"provider_profiles", 'Boolean'>
   readonly onboarding_completed: Prisma.FieldRef<"provider_profiles", 'Boolean'>
+  readonly custom_task_enabled: Prisma.FieldRef<"provider_profiles", 'Boolean'>
+  readonly service_available: Prisma.FieldRef<"provider_profiles", 'Boolean'>
+  readonly task_available: Prisma.FieldRef<"provider_profiles", 'Boolean'>
   readonly rating: Prisma.FieldRef<"provider_profiles", 'Decimal'>
   readonly total_jobs: Prisma.FieldRef<"provider_profiles", 'Int'>
   readonly created_at: Prisma.FieldRef<"provider_profiles", 'DateTime'>
@@ -2090,6 +2977,97 @@ export type provider_profiles$ordersArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.OrdersScalarFieldEnum | Prisma.OrdersScalarFieldEnum[]
+}
+
+/**
+ * provider_profiles.task_providers
+ */
+export type provider_profiles$task_providersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the task_providers
+   */
+  select?: Prisma.task_providersSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the task_providers
+   */
+  omit?: Prisma.task_providersOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.task_providersInclude<ExtArgs> | null
+  where?: Prisma.task_providersWhereInput
+  orderBy?: Prisma.task_providersOrderByWithRelationInput | Prisma.task_providersOrderByWithRelationInput[]
+  cursor?: Prisma.task_providersWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Task_providersScalarFieldEnum | Prisma.Task_providersScalarFieldEnum[]
+}
+
+/**
+ * provider_profiles.provider_documents
+ */
+export type provider_profiles$provider_documentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the provider_documents
+   */
+  select?: Prisma.provider_documentsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the provider_documents
+   */
+  omit?: Prisma.provider_documentsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.provider_documentsInclude<ExtArgs> | null
+  where?: Prisma.provider_documentsWhereInput
+  orderBy?: Prisma.provider_documentsOrderByWithRelationInput | Prisma.provider_documentsOrderByWithRelationInput[]
+  cursor?: Prisma.provider_documentsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Provider_documentsScalarFieldEnum | Prisma.Provider_documentsScalarFieldEnum[]
+}
+
+/**
+ * provider_profiles.provider_schedules
+ */
+export type provider_profiles$provider_schedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the provider_schedules
+   */
+  select?: Prisma.provider_schedulesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the provider_schedules
+   */
+  omit?: Prisma.provider_schedulesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.provider_schedulesInclude<ExtArgs> | null
+  where?: Prisma.provider_schedulesWhereInput
+  orderBy?: Prisma.provider_schedulesOrderByWithRelationInput | Prisma.provider_schedulesOrderByWithRelationInput[]
+  cursor?: Prisma.provider_schedulesWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Provider_schedulesScalarFieldEnum | Prisma.Provider_schedulesScalarFieldEnum[]
+}
+
+/**
+ * provider_profiles.identity_verifications
+ */
+export type provider_profiles$identity_verificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the identity_verifications
+   */
+  select?: Prisma.identity_verificationsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the identity_verifications
+   */
+  omit?: Prisma.identity_verificationsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.identity_verificationsInclude<ExtArgs> | null
+  where?: Prisma.identity_verificationsWhereInput
 }
 
 /**

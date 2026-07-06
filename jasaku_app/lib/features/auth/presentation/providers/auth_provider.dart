@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/models/user_model.dart';
 import '../../../services/auth_services.dart';
+import '../../../../core/utils/storage.dart';
 
 class AuthState {
   final UserModel? user;
@@ -69,13 +70,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String gender,
     required String address,
     required String domicile,
-    String? profilePhotoPath, // 🟢 Tambahkan penampung path foto profil
-    String? ktpPhotoPath, // 🟢 Tambahkan penampung path foto KTP
-    String? selfiePhotoPath, // 🟢 Tambahkan penampung path foto selfie
-    List<File>?
-    portfolioFiles, // 🟢 Tambahkan penampung file portofolio opsional
-    required List<Map<String, dynamic>>
-    services, // 🟢 Wajib diisi (keahlian & tarif)
+    String? profilePhotoPath,
+    String? ktpPhotoPath,
+    String? selfiePhotoPath,
+    List<File>? portfolioFiles,
+    String? ijazahPhotoPath,
+    List<Map<String, dynamic>>? certificates,
+    required List<Map<String, dynamic>> services,
+    String? ocrNik,
+    String? ocrFullName,
+    String? ocrBirthPlace,
+    String? ocrBirthDate,
+    String? ocrAddress,
+    Map<String, dynamic>? livenessData,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
@@ -89,11 +96,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
         gender: gender,
         address: address,
         domicile: domicile,
-        profilePhotoPath: profilePhotoPath, // 🟢 Oper ke repositori
-        ktpPhotoPath: ktpPhotoPath, // 🟢 Oper ke repositori
-        selfiePhotoPath: selfiePhotoPath, // 🟢 Oper ke repositori
-        portfolioFiles: portfolioFiles, // 🟢 Oper ke repositori
+        profilePhotoPath: profilePhotoPath,
+        ktpPhotoPath: ktpPhotoPath,
+        selfiePhotoPath: selfiePhotoPath,
+        portfolioFiles: portfolioFiles,
+        ijazahPhotoPath: ijazahPhotoPath,
+        certificates: certificates,
         selectedServices: services,
+        ocrNik: ocrNik,
+        ocrFullName: ocrFullName,
+        ocrBirthPlace: ocrBirthPlace,
+        ocrBirthDate: ocrBirthDate,
+        ocrAddress: ocrAddress,
+        livenessData: livenessData,
       );
       state = const AuthState();
       return true;
@@ -132,7 +147,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
         return false;
       }
-      if (expectedRole == 'provider' && !user.isProvider) {
+      if (expectedRole == 'provider' && !user.isProvider && !user.isAdmin) {
         await _repo.logout();
         state = AuthState(
           error: 'Akun ini bukan provider untuk aplikasi Jasaku Mitra.',
@@ -204,7 +219,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           );
           return false;
         }
-        if (expectedRole == 'provider' && !user.isProvider) {
+        if (expectedRole == 'provider' && !user.isProvider && !user.isAdmin) {
           state = AuthState(
             error: 'Akun ini bukan provider untuk aplikasi Jasaku Mitra.',
           );
@@ -213,7 +228,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         // Simpan token JWT internal dari backend ke local repository (jika ada handler-nya di repo)
       if (data['token'] != null) {
-        // await _repo.saveToken(data['token']); // Aktifkan jika repo kamu memiliki fungsi ini
+        await StorageService.saveToken(data['token']);
       }
 
       final onboardingCompleted =

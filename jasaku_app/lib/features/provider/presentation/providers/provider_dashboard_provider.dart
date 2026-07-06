@@ -14,6 +14,7 @@ class DashboardState {
   final int totalJobs;
   final int totalReviews;
   final bool isActive;
+  final bool taskAvailable;
   final int servicesCount;
 
   // Orders
@@ -29,6 +30,7 @@ class DashboardState {
     this.totalJobs = 0,
     this.totalReviews = 0,
     this.isActive = true,
+    this.taskAvailable = true,
     this.servicesCount = 0,
     this.orders = const [],
   });
@@ -43,6 +45,7 @@ class DashboardState {
     int? totalJobs,
     int? totalReviews,
     bool? isActive,
+    bool? taskAvailable,
     int? servicesCount,
     List<Map<String, dynamic>>? orders,
   }) {
@@ -56,6 +59,7 @@ class DashboardState {
       totalJobs: totalJobs ?? this.totalJobs,
       totalReviews: totalReviews ?? this.totalReviews,
       isActive: isActive ?? this.isActive,
+      taskAvailable: taskAvailable ?? this.taskAvailable,
       servicesCount: servicesCount ?? this.servicesCount,
       orders: orders ?? this.orders,
     );
@@ -140,6 +144,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         totalJobs: (profile['total_jobs'] as num?)?.toInt() ?? 0,
         totalReviews: (profile['total_reviews'] as num?)?.toInt() ?? 0,
         isActive: profile['is_active'] as bool? ?? true,
+        taskAvailable: profile['task_available'] as bool? ?? true,
         servicesCount: (profile['services_count'] as num?)?.toInt() ?? 0,
         orders: orders,
       );
@@ -152,6 +157,15 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     try {
       final newStatus = await _repo.toggleAvailability();
       state = state.copyWith(isActive: newStatus);
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
+  Future<void> toggleTaskAvailability() async {
+    try {
+      final newStatus = await _repo.toggleTaskAvailability();
+      state = state.copyWith(taskAvailable: newStatus);
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

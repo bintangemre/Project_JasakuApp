@@ -6,19 +6,16 @@ export class PaymentsService {
             where: { is_active: true },
             orderBy: { created_at: 'asc' }
         });
-        return [
-            { id: 'cod', type: 'COD', description: 'Bayar setelah selesai pekerjaan', icon: 'money' },
-            ...accounts.map(a => ({
-                id: a.type === 'bank' ? `transfer_${a.id}` : a.type === 'qris' ? `qris_${a.id}` : `ewallet_${a.id}`,
-                type: a.type === 'bank' ? 'Transfer Bank' : a.type === 'qris' ? 'QRIS' : 'E-Wallet',
-                description: `${a.provider_name} - ${a.account_name}`,
-                account_name: a.account_name,
-                account_number: a.account_number,
-                provider_name: a.provider_name,
-                qris_image_url: a.qris_image_url,
-                icon: a.type === 'bank' ? 'account_balance' : a.type === 'qris' ? 'qr_code' : 'wallet',
-            }))
-        ];
+        return accounts.map(a => ({
+            id: a.type === 'bank' ? `transfer_${a.id}` : a.type === 'qris' ? `qris_${a.id}` : `ewallet_${a.id}`,
+            type: a.type === 'bank' ? 'Transfer Bank' : a.type === 'qris' ? 'QRIS' : 'E-Wallet',
+            description: `${a.provider_name} - ${a.account_name}`,
+            account_name: a.account_name,
+            account_number: a.account_number,
+            provider_name: a.provider_name,
+            qris_image_url: a.qris_image_url,
+            icon: a.type === 'bank' ? 'account_balance' : a.type === 'qris' ? 'qr_code' : 'wallet',
+        }));
     }
 
     async createPayment(orderId: string, method: string, amount: number) {
@@ -47,22 +44,4 @@ export class PaymentsService {
         });
     }
 
-    // Simpan metode pembayaran customer untuk transaksi berikutnya
-    async saveCustomerPaymentMethod(userId: string, type: string, accountNumber: string, accountName: string, providerName?: string) {
-        return await prisma.customer_payment_methods.create({
-            data: {
-                user_id: userId,
-                type,
-                account_number: accountNumber,
-                account_name: accountName,
-                provider_name: providerName || null
-            }
-        });
-    }
-
-    async getCustomerPaymentMethods(userId: string) {
-        return await prisma.customer_payment_methods.findMany({
-            where: { user_id: userId }
-        });
-    }
 }

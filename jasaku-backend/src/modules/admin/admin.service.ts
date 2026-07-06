@@ -32,6 +32,35 @@ export class AdminService {
         };
     }
 
+    // Provider detail
+    async getProviderDetail(providerId: string) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { id: providerId },
+            include: {
+                users: {
+                    select: { id: true, email: true, phone: true, status: true, created_at: true }
+                },
+                provider_documents: {
+                    orderBy: { created_at: 'desc' }
+                },
+                identity_verifications: true
+            }
+        });
+        if (!profile) throw new Error('Provider tidak ditemukan');
+
+        const services = await prisma.provider_services.findMany({
+            where: { provider_id: providerId },
+            include: {
+                services: { select: { id: true, name: true } },
+                provider_service_prices: {
+                    include: { pricing_types: { select: { id: true, name: true, default_unit: true } } }
+                }
+            }
+        });
+
+        return { ...profile, provider_services: services };
+    }
+
     // Provider verification
     async getPendingProviders() {
         return await prisma.provider_profiles.findMany({
@@ -43,12 +72,16 @@ export class AdminService {
     }
 
     async verifyProvider(providerId: string, status: 'verified' | 'rejected', notes?: string) {
+        const data: any = {
+            is_verified: status === 'verified',
+            verification_status: status,
+        };
+        if (notes !== undefined) {
+            data.verification_notes = notes;
+        }
         return await prisma.provider_profiles.update({
             where: { id: providerId },
-            data: {
-                is_verified: status === 'verified',
-                verification_status: status,
-            }
+            data,
         });
     }
 
@@ -135,13 +168,14 @@ export class AdminService {
     // List users
     async getAllProviders() {
         return await prisma.provider_profiles.findMany({
-            include: { users: { select: { email: true, phone: true, status: true, created_at: true } } }
+            include: { users: { select: { email: true, phone: true, status: true, created_at: true } } },
+            orderBy: { created_at: 'desc' }
         });
     }
 
     async getAllCustomers() {
         return await prisma.profiles_customer.findMany({
-            include: { users: { select: { email: true, phone: true, status: true, created_at: true } } }
+            include: { users: { select: { id: true, email: true, phone: true, status: true, created_at: true } } }
         });
     }
 
@@ -154,6 +188,28 @@ export class AdminService {
 
     async deletePricingType(id: string) {
         return await prisma.pricing_types.delete({ where: { id } });
+    }
+
+    // Orders pending payment (rekber)
+    async getPendingPaymentOrders() {
+        return await prisma.orders.findMany({
+            where: { status: 'pending_payment' },
+            orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                total_price: true,
+                description: true,
+                work_date: true,
+                status: true,
+                created_at: true,
+                profiles_customer: {
+                    select: { id: true, full_name: true, nickname: true }
+                },
+                payments: {
+                    select: { id: true, method: true, amount: true, status: true, created_at: true }
+                }
+            }
+        });
     }
 
     // Payment Accounts (Rekber Admin)
@@ -189,5 +245,49 @@ export class AdminService {
 
     async deletePaymentAccount(id: string) {
         return await prisma.admin_payment_accounts.delete({ where: { id } });
+    }
+
+    async getOpenReports() {
+        return await prisma.reports.findMany({
+            where: { status: 'open' },
+            orderBy: { created_at: 'desc' },
+            include: {
+                users: { select: { id: true, email: true } }
+            }
+        });
+    }
+
+    async respondToReport(reportId: string, response: string, status: 'resolved' | 'dismissed') {
+        const report = await prisma.reports.findUnique({ where: { id: reportId } });
+        if (!report) throw new Error('Laporan tidak ditemukan');
+
+        return await prisma.reports.update({
+            where: { id: reportId },
+            data: {
+                status,
+                admin_response: response,
+                resolved_at: new Date(),
+            }
+        });
+    }
+
+    async getPendingExtensions() {
+        return await prisma.order_extensions.findMany({
+            where: { status: 'pending' },
+            orderBy: { created_at: 'desc' },
+            include: {
+                orders: {
+                    select: {
+                        id: true,
+                        total_price: true,
+                        description: true,
+                        work_date: true,
+                        platform_fee: true,
+                        provider_profiles: { select: { full_name: true } },
+                        profiles_customer: { select: { full_name: true } }
+                    }
+                }
+            }
+        });
     }
 }

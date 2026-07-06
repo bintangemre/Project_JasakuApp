@@ -31,6 +31,7 @@ export type Profiles_customerMinAggregateOutputType = {
   nickname: string | null
   birth_date: Date | null
   gender: string | null
+  address: string | null
   avatar_url: string | null
   created_at: Date | null
   updated_at: Date | null
@@ -43,6 +44,7 @@ export type Profiles_customerMaxAggregateOutputType = {
   nickname: string | null
   birth_date: Date | null
   gender: string | null
+  address: string | null
   avatar_url: string | null
   created_at: Date | null
   updated_at: Date | null
@@ -55,6 +57,7 @@ export type Profiles_customerCountAggregateOutputType = {
   nickname: number
   birth_date: number
   gender: number
+  address: number
   avatar_url: number
   created_at: number
   updated_at: number
@@ -69,6 +72,7 @@ export type Profiles_customerMinAggregateInputType = {
   nickname?: true
   birth_date?: true
   gender?: true
+  address?: true
   avatar_url?: true
   created_at?: true
   updated_at?: true
@@ -81,6 +85,7 @@ export type Profiles_customerMaxAggregateInputType = {
   nickname?: true
   birth_date?: true
   gender?: true
+  address?: true
   avatar_url?: true
   created_at?: true
   updated_at?: true
@@ -93,6 +98,7 @@ export type Profiles_customerCountAggregateInputType = {
   nickname?: true
   birth_date?: true
   gender?: true
+  address?: true
   avatar_url?: true
   created_at?: true
   updated_at?: true
@@ -178,6 +184,7 @@ export type Profiles_customerGroupByOutputType = {
   nickname: string | null
   birth_date: Date | null
   gender: string | null
+  address: string | null
   avatar_url: string | null
   created_at: Date | null
   updated_at: Date | null
@@ -211,6 +218,7 @@ export type profiles_customerWhereInput = {
   nickname?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
   birth_date?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
   gender?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
+  address?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
   avatar_url?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
@@ -225,6 +233,7 @@ export type profiles_customerOrderByWithRelationInput = {
   nickname?: Prisma.SortOrderInput | Prisma.SortOrder
   birth_date?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar_url?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -242,6 +251,7 @@ export type profiles_customerWhereUniqueInput = Prisma.AtLeast<{
   nickname?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
   birth_date?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
   gender?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
+  address?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
   avatar_url?: Prisma.StringNullableFilter<"profiles_customer"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"profiles_customer"> | Date | string | null
@@ -256,6 +266,7 @@ export type profiles_customerOrderByWithAggregationInput = {
   nickname?: Prisma.SortOrderInput | Prisma.SortOrder
   birth_date?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar_url?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -274,6 +285,7 @@ export type profiles_customerScalarWhereWithAggregatesInput = {
   nickname?: Prisma.StringNullableWithAggregatesFilter<"profiles_customer"> | string | null
   birth_date?: Prisma.DateTimeNullableWithAggregatesFilter<"profiles_customer"> | Date | string | null
   gender?: Prisma.StringNullableWithAggregatesFilter<"profiles_customer"> | string | null
+  address?: Prisma.StringNullableWithAggregatesFilter<"profiles_customer"> | string | null
   avatar_url?: Prisma.StringNullableWithAggregatesFilter<"profiles_customer"> | string | null
   created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"profiles_customer"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableWithAggregatesFilter<"profiles_customer"> | Date | string | null
@@ -285,6 +297,7 @@ export type profiles_customerCreateInput = {
   nickname?: string | null
   birth_date?: Date | string | null
   gender?: string | null
+  address?: string | null
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
@@ -299,6 +312,7 @@ export type profiles_customerUncheckedCreateInput = {
   nickname?: string | null
   birth_date?: Date | string | null
   gender?: string | null
+  address?: string | null
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
@@ -311,6 +325,7 @@ export type profiles_customerUpdateInput = {
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -325,6 +340,7 @@ export type profiles_customerUncheckedUpdateInput = {
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -338,6 +354,7 @@ export type profiles_customerCreateManyInput = {
   nickname?: string | null
   birth_date?: Date | string | null
   gender?: string | null
+  address?: string | null
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
@@ -349,6 +366,7 @@ export type profiles_customerUpdateManyMutationInput = {
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -361,6 +379,7 @@ export type profiles_customerUncheckedUpdateManyInput = {
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -383,6 +402,7 @@ export type profiles_customerCountOrderByAggregateInput = {
   nickname?: Prisma.SortOrder
   birth_date?: Prisma.SortOrder
   gender?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   avatar_url?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -395,6 +415,7 @@ export type profiles_customerMaxOrderByAggregateInput = {
   nickname?: Prisma.SortOrder
   birth_date?: Prisma.SortOrder
   gender?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   avatar_url?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -407,6 +428,7 @@ export type profiles_customerMinOrderByAggregateInput = {
   nickname?: Prisma.SortOrder
   birth_date?: Prisma.SortOrder
   gender?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   avatar_url?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -464,6 +486,7 @@ export type profiles_customerCreateWithoutOrdersInput = {
   nickname?: string | null
   birth_date?: Date | string | null
   gender?: string | null
+  address?: string | null
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
@@ -477,6 +500,7 @@ export type profiles_customerUncheckedCreateWithoutOrdersInput = {
   nickname?: string | null
   birth_date?: Date | string | null
   gender?: string | null
+  address?: string | null
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
@@ -504,6 +528,7 @@ export type profiles_customerUpdateWithoutOrdersInput = {
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -517,6 +542,7 @@ export type profiles_customerUncheckedUpdateWithoutOrdersInput = {
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -528,6 +554,7 @@ export type profiles_customerCreateWithoutUsersInput = {
   nickname?: string | null
   birth_date?: Date | string | null
   gender?: string | null
+  address?: string | null
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
@@ -540,6 +567,7 @@ export type profiles_customerUncheckedCreateWithoutUsersInput = {
   nickname?: string | null
   birth_date?: Date | string | null
   gender?: string | null
+  address?: string | null
   avatar_url?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
@@ -568,6 +596,7 @@ export type profiles_customerUpdateWithoutUsersInput = {
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -580,6 +609,7 @@ export type profiles_customerUncheckedUpdateWithoutUsersInput = {
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -624,6 +654,7 @@ export type profiles_customerSelect<ExtArgs extends runtime.Types.Extensions.Int
   nickname?: boolean
   birth_date?: boolean
   gender?: boolean
+  address?: boolean
   avatar_url?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -639,6 +670,7 @@ export type profiles_customerSelectCreateManyAndReturn<ExtArgs extends runtime.T
   nickname?: boolean
   birth_date?: boolean
   gender?: boolean
+  address?: boolean
   avatar_url?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -652,6 +684,7 @@ export type profiles_customerSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   nickname?: boolean
   birth_date?: boolean
   gender?: boolean
+  address?: boolean
   avatar_url?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -665,12 +698,13 @@ export type profiles_customerSelectScalar = {
   nickname?: boolean
   birth_date?: boolean
   gender?: boolean
+  address?: boolean
   avatar_url?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type profiles_customerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "birth_date" | "gender" | "avatar_url" | "created_at" | "updated_at", ExtArgs["result"]["profiles_customer"]>
+export type profiles_customerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "birth_date" | "gender" | "address" | "avatar_url" | "created_at" | "updated_at", ExtArgs["result"]["profiles_customer"]>
 export type profiles_customerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Prisma.profiles_customer$ordersArgs<ExtArgs>
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
@@ -696,6 +730,7 @@ export type $profiles_customerPayload<ExtArgs extends runtime.Types.Extensions.I
     nickname: string | null
     birth_date: Date | null
     gender: string | null
+    address: string | null
     avatar_url: string | null
     created_at: Date | null
     updated_at: Date | null
@@ -1130,6 +1165,7 @@ export interface profiles_customerFieldRefs {
   readonly nickname: Prisma.FieldRef<"profiles_customer", 'String'>
   readonly birth_date: Prisma.FieldRef<"profiles_customer", 'DateTime'>
   readonly gender: Prisma.FieldRef<"profiles_customer", 'String'>
+  readonly address: Prisma.FieldRef<"profiles_customer", 'String'>
   readonly avatar_url: Prisma.FieldRef<"profiles_customer", 'String'>
   readonly created_at: Prisma.FieldRef<"profiles_customer", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"profiles_customer", 'DateTime'>

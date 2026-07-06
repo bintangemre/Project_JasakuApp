@@ -18,16 +18,18 @@ class AuthRepository {
     String? birthDate,
   }) async {
     try {
+      final body = <String, dynamic>{
+        'email': email,
+        'password': password,
+        'name': name,
+      };
+      if (phone != null) body['phone'] = phone;
+      if (gender != null) body['gender'] = gender;
+      if (birthDate != null) body['birthDate'] = birthDate;
+
       final response = await _dio.post(
         ApiEndpoints.registerCustomer,
-        data: {
-          'email': email,
-          'password': password,
-          'name': name,
-          'phone': phone,
-          'gender': gender,
-          'birthDate': birthDate,
-        },
+        data: body,
       );
       final data = response.data['data'] as Map<String, dynamic>?;
       final token = data?['token'] as String?;
@@ -54,10 +56,17 @@ Future<Map<String, dynamic>> registerProvider({
   String? ktpPhotoPath,
   String? selfiePhotoPath,
   List<File>? portfolioFiles,
+  String? ijazahPhotoPath,
+  List<Map<String, dynamic>>? certificates,
   required List<Map<String, dynamic>> selectedServices,
+  String? ocrNik,
+  String? ocrFullName,
+  String? ocrBirthPlace,
+  String? ocrBirthDate,
+  String? ocrAddress,
+  Map<String, dynamic>? livenessData,
 }) async {
   try {
-    // 1. Inisialisasi Objek FormData untuk Multipart Request
     final Map<String, dynamic> formDataMap = {
       'full_name': fullName,
       'nickname': nickname,
@@ -68,12 +77,16 @@ Future<Map<String, dynamic>> registerProvider({
       'gender': gender,
       'address': address,
       'domicile': domicile,
-
-      // Mengirimkan array objek services dengan mengubahnya menjadi string JSON
       'services': jsonEncode(selectedServices),
     };
 
-    // 2. Bungkus file foto wajib jika jalurnya tersedia
+    if (ocrNik != null) formDataMap['ocr_nik'] = ocrNik;
+    if (ocrFullName != null) formDataMap['ocr_full_name'] = ocrFullName;
+    if (ocrBirthPlace != null) formDataMap['ocr_birth_place'] = ocrBirthPlace;
+    if (ocrBirthDate != null) formDataMap['ocr_birth_date'] = ocrBirthDate;
+    if (ocrAddress != null) formDataMap['ocr_address'] = ocrAddress;
+    if (livenessData != null) formDataMap['liveness_data'] = jsonEncode(livenessData);
+
     if (profilePhotoPath != null) {
       formDataMap['profile_photo'] = await MultipartFile.fromFile(
         profilePhotoPath,
@@ -95,10 +108,8 @@ Future<Map<String, dynamic>> registerProvider({
       );
     }
 
-    // 3. Bungkus array file portofolio opsional (jika ada)
     if (portfolioFiles != null && portfolioFiles.isNotEmpty) {
       final List<MultipartFile> portfolioMultipartList = [];
-
       for (var file in portfolioFiles) {
         portfolioMultipartList.add(
           await MultipartFile.fromFile(
@@ -107,14 +118,38 @@ Future<Map<String, dynamic>> registerProvider({
           ),
         );
       }
-
       formDataMap['portfolios'] = portfolioMultipartList;
     }
 
-    // 4. Konversi Map menjadi FormData resmi Dio
+    // Ijazah
+    if (ijazahPhotoPath != null) {
+      formDataMap['ijazah_photo'] = await MultipartFile.fromFile(
+        ijazahPhotoPath,
+        filename: ijazahPhotoPath.split('/').last,
+      );
+    }
+
+    // Sertifikat — kirim file sebagai list
+    if (certificates != null && certificates.isNotEmpty) {
+      final List<MultipartFile> certificateFiles = [];
+      for (var cert in certificates) {
+        final path = cert['filePath'] as String?;
+        if (path != null) {
+          certificateFiles.add(
+            await MultipartFile.fromFile(
+              path,
+              filename: path.split('/').last,
+            ),
+          );
+        }
+      }
+      if (certificateFiles.isNotEmpty) {
+        formDataMap['certificate_files'] = certificateFiles;
+      }
+    }
+
     final FormData formData = FormData.fromMap(formDataMap);
 
-    // 5. Tembak ke API Endpoint Pendaftaran Bersatu
     final response = await _dio.post(
       ApiEndpoints.registerProvider,
       data: formData,

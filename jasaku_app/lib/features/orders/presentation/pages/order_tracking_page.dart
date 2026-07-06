@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../services/routing_service.dart';
 
 class OrderTrackingPage extends ConsumerStatefulWidget {
   final String orderId;
@@ -26,12 +27,13 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
   String? _providerName;
   String? _status;
   bool _isLoading = true;
+  List<LatLng> _routePoints = [];
 
   @override
   void initState() {
     super.initState();
     _fetchTracking();
-    _pollTimer = Timer.periodic(const Duration(seconds: 10), (_) => _fetchTracking());
+    _pollTimer = Timer.periodic(const Duration(seconds: 5), (_) => _fetchTracking());
   }
 
   @override
@@ -61,7 +63,10 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
         _isLoading = false;
       });
 
-      if (_providerPos != null) {
+      if (_providerPos != null && _orderPos != null) {
+        _fetchRoute();
+        _mapController.move(_providerPos!, 15.0);
+      } else if (_providerPos != null) {
         _mapController.move(_providerPos!, 15.0);
       } else if (_orderPos != null) {
         _mapController.move(_orderPos!, 15.0);
@@ -94,9 +99,19 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.jasaku.app',
                     ),
+                    if (_routePoints.length > 1)
+                      PolylineLayer(
+                        polylines: [
+                          Polyline(
+                            points: _routePoints,
+                            color: const Color(0xFF2563EB),
+                            strokeWidth: 4,
+                          ),
+                        ],
+                      ),
                     MarkerLayer(
                       markers: [
                         if (_orderPos != null)
@@ -104,14 +119,14 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
                             point: _orderPos!,
                             width: 40,
                             height: 40,
-                            child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+                            child: const Icon(Icons.person_pin_circle, color: Colors.red, size: 36),
                           ),
                         if (_providerPos != null)
                           Marker(
                             point: _providerPos!,
-                            width: 40,
-                            height: 40,
-                            child: const Icon(Icons.directions_bike, color: Colors.blue, size: 40),
+                            width: 36,
+                            height: 36,
+                            child: _providerMarkerIcon(_status ?? ''),
                           ),
                       ],
                     ),
@@ -151,6 +166,31 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
                 ),
               ],
             ),
+    );
+  }
+
+  Future<void> _fetchRoute() async {
+    if (_providerPos == null || _orderPos == null) return;
+    final points = await RoutingService.getRoute(_providerPos!, _orderPos!);
+    if (mounted) {
+      setState(() => _routePoints = points);
+    }
+  }
+
+  Widget _providerMarkerIcon(String status) {
+    final isOnWay = status == 'accepted' || status == 'on_the_way';
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: isOnWay ? const Color(0xFF0288D1) : const Color(0xFF10B981),
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2.5),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+      ),
+      child: isOnWay
+          ? const Icon(Icons.motorcycle, color: Colors.white, size: 22)
+          : const Icon(Icons.waving_hand, color: Colors.white, size: 22),
     );
   }
 

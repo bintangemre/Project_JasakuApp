@@ -67,11 +67,20 @@ async registerProvider(
   ktp_photo?: string, 
   selfie_photo?: string, 
   portfolios?: string[],
+  ijazah_photo?: string | null,
+  certificate_files?: string[],
+  certificates?: Array<{ categoryId: string; description: string }>,
   services?: Array<{ 
     serviceId: string; 
     description: string; 
     prices: Array<{ pricingTypeId: string; price: number }> 
-  }>
+  }>,
+  ocr_nik?: string,
+  ocr_full_name?: string,
+  ocr_birth_place?: string,
+  ocr_birth_date?: string,
+  ocr_address?: string,
+  liveness_data?: any
 ) {
   // Normalisasi: empty string → null
   const normalizedPhone = phone?.trim() || null;
@@ -120,11 +129,52 @@ async registerProvider(
         profile_photo: profile_photo || null,
         ktp_photo: ktp_photo || null,
         selfie_photo: selfie_photo || null,
-        portfolios: portfolios || [], // 🟢 Otomatis tersimpan sebagai array string url
+        portfolios: portfolios || [],
       }
     });
-    
-    // C. SIMPAN KEAHLIAN & TARIF SEKALIGUS (Jika dikirim dari Flutter)
+
+    // C. Buat identity_verifications (untuk OCR & face match)
+    const identityData: any = { provider_id: profile.id };
+    if (ocr_nik) identityData.nik = ocr_nik;
+    if (ocr_full_name) identityData.ocr_full_name = ocr_full_name;
+    if (ocr_birth_place) identityData.ocr_birth_place = ocr_birth_place;
+    if (ocr_birth_date) identityData.ocr_birth_date = ocr_birth_date;
+    if (ocr_address) identityData.ocr_address = ocr_address;
+    if (liveness_data) {
+      identityData.liveness_data = liveness_data;
+      identityData.liveness_status = liveness_data?.completed >= 3 ? 'passed' : 'failed';
+    }
+    await tx.identity_verifications.create({ data: identityData });
+
+    // D. Simpan Ijazah
+    if (ijazah_photo) {
+      await tx.provider_documents.create({
+        data: {
+          provider_id: profile.id,
+          type: 'ijazah',
+          file_url: ijazah_photo,
+          description: 'Ijazah',
+        }
+      });
+    }
+
+    // E. Simpan Sertifikat Penunjang
+    if (certificate_files && certificate_files.length > 0 && certificates) {
+      for (let i = 0; i < certificate_files.length; i++) {
+        const certInfo = certificates[i] || { categoryId: '', description: '' };
+        await tx.provider_documents.create({
+          data: {
+            provider_id: profile.id,
+            type: 'certificate',
+            file_url: certificate_files[i],
+            category_id: certInfo.categoryId || null,
+            description: certInfo.description || 'Sertifikat',
+          }
+        });
+      }
+    }
+
+    // F. SIMPAN KEAHLIAN & TARIF SEKALIGUS (Jika dikirim dari Flutter)
     if (services && services.length > 0) {
       // Ambil seluruh master tipe harga untuk auto-fill data unit di DB
       const masterPricingTypes = await tx.pricing_types.findMany();
@@ -133,7 +183,7 @@ async registerProvider(
         // Buat baris baru di tabel penghubung provider_services
         const newProviderService = await tx.provider_services.create({
           data: {
-            provider_id: newUser.id,
+            provider_id: profile.id,
             service_id: service.serviceId,
             description: service.description
           }
@@ -158,7 +208,15 @@ async registerProvider(
     return { newUser, profile };
   });
 
-  // 5. Generate token internal Jasaku untuk auto-login setelah register sukses
+  // 5. Panggil face matching async (jika KTP & selfie tersedia)
+  if (ktp_photo && selfie_photo) {
+    const { runFaceMatchAsync } = await import("../../config/face_client");
+    runFaceMatchAsync(result.profile.id, ktp_photo, selfie_photo).catch((e) =>
+      console.warn("Face match non-blocking error:", e.message),
+    );
+  }
+
+  // 6. Generate token internal Jasaku untuk auto-login setelah register sukses
   const token = this.generateToken(result.newUser.id, role.name);
   return { 
     token, 
@@ -202,24 +260,44 @@ async registerProvider(
     const isValid = await bcrypt.compare(password, user.password_hash || '');
     if (!isValid) throw new Error('Email atau password salah');
 
-    // Cek verifikasi untuk role provider
-    if (user.roles.name === 'provider') {
-      const profile = user.provider_profiles;
-      if (profile) {
-        if (profile.verification_status === 'pending') {
-          throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
-        }
-        if (profile.verification_status === 'rejected') {
-          throw new Error('Akun Anda ditolak. Silakan hubungi admin untuk informasi lebih lanjut.');
+      // Cek verifikasi untuk role provider
+      if (user.roles.name === 'provider') {
+        const profile = user.provider_profiles;
+        if (profile) {
+          if (profile.verification_status === 'pending') {
+            throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
+          }
+          if (profile.verification_status === 'rejected') {
+            const notes = profile.verification_notes ? ` Alasan: ${profile.verification_notes}` : '';
+            throw new Error(`Akun Anda ditolak. Silakan perbaiki sesuai saran admin.${notes}`);
+          }
+          // Auto-set onboarding_completed untuk provider LAMA (sudah punya tarif, bukan baru daftar 5-step)
+          if (profile.verification_status === 'verified' && !profile.onboarding_completed) {
+            const hasPricing = await prisma.provider_service_prices.count({
+              where: {
+                provider_services: { provider_id: user.id }
+              }
+            }) > 0;
+            if (hasPricing) {
+              await prisma.provider_profiles.update({
+                where: { user_id: user.id },
+                data: { onboarding_completed: true }
+              });
+              profile.onboarding_completed = true;
+            }
+          }
         }
       }
-    }
 
-    const token = this.generateToken(user.id, user.roles.name);
+      const token = this.generateToken(user.id, user.roles.name);
 
     const profile = user.profiles_customer || user.provider_profiles;
     const extra = profile && 'verification_status' in profile
-      ? { verification_status: (profile as any).verification_status, onboarding_completed: (profile as any).onboarding_completed ?? true }
+      ? {
+          verification_status: (profile as any).verification_status,
+          verification_notes: (profile as any).verification_notes,
+          onboarding_completed: (profile as any).onboarding_completed ?? true
+        }
       : {};
 
     return {
@@ -290,7 +368,23 @@ async registerProvider(
           throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
         }
         if (profile.verification_status === 'rejected') {
-          throw new Error('Akun Anda ditolak. Silakan hubungi admin untuk informasi lebih lanjut.');
+          const notes = profile.verification_notes ? ` Alasan: ${profile.verification_notes}` : '';
+          throw new Error(`Akun Anda ditolak. Silakan perbaiki sesuai saran admin.${notes}`);
+        }
+        // Auto-set onboarding_completed untuk provider LAMA (sudah punya tarif, bukan baru daftar 5-step)
+        if (profile.verification_status === 'verified' && !profile.onboarding_completed) {
+          const hasPricing = await prisma.provider_service_prices.count({
+            where: {
+              provider_services: { provider_id: user.id }
+            }
+          }) > 0;
+          if (hasPricing) {
+            await prisma.provider_profiles.update({
+              where: { user_id: user.id },
+              data: { onboarding_completed: true }
+            });
+            profile.onboarding_completed = true;
+          }
         }
       }
     }
@@ -300,7 +394,11 @@ async registerProvider(
 
     const profile = user.profiles_customer || user.provider_profiles;
     const extra = profile && 'verification_status' in profile
-      ? { verification_status: (profile as any).verification_status, onboarding_completed: (profile as any).onboarding_completed ?? true }
+      ? {
+          verification_status: (profile as any).verification_status,
+          verification_notes: (profile as any).verification_notes,
+          onboarding_completed: (profile as any).onboarding_completed ?? true
+        }
       : {};
 
     return { 
@@ -332,7 +430,7 @@ async registerProvider(
     // Untuk development, log OTP ke console
     console.log(`[OTP] Email: ${email}, OTP: ${otp}, berlaku hingga: ${expiresAt}`);
 
-    return { message: 'OTP berhasil dikirim', otp }; // TODO: Hapus otp di production
+    return { message: 'OTP berhasil dikirim' };
   }
 
   async verifyOtp(email: string, phone: string, otp: string) {
@@ -354,5 +452,36 @@ async registerProvider(
 
     this.otpStore.delete(email);
     return { message: 'Verifikasi berhasil' };
+  }
+
+  async getProviderVerificationStatus(userId: string) {
+    const profile = await prisma.provider_profiles.findUnique({
+      where: { user_id: userId },
+      select: {
+        id: true,
+        verification_status: true,
+        verification_notes: true,
+        is_verified: true,
+      }
+    });
+    if (!profile) throw new Error('Profil provider tidak ditemukan');
+    return profile;
+  }
+
+  async resubmitProviderVerification(userId: string) {
+    const profile = await prisma.provider_profiles.findUnique({
+      where: { user_id: userId }
+    });
+    if (!profile) throw new Error('Profil provider tidak ditemukan');
+    if (profile.verification_status !== 'rejected') {
+      throw new Error('Status verifikasi saat ini tidak dapat diajukan ulang');
+    }
+    return await prisma.provider_profiles.update({
+      where: { user_id: userId },
+      data: {
+        verification_status: 'pending',
+        verification_notes: null,
+      }
+    });
   }
 }

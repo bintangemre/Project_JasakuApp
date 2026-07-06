@@ -32,41 +32,53 @@ model admin_payment_accounts {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model custom_task_proposals {
-  id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  task_id      String?       @db.Uuid
-  provider_id  String?       @db.Uuid
-  price        Decimal?      @db.Decimal
-  message      String?
-  status       String?       @default("pending") @db.VarChar(20)
-  users        users?        @relation(fields: [provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  custom_tasks custom_tasks? @relation(fields: [task_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model custom_tasks {
-  id                    String                   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  customer_id           String?                  @db.Uuid
-  title                 String?                  @db.VarChar(150)
-  description           String?
-  budget_min            Decimal?                 @db.Decimal
-  budget_max            Decimal?                 @db.Decimal
-  location              Unsupported("geometry")?
-  status                String?                  @default("open") @db.VarChar(30)
-  created_at            DateTime?                @default(now()) @db.Timestamp(6)
-  custom_task_proposals custom_task_proposals[]
-  users                 users?                   @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  customer_id       String             @db.Uuid
+  title             String             @db.VarChar(150)
+  description       String?
+  budget_per_person Decimal            @db.Decimal(12, 0)
+  required_people   Int                @default(1)
+  accepted_count    Int                @default(0)
+  platform_fee_rate Decimal            @default(5.00) @db.Decimal(4, 2)
+  address           String?            @db.Text
+  location          Unsupported("geometry")?
+  status            String             @default("open") @db.VarChar(30) // open | fulfilled | cancelled
+  created_at        DateTime           @default(now()) @db.Timestamp(6)
+  updated_at        DateTime           @updatedAt @db.Timestamp(6)
+  users             users              @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  task_locations    task_locations[]
+  task_providers    task_providers[]
+  orders            orders[]
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model customer_payment_methods {
-  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id        String    @db.Uuid
-  type           String?   @db.VarChar(50)
-  account_number String?   @db.VarChar(100)
-  account_name   String?   @db.VarChar(150)
-  provider_name  String?   @db.VarChar(100)
-  created_at     DateTime? @default(now()) @db.Timestamp(6)
+model task_locations {
+  id         String                   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  task_id    String                   @db.Uuid
+  label      String?                  @db.VarChar(100)
+  address    String                   @db.Text
+  location   Unsupported("geometry")?
+  stop_order Int                      @default(0)
+  custom_tasks custom_tasks           @relation(fields: [task_id], references: [id], onDelete: Cascade)
+
+  @@index([task_id])
+}
+
+model task_providers {
+  id           String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  task_id      String             @db.Uuid
+  provider_id  String             @db.Uuid
+  status       String             @default("accepted") @db.VarChar(20) // accepted | completed
+  accepted_at  DateTime           @default(now()) @db.Timestamp(6)
+  completed_at DateTime?          @db.Timestamp(6)
+  payout_confirmed Boolean        @default(false)
+  payout_at     DateTime?         @db.Timestamp(6)
+  custom_tasks  custom_tasks      @relation(fields: [task_id], references: [id])
+  provider_profiles provider_profiles @relation(fields: [provider_id], references: [id])
+  orders        orders[]
+
+  @@unique([task_id, provider_id])
+  @@index([provider_id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -105,8 +117,11 @@ model orders {
   id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   customer_id       String              @db.Uuid
   provider_id       String              @db.Uuid
+  custom_task_id    String?             @db.Uuid
+  task_provider_id  String?             @db.Uuid
   status            String?             @default("pending") @db.VarChar(30)
   total_price       Decimal?            @db.Decimal(12, 2)
+  platform_fee      Decimal?            @db.Decimal(12, 2)
   description       String?
   work_date         DateTime?           @db.Date
   created_at        DateTime?           @default(now()) @db.Timestamp(6)
@@ -120,6 +135,10 @@ model orders {
   provider_profiles provider_profiles   @relation(fields: [provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   payments          payments[]
   reviews           reviews?
+  custom_tasks      custom_tasks?       @relation(fields: [custom_task_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  task_provider     task_providers?     @relation(fields: [task_provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  provider_schedules provider_schedules[]
+  order_extensions  order_extensions[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -146,6 +165,20 @@ model pricing_types {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model provider_documents {
+  id            String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  provider_id   String            @db.Uuid
+  type          String            @db.VarChar(30)
+  file_url      String
+  category_id   String?           @db.Uuid
+  description   String?
+  created_at    DateTime?         @default(now()) @db.Timestamp(6)
+  provider_profiles provider_profiles @relation(fields: [provider_id], references: [id], onDelete: Cascade)
+
+  @@index([provider_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model provider_payout_methods {
   id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   provider_id    String    @db.Uuid
@@ -154,6 +187,21 @@ model provider_payout_methods {
   account_number String?   @db.VarChar(100)
   account_name   String?   @db.VarChar(150)
   created_at     DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model provider_schedules {
+  id            String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  provider_id   String            @db.Uuid
+  work_date     DateTime          @db.Date
+  is_booked     Boolean           @default(false)
+  order_id      String?           @db.Uuid
+  created_at    DateTime?         @default(now()) @db.Timestamp(6)
+  provider_profiles provider_profiles @relation(fields: [provider_id], references: [id])
+  orders            orders?           @relation(fields: [order_id], references: [id])
+
+  @@unique([provider_id, work_date])
+  @@index([provider_id, work_date])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -177,6 +225,44 @@ model provider_services {
   created_at              DateTime?                 @default(now()) @db.Timestamp(6)
   provider_service_prices provider_service_prices[]
   services                services                  @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model reports {
+  id              String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  reporter_id     String    @db.Uuid
+  reporter_role   String    @db.VarChar(20)
+  order_id        String?   @db.Uuid
+  subject         String    @db.VarChar(200)
+  description     String    @db.Text
+  attachments     String[]  @default([])
+  status          String    @default("open") @db.VarChar(20)
+  admin_response  String?   @db.Text
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+  updated_at      DateTime? @default(now()) @db.Timestamp(6)
+  resolved_at     DateTime? @db.Timestamp(6)
+  users           users     @relation(fields: [reporter_id], references: [id])
+
+  @@index([reporter_id])
+  @@index([status])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model order_extensions {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  order_id          String    @db.Uuid
+  provider_id       String    @db.Uuid
+  customer_id       String    @db.Uuid
+  requested_date    DateTime  @db.Date
+  additional_cost   Decimal   @db.Decimal(12, 2)
+  platform_fee_rate Decimal   @db.Decimal(3, 2)
+  extension_count   Int       @default(1)
+  status            String    @default("pending") @db.VarChar(20)
+  response_note     String?
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  orders            orders    @relation(fields: [order_id], references: [id])
+
+  @@index([order_id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -222,11 +308,11 @@ model users {
   status                             String?                 @default("active") @db.VarChar(20)
   created_at                         DateTime?               @default(now()) @db.Timestamp(6)
   updated_at                         DateTime?               @default(now()) @db.Timestamp(6)
-  custom_task_proposals              custom_task_proposals[]
   custom_tasks                       custom_tasks[]
   profiles_customer                  profiles_customer?
   provider_locations                 provider_locations?
   provider_profiles                  provider_profiles?
+  reports                            reports[]
   reviews_reviews_customer_idTousers reviews[]               @relation("reviews_customer_idTousers")
   reviews_reviews_provider_idTousers reviews[]               @relation("reviews_provider_idTousers")
   user_devices                       user_devices[]
@@ -245,6 +331,7 @@ model profiles_customer {
   nickname   String?   @db.VarChar(100)
   birth_date DateTime? @db.Date
   gender     String?   @db.VarChar(10)
+  address    String?   @db.Text
   avatar_url String?
   created_at DateTime? @default(now()) @db.Timestamp(6)
   updated_at DateTime? @default(now()) @db.Timestamp(6)
@@ -270,8 +357,12 @@ model provider_profiles {
   selfie_photo        String?
   is_verified         Boolean?  @default(false)
   verification_status String?   @default("pending") @db.VarChar(20)
+  verification_notes  String?
   is_active           Boolean?  @default(true)
   onboarding_completed Boolean? @default(false)
+  custom_task_enabled Boolean?  @default(false)
+  service_available   Boolean   @default(true)
+  task_available      Boolean   @default(true)
   rating              Decimal?  @default(0) @db.Decimal(2, 1)
   total_jobs          Int?      @default(0)
   created_at          DateTime? @default(now()) @db.Timestamp(6)
@@ -279,7 +370,11 @@ model provider_profiles {
   total_reviews       Int?      @default(0)
   portfolios          String[]  @default([])
   orders              orders[]
-  users               users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_provider_user")
+  task_providers      task_providers[]
+  provider_documents      provider_documents[]
+  provider_schedules      provider_schedules[]
+  identity_verifications  identity_verifications?
+  users                   users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_provider_user")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -307,6 +402,26 @@ model reviews {
   users_reviews_customer_idTousers users     @relation("reviews_customer_idTousers", fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_review_customer")
   orders                           orders    @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_review_order")
   users_reviews_provider_idTousers users     @relation("reviews_provider_idTousers", fields: [provider_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_review_provider")
+}
+
+model identity_verifications {
+  id                String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  provider_id       String   @unique @db.Uuid
+  nik               String?
+  ocr_full_name     String?
+  ocr_birth_place   String?
+  ocr_birth_date    String?
+  ocr_address       String?
+  ocr_raw_result    Json?    @db.JsonB
+  face_match_score  Float?
+  face_match_status String   @default("pending") @db.VarChar(20)
+  liveness_data     Json?    @db.JsonB
+  liveness_status   String   @default("pending") @db.VarChar(20)
+  created_at        DateTime @default(now()) @db.Timestamp(6)
+  verified_at       DateTime? @db.Timestamp(6)
+  provider_profiles provider_profiles @relation(fields: [provider_id], references: [id], onDelete: Cascade)
+
+  @@index([provider_id])
 }
 
 model user_devices {

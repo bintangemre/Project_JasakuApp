@@ -16,6 +16,12 @@ class ProviderDashboardRepository {
     return data['is_active'] as bool;
   }
 
+  Future<bool> toggleTaskAvailability() async {
+    final response = await _dio.post('${ApiEndpoints.providerProfile}/task-availability');
+    final data = response.data['data'] as Map<String, dynamic>;
+    return data['task_available'] as bool;
+  }
+
   Future<List<Map<String, dynamic>>> getOrders() async {
     final response = await _dio.get(ApiEndpoints.getProviderOrders);
     final data = response.data['data'] as List<dynamic>?;

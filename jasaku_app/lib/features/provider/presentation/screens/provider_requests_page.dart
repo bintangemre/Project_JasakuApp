@@ -181,33 +181,42 @@ class _ProviderRequestsPageState extends ConsumerState<ProviderRequestsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.hourglass_empty, color: Colors.orange, size: 20),
-                ),
-                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(order.customerName ?? 'Pelanggan',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      Row(
+                        children: [
+                          const Icon(Icons.person, size: 16, color: Colors.grey),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(order.customerName ?? 'Pelanggan',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                          ),
+                        ],
+                      ),
                       if (order.address != null) ...[
-                        const SizedBox(height: 2),
-                        Text(order.address!, maxLines: 2, overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                        const SizedBox(height: 6),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(order.address!,
+                                  style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                            ),
+                          ],
+                        ),
                       ],
                     ],
                   ),
                 ),
                 if (remaining > Duration.zero)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: minutes < 1 ? Colors.red.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -216,33 +225,47 @@ class _ProviderRequestsPageState extends ConsumerState<ProviderRequestsPage> {
                       '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
                       style: TextStyle(
                         color: minutes < 1 ? Colors.red : Colors.orange,
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   )
                 else
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text('Kadaluarsa',
-                        style: TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold)),
+                        style: TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
               ],
             ),
             const Divider(height: 20),
+            if (order.description != null && order.description!.isNotEmpty) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.description_outlined, size: 14, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(order.description!,
+                        style: const TextStyle(color: Color(0xFF475569), fontSize: 13)),
+                  ),
+                ],
+              ),
+              const Divider(height: 16),
+            ],
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Rp ${order.formattedPrice}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF00A651))),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00A651))),
                 Text(order.formattedDate, style: const TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(

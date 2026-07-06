@@ -2,6 +2,8 @@ import { Response } from "express";
 import { AdminService } from "./admin.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import { successResponse, errorResponse } from "../../utils/response";
+import { prisma } from "../../config/prisma";
+import { NotificationService } from "../notifications/notifications.service";
 import path from 'path';
 
 const getDashboardMetrics = async (req: AuthRequest, res: Response) => {
@@ -26,10 +28,11 @@ const verifyProvider = async (req: AuthRequest, res: Response) => {
   try {
     const providerId = String(req.params.providerId);
     const status = req.body?.status || 'verified';
+    const notes = req.body?.notes;
     if (!['verified', 'rejected'].includes(status)) {
       return errorResponse(res, "Status harus 'verified' atau 'rejected'", 400);
     }
-    const result = await new AdminService().verifyProvider(providerId, status);
+    const result = await new AdminService().verifyProvider(providerId, status, notes);
     return successResponse(res, result, `Provider berhasil ${status === 'verified' ? 'diverifikasi' : 'ditolak'}`);
   } catch (err: any) {
     return errorResponse(res, err.message);
@@ -136,6 +139,16 @@ const deleteService = async (req: AuthRequest, res: Response) => {
     const id = String(req.params.id);
     await new AdminService().deleteService(id);
     return successResponse(res, null, "Layanan berhasil dihapus");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const getProviderDetail = async (req: AuthRequest, res: Response) => {
+  try {
+    const providerId = String(req.params.providerId);
+    const result = await new AdminService().getProviderDetail(providerId);
+    return successResponse(res, result, "Detail provider berhasil diambil");
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
@@ -264,13 +277,107 @@ const uploadQrisImage = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// Payment Confirmation (Rekber)
+const getPendingPaymentOrders = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getPendingPaymentOrders();
+    return successResponse(res, result, "Daftar order pending payment berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+// Extensions
+const getPendingExtensions = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getPendingExtensions();
+    return successResponse(res, result, "Daftar request ekstensi berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+// Reports
+const getOpenReports = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getOpenReports();
+    return successResponse(res, result, "Daftar laporan berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const respondToReport = async (req: AuthRequest, res: Response) => {
+  try {
+    const reportId = String(req.params.reportId);
+    const { response, status } = req.body;
+    if (!response || !status) {
+      return errorResponse(res, 'Response dan status wajib diisi', 400);
+    }
+    const result = await new AdminService().respondToReport(reportId, response, status);
+    return successResponse(res, result, 'Laporan berhasil ditindaklanjuti');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+// Custom Tasks
+import { CustomTasksService } from '../custom-tasks/custom-tasks.service';
+const customTasksService = new CustomTasksService();
+
+const getPendingTaskPayments = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await customTasksService.getPendingPaymentTasks();
+    return successResponse(res, result, "Daftar task pending payment");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const getPendingTaskPayouts = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await customTasksService.getPendingPayoutTasks();
+    return successResponse(res, result, "Daftar task pending payout");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const confirmTaskPayment = async (req: AuthRequest, res: Response) => {
+  try {
+    const tpId = String(req.params.tpId);
+    const result = await customTasksService.confirmTaskPayment(tpId);
+    return successResponse(res, result, "Pembayaran dikonfirmasi");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const confirmTaskPayout = async (req: AuthRequest, res: Response) => {
+  try {
+    const tpId = String(req.params.tpId);
+    const result = await customTasksService.confirmTaskPayout(tpId);
+    return successResponse(res, result, "Pembayaran ke provider dikonfirmasi");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
 export {
-  getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider,
+  getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail,
   getCategories, getServicesByCategory, getPricingTypesByCategory,
   createCategory, updateCategory, deleteCategory,
   createService, updateService, deleteService,
   getAllProviders, getAllCustomers, banUser, unbanUser,
   createPricingType, deletePricingType,
   getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount,
-  uploadQrisImage
+  uploadQrisImage,
+  getPendingPaymentOrders,
+  getPendingExtensions,
+  getPendingTaskPayments,
+  getPendingTaskPayouts,
+  confirmTaskPayment,
+  confirmTaskPayout,
+  getOpenReports,
+  respondToReport
 };

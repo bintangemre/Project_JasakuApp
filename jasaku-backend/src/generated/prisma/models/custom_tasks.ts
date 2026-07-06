@@ -27,13 +27,17 @@ export type AggregateCustom_tasks = {
 }
 
 export type Custom_tasksAvgAggregateOutputType = {
-  budget_min: runtime.Decimal | null
-  budget_max: runtime.Decimal | null
+  budget_per_person: runtime.Decimal | null
+  required_people: number | null
+  accepted_count: number | null
+  platform_fee_rate: runtime.Decimal | null
 }
 
 export type Custom_tasksSumAggregateOutputType = {
-  budget_min: runtime.Decimal | null
-  budget_max: runtime.Decimal | null
+  budget_per_person: runtime.Decimal | null
+  required_people: number | null
+  accepted_count: number | null
+  platform_fee_rate: runtime.Decimal | null
 }
 
 export type Custom_tasksMinAggregateOutputType = {
@@ -41,10 +45,14 @@ export type Custom_tasksMinAggregateOutputType = {
   customer_id: string | null
   title: string | null
   description: string | null
-  budget_min: runtime.Decimal | null
-  budget_max: runtime.Decimal | null
+  budget_per_person: runtime.Decimal | null
+  required_people: number | null
+  accepted_count: number | null
+  platform_fee_rate: runtime.Decimal | null
+  address: string | null
   status: string | null
   created_at: Date | null
+  updated_at: Date | null
 }
 
 export type Custom_tasksMaxAggregateOutputType = {
@@ -52,10 +60,14 @@ export type Custom_tasksMaxAggregateOutputType = {
   customer_id: string | null
   title: string | null
   description: string | null
-  budget_min: runtime.Decimal | null
-  budget_max: runtime.Decimal | null
+  budget_per_person: runtime.Decimal | null
+  required_people: number | null
+  accepted_count: number | null
+  platform_fee_rate: runtime.Decimal | null
+  address: string | null
   status: string | null
   created_at: Date | null
+  updated_at: Date | null
 }
 
 export type Custom_tasksCountAggregateOutputType = {
@@ -63,22 +75,30 @@ export type Custom_tasksCountAggregateOutputType = {
   customer_id: number
   title: number
   description: number
-  budget_min: number
-  budget_max: number
+  budget_per_person: number
+  required_people: number
+  accepted_count: number
+  platform_fee_rate: number
+  address: number
   status: number
   created_at: number
+  updated_at: number
   _all: number
 }
 
 
 export type Custom_tasksAvgAggregateInputType = {
-  budget_min?: true
-  budget_max?: true
+  budget_per_person?: true
+  required_people?: true
+  accepted_count?: true
+  platform_fee_rate?: true
 }
 
 export type Custom_tasksSumAggregateInputType = {
-  budget_min?: true
-  budget_max?: true
+  budget_per_person?: true
+  required_people?: true
+  accepted_count?: true
+  platform_fee_rate?: true
 }
 
 export type Custom_tasksMinAggregateInputType = {
@@ -86,10 +106,14 @@ export type Custom_tasksMinAggregateInputType = {
   customer_id?: true
   title?: true
   description?: true
-  budget_min?: true
-  budget_max?: true
+  budget_per_person?: true
+  required_people?: true
+  accepted_count?: true
+  platform_fee_rate?: true
+  address?: true
   status?: true
   created_at?: true
+  updated_at?: true
 }
 
 export type Custom_tasksMaxAggregateInputType = {
@@ -97,10 +121,14 @@ export type Custom_tasksMaxAggregateInputType = {
   customer_id?: true
   title?: true
   description?: true
-  budget_min?: true
-  budget_max?: true
+  budget_per_person?: true
+  required_people?: true
+  accepted_count?: true
+  platform_fee_rate?: true
+  address?: true
   status?: true
   created_at?: true
+  updated_at?: true
 }
 
 export type Custom_tasksCountAggregateInputType = {
@@ -108,10 +136,14 @@ export type Custom_tasksCountAggregateInputType = {
   customer_id?: true
   title?: true
   description?: true
-  budget_min?: true
-  budget_max?: true
+  budget_per_person?: true
+  required_people?: true
+  accepted_count?: true
+  platform_fee_rate?: true
+  address?: true
   status?: true
   created_at?: true
+  updated_at?: true
   _all?: true
 }
 
@@ -203,13 +235,17 @@ export type custom_tasksGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type Custom_tasksGroupByOutputType = {
   id: string
-  customer_id: string | null
-  title: string | null
+  customer_id: string
+  title: string
   description: string | null
-  budget_min: runtime.Decimal | null
-  budget_max: runtime.Decimal | null
-  status: string | null
-  created_at: Date | null
+  budget_per_person: runtime.Decimal
+  required_people: number
+  accepted_count: number
+  platform_fee_rate: runtime.Decimal
+  address: string | null
+  status: string
+  created_at: Date
+  updated_at: Date
   _count: Custom_tasksCountAggregateOutputType | null
   _avg: Custom_tasksAvgAggregateOutputType | null
   _sum: Custom_tasksSumAggregateOutputType | null
@@ -237,28 +273,40 @@ export type custom_tasksWhereInput = {
   OR?: Prisma.custom_tasksWhereInput[]
   NOT?: Prisma.custom_tasksWhereInput | Prisma.custom_tasksWhereInput[]
   id?: Prisma.UuidFilter<"custom_tasks"> | string
-  customer_id?: Prisma.UuidNullableFilter<"custom_tasks"> | string | null
-  title?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  customer_id?: Prisma.UuidFilter<"custom_tasks"> | string
+  title?: Prisma.StringFilter<"custom_tasks"> | string
   description?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
-  budget_min?: Prisma.DecimalNullableFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.DecimalNullableFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
-  created_at?: Prisma.DateTimeNullableFilter<"custom_tasks"> | Date | string | null
-  custom_task_proposals?: Prisma.Custom_task_proposalsListRelationFilter
-  users?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.usersWhereInput> | null
+  budget_per_person?: Prisma.DecimalFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFilter<"custom_tasks"> | number
+  accepted_count?: Prisma.IntFilter<"custom_tasks"> | number
+  platform_fee_rate?: Prisma.DecimalFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  status?: Prisma.StringFilter<"custom_tasks"> | string
+  created_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
+  updated_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
+  users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
+  task_locations?: Prisma.Task_locationsListRelationFilter
+  task_providers?: Prisma.Task_providersListRelationFilter
+  orders?: Prisma.OrdersListRelationFilter
 }
 
 export type custom_tasksOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  customer_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  title?: Prisma.SortOrderInput | Prisma.SortOrder
+  customer_id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  budget_min?: Prisma.SortOrderInput | Prisma.SortOrder
-  budget_max?: Prisma.SortOrderInput | Prisma.SortOrder
-  status?: Prisma.SortOrderInput | Prisma.SortOrder
-  created_at?: Prisma.SortOrderInput | Prisma.SortOrder
-  custom_task_proposals?: Prisma.custom_task_proposalsOrderByRelationAggregateInput
+  budget_per_person?: Prisma.SortOrder
+  required_people?: Prisma.SortOrder
+  accepted_count?: Prisma.SortOrder
+  platform_fee_rate?: Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
   users?: Prisma.usersOrderByWithRelationInput
+  task_locations?: Prisma.task_locationsOrderByRelationAggregateInput
+  task_providers?: Prisma.task_providersOrderByRelationAggregateInput
+  orders?: Prisma.ordersOrderByRelationAggregateInput
 }
 
 export type custom_tasksWhereUniqueInput = Prisma.AtLeast<{
@@ -266,26 +314,36 @@ export type custom_tasksWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.custom_tasksWhereInput | Prisma.custom_tasksWhereInput[]
   OR?: Prisma.custom_tasksWhereInput[]
   NOT?: Prisma.custom_tasksWhereInput | Prisma.custom_tasksWhereInput[]
-  customer_id?: Prisma.UuidNullableFilter<"custom_tasks"> | string | null
-  title?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  customer_id?: Prisma.UuidFilter<"custom_tasks"> | string
+  title?: Prisma.StringFilter<"custom_tasks"> | string
   description?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
-  budget_min?: Prisma.DecimalNullableFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.DecimalNullableFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
-  created_at?: Prisma.DateTimeNullableFilter<"custom_tasks"> | Date | string | null
-  custom_task_proposals?: Prisma.Custom_task_proposalsListRelationFilter
-  users?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.usersWhereInput> | null
+  budget_per_person?: Prisma.DecimalFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFilter<"custom_tasks"> | number
+  accepted_count?: Prisma.IntFilter<"custom_tasks"> | number
+  platform_fee_rate?: Prisma.DecimalFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  status?: Prisma.StringFilter<"custom_tasks"> | string
+  created_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
+  updated_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
+  users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
+  task_locations?: Prisma.Task_locationsListRelationFilter
+  task_providers?: Prisma.Task_providersListRelationFilter
+  orders?: Prisma.OrdersListRelationFilter
 }, "id">
 
 export type custom_tasksOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  customer_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  title?: Prisma.SortOrderInput | Prisma.SortOrder
+  customer_id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  budget_min?: Prisma.SortOrderInput | Prisma.SortOrder
-  budget_max?: Prisma.SortOrderInput | Prisma.SortOrder
-  status?: Prisma.SortOrderInput | Prisma.SortOrder
-  created_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  budget_per_person?: Prisma.SortOrder
+  required_people?: Prisma.SortOrder
+  accepted_count?: Prisma.SortOrder
+  platform_fee_rate?: Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
   _count?: Prisma.custom_tasksCountOrderByAggregateInput
   _avg?: Prisma.custom_tasksAvgOrderByAggregateInput
   _max?: Prisma.custom_tasksMaxOrderByAggregateInput
@@ -298,98 +356,133 @@ export type custom_tasksScalarWhereWithAggregatesInput = {
   OR?: Prisma.custom_tasksScalarWhereWithAggregatesInput[]
   NOT?: Prisma.custom_tasksScalarWhereWithAggregatesInput | Prisma.custom_tasksScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"custom_tasks"> | string
-  customer_id?: Prisma.UuidNullableWithAggregatesFilter<"custom_tasks"> | string | null
-  title?: Prisma.StringNullableWithAggregatesFilter<"custom_tasks"> | string | null
+  customer_id?: Prisma.UuidWithAggregatesFilter<"custom_tasks"> | string
+  title?: Prisma.StringWithAggregatesFilter<"custom_tasks"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"custom_tasks"> | string | null
-  budget_min?: Prisma.DecimalNullableWithAggregatesFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.DecimalNullableWithAggregatesFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.StringNullableWithAggregatesFilter<"custom_tasks"> | string | null
-  created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"custom_tasks"> | Date | string | null
+  budget_per_person?: Prisma.DecimalWithAggregatesFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntWithAggregatesFilter<"custom_tasks"> | number
+  accepted_count?: Prisma.IntWithAggregatesFilter<"custom_tasks"> | number
+  platform_fee_rate?: Prisma.DecimalWithAggregatesFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.StringNullableWithAggregatesFilter<"custom_tasks"> | string | null
+  status?: Prisma.StringWithAggregatesFilter<"custom_tasks"> | string
+  created_at?: Prisma.DateTimeWithAggregatesFilter<"custom_tasks"> | Date | string
+  updated_at?: Prisma.DateTimeWithAggregatesFilter<"custom_tasks"> | Date | string
 }
 
 export type custom_tasksCreateInput = {
   id?: string
-  title?: string | null
+  title: string
   description?: string | null
-  budget_min?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: string | null
-  created_at?: Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutCustom_tasksInput
-  users?: Prisma.usersCreateNestedOneWithoutCustom_tasksInput
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  users: Prisma.usersCreateNestedOneWithoutCustom_tasksInput
+  task_locations?: Prisma.task_locationsCreateNestedManyWithoutCustom_tasksInput
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutCustom_tasksInput
+  orders?: Prisma.ordersCreateNestedManyWithoutCustom_tasksInput
 }
 
 export type custom_tasksUncheckedCreateInput = {
   id?: string
-  customer_id?: string | null
-  title?: string | null
+  customer_id: string
+  title: string
   description?: string | null
-  budget_min?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: string | null
-  created_at?: Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutCustom_tasksInput
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  task_locations?: Prisma.task_locationsUncheckedCreateNestedManyWithoutCustom_tasksInput
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutCustom_tasksInput
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutCustom_tasksInput
 }
 
 export type custom_tasksUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budget_min?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutCustom_tasksNestedInput
-  users?: Prisma.usersUpdateOneWithoutCustom_tasksNestedInput
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.usersUpdateOneRequiredWithoutCustom_tasksNestedInput
+  task_locations?: Prisma.task_locationsUpdateManyWithoutCustom_tasksNestedInput
+  task_providers?: Prisma.task_providersUpdateManyWithoutCustom_tasksNestedInput
+  orders?: Prisma.ordersUpdateManyWithoutCustom_tasksNestedInput
 }
 
 export type custom_tasksUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budget_min?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutCustom_tasksNestedInput
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  task_locations?: Prisma.task_locationsUncheckedUpdateManyWithoutCustom_tasksNestedInput
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutCustom_tasksNestedInput
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutCustom_tasksNestedInput
 }
 
 export type custom_tasksCreateManyInput = {
   id?: string
-  customer_id?: string | null
-  title?: string | null
+  customer_id: string
+  title: string
   description?: string | null
-  budget_min?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: string | null
-  created_at?: Date | string | null
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
 }
 
 export type custom_tasksUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budget_min?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type custom_tasksUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budget_min?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-}
-
-export type Custom_tasksNullableScalarRelationFilter = {
-  is?: Prisma.custom_tasksWhereInput | null
-  isNot?: Prisma.custom_tasksWhereInput | null
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type custom_tasksCountOrderByAggregateInput = {
@@ -397,15 +490,21 @@ export type custom_tasksCountOrderByAggregateInput = {
   customer_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  budget_min?: Prisma.SortOrder
-  budget_max?: Prisma.SortOrder
+  budget_per_person?: Prisma.SortOrder
+  required_people?: Prisma.SortOrder
+  accepted_count?: Prisma.SortOrder
+  platform_fee_rate?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   status?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
 }
 
 export type custom_tasksAvgOrderByAggregateInput = {
-  budget_min?: Prisma.SortOrder
-  budget_max?: Prisma.SortOrder
+  budget_per_person?: Prisma.SortOrder
+  required_people?: Prisma.SortOrder
+  accepted_count?: Prisma.SortOrder
+  platform_fee_rate?: Prisma.SortOrder
 }
 
 export type custom_tasksMaxOrderByAggregateInput = {
@@ -413,10 +512,14 @@ export type custom_tasksMaxOrderByAggregateInput = {
   customer_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  budget_min?: Prisma.SortOrder
-  budget_max?: Prisma.SortOrder
+  budget_per_person?: Prisma.SortOrder
+  required_people?: Prisma.SortOrder
+  accepted_count?: Prisma.SortOrder
+  platform_fee_rate?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   status?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
 }
 
 export type custom_tasksMinOrderByAggregateInput = {
@@ -424,15 +527,31 @@ export type custom_tasksMinOrderByAggregateInput = {
   customer_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  budget_min?: Prisma.SortOrder
-  budget_max?: Prisma.SortOrder
+  budget_per_person?: Prisma.SortOrder
+  required_people?: Prisma.SortOrder
+  accepted_count?: Prisma.SortOrder
+  platform_fee_rate?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   status?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
 }
 
 export type custom_tasksSumOrderByAggregateInput = {
-  budget_min?: Prisma.SortOrder
-  budget_max?: Prisma.SortOrder
+  budget_per_person?: Prisma.SortOrder
+  required_people?: Prisma.SortOrder
+  accepted_count?: Prisma.SortOrder
+  platform_fee_rate?: Prisma.SortOrder
+}
+
+export type Custom_tasksScalarRelationFilter = {
+  is?: Prisma.custom_tasksWhereInput
+  isNot?: Prisma.custom_tasksWhereInput
+}
+
+export type Custom_tasksNullableScalarRelationFilter = {
+  is?: Prisma.custom_tasksWhereInput | null
+  isNot?: Prisma.custom_tasksWhereInput | null
 }
 
 export type Custom_tasksListRelationFilter = {
@@ -445,20 +564,68 @@ export type custom_tasksOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type custom_tasksCreateNestedOneWithoutCustom_task_proposalsInput = {
-  create?: Prisma.XOR<Prisma.custom_tasksCreateWithoutCustom_task_proposalsInput, Prisma.custom_tasksUncheckedCreateWithoutCustom_task_proposalsInput>
-  connectOrCreate?: Prisma.custom_tasksCreateOrConnectWithoutCustom_task_proposalsInput
+export type DecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type DateTimeFieldUpdateOperationsInput = {
+  set?: Date | string
+}
+
+export type custom_tasksCreateNestedOneWithoutTask_locationsInput = {
+  create?: Prisma.XOR<Prisma.custom_tasksCreateWithoutTask_locationsInput, Prisma.custom_tasksUncheckedCreateWithoutTask_locationsInput>
+  connectOrCreate?: Prisma.custom_tasksCreateOrConnectWithoutTask_locationsInput
   connect?: Prisma.custom_tasksWhereUniqueInput
 }
 
-export type custom_tasksUpdateOneWithoutCustom_task_proposalsNestedInput = {
-  create?: Prisma.XOR<Prisma.custom_tasksCreateWithoutCustom_task_proposalsInput, Prisma.custom_tasksUncheckedCreateWithoutCustom_task_proposalsInput>
-  connectOrCreate?: Prisma.custom_tasksCreateOrConnectWithoutCustom_task_proposalsInput
-  upsert?: Prisma.custom_tasksUpsertWithoutCustom_task_proposalsInput
+export type custom_tasksUpdateOneRequiredWithoutTask_locationsNestedInput = {
+  create?: Prisma.XOR<Prisma.custom_tasksCreateWithoutTask_locationsInput, Prisma.custom_tasksUncheckedCreateWithoutTask_locationsInput>
+  connectOrCreate?: Prisma.custom_tasksCreateOrConnectWithoutTask_locationsInput
+  upsert?: Prisma.custom_tasksUpsertWithoutTask_locationsInput
+  connect?: Prisma.custom_tasksWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.custom_tasksUpdateToOneWithWhereWithoutTask_locationsInput, Prisma.custom_tasksUpdateWithoutTask_locationsInput>, Prisma.custom_tasksUncheckedUpdateWithoutTask_locationsInput>
+}
+
+export type custom_tasksCreateNestedOneWithoutTask_providersInput = {
+  create?: Prisma.XOR<Prisma.custom_tasksCreateWithoutTask_providersInput, Prisma.custom_tasksUncheckedCreateWithoutTask_providersInput>
+  connectOrCreate?: Prisma.custom_tasksCreateOrConnectWithoutTask_providersInput
+  connect?: Prisma.custom_tasksWhereUniqueInput
+}
+
+export type custom_tasksUpdateOneRequiredWithoutTask_providersNestedInput = {
+  create?: Prisma.XOR<Prisma.custom_tasksCreateWithoutTask_providersInput, Prisma.custom_tasksUncheckedCreateWithoutTask_providersInput>
+  connectOrCreate?: Prisma.custom_tasksCreateOrConnectWithoutTask_providersInput
+  upsert?: Prisma.custom_tasksUpsertWithoutTask_providersInput
+  connect?: Prisma.custom_tasksWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.custom_tasksUpdateToOneWithWhereWithoutTask_providersInput, Prisma.custom_tasksUpdateWithoutTask_providersInput>, Prisma.custom_tasksUncheckedUpdateWithoutTask_providersInput>
+}
+
+export type custom_tasksCreateNestedOneWithoutOrdersInput = {
+  create?: Prisma.XOR<Prisma.custom_tasksCreateWithoutOrdersInput, Prisma.custom_tasksUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.custom_tasksCreateOrConnectWithoutOrdersInput
+  connect?: Prisma.custom_tasksWhereUniqueInput
+}
+
+export type custom_tasksUpdateOneWithoutOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.custom_tasksCreateWithoutOrdersInput, Prisma.custom_tasksUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.custom_tasksCreateOrConnectWithoutOrdersInput
+  upsert?: Prisma.custom_tasksUpsertWithoutOrdersInput
   disconnect?: Prisma.custom_tasksWhereInput | boolean
   delete?: Prisma.custom_tasksWhereInput | boolean
   connect?: Prisma.custom_tasksWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.custom_tasksUpdateToOneWithWhereWithoutCustom_task_proposalsInput, Prisma.custom_tasksUpdateWithoutCustom_task_proposalsInput>, Prisma.custom_tasksUncheckedUpdateWithoutCustom_task_proposalsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.custom_tasksUpdateToOneWithWhereWithoutOrdersInput, Prisma.custom_tasksUpdateWithoutOrdersInput>, Prisma.custom_tasksUncheckedUpdateWithoutOrdersInput>
 }
 
 export type custom_tasksCreateNestedManyWithoutUsersInput = {
@@ -503,86 +670,290 @@ export type custom_tasksUncheckedUpdateManyWithoutUsersNestedInput = {
   deleteMany?: Prisma.custom_tasksScalarWhereInput | Prisma.custom_tasksScalarWhereInput[]
 }
 
-export type custom_tasksCreateWithoutCustom_task_proposalsInput = {
+export type custom_tasksCreateWithoutTask_locationsInput = {
   id?: string
-  title?: string | null
+  title: string
   description?: string | null
-  budget_min?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: string | null
-  created_at?: Date | string | null
-  users?: Prisma.usersCreateNestedOneWithoutCustom_tasksInput
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  users: Prisma.usersCreateNestedOneWithoutCustom_tasksInput
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutCustom_tasksInput
+  orders?: Prisma.ordersCreateNestedManyWithoutCustom_tasksInput
 }
 
-export type custom_tasksUncheckedCreateWithoutCustom_task_proposalsInput = {
+export type custom_tasksUncheckedCreateWithoutTask_locationsInput = {
   id?: string
-  customer_id?: string | null
-  title?: string | null
+  customer_id: string
+  title: string
   description?: string | null
-  budget_min?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: string | null
-  created_at?: Date | string | null
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutCustom_tasksInput
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutCustom_tasksInput
 }
 
-export type custom_tasksCreateOrConnectWithoutCustom_task_proposalsInput = {
+export type custom_tasksCreateOrConnectWithoutTask_locationsInput = {
   where: Prisma.custom_tasksWhereUniqueInput
-  create: Prisma.XOR<Prisma.custom_tasksCreateWithoutCustom_task_proposalsInput, Prisma.custom_tasksUncheckedCreateWithoutCustom_task_proposalsInput>
+  create: Prisma.XOR<Prisma.custom_tasksCreateWithoutTask_locationsInput, Prisma.custom_tasksUncheckedCreateWithoutTask_locationsInput>
 }
 
-export type custom_tasksUpsertWithoutCustom_task_proposalsInput = {
-  update: Prisma.XOR<Prisma.custom_tasksUpdateWithoutCustom_task_proposalsInput, Prisma.custom_tasksUncheckedUpdateWithoutCustom_task_proposalsInput>
-  create: Prisma.XOR<Prisma.custom_tasksCreateWithoutCustom_task_proposalsInput, Prisma.custom_tasksUncheckedCreateWithoutCustom_task_proposalsInput>
+export type custom_tasksUpsertWithoutTask_locationsInput = {
+  update: Prisma.XOR<Prisma.custom_tasksUpdateWithoutTask_locationsInput, Prisma.custom_tasksUncheckedUpdateWithoutTask_locationsInput>
+  create: Prisma.XOR<Prisma.custom_tasksCreateWithoutTask_locationsInput, Prisma.custom_tasksUncheckedCreateWithoutTask_locationsInput>
   where?: Prisma.custom_tasksWhereInput
 }
 
-export type custom_tasksUpdateToOneWithWhereWithoutCustom_task_proposalsInput = {
+export type custom_tasksUpdateToOneWithWhereWithoutTask_locationsInput = {
   where?: Prisma.custom_tasksWhereInput
-  data: Prisma.XOR<Prisma.custom_tasksUpdateWithoutCustom_task_proposalsInput, Prisma.custom_tasksUncheckedUpdateWithoutCustom_task_proposalsInput>
+  data: Prisma.XOR<Prisma.custom_tasksUpdateWithoutTask_locationsInput, Prisma.custom_tasksUncheckedUpdateWithoutTask_locationsInput>
 }
 
-export type custom_tasksUpdateWithoutCustom_task_proposalsInput = {
+export type custom_tasksUpdateWithoutTask_locationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budget_min?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  users?: Prisma.usersUpdateOneWithoutCustom_tasksNestedInput
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.usersUpdateOneRequiredWithoutCustom_tasksNestedInput
+  task_providers?: Prisma.task_providersUpdateManyWithoutCustom_tasksNestedInput
+  orders?: Prisma.ordersUpdateManyWithoutCustom_tasksNestedInput
 }
 
-export type custom_tasksUncheckedUpdateWithoutCustom_task_proposalsInput = {
+export type custom_tasksUncheckedUpdateWithoutTask_locationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budget_min?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutCustom_tasksNestedInput
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutCustom_tasksNestedInput
+}
+
+export type custom_tasksCreateWithoutTask_providersInput = {
+  id?: string
+  title: string
+  description?: string | null
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  users: Prisma.usersCreateNestedOneWithoutCustom_tasksInput
+  task_locations?: Prisma.task_locationsCreateNestedManyWithoutCustom_tasksInput
+  orders?: Prisma.ordersCreateNestedManyWithoutCustom_tasksInput
+}
+
+export type custom_tasksUncheckedCreateWithoutTask_providersInput = {
+  id?: string
+  customer_id: string
+  title: string
+  description?: string | null
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  task_locations?: Prisma.task_locationsUncheckedCreateNestedManyWithoutCustom_tasksInput
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutCustom_tasksInput
+}
+
+export type custom_tasksCreateOrConnectWithoutTask_providersInput = {
+  where: Prisma.custom_tasksWhereUniqueInput
+  create: Prisma.XOR<Prisma.custom_tasksCreateWithoutTask_providersInput, Prisma.custom_tasksUncheckedCreateWithoutTask_providersInput>
+}
+
+export type custom_tasksUpsertWithoutTask_providersInput = {
+  update: Prisma.XOR<Prisma.custom_tasksUpdateWithoutTask_providersInput, Prisma.custom_tasksUncheckedUpdateWithoutTask_providersInput>
+  create: Prisma.XOR<Prisma.custom_tasksCreateWithoutTask_providersInput, Prisma.custom_tasksUncheckedCreateWithoutTask_providersInput>
+  where?: Prisma.custom_tasksWhereInput
+}
+
+export type custom_tasksUpdateToOneWithWhereWithoutTask_providersInput = {
+  where?: Prisma.custom_tasksWhereInput
+  data: Prisma.XOR<Prisma.custom_tasksUpdateWithoutTask_providersInput, Prisma.custom_tasksUncheckedUpdateWithoutTask_providersInput>
+}
+
+export type custom_tasksUpdateWithoutTask_providersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.usersUpdateOneRequiredWithoutCustom_tasksNestedInput
+  task_locations?: Prisma.task_locationsUpdateManyWithoutCustom_tasksNestedInput
+  orders?: Prisma.ordersUpdateManyWithoutCustom_tasksNestedInput
+}
+
+export type custom_tasksUncheckedUpdateWithoutTask_providersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  task_locations?: Prisma.task_locationsUncheckedUpdateManyWithoutCustom_tasksNestedInput
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutCustom_tasksNestedInput
+}
+
+export type custom_tasksCreateWithoutOrdersInput = {
+  id?: string
+  title: string
+  description?: string | null
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  users: Prisma.usersCreateNestedOneWithoutCustom_tasksInput
+  task_locations?: Prisma.task_locationsCreateNestedManyWithoutCustom_tasksInput
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutCustom_tasksInput
+}
+
+export type custom_tasksUncheckedCreateWithoutOrdersInput = {
+  id?: string
+  customer_id: string
+  title: string
+  description?: string | null
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  task_locations?: Prisma.task_locationsUncheckedCreateNestedManyWithoutCustom_tasksInput
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutCustom_tasksInput
+}
+
+export type custom_tasksCreateOrConnectWithoutOrdersInput = {
+  where: Prisma.custom_tasksWhereUniqueInput
+  create: Prisma.XOR<Prisma.custom_tasksCreateWithoutOrdersInput, Prisma.custom_tasksUncheckedCreateWithoutOrdersInput>
+}
+
+export type custom_tasksUpsertWithoutOrdersInput = {
+  update: Prisma.XOR<Prisma.custom_tasksUpdateWithoutOrdersInput, Prisma.custom_tasksUncheckedUpdateWithoutOrdersInput>
+  create: Prisma.XOR<Prisma.custom_tasksCreateWithoutOrdersInput, Prisma.custom_tasksUncheckedCreateWithoutOrdersInput>
+  where?: Prisma.custom_tasksWhereInput
+}
+
+export type custom_tasksUpdateToOneWithWhereWithoutOrdersInput = {
+  where?: Prisma.custom_tasksWhereInput
+  data: Prisma.XOR<Prisma.custom_tasksUpdateWithoutOrdersInput, Prisma.custom_tasksUncheckedUpdateWithoutOrdersInput>
+}
+
+export type custom_tasksUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.usersUpdateOneRequiredWithoutCustom_tasksNestedInput
+  task_locations?: Prisma.task_locationsUpdateManyWithoutCustom_tasksNestedInput
+  task_providers?: Prisma.task_providersUpdateManyWithoutCustom_tasksNestedInput
+}
+
+export type custom_tasksUncheckedUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  task_locations?: Prisma.task_locationsUncheckedUpdateManyWithoutCustom_tasksNestedInput
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutCustom_tasksNestedInput
 }
 
 export type custom_tasksCreateWithoutUsersInput = {
   id?: string
-  title?: string | null
+  title: string
   description?: string | null
-  budget_min?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: string | null
-  created_at?: Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsCreateNestedManyWithoutCustom_tasksInput
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  task_locations?: Prisma.task_locationsCreateNestedManyWithoutCustom_tasksInput
+  task_providers?: Prisma.task_providersCreateNestedManyWithoutCustom_tasksInput
+  orders?: Prisma.ordersCreateNestedManyWithoutCustom_tasksInput
 }
 
 export type custom_tasksUncheckedCreateWithoutUsersInput = {
   id?: string
-  title?: string | null
+  title: string
   description?: string | null
-  budget_min?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: string | null
-  created_at?: Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedCreateNestedManyWithoutCustom_tasksInput
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  task_locations?: Prisma.task_locationsUncheckedCreateNestedManyWithoutCustom_tasksInput
+  task_providers?: Prisma.task_providersUncheckedCreateNestedManyWithoutCustom_tasksInput
+  orders?: Prisma.ordersUncheckedCreateNestedManyWithoutCustom_tasksInput
 }
 
 export type custom_tasksCreateOrConnectWithoutUsersInput = {
@@ -616,55 +987,79 @@ export type custom_tasksScalarWhereInput = {
   OR?: Prisma.custom_tasksScalarWhereInput[]
   NOT?: Prisma.custom_tasksScalarWhereInput | Prisma.custom_tasksScalarWhereInput[]
   id?: Prisma.UuidFilter<"custom_tasks"> | string
-  customer_id?: Prisma.UuidNullableFilter<"custom_tasks"> | string | null
-  title?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  customer_id?: Prisma.UuidFilter<"custom_tasks"> | string
+  title?: Prisma.StringFilter<"custom_tasks"> | string
   description?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
-  budget_min?: Prisma.DecimalNullableFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.DecimalNullableFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
-  created_at?: Prisma.DateTimeNullableFilter<"custom_tasks"> | Date | string | null
+  budget_per_person?: Prisma.DecimalFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFilter<"custom_tasks"> | number
+  accepted_count?: Prisma.IntFilter<"custom_tasks"> | number
+  platform_fee_rate?: Prisma.DecimalFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  status?: Prisma.StringFilter<"custom_tasks"> | string
+  created_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
+  updated_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
 }
 
 export type custom_tasksCreateManyUsersInput = {
   id?: string
-  title?: string | null
+  title: string
   description?: string | null
-  budget_min?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: string | null
-  created_at?: Date | string | null
+  budget_per_person: runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: number
+  accepted_count?: number
+  platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: string | null
+  status?: string
+  created_at?: Date | string
+  updated_at?: Date | string
 }
 
 export type custom_tasksUpdateWithoutUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budget_min?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsUpdateManyWithoutCustom_tasksNestedInput
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  task_locations?: Prisma.task_locationsUpdateManyWithoutCustom_tasksNestedInput
+  task_providers?: Prisma.task_providersUpdateManyWithoutCustom_tasksNestedInput
+  orders?: Prisma.ordersUpdateManyWithoutCustom_tasksNestedInput
 }
 
 export type custom_tasksUncheckedUpdateWithoutUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budget_min?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  custom_task_proposals?: Prisma.custom_task_proposalsUncheckedUpdateManyWithoutCustom_tasksNestedInput
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  task_locations?: Prisma.task_locationsUncheckedUpdateManyWithoutCustom_tasksNestedInput
+  task_providers?: Prisma.task_providersUncheckedUpdateManyWithoutCustom_tasksNestedInput
+  orders?: Prisma.ordersUncheckedUpdateManyWithoutCustom_tasksNestedInput
 }
 
 export type custom_tasksUncheckedUpdateManyWithoutUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budget_min?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  budget_max?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget_per_person?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  required_people?: Prisma.IntFieldUpdateOperationsInput | number
+  accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
+  platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -673,11 +1068,15 @@ export type custom_tasksUncheckedUpdateManyWithoutUsersInput = {
  */
 
 export type Custom_tasksCountOutputType = {
-  custom_task_proposals: number
+  task_locations: number
+  task_providers: number
+  orders: number
 }
 
 export type Custom_tasksCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  custom_task_proposals?: boolean | Custom_tasksCountOutputTypeCountCustom_task_proposalsArgs
+  task_locations?: boolean | Custom_tasksCountOutputTypeCountTask_locationsArgs
+  task_providers?: boolean | Custom_tasksCountOutputTypeCountTask_providersArgs
+  orders?: boolean | Custom_tasksCountOutputTypeCountOrdersArgs
 }
 
 /**
@@ -693,8 +1092,22 @@ export type Custom_tasksCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types
 /**
  * Custom_tasksCountOutputType without action
  */
-export type Custom_tasksCountOutputTypeCountCustom_task_proposalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.custom_task_proposalsWhereInput
+export type Custom_tasksCountOutputTypeCountTask_locationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.task_locationsWhereInput
+}
+
+/**
+ * Custom_tasksCountOutputType without action
+ */
+export type Custom_tasksCountOutputTypeCountTask_providersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.task_providersWhereInput
+}
+
+/**
+ * Custom_tasksCountOutputType without action
+ */
+export type Custom_tasksCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ordersWhereInput
 }
 
 
@@ -703,12 +1116,18 @@ export type custom_tasksSelect<ExtArgs extends runtime.Types.Extensions.Internal
   customer_id?: boolean
   title?: boolean
   description?: boolean
-  budget_min?: boolean
-  budget_max?: boolean
+  budget_per_person?: boolean
+  required_people?: boolean
+  accepted_count?: boolean
+  platform_fee_rate?: boolean
+  address?: boolean
   status?: boolean
   created_at?: boolean
-  custom_task_proposals?: boolean | Prisma.custom_tasks$custom_task_proposalsArgs<ExtArgs>
-  users?: boolean | Prisma.custom_tasks$usersArgs<ExtArgs>
+  updated_at?: boolean
+  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  task_locations?: boolean | Prisma.custom_tasks$task_locationsArgs<ExtArgs>
+  task_providers?: boolean | Prisma.custom_tasks$task_providersArgs<ExtArgs>
+  orders?: boolean | Prisma.custom_tasks$ordersArgs<ExtArgs>
   _count?: boolean | Prisma.Custom_tasksCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["custom_tasks"]>
 
@@ -717,11 +1136,15 @@ export type custom_tasksSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   customer_id?: boolean
   title?: boolean
   description?: boolean
-  budget_min?: boolean
-  budget_max?: boolean
+  budget_per_person?: boolean
+  required_people?: boolean
+  accepted_count?: boolean
+  platform_fee_rate?: boolean
+  address?: boolean
   status?: boolean
   created_at?: boolean
-  users?: boolean | Prisma.custom_tasks$usersArgs<ExtArgs>
+  updated_at?: boolean
+  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["custom_tasks"]>
 
 export type custom_tasksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -729,11 +1152,15 @@ export type custom_tasksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   customer_id?: boolean
   title?: boolean
   description?: boolean
-  budget_min?: boolean
-  budget_max?: boolean
+  budget_per_person?: boolean
+  required_people?: boolean
+  accepted_count?: boolean
+  platform_fee_rate?: boolean
+  address?: boolean
   status?: boolean
   created_at?: boolean
-  users?: boolean | Prisma.custom_tasks$usersArgs<ExtArgs>
+  updated_at?: boolean
+  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["custom_tasks"]>
 
 export type custom_tasksSelectScalar = {
@@ -741,40 +1168,52 @@ export type custom_tasksSelectScalar = {
   customer_id?: boolean
   title?: boolean
   description?: boolean
-  budget_min?: boolean
-  budget_max?: boolean
+  budget_per_person?: boolean
+  required_people?: boolean
+  accepted_count?: boolean
+  platform_fee_rate?: boolean
+  address?: boolean
   status?: boolean
   created_at?: boolean
+  updated_at?: boolean
 }
 
-export type custom_tasksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "title" | "description" | "budget_min" | "budget_max" | "status" | "created_at", ExtArgs["result"]["custom_tasks"]>
+export type custom_tasksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "title" | "description" | "budget_per_person" | "required_people" | "accepted_count" | "platform_fee_rate" | "address" | "status" | "created_at" | "updated_at", ExtArgs["result"]["custom_tasks"]>
 export type custom_tasksInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  custom_task_proposals?: boolean | Prisma.custom_tasks$custom_task_proposalsArgs<ExtArgs>
-  users?: boolean | Prisma.custom_tasks$usersArgs<ExtArgs>
+  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  task_locations?: boolean | Prisma.custom_tasks$task_locationsArgs<ExtArgs>
+  task_providers?: boolean | Prisma.custom_tasks$task_providersArgs<ExtArgs>
+  orders?: boolean | Prisma.custom_tasks$ordersArgs<ExtArgs>
   _count?: boolean | Prisma.Custom_tasksCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type custom_tasksIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  users?: boolean | Prisma.custom_tasks$usersArgs<ExtArgs>
+  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
 }
 export type custom_tasksIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  users?: boolean | Prisma.custom_tasks$usersArgs<ExtArgs>
+  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
 }
 
 export type $custom_tasksPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "custom_tasks"
   objects: {
-    custom_task_proposals: Prisma.$custom_task_proposalsPayload<ExtArgs>[]
-    users: Prisma.$usersPayload<ExtArgs> | null
+    users: Prisma.$usersPayload<ExtArgs>
+    task_locations: Prisma.$task_locationsPayload<ExtArgs>[]
+    task_providers: Prisma.$task_providersPayload<ExtArgs>[]
+    orders: Prisma.$ordersPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    customer_id: string | null
-    title: string | null
+    customer_id: string
+    title: string
     description: string | null
-    budget_min: runtime.Decimal | null
-    budget_max: runtime.Decimal | null
-    status: string | null
-    created_at: Date | null
+    budget_per_person: runtime.Decimal
+    required_people: number
+    accepted_count: number
+    platform_fee_rate: runtime.Decimal
+    address: string | null
+    status: string
+    created_at: Date
+    updated_at: Date
   }, ExtArgs["result"]["custom_tasks"]>
   composites: {}
 }
@@ -1169,8 +1608,10 @@ readonly fields: custom_tasksFieldRefs;
  */
 export interface Prisma__custom_tasksClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  custom_task_proposals<T extends Prisma.custom_tasks$custom_task_proposalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.custom_tasks$custom_task_proposalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$custom_task_proposalsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  users<T extends Prisma.custom_tasks$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.custom_tasks$usersArgs<ExtArgs>>): Prisma.Prisma__usersClient<runtime.Types.Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  users<T extends Prisma.usersDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.usersDefaultArgs<ExtArgs>>): Prisma.Prisma__usersClient<runtime.Types.Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  task_locations<T extends Prisma.custom_tasks$task_locationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.custom_tasks$task_locationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$task_locationsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  task_providers<T extends Prisma.custom_tasks$task_providersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.custom_tasks$task_providersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$task_providersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  orders<T extends Prisma.custom_tasks$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.custom_tasks$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ordersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1204,10 +1645,14 @@ export interface custom_tasksFieldRefs {
   readonly customer_id: Prisma.FieldRef<"custom_tasks", 'String'>
   readonly title: Prisma.FieldRef<"custom_tasks", 'String'>
   readonly description: Prisma.FieldRef<"custom_tasks", 'String'>
-  readonly budget_min: Prisma.FieldRef<"custom_tasks", 'Decimal'>
-  readonly budget_max: Prisma.FieldRef<"custom_tasks", 'Decimal'>
+  readonly budget_per_person: Prisma.FieldRef<"custom_tasks", 'Decimal'>
+  readonly required_people: Prisma.FieldRef<"custom_tasks", 'Int'>
+  readonly accepted_count: Prisma.FieldRef<"custom_tasks", 'Int'>
+  readonly platform_fee_rate: Prisma.FieldRef<"custom_tasks", 'Decimal'>
+  readonly address: Prisma.FieldRef<"custom_tasks", 'String'>
   readonly status: Prisma.FieldRef<"custom_tasks", 'String'>
   readonly created_at: Prisma.FieldRef<"custom_tasks", 'DateTime'>
+  readonly updated_at: Prisma.FieldRef<"custom_tasks", 'DateTime'>
 }
     
 
@@ -1431,7 +1876,7 @@ export type custom_tasksCreateArgs<ExtArgs extends runtime.Types.Extensions.Inte
   /**
    * The data needed to create a custom_tasks.
    */
-  data?: Prisma.XOR<Prisma.custom_tasksCreateInput, Prisma.custom_tasksUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.custom_tasksCreateInput, Prisma.custom_tasksUncheckedCreateInput>
 }
 
 /**
@@ -1609,46 +2054,75 @@ export type custom_tasksDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 /**
- * custom_tasks.custom_task_proposals
+ * custom_tasks.task_locations
  */
-export type custom_tasks$custom_task_proposalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type custom_tasks$task_locationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the custom_task_proposals
+   * Select specific fields to fetch from the task_locations
    */
-  select?: Prisma.custom_task_proposalsSelect<ExtArgs> | null
+  select?: Prisma.task_locationsSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the custom_task_proposals
+   * Omit specific fields from the task_locations
    */
-  omit?: Prisma.custom_task_proposalsOmit<ExtArgs> | null
+  omit?: Prisma.task_locationsOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.custom_task_proposalsInclude<ExtArgs> | null
-  where?: Prisma.custom_task_proposalsWhereInput
-  orderBy?: Prisma.custom_task_proposalsOrderByWithRelationInput | Prisma.custom_task_proposalsOrderByWithRelationInput[]
-  cursor?: Prisma.custom_task_proposalsWhereUniqueInput
+  include?: Prisma.task_locationsInclude<ExtArgs> | null
+  where?: Prisma.task_locationsWhereInput
+  orderBy?: Prisma.task_locationsOrderByWithRelationInput | Prisma.task_locationsOrderByWithRelationInput[]
+  cursor?: Prisma.task_locationsWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.Custom_task_proposalsScalarFieldEnum | Prisma.Custom_task_proposalsScalarFieldEnum[]
+  distinct?: Prisma.Task_locationsScalarFieldEnum | Prisma.Task_locationsScalarFieldEnum[]
 }
 
 /**
- * custom_tasks.users
+ * custom_tasks.task_providers
  */
-export type custom_tasks$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type custom_tasks$task_providersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the users
+   * Select specific fields to fetch from the task_providers
    */
-  select?: Prisma.usersSelect<ExtArgs> | null
+  select?: Prisma.task_providersSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the users
+   * Omit specific fields from the task_providers
    */
-  omit?: Prisma.usersOmit<ExtArgs> | null
+  omit?: Prisma.task_providersOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.usersInclude<ExtArgs> | null
-  where?: Prisma.usersWhereInput
+  include?: Prisma.task_providersInclude<ExtArgs> | null
+  where?: Prisma.task_providersWhereInput
+  orderBy?: Prisma.task_providersOrderByWithRelationInput | Prisma.task_providersOrderByWithRelationInput[]
+  cursor?: Prisma.task_providersWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Task_providersScalarFieldEnum | Prisma.Task_providersScalarFieldEnum[]
+}
+
+/**
+ * custom_tasks.orders
+ */
+export type custom_tasks$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the orders
+   */
+  select?: Prisma.ordersSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the orders
+   */
+  omit?: Prisma.ordersOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ordersInclude<ExtArgs> | null
+  where?: Prisma.ordersWhereInput
+  orderBy?: Prisma.ordersOrderByWithRelationInput | Prisma.ordersOrderByWithRelationInput[]
+  cursor?: Prisma.ordersWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrdersScalarFieldEnum | Prisma.OrdersScalarFieldEnum[]
 }
 
 /**

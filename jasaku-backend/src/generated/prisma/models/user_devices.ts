@@ -403,10 +403,6 @@ export type user_devicesUncheckedUpdateManyWithoutUsersNestedInput = {
   deleteMany?: Prisma.user_devicesScalarWhereInput | Prisma.user_devicesScalarWhereInput[]
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
-}
-
 export type user_devicesCreateWithoutUsersInput = {
   id?: string
   fcm_token: string

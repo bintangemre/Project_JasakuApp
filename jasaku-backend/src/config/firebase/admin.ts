@@ -1,4 +1,5 @@
-import admin from 'firebase-admin';
+import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
+import { getMessaging } from 'firebase-admin/messaging';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import fs from 'fs';
@@ -16,12 +17,12 @@ function initializeFirebase() {
     try {
         if (fs.existsSync(serviceAccountPath)) {
             const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf-8'));
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount),
+            initializeApp({
+                credential: cert(serviceAccount),
             });
         } else {
-            admin.initializeApp({
-                credential: admin.credential.applicationDefault(),
+            initializeApp({
+                credential: applicationDefault(),
             });
         }
         initialized = true;
@@ -38,5 +39,5 @@ export function getFirebaseMessaging() {
     if (!initialized) {
         throw new Error('Firebase Admin tidak tersedia');
     }
-    return admin.messaging();
+    return getMessaging();
 }

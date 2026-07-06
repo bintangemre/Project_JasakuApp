@@ -18,7 +18,7 @@ const createOrder = async (req: any, res: Response) => {
             address,
             lat,
             lng,
-            attachments: attachments || []
+            attachments: attachments || [],
         });
         return successResponse(res, result, 'Order berhasil dibuat', 201);
     }
@@ -60,8 +60,9 @@ const getOrderTracking = async (req: any, res: Response) => {
 const getCustomerOrders = async (req: any, res: Response) => {
     try {
         const customerId = req.user.userId;
+        const statusFilter = req.query.status as string | undefined;
         const ordersService = new OrdersService();
-        const result = await ordersService.getCustomerOrders(customerId);
+        const result = await ordersService.getCustomerOrders(customerId, statusFilter);
         return successResponse(res, result, 'Daftar order customer berhasil diambil');
     }
     catch (err: any) {
@@ -133,4 +134,81 @@ const getTodayOrders = async (req: any, res: Response) => {
     }
 };
 
-export { createOrder, getOrderDetails, getCustomerOrders, getProviderOrders, receiveOrderStatus, cancelOrder, getTodayOrders, getProviderRequests, getOrderTracking };
+const getProviderSchedule = async (req: any, res: Response) => {
+    try {
+        const providerId = req.user.userId;
+        const { startDate, endDate } = req.query as Record<string, string>;
+        const ordersService = new OrdersService();
+        const result = await ordersService.getProviderSchedule(providerId, startDate, endDate);
+        return successResponse(res, result, 'Jadwal berhasil diambil');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+const getPublicProviderStatus = async (req: any, res: Response) => {
+    try {
+        const { providerId } = req.params;
+        const ordersService = new OrdersService();
+        const result = await ordersService.getPublicProviderStatus(providerId);
+        return successResponse(res, result, 'Status mitra berhasil diambil');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+const getPublicProviderSchedule = async (req: any, res: Response) => {
+    try {
+        const { providerId } = req.params;
+        const { startDate, endDate } = req.query as Record<string, string>;
+        const ordersService = new OrdersService();
+        const result = await ordersService.getPublicProviderSchedule(providerId, startDate, endDate);
+        return successResponse(res, result, 'Jadwal mitra berhasil diambil');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+const confirmPaymentByAdmin = async (req: any, res: Response) => {
+    try {
+        const { orderId } = req.params;
+        const ordersService = new OrdersService();
+        const result = await ordersService.confirmPaymentByAdmin(orderId);
+        return successResponse(res, result, 'Pembayaran berhasil dikonfirmasi');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+const requestExtension = async (req: any, res: Response) => {
+    try {
+        const { orderId } = req.params;
+        const { additionalDays } = req.body;
+        const userId = req.user.userId;
+        const ordersService = new OrdersService();
+        const result = await ordersService.requestExtension(userId, orderId, additionalDays);
+        return successResponse(res, result, 'Request ekstensi diajukan');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+const approveExtension = async (req: any, res: Response) => {
+    try {
+        const { extensionId } = req.params;
+        const { status } = req.body;
+        const ordersService = new OrdersService();
+        const result = await ordersService.approveExtension(extensionId, status);
+        return successResponse(res, result, `Ekstensi ${status === 'approved' ? 'disetujui' : 'ditolak'}`);
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+export { createOrder, getOrderDetails, getCustomerOrders, getProviderOrders, receiveOrderStatus, cancelOrder, getTodayOrders, getProviderSchedule, getProviderRequests, getOrderTracking, confirmPaymentByAdmin, requestExtension, approveExtension, getPublicProviderStatus, getPublicProviderSchedule };

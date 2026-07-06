@@ -1,10 +1,18 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../location/presentation/providers/location_tracker_provider.dart';
+import '../../../../services/routing_service.dart';
 import '../providers/provider_dashboard_provider.dart';
+import '../../../custom_tasks/presentation/pages/provider_available_tasks_page.dart';
+import '../../../custom_tasks/presentation/pages/provider_my_bids_page.dart';
+import 'provider_full_map_page.dart';
 
 class ProviderHomePage extends ConsumerStatefulWidget {
   const ProviderHomePage({super.key});
@@ -15,13 +23,45 @@ class ProviderHomePage extends ConsumerStatefulWidget {
 
 class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
   final Dio _dio = ApiClient().dio;
+  List<LatLng> _routePoints = [];
+  LatLng? _customerLatLng;
+  final MapController _mapController = MapController();
+  Timer? _routeTimer;
+  LatLng? _lastProviderPos;
+  bool _extensionLoading = false;
 
   @override
   void initState() {
     super.initState();
+    _routeTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      final state = ref.read(dashboardProvider);
+      final activeOrder = state.activeOrder;
+      if (activeOrder == null) return;
+      final locs = activeOrder['order_locations'] as List? ?? [];
+      final lat = locs.isNotEmpty ? (locs[0]['lat'] as num?)?.toDouble() : null;
+      final lng = locs.isNotEmpty ? (locs[0]['lng'] as num?)?.toDouble() : null;
+      if (lat == null || lng == null) return;
+      final trackerState = ref.read(locationTrackerProvider);
+      final pos = trackerState.currentPosition;
+      if (pos == null) return;
+      _fetchRoute(LatLng(pos.latitude, pos.longitude), LatLng(lat, lng));
+    });
     Future.microtask(() {
       ref.read(dashboardProvider.notifier).loadDashboard();
     });
+  }
+
+  @override
+  void dispose() {
+    _routeTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _fetchRoute(LatLng from, LatLng to) async {
+    final points = await RoutingService.getRoute(from, to);
+    if (mounted) {
+      setState(() => _routePoints = points);
+    }
   }
 
   Future<void> _updateStatus(String orderId, String status) async {
@@ -39,6 +79,38 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
           SnackBar(content: Text('Gagal: $e'), backgroundColor: Colors.red),
         );
       }
+    }
+  }
+
+  Future<void> _requestExtension(String orderId) async {
+    final days = await showDialog<int>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Minta Perpanjangan Waktu'),
+        children: [1, 2, 3].map((n) => SimpleDialogOption(
+          onPressed: () => Navigator.pop(ctx, n),
+          child: Text('$n hari'),
+        )).toList(),
+      ),
+    );
+    if (days == null || !mounted) return;
+
+    setState(() => _extensionLoading = true);
+    try {
+      await _dio.post(ApiEndpoints.requestExtension(orderId), data: {'additionalDays': days});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Permintaan perpanjangan diajukan'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _extensionLoading = false);
     }
   }
 
@@ -132,6 +204,35 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
         : "";
     final activeStatus = activeOrder?['status'] as String? ?? "";
     final activeOrderId = activeOrder?['id'] as String? ?? "";
+
+    final activeOrderLocations = activeOrder?['order_locations'] as List? ?? [];
+    final activeOrderLat = activeOrderLocations.isNotEmpty
+        ? (activeOrderLocations[0]['lat'] as num?)?.toDouble()
+        : null;
+    final activeOrderLng = activeOrderLocations.isNotEmpty
+        ? (activeOrderLocations[0]['lng'] as num?)?.toDouble()
+        : null;
+    _customerLatLng = (activeOrderLat != null && activeOrderLng != null)
+        ? LatLng(activeOrderLat, activeOrderLng)
+        : null;
+
+    final trackerState = ref.watch(locationTrackerProvider);
+    final providerPos = trackerState.currentPosition;
+    final providerLatLng = providerPos != null
+        ? LatLng(providerPos.latitude, providerPos.longitude)
+        : null;
+
+    final customerLoc = _customerLatLng;
+    if (customerLoc != null && providerLatLng != null && _routePoints.isEmpty) {
+      Future.microtask(() => _fetchRoute(providerLatLng, customerLoc));
+    }
+
+    if (providerLatLng != null && _lastProviderPos != providerLatLng) {
+      _lastProviderPos = providerLatLng;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _mapController.move(providerLatLng, 15.0);
+      });
+    }
 
     final priceFormat = NumberFormat('#,###', 'id_ID');
     final monthlyEarnings = state.monthlyEarnings;
@@ -296,6 +397,54 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Terima Task Custom",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              state.taskAvailable
+                                  ? "Kamu bisa menerima task"
+                                  : "Kamu tidak menerima task",
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: state.taskAvailable,
+                        activeColor: const Color(0xFF00A651),
+                        onChanged: (_) {
+                          ref.read(dashboardProvider.notifier).toggleTaskAvailability();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 24),
                 if (activeOrder != null) ...[
                   const Text(
@@ -395,9 +544,58 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                         ),
                       ],
                     ),
-                  ),
+                        ),
+                        if (activeStatus == 'in_progress') ...[
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFFF59E0B),
+                                side: const BorderSide(color: Color(0xFFF59E0B)),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: _extensionLoading
+                                  ? null
+                                  : () => _requestExtension(activeOrderId),
+                              icon: _extensionLoading
+                                  ? const SizedBox(
+                                      width: 16, height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : const Icon(Icons.timer_outlined, size: 20),
+                              label: const Text('Minta Perpanjangan Waktu'),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        _buildRouteMap(providerLatLng, _customerLatLng, activeStatus),
                   const SizedBox(height: 24),
                 ],
+                const SizedBox(height: 24),
+                _buildShortcutCard(
+                  icon: Icons.assignment_outlined,
+                  title: 'Task Tersedia',
+                  subtitle: 'Lihat dan ajukan penawaran task dari customer',
+                  color: const Color(0xFF00A651),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ProviderAvailableTasksPage()),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildShortcutCard(
+                  icon: Icons.handshake_outlined,
+                  title: 'Task Saya',
+                  subtitle: 'Lihat task yang sudah diambil',
+                  color: const Color(0xFF2563EB),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ProviderMyBidsPage()),
+                  ),
+                ),
+                const SizedBox(height: 24),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -470,6 +668,69 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
     );
   }
 
+  Widget _buildShortcutCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: Colors.grey[400]),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildStatCard(
     String value,
     String title, {
@@ -531,6 +792,126 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRouteMap(LatLng? providerPos, LatLng? customerPos, String status) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Lokasi Customer",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ProviderFullMapPage(
+                customerPos: customerPos,
+                routePoints: _routePoints,
+                status: status,
+              ),
+            ),
+          ),
+          child: Container(
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Stack(
+                children: [
+                  FlutterMap(
+                    key: const ValueKey('dashboard-route-map'),
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: customerPos ?? providerPos ?? const LatLng(-6.2088, 106.8456),
+                      initialZoom: 14.0,
+                      interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.jasaku.app',
+                      ),
+                      if (_routePoints.length > 1)
+                        PolylineLayer(
+                          polylines: [
+                            Polyline(
+                              points: _routePoints,
+                              color: const Color(0xFF2563EB),
+                              strokeWidth: 4,
+                            ),
+                          ],
+                        ),
+                      MarkerLayer(
+                        markers: [
+                          if (customerPos != null)
+                            Marker(
+                              point: customerPos,
+                              width: 36,
+                              height: 36,
+                              child: const Icon(Icons.person_pin_circle, color: Colors.red, size: 36),
+                            ),
+                          if (providerPos != null)
+                            Marker(
+                              point: providerPos,
+                              width: 36,
+                              height: 36,
+                              child: _providerMarkerIcon(status),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.fullscreen, color: Colors.white, size: 14),
+                          SizedBox(width: 4),
+                          Text(
+                            'Perbesar',
+                            style: TextStyle(color: Colors.white, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _providerMarkerIcon(String status) {
+    final isOnWay = status == 'accepted' || status == 'on_the_way';
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: isOnWay ? const Color(0xFF0288D1) : const Color(0xFF10B981),
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2.5),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+      ),
+      child: isOnWay
+          ? const Icon(Icons.motorcycle, color: Colors.white, size: 22)
+          : const Icon(Icons.waving_hand, color: Colors.white, size: 22),
     );
   }
 }

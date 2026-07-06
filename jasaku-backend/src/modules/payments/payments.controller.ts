@@ -38,32 +38,6 @@ const getPaymentByOrder = async (req: AuthRequest, res: Response) => {
   }
 };
 
-const savePaymentMethod = async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user?.userId;
-    if (!userId) return errorResponse(res, "Anda harus login terlebih dahulu", 401);
-    const { type, accountNumber, accountName, providerName } = req.body;
-    if (!type || !accountNumber || !accountName) {
-      return errorResponse(res, "type, accountNumber, dan accountName wajib diisi", 400);
-    }
-    const result = await new PaymentsService().saveCustomerPaymentMethod(userId, type, accountNumber, accountName, providerName);
-    return successResponse(res, result, "Metode pembayaran berhasil disimpan", 201);
-  } catch (err: any) {
-    return errorResponse(res, err.message);
-  }
-};
-
-const getCustomerPaymentMethods = async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user?.userId;
-    if (!userId) return errorResponse(res, "Anda harus login terlebih dahulu", 401);
-    const result = await new PaymentsService().getCustomerPaymentMethods(userId);
-    return successResponse(res, result, "Daftar metode pembayaran berhasil diambil");
-  } catch (err: any) {
-    return errorResponse(res, err.message);
-  }
-};
-
 const updatePaymentStatus = async (req: AuthRequest, res: Response) => {
   try {
     const paymentId = String(req.params.paymentId);
@@ -92,4 +66,4 @@ const updatePaymentStatus = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export { getPaymentMethods, createPayment, getPaymentByOrder, savePaymentMethod, getCustomerPaymentMethods, updatePaymentStatus };
+export { getPaymentMethods, createPayment, getPaymentByOrder, updatePaymentStatus };

@@ -73,7 +73,7 @@ class PaymentMethodPicker extends ConsumerWidget {
       case 'account_balance': return Icons.account_balance;
       case 'qr_code': return Icons.qr_code;
       case 'wallet': return Icons.wallet;
-      default: return Icons.money;
+      default: return Icons.account_balance;
     }
   }
 }

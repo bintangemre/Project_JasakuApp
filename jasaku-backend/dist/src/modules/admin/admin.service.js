@@ -21,6 +21,32 @@ export class AdminService {
             totalCategories
         };
     }
+    // Provider detail
+    async getProviderDetail(providerId) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { id: providerId },
+            include: {
+                users: {
+                    select: { id: true, email: true, phone: true, status: true, created_at: true }
+                },
+                provider_documents: {
+                    orderBy: { created_at: 'desc' }
+                }
+            }
+        });
+        if (!profile)
+            throw new Error('Provider tidak ditemukan');
+        const services = await prisma.provider_services.findMany({
+            where: { provider_id: providerId },
+            include: {
+                services: { select: { id: true, name: true } },
+                provider_service_prices: {
+                    include: { pricing_types: { select: { id: true, name: true, default_unit: true } } }
+                }
+            }
+        });
+        return { ...profile, provider_services: services };
+    }
     // Provider verification
     async getPendingProviders() {
         return await prisma.provider_profiles.findMany({
@@ -31,15 +57,40 @@ export class AdminService {
         });
     }
     async verifyProvider(providerId, status, notes) {
+        const data = {
+            is_verified: status === 'verified',
+            verification_status: status,
+        };
+        if (notes !== undefined) {
+            data.verification_notes = notes;
+        }
         return await prisma.provider_profiles.update({
-            where: { user_id: providerId },
-            data: {
-                is_verified: status === 'verified',
-                verification_status: status,
-            }
+            where: { id: providerId },
+            data,
         });
     }
-    // CRUD Categories
+    async unverifyProvider(providerId) {
+        return await prisma.provider_profiles.update({
+            where: { id: providerId },
+            data: { is_verified: false, verification_status: 'pending' }
+        });
+    }
+    // Categories
+    async getAllCategories() {
+        return await prisma.categories.findMany({ orderBy: { name: 'asc' } });
+    }
+    async getServicesByCategory(categoryId) {
+        return await prisma.services.findMany({
+            where: { category_id: categoryId },
+            orderBy: { name: 'asc' }
+        });
+    }
+    async getPricingTypesByCategory(categoryId) {
+        return await prisma.pricing_types.findMany({
+            where: { category_id: categoryId },
+            orderBy: { name: 'asc' }
+        });
+    }
     async createCategory(name, description, iconUrl) {
         return await prisma.categories.create({
             data: { name, description, icon_url: iconUrl }
@@ -89,7 +140,8 @@ export class AdminService {
     // List users
     async getAllProviders() {
         return await prisma.provider_profiles.findMany({
-            include: { users: { select: { email: true, phone: true, status: true, created_at: true } } }
+            include: { users: { select: { email: true, phone: true, status: true, created_at: true } } },
+            orderBy: { created_at: 'desc' }
         });
     }
     async getAllCustomers() {
@@ -105,6 +157,27 @@ export class AdminService {
     }
     async deletePricingType(id) {
         return await prisma.pricing_types.delete({ where: { id } });
+    }
+    // Orders pending payment (rekber)
+    async getPendingPaymentOrders() {
+        return await prisma.orders.findMany({
+            where: { status: 'pending_payment' },
+            orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                total_price: true,
+                description: true,
+                work_date: true,
+                status: true,
+                created_at: true,
+                profiles_customer: {
+                    select: { id: true, full_name: true, nickname: true }
+                },
+                payments: {
+                    select: { id: true, method: true, amount: true, status: true, created_at: true }
+                }
+            }
+        });
     }
     // Payment Accounts (Rekber Admin)
     async getPaymentAccounts() {
@@ -123,5 +196,68 @@ export class AdminService {
     }
     async deletePaymentAccount(id) {
         return await prisma.admin_payment_accounts.delete({ where: { id } });
+    }
+    async getOpenReports() {
+        return await prisma.reports.findMany({
+            where: { status: 'open' },
+            orderBy: { created_at: 'desc' },
+            include: {
+                users: { select: { id: true, email: true } }
+            }
+        });
+    }
+    async respondToReport(reportId, response, status) {
+        const report = await prisma.reports.findUnique({ where: { id: reportId } });
+        if (!report)
+            throw new Error('Laporan tidak ditemukan');
+        return await prisma.reports.update({
+            where: { id: reportId },
+            data: {
+                status,
+                admin_response: response,
+                resolved_at: new Date(),
+            }
+        });
+    }
+    async getPendingTasks() {
+        return await prisma.custom_tasks.findMany({
+            where: { status: 'open' },
+            orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                budget_min: true,
+                budget_max: true,
+                address: true,
+                deadline: true,
+                status: true,
+                created_at: true,
+                users: {
+                    select: {
+                        profiles_customer: { select: { full_name: true } }
+                    }
+                }
+            }
+        });
+    }
+    async getPendingExtensions() {
+        return await prisma.order_extensions.findMany({
+            where: { status: 'pending' },
+            orderBy: { created_at: 'desc' },
+            include: {
+                orders: {
+                    select: {
+                        id: true,
+                        total_price: true,
+                        description: true,
+                        work_date: true,
+                        platform_fee: true,
+                        provider_profiles: { select: { full_name: true } },
+                        profiles_customer: { select: { full_name: true } }
+                    }
+                }
+            }
+        });
     }
 }

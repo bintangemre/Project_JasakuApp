@@ -28,18 +28,23 @@ export type AggregateOrders = {
 
 export type OrdersAvgAggregateOutputType = {
   total_price: runtime.Decimal | null
+  platform_fee: runtime.Decimal | null
 }
 
 export type OrdersSumAggregateOutputType = {
   total_price: runtime.Decimal | null
+  platform_fee: runtime.Decimal | null
 }
 
 export type OrdersMinAggregateOutputType = {
   id: string | null
   customer_id: string | null
   provider_id: string | null
+  custom_task_id: string | null
+  task_provider_id: string | null
   status: string | null
   total_price: runtime.Decimal | null
+  platform_fee: runtime.Decimal | null
   description: string | null
   work_date: Date | null
   created_at: Date | null
@@ -52,8 +57,11 @@ export type OrdersMaxAggregateOutputType = {
   id: string | null
   customer_id: string | null
   provider_id: string | null
+  custom_task_id: string | null
+  task_provider_id: string | null
   status: string | null
   total_price: runtime.Decimal | null
+  platform_fee: runtime.Decimal | null
   description: string | null
   work_date: Date | null
   created_at: Date | null
@@ -66,8 +74,11 @@ export type OrdersCountAggregateOutputType = {
   id: number
   customer_id: number
   provider_id: number
+  custom_task_id: number
+  task_provider_id: number
   status: number
   total_price: number
+  platform_fee: number
   description: number
   work_date: number
   created_at: number
@@ -80,18 +91,23 @@ export type OrdersCountAggregateOutputType = {
 
 export type OrdersAvgAggregateInputType = {
   total_price?: true
+  platform_fee?: true
 }
 
 export type OrdersSumAggregateInputType = {
   total_price?: true
+  platform_fee?: true
 }
 
 export type OrdersMinAggregateInputType = {
   id?: true
   customer_id?: true
   provider_id?: true
+  custom_task_id?: true
+  task_provider_id?: true
   status?: true
   total_price?: true
+  platform_fee?: true
   description?: true
   work_date?: true
   created_at?: true
@@ -104,8 +120,11 @@ export type OrdersMaxAggregateInputType = {
   id?: true
   customer_id?: true
   provider_id?: true
+  custom_task_id?: true
+  task_provider_id?: true
   status?: true
   total_price?: true
+  platform_fee?: true
   description?: true
   work_date?: true
   created_at?: true
@@ -118,8 +137,11 @@ export type OrdersCountAggregateInputType = {
   id?: true
   customer_id?: true
   provider_id?: true
+  custom_task_id?: true
+  task_provider_id?: true
   status?: true
   total_price?: true
+  platform_fee?: true
   description?: true
   work_date?: true
   created_at?: true
@@ -219,8 +241,11 @@ export type OrdersGroupByOutputType = {
   id: string
   customer_id: string
   provider_id: string
+  custom_task_id: string | null
+  task_provider_id: string | null
   status: string | null
   total_price: runtime.Decimal | null
+  platform_fee: runtime.Decimal | null
   description: string | null
   work_date: Date | null
   created_at: Date | null
@@ -256,8 +281,11 @@ export type ordersWhereInput = {
   id?: Prisma.UuidFilter<"orders"> | string
   customer_id?: Prisma.UuidFilter<"orders"> | string
   provider_id?: Prisma.UuidFilter<"orders"> | string
+  custom_task_id?: Prisma.UuidNullableFilter<"orders"> | string | null
+  task_provider_id?: Prisma.UuidNullableFilter<"orders"> | string | null
   status?: Prisma.StringNullableFilter<"orders"> | string | null
   total_price?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.StringNullableFilter<"orders"> | string | null
   work_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   created_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
@@ -271,14 +299,21 @@ export type ordersWhereInput = {
   provider_profiles?: Prisma.XOR<Prisma.Provider_profilesScalarRelationFilter, Prisma.provider_profilesWhereInput>
   payments?: Prisma.PaymentsListRelationFilter
   reviews?: Prisma.XOR<Prisma.ReviewsNullableScalarRelationFilter, Prisma.reviewsWhereInput> | null
+  custom_tasks?: Prisma.XOR<Prisma.Custom_tasksNullableScalarRelationFilter, Prisma.custom_tasksWhereInput> | null
+  task_provider?: Prisma.XOR<Prisma.Task_providersNullableScalarRelationFilter, Prisma.task_providersWhereInput> | null
+  provider_schedules?: Prisma.Provider_schedulesListRelationFilter
+  order_extensions?: Prisma.Order_extensionsListRelationFilter
 }
 
 export type ordersOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
+  custom_task_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  task_provider_id?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrderInput | Prisma.SortOrder
   total_price?: Prisma.SortOrderInput | Prisma.SortOrder
+  platform_fee?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   work_date?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -292,6 +327,10 @@ export type ordersOrderByWithRelationInput = {
   provider_profiles?: Prisma.provider_profilesOrderByWithRelationInput
   payments?: Prisma.paymentsOrderByRelationAggregateInput
   reviews?: Prisma.reviewsOrderByWithRelationInput
+  custom_tasks?: Prisma.custom_tasksOrderByWithRelationInput
+  task_provider?: Prisma.task_providersOrderByWithRelationInput
+  provider_schedules?: Prisma.provider_schedulesOrderByRelationAggregateInput
+  order_extensions?: Prisma.order_extensionsOrderByRelationAggregateInput
 }
 
 export type ordersWhereUniqueInput = Prisma.AtLeast<{
@@ -301,8 +340,11 @@ export type ordersWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ordersWhereInput | Prisma.ordersWhereInput[]
   customer_id?: Prisma.UuidFilter<"orders"> | string
   provider_id?: Prisma.UuidFilter<"orders"> | string
+  custom_task_id?: Prisma.UuidNullableFilter<"orders"> | string | null
+  task_provider_id?: Prisma.UuidNullableFilter<"orders"> | string | null
   status?: Prisma.StringNullableFilter<"orders"> | string | null
   total_price?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.StringNullableFilter<"orders"> | string | null
   work_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   created_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
@@ -316,14 +358,21 @@ export type ordersWhereUniqueInput = Prisma.AtLeast<{
   provider_profiles?: Prisma.XOR<Prisma.Provider_profilesScalarRelationFilter, Prisma.provider_profilesWhereInput>
   payments?: Prisma.PaymentsListRelationFilter
   reviews?: Prisma.XOR<Prisma.ReviewsNullableScalarRelationFilter, Prisma.reviewsWhereInput> | null
+  custom_tasks?: Prisma.XOR<Prisma.Custom_tasksNullableScalarRelationFilter, Prisma.custom_tasksWhereInput> | null
+  task_provider?: Prisma.XOR<Prisma.Task_providersNullableScalarRelationFilter, Prisma.task_providersWhereInput> | null
+  provider_schedules?: Prisma.Provider_schedulesListRelationFilter
+  order_extensions?: Prisma.Order_extensionsListRelationFilter
 }, "id">
 
 export type ordersOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
+  custom_task_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  task_provider_id?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrderInput | Prisma.SortOrder
   total_price?: Prisma.SortOrderInput | Prisma.SortOrder
+  platform_fee?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   work_date?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -344,8 +393,11 @@ export type ordersScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"orders"> | string
   customer_id?: Prisma.UuidWithAggregatesFilter<"orders"> | string
   provider_id?: Prisma.UuidWithAggregatesFilter<"orders"> | string
+  custom_task_id?: Prisma.UuidNullableWithAggregatesFilter<"orders"> | string | null
+  task_provider_id?: Prisma.UuidNullableWithAggregatesFilter<"orders"> | string | null
   status?: Prisma.StringNullableWithAggregatesFilter<"orders"> | string | null
   total_price?: Prisma.DecimalNullableWithAggregatesFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.DecimalNullableWithAggregatesFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"orders"> | string | null
   work_date?: Prisma.DateTimeNullableWithAggregatesFilter<"orders"> | Date | string | null
   created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"orders"> | Date | string | null
@@ -358,6 +410,7 @@ export type ordersCreateInput = {
   id?: string
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -371,14 +424,21 @@ export type ordersCreateInput = {
   provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
   payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersUncheckedCreateInput = {
   id?: string
   customer_id: string
   provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -390,12 +450,15 @@ export type ordersUncheckedCreateInput = {
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -409,14 +472,21 @@ export type ordersUpdateInput = {
   provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
   payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -428,14 +498,19 @@ export type ordersUncheckedUpdateInput = {
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersCreateManyInput = {
   id?: string
   customer_id: string
   provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -448,6 +523,7 @@ export type ordersUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -460,14 +536,27 @@ export type ordersUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type OrdersListRelationFilter = {
+  every?: Prisma.ordersWhereInput
+  some?: Prisma.ordersWhereInput
+  none?: Prisma.ordersWhereInput
+}
+
+export type ordersOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type OrdersScalarRelationFilter = {
@@ -479,8 +568,11 @@ export type ordersCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
+  custom_task_id?: Prisma.SortOrder
+  task_provider_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
   total_price?: Prisma.SortOrder
+  platform_fee?: Prisma.SortOrder
   description?: Prisma.SortOrder
   work_date?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -491,14 +583,18 @@ export type ordersCountOrderByAggregateInput = {
 
 export type ordersAvgOrderByAggregateInput = {
   total_price?: Prisma.SortOrder
+  platform_fee?: Prisma.SortOrder
 }
 
 export type ordersMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
+  custom_task_id?: Prisma.SortOrder
+  task_provider_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
   total_price?: Prisma.SortOrder
+  platform_fee?: Prisma.SortOrder
   description?: Prisma.SortOrder
   work_date?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -511,8 +607,11 @@ export type ordersMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
+  custom_task_id?: Prisma.SortOrder
+  task_provider_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
   total_price?: Prisma.SortOrder
+  platform_fee?: Prisma.SortOrder
   description?: Prisma.SortOrder
   work_date?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -523,16 +622,96 @@ export type ordersMinOrderByAggregateInput = {
 
 export type ordersSumOrderByAggregateInput = {
   total_price?: Prisma.SortOrder
+  platform_fee?: Prisma.SortOrder
 }
 
-export type OrdersListRelationFilter = {
-  every?: Prisma.ordersWhereInput
-  some?: Prisma.ordersWhereInput
-  none?: Prisma.ordersWhereInput
+export type OrdersNullableScalarRelationFilter = {
+  is?: Prisma.ordersWhereInput | null
+  isNot?: Prisma.ordersWhereInput | null
 }
 
-export type ordersOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type ordersCreateNestedManyWithoutCustom_tasksInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutCustom_tasksInput, Prisma.ordersUncheckedCreateWithoutCustom_tasksInput> | Prisma.ordersCreateWithoutCustom_tasksInput[] | Prisma.ordersUncheckedCreateWithoutCustom_tasksInput[]
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutCustom_tasksInput | Prisma.ordersCreateOrConnectWithoutCustom_tasksInput[]
+  createMany?: Prisma.ordersCreateManyCustom_tasksInputEnvelope
+  connect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+}
+
+export type ordersUncheckedCreateNestedManyWithoutCustom_tasksInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutCustom_tasksInput, Prisma.ordersUncheckedCreateWithoutCustom_tasksInput> | Prisma.ordersCreateWithoutCustom_tasksInput[] | Prisma.ordersUncheckedCreateWithoutCustom_tasksInput[]
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutCustom_tasksInput | Prisma.ordersCreateOrConnectWithoutCustom_tasksInput[]
+  createMany?: Prisma.ordersCreateManyCustom_tasksInputEnvelope
+  connect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+}
+
+export type ordersUpdateManyWithoutCustom_tasksNestedInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutCustom_tasksInput, Prisma.ordersUncheckedCreateWithoutCustom_tasksInput> | Prisma.ordersCreateWithoutCustom_tasksInput[] | Prisma.ordersUncheckedCreateWithoutCustom_tasksInput[]
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutCustom_tasksInput | Prisma.ordersCreateOrConnectWithoutCustom_tasksInput[]
+  upsert?: Prisma.ordersUpsertWithWhereUniqueWithoutCustom_tasksInput | Prisma.ordersUpsertWithWhereUniqueWithoutCustom_tasksInput[]
+  createMany?: Prisma.ordersCreateManyCustom_tasksInputEnvelope
+  set?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  disconnect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  delete?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  connect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  update?: Prisma.ordersUpdateWithWhereUniqueWithoutCustom_tasksInput | Prisma.ordersUpdateWithWhereUniqueWithoutCustom_tasksInput[]
+  updateMany?: Prisma.ordersUpdateManyWithWhereWithoutCustom_tasksInput | Prisma.ordersUpdateManyWithWhereWithoutCustom_tasksInput[]
+  deleteMany?: Prisma.ordersScalarWhereInput | Prisma.ordersScalarWhereInput[]
+}
+
+export type ordersUncheckedUpdateManyWithoutCustom_tasksNestedInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutCustom_tasksInput, Prisma.ordersUncheckedCreateWithoutCustom_tasksInput> | Prisma.ordersCreateWithoutCustom_tasksInput[] | Prisma.ordersUncheckedCreateWithoutCustom_tasksInput[]
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutCustom_tasksInput | Prisma.ordersCreateOrConnectWithoutCustom_tasksInput[]
+  upsert?: Prisma.ordersUpsertWithWhereUniqueWithoutCustom_tasksInput | Prisma.ordersUpsertWithWhereUniqueWithoutCustom_tasksInput[]
+  createMany?: Prisma.ordersCreateManyCustom_tasksInputEnvelope
+  set?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  disconnect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  delete?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  connect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  update?: Prisma.ordersUpdateWithWhereUniqueWithoutCustom_tasksInput | Prisma.ordersUpdateWithWhereUniqueWithoutCustom_tasksInput[]
+  updateMany?: Prisma.ordersUpdateManyWithWhereWithoutCustom_tasksInput | Prisma.ordersUpdateManyWithWhereWithoutCustom_tasksInput[]
+  deleteMany?: Prisma.ordersScalarWhereInput | Prisma.ordersScalarWhereInput[]
+}
+
+export type ordersCreateNestedManyWithoutTask_providerInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutTask_providerInput, Prisma.ordersUncheckedCreateWithoutTask_providerInput> | Prisma.ordersCreateWithoutTask_providerInput[] | Prisma.ordersUncheckedCreateWithoutTask_providerInput[]
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutTask_providerInput | Prisma.ordersCreateOrConnectWithoutTask_providerInput[]
+  createMany?: Prisma.ordersCreateManyTask_providerInputEnvelope
+  connect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+}
+
+export type ordersUncheckedCreateNestedManyWithoutTask_providerInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutTask_providerInput, Prisma.ordersUncheckedCreateWithoutTask_providerInput> | Prisma.ordersCreateWithoutTask_providerInput[] | Prisma.ordersUncheckedCreateWithoutTask_providerInput[]
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutTask_providerInput | Prisma.ordersCreateOrConnectWithoutTask_providerInput[]
+  createMany?: Prisma.ordersCreateManyTask_providerInputEnvelope
+  connect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+}
+
+export type ordersUpdateManyWithoutTask_providerNestedInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutTask_providerInput, Prisma.ordersUncheckedCreateWithoutTask_providerInput> | Prisma.ordersCreateWithoutTask_providerInput[] | Prisma.ordersUncheckedCreateWithoutTask_providerInput[]
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutTask_providerInput | Prisma.ordersCreateOrConnectWithoutTask_providerInput[]
+  upsert?: Prisma.ordersUpsertWithWhereUniqueWithoutTask_providerInput | Prisma.ordersUpsertWithWhereUniqueWithoutTask_providerInput[]
+  createMany?: Prisma.ordersCreateManyTask_providerInputEnvelope
+  set?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  disconnect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  delete?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  connect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  update?: Prisma.ordersUpdateWithWhereUniqueWithoutTask_providerInput | Prisma.ordersUpdateWithWhereUniqueWithoutTask_providerInput[]
+  updateMany?: Prisma.ordersUpdateManyWithWhereWithoutTask_providerInput | Prisma.ordersUpdateManyWithWhereWithoutTask_providerInput[]
+  deleteMany?: Prisma.ordersScalarWhereInput | Prisma.ordersScalarWhereInput[]
+}
+
+export type ordersUncheckedUpdateManyWithoutTask_providerNestedInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutTask_providerInput, Prisma.ordersUncheckedCreateWithoutTask_providerInput> | Prisma.ordersCreateWithoutTask_providerInput[] | Prisma.ordersUncheckedCreateWithoutTask_providerInput[]
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutTask_providerInput | Prisma.ordersCreateOrConnectWithoutTask_providerInput[]
+  upsert?: Prisma.ordersUpsertWithWhereUniqueWithoutTask_providerInput | Prisma.ordersUpsertWithWhereUniqueWithoutTask_providerInput[]
+  createMany?: Prisma.ordersCreateManyTask_providerInputEnvelope
+  set?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  disconnect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  delete?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  connect?: Prisma.ordersWhereUniqueInput | Prisma.ordersWhereUniqueInput[]
+  update?: Prisma.ordersUpdateWithWhereUniqueWithoutTask_providerInput | Prisma.ordersUpdateWithWhereUniqueWithoutTask_providerInput[]
+  updateMany?: Prisma.ordersUpdateManyWithWhereWithoutTask_providerInput | Prisma.ordersUpdateManyWithWhereWithoutTask_providerInput[]
+  deleteMany?: Prisma.ordersScalarWhereInput | Prisma.ordersScalarWhereInput[]
 }
 
 export type ordersCreateNestedOneWithoutOrder_attachmentsInput = {
@@ -589,6 +768,36 @@ export type ordersUpdateOneRequiredWithoutPaymentsNestedInput = {
   upsert?: Prisma.ordersUpsertWithoutPaymentsInput
   connect?: Prisma.ordersWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ordersUpdateToOneWithWhereWithoutPaymentsInput, Prisma.ordersUpdateWithoutPaymentsInput>, Prisma.ordersUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type ordersCreateNestedOneWithoutProvider_schedulesInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutProvider_schedulesInput, Prisma.ordersUncheckedCreateWithoutProvider_schedulesInput>
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutProvider_schedulesInput
+  connect?: Prisma.ordersWhereUniqueInput
+}
+
+export type ordersUpdateOneWithoutProvider_schedulesNestedInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutProvider_schedulesInput, Prisma.ordersUncheckedCreateWithoutProvider_schedulesInput>
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutProvider_schedulesInput
+  upsert?: Prisma.ordersUpsertWithoutProvider_schedulesInput
+  disconnect?: Prisma.ordersWhereInput | boolean
+  delete?: Prisma.ordersWhereInput | boolean
+  connect?: Prisma.ordersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ordersUpdateToOneWithWhereWithoutProvider_schedulesInput, Prisma.ordersUpdateWithoutProvider_schedulesInput>, Prisma.ordersUncheckedUpdateWithoutProvider_schedulesInput>
+}
+
+export type ordersCreateNestedOneWithoutOrder_extensionsInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutOrder_extensionsInput, Prisma.ordersUncheckedCreateWithoutOrder_extensionsInput>
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutOrder_extensionsInput
+  connect?: Prisma.ordersWhereUniqueInput
+}
+
+export type ordersUpdateOneRequiredWithoutOrder_extensionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ordersCreateWithoutOrder_extensionsInput, Prisma.ordersUncheckedCreateWithoutOrder_extensionsInput>
+  connectOrCreate?: Prisma.ordersCreateOrConnectWithoutOrder_extensionsInput
+  upsert?: Prisma.ordersUpsertWithoutOrder_extensionsInput
+  connect?: Prisma.ordersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ordersUpdateToOneWithWhereWithoutOrder_extensionsInput, Prisma.ordersUpdateWithoutOrder_extensionsInput>, Prisma.ordersUncheckedUpdateWithoutOrder_extensionsInput>
 }
 
 export type ordersCreateNestedManyWithoutProfiles_customerInput = {
@@ -689,10 +898,175 @@ export type ordersUpdateOneRequiredWithoutReviewsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ordersUpdateToOneWithWhereWithoutReviewsInput, Prisma.ordersUpdateWithoutReviewsInput>, Prisma.ordersUncheckedUpdateWithoutReviewsInput>
 }
 
+export type ordersCreateWithoutCustom_tasksInput = {
+  id?: string
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+  order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
+  order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
+  order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
+  profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
+  provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
+  payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
+  reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
+}
+
+export type ordersUncheckedCreateWithoutCustom_tasksInput = {
+  id?: string
+  customer_id: string
+  provider_id: string
+  task_provider_id?: string | null
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+  order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
+  order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
+  order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
+  payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
+  reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
+}
+
+export type ordersCreateOrConnectWithoutCustom_tasksInput = {
+  where: Prisma.ordersWhereUniqueInput
+  create: Prisma.XOR<Prisma.ordersCreateWithoutCustom_tasksInput, Prisma.ordersUncheckedCreateWithoutCustom_tasksInput>
+}
+
+export type ordersCreateManyCustom_tasksInputEnvelope = {
+  data: Prisma.ordersCreateManyCustom_tasksInput | Prisma.ordersCreateManyCustom_tasksInput[]
+  skipDuplicates?: boolean
+}
+
+export type ordersUpsertWithWhereUniqueWithoutCustom_tasksInput = {
+  where: Prisma.ordersWhereUniqueInput
+  update: Prisma.XOR<Prisma.ordersUpdateWithoutCustom_tasksInput, Prisma.ordersUncheckedUpdateWithoutCustom_tasksInput>
+  create: Prisma.XOR<Prisma.ordersCreateWithoutCustom_tasksInput, Prisma.ordersUncheckedCreateWithoutCustom_tasksInput>
+}
+
+export type ordersUpdateWithWhereUniqueWithoutCustom_tasksInput = {
+  where: Prisma.ordersWhereUniqueInput
+  data: Prisma.XOR<Prisma.ordersUpdateWithoutCustom_tasksInput, Prisma.ordersUncheckedUpdateWithoutCustom_tasksInput>
+}
+
+export type ordersUpdateManyWithWhereWithoutCustom_tasksInput = {
+  where: Prisma.ordersScalarWhereInput
+  data: Prisma.XOR<Prisma.ordersUpdateManyMutationInput, Prisma.ordersUncheckedUpdateManyWithoutCustom_tasksInput>
+}
+
+export type ordersScalarWhereInput = {
+  AND?: Prisma.ordersScalarWhereInput | Prisma.ordersScalarWhereInput[]
+  OR?: Prisma.ordersScalarWhereInput[]
+  NOT?: Prisma.ordersScalarWhereInput | Prisma.ordersScalarWhereInput[]
+  id?: Prisma.UuidFilter<"orders"> | string
+  customer_id?: Prisma.UuidFilter<"orders"> | string
+  provider_id?: Prisma.UuidFilter<"orders"> | string
+  custom_task_id?: Prisma.UuidNullableFilter<"orders"> | string | null
+  task_provider_id?: Prisma.UuidNullableFilter<"orders"> | string | null
+  status?: Prisma.StringNullableFilter<"orders"> | string | null
+  total_price?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.StringNullableFilter<"orders"> | string | null
+  work_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
+  created_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
+  start_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
+  end_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
+  assignment_type?: Prisma.StringNullableFilter<"orders"> | string | null
+}
+
+export type ordersCreateWithoutTask_providerInput = {
+  id?: string
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+  order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
+  order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
+  order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
+  profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
+  provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
+  payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
+  reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
+}
+
+export type ordersUncheckedCreateWithoutTask_providerInput = {
+  id?: string
+  customer_id: string
+  provider_id: string
+  custom_task_id?: string | null
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+  order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
+  order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
+  order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
+  payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
+  reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
+}
+
+export type ordersCreateOrConnectWithoutTask_providerInput = {
+  where: Prisma.ordersWhereUniqueInput
+  create: Prisma.XOR<Prisma.ordersCreateWithoutTask_providerInput, Prisma.ordersUncheckedCreateWithoutTask_providerInput>
+}
+
+export type ordersCreateManyTask_providerInputEnvelope = {
+  data: Prisma.ordersCreateManyTask_providerInput | Prisma.ordersCreateManyTask_providerInput[]
+  skipDuplicates?: boolean
+}
+
+export type ordersUpsertWithWhereUniqueWithoutTask_providerInput = {
+  where: Prisma.ordersWhereUniqueInput
+  update: Prisma.XOR<Prisma.ordersUpdateWithoutTask_providerInput, Prisma.ordersUncheckedUpdateWithoutTask_providerInput>
+  create: Prisma.XOR<Prisma.ordersCreateWithoutTask_providerInput, Prisma.ordersUncheckedCreateWithoutTask_providerInput>
+}
+
+export type ordersUpdateWithWhereUniqueWithoutTask_providerInput = {
+  where: Prisma.ordersWhereUniqueInput
+  data: Prisma.XOR<Prisma.ordersUpdateWithoutTask_providerInput, Prisma.ordersUncheckedUpdateWithoutTask_providerInput>
+}
+
+export type ordersUpdateManyWithWhereWithoutTask_providerInput = {
+  where: Prisma.ordersScalarWhereInput
+  data: Prisma.XOR<Prisma.ordersUpdateManyMutationInput, Prisma.ordersUncheckedUpdateManyWithoutTask_providerInput>
+}
+
 export type ordersCreateWithoutOrder_attachmentsInput = {
   id?: string
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -705,14 +1079,21 @@ export type ordersCreateWithoutOrder_attachmentsInput = {
   provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
   payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersUncheckedCreateWithoutOrder_attachmentsInput = {
   id?: string
   customer_id: string
   provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -723,6 +1104,8 @@ export type ordersUncheckedCreateWithoutOrder_attachmentsInput = {
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersCreateOrConnectWithoutOrder_attachmentsInput = {
@@ -745,6 +1128,7 @@ export type ordersUpdateWithoutOrder_attachmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -757,14 +1141,21 @@ export type ordersUpdateWithoutOrder_attachmentsInput = {
   provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
   payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateWithoutOrder_attachmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -775,12 +1166,15 @@ export type ordersUncheckedUpdateWithoutOrder_attachmentsInput = {
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersCreateWithoutOrder_itemsInput = {
   id?: string
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -793,14 +1187,21 @@ export type ordersCreateWithoutOrder_itemsInput = {
   provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
   payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersUncheckedCreateWithoutOrder_itemsInput = {
   id?: string
   customer_id: string
   provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -811,6 +1212,8 @@ export type ordersUncheckedCreateWithoutOrder_itemsInput = {
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersCreateOrConnectWithoutOrder_itemsInput = {
@@ -833,6 +1236,7 @@ export type ordersUpdateWithoutOrder_itemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -845,14 +1249,21 @@ export type ordersUpdateWithoutOrder_itemsInput = {
   provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
   payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateWithoutOrder_itemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -863,12 +1274,15 @@ export type ordersUncheckedUpdateWithoutOrder_itemsInput = {
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersCreateWithoutOrder_locationsInput = {
   id?: string
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -881,14 +1295,21 @@ export type ordersCreateWithoutOrder_locationsInput = {
   provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
   payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersUncheckedCreateWithoutOrder_locationsInput = {
   id?: string
   customer_id: string
   provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -899,6 +1320,8 @@ export type ordersUncheckedCreateWithoutOrder_locationsInput = {
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersCreateOrConnectWithoutOrder_locationsInput = {
@@ -921,6 +1344,7 @@ export type ordersUpdateWithoutOrder_locationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -933,14 +1357,21 @@ export type ordersUpdateWithoutOrder_locationsInput = {
   provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
   payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateWithoutOrder_locationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -951,12 +1382,15 @@ export type ordersUncheckedUpdateWithoutOrder_locationsInput = {
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersCreateWithoutPaymentsInput = {
   id?: string
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -969,14 +1403,21 @@ export type ordersCreateWithoutPaymentsInput = {
   profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
   provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
   reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersUncheckedCreateWithoutPaymentsInput = {
   id?: string
   customer_id: string
   provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -987,6 +1428,8 @@ export type ordersUncheckedCreateWithoutPaymentsInput = {
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersCreateOrConnectWithoutPaymentsInput = {
@@ -1009,6 +1452,7 @@ export type ordersUpdateWithoutPaymentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1021,14 +1465,21 @@ export type ordersUpdateWithoutPaymentsInput = {
   profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
   provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateWithoutPaymentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1039,12 +1490,231 @@ export type ordersUncheckedUpdateWithoutPaymentsInput = {
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
+}
+
+export type ordersCreateWithoutProvider_schedulesInput = {
+  id?: string
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+  order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
+  order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
+  order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
+  profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
+  provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
+  payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
+  reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
+}
+
+export type ordersUncheckedCreateWithoutProvider_schedulesInput = {
+  id?: string
+  customer_id: string
+  provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+  order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
+  order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
+  order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
+  payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
+  reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
+}
+
+export type ordersCreateOrConnectWithoutProvider_schedulesInput = {
+  where: Prisma.ordersWhereUniqueInput
+  create: Prisma.XOR<Prisma.ordersCreateWithoutProvider_schedulesInput, Prisma.ordersUncheckedCreateWithoutProvider_schedulesInput>
+}
+
+export type ordersUpsertWithoutProvider_schedulesInput = {
+  update: Prisma.XOR<Prisma.ordersUpdateWithoutProvider_schedulesInput, Prisma.ordersUncheckedUpdateWithoutProvider_schedulesInput>
+  create: Prisma.XOR<Prisma.ordersCreateWithoutProvider_schedulesInput, Prisma.ordersUncheckedCreateWithoutProvider_schedulesInput>
+  where?: Prisma.ordersWhereInput
+}
+
+export type ordersUpdateToOneWithWhereWithoutProvider_schedulesInput = {
+  where?: Prisma.ordersWhereInput
+  data: Prisma.XOR<Prisma.ordersUpdateWithoutProvider_schedulesInput, Prisma.ordersUncheckedUpdateWithoutProvider_schedulesInput>
+}
+
+export type ordersUpdateWithoutProvider_schedulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
+  order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
+  order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
+  payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
+  reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
+}
+
+export type ordersUncheckedUpdateWithoutProvider_schedulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
+  order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
+  order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
+  payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
+  reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
+}
+
+export type ordersCreateWithoutOrder_extensionsInput = {
+  id?: string
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+  order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
+  order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
+  order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
+  profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
+  provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
+  payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
+  reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+}
+
+export type ordersUncheckedCreateWithoutOrder_extensionsInput = {
+  id?: string
+  customer_id: string
+  provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+  order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
+  order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
+  order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
+  payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
+  reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+}
+
+export type ordersCreateOrConnectWithoutOrder_extensionsInput = {
+  where: Prisma.ordersWhereUniqueInput
+  create: Prisma.XOR<Prisma.ordersCreateWithoutOrder_extensionsInput, Prisma.ordersUncheckedCreateWithoutOrder_extensionsInput>
+}
+
+export type ordersUpsertWithoutOrder_extensionsInput = {
+  update: Prisma.XOR<Prisma.ordersUpdateWithoutOrder_extensionsInput, Prisma.ordersUncheckedUpdateWithoutOrder_extensionsInput>
+  create: Prisma.XOR<Prisma.ordersCreateWithoutOrder_extensionsInput, Prisma.ordersUncheckedCreateWithoutOrder_extensionsInput>
+  where?: Prisma.ordersWhereInput
+}
+
+export type ordersUpdateToOneWithWhereWithoutOrder_extensionsInput = {
+  where?: Prisma.ordersWhereInput
+  data: Prisma.XOR<Prisma.ordersUpdateWithoutOrder_extensionsInput, Prisma.ordersUncheckedUpdateWithoutOrder_extensionsInput>
+}
+
+export type ordersUpdateWithoutOrder_extensionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
+  order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
+  order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
+  payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
+  reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+}
+
+export type ordersUncheckedUpdateWithoutOrder_extensionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
+  order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
+  order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
+  payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
+  reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersCreateWithoutProfiles_customerInput = {
   id?: string
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1057,13 +1727,20 @@ export type ordersCreateWithoutProfiles_customerInput = {
   provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
   payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersUncheckedCreateWithoutProfiles_customerInput = {
   id?: string
   provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1075,6 +1752,8 @@ export type ordersUncheckedCreateWithoutProfiles_customerInput = {
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersCreateOrConnectWithoutProfiles_customerInput = {
@@ -1103,27 +1782,11 @@ export type ordersUpdateManyWithWhereWithoutProfiles_customerInput = {
   data: Prisma.XOR<Prisma.ordersUpdateManyMutationInput, Prisma.ordersUncheckedUpdateManyWithoutProfiles_customerInput>
 }
 
-export type ordersScalarWhereInput = {
-  AND?: Prisma.ordersScalarWhereInput | Prisma.ordersScalarWhereInput[]
-  OR?: Prisma.ordersScalarWhereInput[]
-  NOT?: Prisma.ordersScalarWhereInput | Prisma.ordersScalarWhereInput[]
-  id?: Prisma.UuidFilter<"orders"> | string
-  customer_id?: Prisma.UuidFilter<"orders"> | string
-  provider_id?: Prisma.UuidFilter<"orders"> | string
-  status?: Prisma.StringNullableFilter<"orders"> | string | null
-  total_price?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  description?: Prisma.StringNullableFilter<"orders"> | string | null
-  work_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
-  created_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
-  start_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
-  end_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
-  assignment_type?: Prisma.StringNullableFilter<"orders"> | string | null
-}
-
 export type ordersCreateWithoutProvider_profilesInput = {
   id?: string
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1136,13 +1799,20 @@ export type ordersCreateWithoutProvider_profilesInput = {
   profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
   payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsCreateNestedOneWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersUncheckedCreateWithoutProvider_profilesInput = {
   id?: string
   customer_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1154,6 +1824,8 @@ export type ordersUncheckedCreateWithoutProvider_profilesInput = {
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
   reviews?: Prisma.reviewsUncheckedCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersCreateOrConnectWithoutProvider_profilesInput = {
@@ -1186,6 +1858,7 @@ export type ordersCreateWithoutReviewsInput = {
   id?: string
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1198,14 +1871,21 @@ export type ordersCreateWithoutReviewsInput = {
   profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
   provider_profiles: Prisma.provider_profilesCreateNestedOneWithoutOrdersInput
   payments?: Prisma.paymentsCreateNestedManyWithoutOrdersInput
+  custom_tasks?: Prisma.custom_tasksCreateNestedOneWithoutOrdersInput
+  task_provider?: Prisma.task_providersCreateNestedOneWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersUncheckedCreateWithoutReviewsInput = {
   id?: string
   customer_id: string
   provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1216,6 +1896,8 @@ export type ordersUncheckedCreateWithoutReviewsInput = {
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedCreateNestedManyWithoutOrdersInput
+  order_extensions?: Prisma.order_extensionsUncheckedCreateNestedManyWithoutOrdersInput
 }
 
 export type ordersCreateOrConnectWithoutReviewsInput = {
@@ -1238,6 +1920,7 @@ export type ordersUpdateWithoutReviewsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1250,14 +1933,21 @@ export type ordersUpdateWithoutReviewsInput = {
   profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
   provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
   payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateWithoutReviewsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1268,13 +1958,174 @@ export type ordersUncheckedUpdateWithoutReviewsInput = {
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
+}
+
+export type ordersCreateManyCustom_tasksInput = {
+  id?: string
+  customer_id: string
+  provider_id: string
+  task_provider_id?: string | null
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+}
+
+export type ordersUpdateWithoutCustom_tasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
+  order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
+  order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
+  payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
+  reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
+}
+
+export type ordersUncheckedUpdateWithoutCustom_tasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
+  order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
+  order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
+  payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
+  reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
+}
+
+export type ordersUncheckedUpdateManyWithoutCustom_tasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type ordersCreateManyTask_providerInput = {
+  id?: string
+  customer_id: string
+  provider_id: string
+  custom_task_id?: string | null
+  status?: string | null
+  total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: string | null
+  work_date?: Date | string | null
+  created_at?: Date | string | null
+  start_date?: Date | string | null
+  end_date?: Date | string | null
+  assignment_type?: string | null
+}
+
+export type ordersUpdateWithoutTask_providerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
+  order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
+  order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
+  profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
+  provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
+  payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
+  reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
+}
+
+export type ordersUncheckedUpdateWithoutTask_providerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
+  order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
+  order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
+  payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
+  reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
+}
+
+export type ordersUncheckedUpdateManyWithoutTask_providerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ordersCreateManyProfiles_customerInput = {
   id?: string
   provider_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1287,6 +2138,7 @@ export type ordersUpdateWithoutProfiles_customerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1299,13 +2151,20 @@ export type ordersUpdateWithoutProfiles_customerInput = {
   provider_profiles?: Prisma.provider_profilesUpdateOneRequiredWithoutOrdersNestedInput
   payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateWithoutProfiles_customerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1317,13 +2176,18 @@ export type ordersUncheckedUpdateWithoutProfiles_customerInput = {
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateManyWithoutProfiles_customerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1335,8 +2199,11 @@ export type ordersUncheckedUpdateManyWithoutProfiles_customerInput = {
 export type ordersCreateManyProvider_profilesInput = {
   id?: string
   customer_id: string
+  custom_task_id?: string | null
+  task_provider_id?: string | null
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1349,6 +2216,7 @@ export type ordersUpdateWithoutProvider_profilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1361,13 +2229,20 @@ export type ordersUpdateWithoutProvider_profilesInput = {
   profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
   payments?: Prisma.paymentsUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUpdateOneWithoutOrdersNestedInput
+  custom_tasks?: Prisma.custom_tasksUpdateOneWithoutOrdersNestedInput
+  task_provider?: Prisma.task_providersUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateWithoutProvider_profilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1379,13 +2254,18 @@ export type ordersUncheckedUpdateWithoutProvider_profilesInput = {
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
   reviews?: Prisma.reviewsUncheckedUpdateOneWithoutOrdersNestedInput
+  provider_schedules?: Prisma.provider_schedulesUncheckedUpdateManyWithoutOrdersNestedInput
+  order_extensions?: Prisma.order_extensionsUncheckedUpdateManyWithoutOrdersNestedInput
 }
 
 export type ordersUncheckedUpdateManyWithoutProvider_profilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  custom_task_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  task_provider_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1404,6 +2284,8 @@ export type OrdersCountOutputType = {
   order_items: number
   order_locations: number
   payments: number
+  provider_schedules: number
+  order_extensions: number
 }
 
 export type OrdersCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1411,6 +2293,8 @@ export type OrdersCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   order_items?: boolean | OrdersCountOutputTypeCountOrder_itemsArgs
   order_locations?: boolean | OrdersCountOutputTypeCountOrder_locationsArgs
   payments?: boolean | OrdersCountOutputTypeCountPaymentsArgs
+  provider_schedules?: boolean | OrdersCountOutputTypeCountProvider_schedulesArgs
+  order_extensions?: boolean | OrdersCountOutputTypeCountOrder_extensionsArgs
 }
 
 /**
@@ -1451,13 +2335,30 @@ export type OrdersCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types
   where?: Prisma.paymentsWhereInput
 }
 
+/**
+ * OrdersCountOutputType without action
+ */
+export type OrdersCountOutputTypeCountProvider_schedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.provider_schedulesWhereInput
+}
+
+/**
+ * OrdersCountOutputType without action
+ */
+export type OrdersCountOutputTypeCountOrder_extensionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.order_extensionsWhereInput
+}
+
 
 export type ordersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   customer_id?: boolean
   provider_id?: boolean
+  custom_task_id?: boolean
+  task_provider_id?: boolean
   status?: boolean
   total_price?: boolean
+  platform_fee?: boolean
   description?: boolean
   work_date?: boolean
   created_at?: boolean
@@ -1471,6 +2372,10 @@ export type ordersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
   payments?: boolean | Prisma.orders$paymentsArgs<ExtArgs>
   reviews?: boolean | Prisma.orders$reviewsArgs<ExtArgs>
+  custom_tasks?: boolean | Prisma.orders$custom_tasksArgs<ExtArgs>
+  task_provider?: boolean | Prisma.orders$task_providerArgs<ExtArgs>
+  provider_schedules?: boolean | Prisma.orders$provider_schedulesArgs<ExtArgs>
+  order_extensions?: boolean | Prisma.orders$order_extensionsArgs<ExtArgs>
   _count?: boolean | Prisma.OrdersCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orders"]>
 
@@ -1478,8 +2383,11 @@ export type ordersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   customer_id?: boolean
   provider_id?: boolean
+  custom_task_id?: boolean
+  task_provider_id?: boolean
   status?: boolean
   total_price?: boolean
+  platform_fee?: boolean
   description?: boolean
   work_date?: boolean
   created_at?: boolean
@@ -1488,14 +2396,19 @@ export type ordersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   assignment_type?: boolean
   profiles_customer?: boolean | Prisma.profiles_customerDefaultArgs<ExtArgs>
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
+  custom_tasks?: boolean | Prisma.orders$custom_tasksArgs<ExtArgs>
+  task_provider?: boolean | Prisma.orders$task_providerArgs<ExtArgs>
 }, ExtArgs["result"]["orders"]>
 
 export type ordersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   customer_id?: boolean
   provider_id?: boolean
+  custom_task_id?: boolean
+  task_provider_id?: boolean
   status?: boolean
   total_price?: boolean
+  platform_fee?: boolean
   description?: boolean
   work_date?: boolean
   created_at?: boolean
@@ -1504,14 +2417,19 @@ export type ordersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   assignment_type?: boolean
   profiles_customer?: boolean | Prisma.profiles_customerDefaultArgs<ExtArgs>
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
+  custom_tasks?: boolean | Prisma.orders$custom_tasksArgs<ExtArgs>
+  task_provider?: boolean | Prisma.orders$task_providerArgs<ExtArgs>
 }, ExtArgs["result"]["orders"]>
 
 export type ordersSelectScalar = {
   id?: boolean
   customer_id?: boolean
   provider_id?: boolean
+  custom_task_id?: boolean
+  task_provider_id?: boolean
   status?: boolean
   total_price?: boolean
+  platform_fee?: boolean
   description?: boolean
   work_date?: boolean
   created_at?: boolean
@@ -1520,7 +2438,7 @@ export type ordersSelectScalar = {
   assignment_type?: boolean
 }
 
-export type ordersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "provider_id" | "status" | "total_price" | "description" | "work_date" | "created_at" | "start_date" | "end_date" | "assignment_type", ExtArgs["result"]["orders"]>
+export type ordersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "provider_id" | "custom_task_id" | "task_provider_id" | "status" | "total_price" | "platform_fee" | "description" | "work_date" | "created_at" | "start_date" | "end_date" | "assignment_type", ExtArgs["result"]["orders"]>
 export type ordersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order_attachments?: boolean | Prisma.orders$order_attachmentsArgs<ExtArgs>
   order_items?: boolean | Prisma.orders$order_itemsArgs<ExtArgs>
@@ -1529,15 +2447,23 @@ export type ordersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
   payments?: boolean | Prisma.orders$paymentsArgs<ExtArgs>
   reviews?: boolean | Prisma.orders$reviewsArgs<ExtArgs>
+  custom_tasks?: boolean | Prisma.orders$custom_tasksArgs<ExtArgs>
+  task_provider?: boolean | Prisma.orders$task_providerArgs<ExtArgs>
+  provider_schedules?: boolean | Prisma.orders$provider_schedulesArgs<ExtArgs>
+  order_extensions?: boolean | Prisma.orders$order_extensionsArgs<ExtArgs>
   _count?: boolean | Prisma.OrdersCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ordersIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   profiles_customer?: boolean | Prisma.profiles_customerDefaultArgs<ExtArgs>
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
+  custom_tasks?: boolean | Prisma.orders$custom_tasksArgs<ExtArgs>
+  task_provider?: boolean | Prisma.orders$task_providerArgs<ExtArgs>
 }
 export type ordersIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   profiles_customer?: boolean | Prisma.profiles_customerDefaultArgs<ExtArgs>
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
+  custom_tasks?: boolean | Prisma.orders$custom_tasksArgs<ExtArgs>
+  task_provider?: boolean | Prisma.orders$task_providerArgs<ExtArgs>
 }
 
 export type $ordersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1550,13 +2476,20 @@ export type $ordersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     provider_profiles: Prisma.$provider_profilesPayload<ExtArgs>
     payments: Prisma.$paymentsPayload<ExtArgs>[]
     reviews: Prisma.$reviewsPayload<ExtArgs> | null
+    custom_tasks: Prisma.$custom_tasksPayload<ExtArgs> | null
+    task_provider: Prisma.$task_providersPayload<ExtArgs> | null
+    provider_schedules: Prisma.$provider_schedulesPayload<ExtArgs>[]
+    order_extensions: Prisma.$order_extensionsPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     customer_id: string
     provider_id: string
+    custom_task_id: string | null
+    task_provider_id: string | null
     status: string | null
     total_price: runtime.Decimal | null
+    platform_fee: runtime.Decimal | null
     description: string | null
     work_date: Date | null
     created_at: Date | null
@@ -1964,6 +2897,10 @@ export interface Prisma__ordersClient<T, Null = never, ExtArgs extends runtime.T
   provider_profiles<T extends Prisma.provider_profilesDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.provider_profilesDefaultArgs<ExtArgs>>): Prisma.Prisma__provider_profilesClient<runtime.Types.Result.GetResult<Prisma.$provider_profilesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   payments<T extends Prisma.orders$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.orders$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$paymentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviews<T extends Prisma.orders$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.orders$reviewsArgs<ExtArgs>>): Prisma.Prisma__reviewsClient<runtime.Types.Result.GetResult<Prisma.$reviewsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  custom_tasks<T extends Prisma.orders$custom_tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.orders$custom_tasksArgs<ExtArgs>>): Prisma.Prisma__custom_tasksClient<runtime.Types.Result.GetResult<Prisma.$custom_tasksPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  task_provider<T extends Prisma.orders$task_providerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.orders$task_providerArgs<ExtArgs>>): Prisma.Prisma__task_providersClient<runtime.Types.Result.GetResult<Prisma.$task_providersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  provider_schedules<T extends Prisma.orders$provider_schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.orders$provider_schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$provider_schedulesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  order_extensions<T extends Prisma.orders$order_extensionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.orders$order_extensionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$order_extensionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1996,8 +2933,11 @@ export interface ordersFieldRefs {
   readonly id: Prisma.FieldRef<"orders", 'String'>
   readonly customer_id: Prisma.FieldRef<"orders", 'String'>
   readonly provider_id: Prisma.FieldRef<"orders", 'String'>
+  readonly custom_task_id: Prisma.FieldRef<"orders", 'String'>
+  readonly task_provider_id: Prisma.FieldRef<"orders", 'String'>
   readonly status: Prisma.FieldRef<"orders", 'String'>
   readonly total_price: Prisma.FieldRef<"orders", 'Decimal'>
+  readonly platform_fee: Prisma.FieldRef<"orders", 'Decimal'>
   readonly description: Prisma.FieldRef<"orders", 'String'>
   readonly work_date: Prisma.FieldRef<"orders", 'DateTime'>
   readonly created_at: Prisma.FieldRef<"orders", 'DateTime'>
@@ -2517,6 +3457,92 @@ export type orders$reviewsArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.reviewsInclude<ExtArgs> | null
   where?: Prisma.reviewsWhereInput
+}
+
+/**
+ * orders.custom_tasks
+ */
+export type orders$custom_tasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the custom_tasks
+   */
+  select?: Prisma.custom_tasksSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the custom_tasks
+   */
+  omit?: Prisma.custom_tasksOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.custom_tasksInclude<ExtArgs> | null
+  where?: Prisma.custom_tasksWhereInput
+}
+
+/**
+ * orders.task_provider
+ */
+export type orders$task_providerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the task_providers
+   */
+  select?: Prisma.task_providersSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the task_providers
+   */
+  omit?: Prisma.task_providersOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.task_providersInclude<ExtArgs> | null
+  where?: Prisma.task_providersWhereInput
+}
+
+/**
+ * orders.provider_schedules
+ */
+export type orders$provider_schedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the provider_schedules
+   */
+  select?: Prisma.provider_schedulesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the provider_schedules
+   */
+  omit?: Prisma.provider_schedulesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.provider_schedulesInclude<ExtArgs> | null
+  where?: Prisma.provider_schedulesWhereInput
+  orderBy?: Prisma.provider_schedulesOrderByWithRelationInput | Prisma.provider_schedulesOrderByWithRelationInput[]
+  cursor?: Prisma.provider_schedulesWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Provider_schedulesScalarFieldEnum | Prisma.Provider_schedulesScalarFieldEnum[]
+}
+
+/**
+ * orders.order_extensions
+ */
+export type orders$order_extensionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the order_extensions
+   */
+  select?: Prisma.order_extensionsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the order_extensions
+   */
+  omit?: Prisma.order_extensionsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.order_extensionsInclude<ExtArgs> | null
+  where?: Prisma.order_extensionsWhereInput
+  orderBy?: Prisma.order_extensionsOrderByWithRelationInput | Prisma.order_extensionsOrderByWithRelationInput[]
+  cursor?: Prisma.order_extensionsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Order_extensionsScalarFieldEnum | Prisma.Order_extensionsScalarFieldEnum[]
 }
 
 /**

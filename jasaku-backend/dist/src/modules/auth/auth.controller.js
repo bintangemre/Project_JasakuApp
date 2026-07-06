@@ -13,24 +13,24 @@ const registerCustomer = async (req, res) => {
 };
 const registerProvider = async (req, res) => {
     try {
-        // 1. Ambil data teks biasa dari req.body
-        const { full_name, nickname, email, password, phone, birthDate, gender, address, domicile, services } = req.body;
-        // 2. 🟢 KUNCI PERBAIKAN 1: Ubah string JSON services menjadi Array Objek asli kembali
+        const { full_name, nickname, email, password, phone, birthDate, gender, address, domicile, services, certificates } = req.body;
         let parsedServices = [];
         if (services) {
             parsedServices = typeof services === 'string' ? JSON.parse(services) : services;
         }
-        // 3. 🟢 KUNCI PERBAIKAN 2: Tangkap file gambar fisik dari req.files (sesuaikan dengan nama field di multer kamu)
+        let parsedCertificates = [];
+        if (certificates) {
+            parsedCertificates = typeof certificates === 'string' ? JSON.parse(certificates) : certificates;
+        }
         const profile_photo = req.files?.['profile_photo']?.[0]?.path || req.body.profile_photo;
         const ktp_photo = req.files?.['ktp_photo']?.[0]?.path || req.body.ktp_photo;
         const selfie_photo = req.files?.['selfie_photo']?.[0]?.path || req.body.selfie_photo;
-        // Tangkap array gambar portofolio opsional
         const portfolios = req.files?.['portfolios']?.map((file) => file.path) || [];
+        // Ijazah & Sertifikat
+        const ijazah_photo = req.files?.['ijazah_photo']?.[0]?.path || null;
+        const certificateFiles = req.files?.['certificate_files']?.map((file) => file.path) || [];
         const authService = new AuthService();
-        // 4. Kirim data yang sudah bersih dan matang ke database via service
-        const result = await authService.registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, // Kirim array string url/path portofolio
-        parsedServices // Kirim array objek services yang sudah valid
-        );
+        const result = await authService.registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, ijazah_photo, certificateFiles, parsedCertificates, parsedServices);
         return successResponse(res, result, 'Registrasi penyedia layanan berhasil', 201);
     }
     catch (err) {
@@ -98,4 +98,24 @@ const verifyOtp = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
-export { registerCustomer, registerProvider, registerAdmin, login, loginWithGoogle, sendOtp, verifyOtp };
+const getVerificationStatus = async (req, res) => {
+    try {
+        const authService = new AuthService();
+        const result = await authService.getProviderVerificationStatus(req.user.id);
+        return successResponse(res, result);
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const resubmitVerification = async (req, res) => {
+    try {
+        const authService = new AuthService();
+        await authService.resubmitProviderVerification(req.user.id);
+        return successResponse(res, null, 'Pengajuan ulang verifikasi berhasil dikirim');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export { registerCustomer, registerProvider, registerAdmin, login, loginWithGoogle, sendOtp, verifyOtp, getVerificationStatus, resubmitVerification };

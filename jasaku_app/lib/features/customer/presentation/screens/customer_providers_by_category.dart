@@ -36,39 +36,27 @@ class CustomerProvidersByCategory extends ConsumerWidget {
       body: FutureBuilder<CategoryWithServices>(
         future: _fetchCategoryServices(),
         builder: (context, snapshot) {
-          // Kondisi 1: Menunggu Jaringan (Loading)
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
-          // Kondisi 2: Terjadi Gangguan/Error
           if (snapshot.hasError) {
-            return Scaffold(
-              appBar: AppBar(title: Text(categoryName), leading: const BackButton()),
-              body: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text('Terjadi kesalahan: ${snapshot.error}', style: const TextStyle(color: Colors.red), textAlign: TextAlign.center),
-                ),
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text('Terjadi kesalahan: ${snapshot.error}', style: const TextStyle(color: Colors.red), textAlign: TextAlign.center),
               ),
             );
           }
 
           final category = snapshot.data;
 
-          // Kondisi 3: Data Kosong
           if (category == null || category.services.isEmpty) {
-            return Scaffold(
-              appBar: AppBar(title: Text(categoryName), leading: const BackButton()),
-              body: Center(
-                child: Text('Tidak ada layanan di kategori "$categoryName".', style: const TextStyle(color: Colors.grey)),
-              ),
+            return Center(
+              child: Text('Tidak ada layanan di kategori "$categoryName".', style: const TextStyle(color: Colors.grey)),
             );
           }
 
-          // Kondisi 4: Sukses (Merakit UI Sesuai Gambar Referensi)
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

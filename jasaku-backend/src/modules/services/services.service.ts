@@ -100,8 +100,11 @@ export class CategoriesService {
                         profile_photo: true,
                         rating: true,
                         total_jobs: true,
+                        total_reviews: true,
+                        portfolios: true,
                         address: true,
                         domicile: true,
+                        is_active: true,
                     }
                 },
                 provider_locations: {
@@ -139,6 +142,11 @@ export class CategoriesService {
                     ? [
                           {
                               provider_id: service.provider_id,
+                              rating: user.provider_profiles?.rating ?? null,
+                              total_jobs: user.provider_profiles?.total_jobs ?? null,
+                              total_reviews: user.provider_profiles?.total_reviews ?? null,
+                              portfolios: user.provider_profiles?.portfolios ?? [],
+                              is_active: user.provider_profiles?.is_active ?? true,
                               users: {
                                   full_name: user.provider_profiles?.full_name ?? null,
                                   profile_photo: user.provider_profiles?.profile_photo ?? null,

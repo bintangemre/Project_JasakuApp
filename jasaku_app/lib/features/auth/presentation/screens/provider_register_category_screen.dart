@@ -182,15 +182,21 @@ class _ProviderRegisterCategoryScreenState
               ),
             ),
             if (_selectedServices.isNotEmpty)
-              Container(
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Text(
-                  '${_selectedServices.length} layanan dipilih',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, size: 16, color: theme.colorScheme.primary),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${_selectedServices.length} layanan dipilih',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             Padding(
@@ -203,15 +209,21 @@ class _ProviderRegisterCategoryScreenState
                     backgroundColor: const Color(0xFF00A651),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 0,
                   ),
                   onPressed: _next,
-                  child: const Text(
-                    'Lanjut',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Lanjut',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward_rounded, size: 20),
+                    ],
                   ),
                 ),
               ),
@@ -246,36 +258,154 @@ class _CategorySection extends StatelessWidget {
     required this.onToggle,
   });
 
+  ({IconData icon, Color color, Color bg}) _catIcon(String name) {
+    final n = name.trim();
+    if (n.contains('Listrik') || n.contains('listrik')) {
+      return (icon: Icons.electric_bolt, color: const Color(0xFFFFB300), bg: const Color(0xFFFEF3C7));
+    } else if (n.contains('Bangunan') || n.contains('bangunan')) {
+      return (icon: Icons.home_repair_service, color: const Color(0xFFFF6B00), bg: const Color(0xFFFFEDD5));
+    } else if (n.contains('Kebersihan') || n.contains('kebersihan')) {
+      return (icon: Icons.cleaning_services, color: const Color(0xFF059669), bg: const Color(0xFFD1FAE5));
+    } else if (n.contains('Pindahan') || n.contains('pindahan')) {
+      return (icon: Icons.local_shipping, color: const Color(0xFF2563EB), bg: const Color(0xFFDBEAFE));
+    } else if (n.contains('Kayu') || n.contains('kayu')) {
+      return (icon: Icons.handyman, color: const Color(0xFF7C3AED), bg: const Color(0xFFEDE9FE));
+    } else if (n.contains('AC') || n.contains('Elektronik') || n.contains('elektronik')) {
+      return (icon: Icons.ac_unit, color: const Color(0xFF0891B2), bg: const Color(0xFFCFFAFE));
+    }
+    return (icon: Icons.build_circle, color: const Color(0xFF6B7280), bg: const Color(0xFFF3F4F6));
+  }
+
+  ({IconData icon, Color color, Color bg}) _serviceIcon(String name) {
+    final n = name.trim();
+    if (n.contains('Listrik') || n.contains('listrik')) {
+      return (icon: Icons.electric_bolt, color: const Color(0xFFFFB300), bg: const Color(0xFFFFF8E1));
+    } else if (n.contains('Bangunan') || n.contains('bangunan') || n.contains('bangun')) {
+      return (icon: Icons.home_repair_service, color: const Color(0xFFFF6B00), bg: const Color(0xFFFFF0E0));
+    } else if (n.contains('Bersih') || n.contains('bersih') || n.contains('Cuci') || n.contains('cuci')) {
+      return (icon: Icons.cleaning_services, color: const Color(0xFF059669), bg: const Color(0xFFE6F7F0));
+    } else if (n.contains('Pindah') || n.contains('pindah') || n.contains('Angkut') || n.contains('angkut')) {
+      return (icon: Icons.local_shipping, color: const Color(0xFF2563EB), bg: const Color(0xFFE6EEFF));
+    } else if (n.contains('Kayu') || n.contains('kayu') || n.contains('Furnitur') || n.contains('furnitur')) {
+      return (icon: Icons.handyman, color: const Color(0xFF7C3AED), bg: const Color(0xFFF0E6FF));
+    } else if (n.contains('AC') || n.contains('Elektronik') || n.contains('elektronik')) {
+      return (icon: Icons.ac_unit, color: const Color(0xFF0891B2), bg: const Color(0xFFE0F7FA));
+    } else if (n.contains('Cat') || n.contains('cat') || n.contains('Pengecatan') || n.contains('pengecatan')) {
+      return (icon: Icons.format_paint, color: const Color(0xFFE91E63), bg: const Color(0xFFFCE4EC));
+    } else if (n.contains('Taman') || n.contains('taman') || n.contains('Berkebun') || n.contains('berkebun')) {
+      return (icon: Icons.yard, color: const Color(0xFF4CAF50), bg: const Color(0xFFE8F5E9));
+    } else if (n.contains('Plumbing') || n.contains('plumbing') || n.contains('Pipa') || n.contains('pipa') || n.contains('ledeng')) {
+      return (icon: Icons.plumbing, color: const Color(0xFF00BCD4), bg: const Color(0xFFE0F7FA));
+    }
+    return (icon: Icons.build_circle, color: const Color(0xFF6B7280), bg: const Color(0xFFF3F4F6));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cat = _catIcon(categoryName);
+    final selectedCount = services.where((s) => selectedIds.contains(s['id'] as String)).length;
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 0,
-      color: const Color(0xFFF8FAFC),
-      child: ExpansionTile(
-        title: Text(
-          categoryName,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      color: Colors.white,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: true,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          leading: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: cat.bg,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(cat.icon, color: cat.color, size: 22),
+          ),
+          title: Text(
+            categoryName,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          subtitle: selectedCount > 0
+              ? Text(
+                  '$selectedCount dipilih',
+                  style: TextStyle(fontSize: 12, color: cat.color, fontWeight: FontWeight.w500),
+                )
+              : Text(
+                  '${services.length} layanan',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+          children: services.map((svc) {
+            final id = svc['id'] as String;
+            final name = svc['name'] as String? ?? '';
+            final isSelected = selectedIds.contains(id);
+            final svcIcon = _serviceIcon(name);
+            return GestureDetector(
+              onTap: () => onToggle(svc),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: isSelected ? svcIcon.bg : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? svcIcon.color : const Color(0xFFE2E8F0),
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: isSelected ? svcIcon.color : Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          svcIcon.icon,
+                          color: isSelected ? Colors.white : svcIcon.color,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                            color: isSelected ? svcIcon.color : Colors.black87,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSelected ? svcIcon.color : Colors.transparent,
+                          border: Border.all(
+                            color: isSelected ? svcIcon.color : const Color(0xFFCBD5E1),
+                            width: 2,
+                          ),
+                        ),
+                        child: isSelected
+                            ? const Icon(Icons.check, color: Colors.white, size: 16)
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
         ),
-        subtitle: Text(
-          '${services.length} layanan',
-          style: const TextStyle(fontSize: 12),
-        ),
-        children: services.map((svc) {
-          final id = svc['id'] as String;
-          final name = svc['name'] as String? ?? '';
-          final isSelected = selectedIds.contains(id);
-          return CheckboxListTile(
-            title: Text(name, style: const TextStyle(fontSize: 14)),
-            value: isSelected,
-            onChanged: (_) => onToggle(svc),
-            activeColor: const Color(0xFF0F766E),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-            dense: true,
-          );
-        }).toList(),
       ),
     );
   }

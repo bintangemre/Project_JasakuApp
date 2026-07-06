@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../firebase/firebase_options.dart';
+
 
 class FcmManager {
   static final FcmManager _instance = FcmManager._();
@@ -12,17 +17,32 @@ class FcmManager {
   final FlutterLocalNotificationsPlugin _localNotif = FlutterLocalNotificationsPlugin();
   final _dio = ApiClient().dio;
 
-  static Future<void> handleBackgroundMessage(RemoteMessage message) async {}
+  static void Function(String type, Map<String, String> data)? onNotificationTap;
+
+  @pragma('vm:entry-point')
+  static Future<void> handleBackgroundMessage(RemoteMessage message) async {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } catch (_) {}
+  }
 
   Future<void> initialize() async {
     await _requestPermission();
 
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings();
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
     await _localNotif.initialize(
       const InitializationSettings(android: androidSettings, iOS: iosSettings),
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
+
+    FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
 
     final token = await _messaging.getToken();
     if (token != null) {
@@ -48,7 +68,7 @@ class FcmManager {
     try {
       await _dio.post(ApiEndpoints.registerDevice, data: {
         'fcmToken': token,
-        'deviceType': 'android',
+        'deviceType': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
       });
     } catch (_) {}
   }
@@ -56,6 +76,9 @@ class FcmManager {
   Future<void> _onForegroundMessage(RemoteMessage message) async {
     final title = message.notification?.title ?? 'Jasaku';
     final body = message.notification?.body ?? '';
+    final data = message.data;
+    final payload = jsonEncode(data);
+
     const androidDetails = AndroidNotificationDetails(
       'jasaku_channel',
       'Jasaku Notifications',
@@ -68,23 +91,27 @@ class FcmManager {
       title,
       body,
       const NotificationDetails(android: androidDetails),
-      payload: message.data['orderId'],
+      payload: payload,
     );
   }
 
   void _onNotificationTap(NotificationResponse response) {
-    final orderId = response.payload;
-    if (orderId != null) {
-      _navigateToOrder(orderId);
-    }
+    if (response.payload == null) return;
+    try {
+      final data = Map<String, String>.from(
+        jsonDecode(response.payload!) as Map,
+      );
+      _handleNotificationTap(data);
+    } catch (_) {}
   }
 
   void _onNotificationTapMessage(RemoteMessage message) {
-    final orderId = message.data['orderId'];
-    if (orderId != null) {
-      _navigateToOrder(orderId);
-    }
+    final data = Map<String, String>.from(message.data);
+    _handleNotificationTap(data);
   }
 
-  void _navigateToOrder(String orderId) {}
+  void _handleNotificationTap(Map<String, String> data) {
+    final type = data['type'] ?? '';
+    onNotificationTap?.call(type, data);
+  }
 }

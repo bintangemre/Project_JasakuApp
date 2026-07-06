@@ -15,12 +15,14 @@ class _CustomerRegisterScreenState
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
 
   @override
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _nameCtrl.dispose();
+    _phoneCtrl.dispose();
     super.dispose();
   }
 
@@ -28,6 +30,7 @@ class _CustomerRegisterScreenState
     final email = _emailCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
     final name = _nameCtrl.text.trim();
+    final phone = _phoneCtrl.text.trim();
 
     if (email.isEmpty || password.isEmpty || name.isEmpty) {
       ScaffoldMessenger.of(
@@ -38,7 +41,7 @@ class _CustomerRegisterScreenState
 
     final success = await ref
         .read(authProvider.notifier)
-        .registerCustomer(email: email, password: password, name: name);
+        .registerCustomer(email: email, password: password, name: name, phone: phone.isEmpty ? null : phone);
 
     if (!mounted) return;
 
@@ -65,6 +68,12 @@ class _CustomerRegisterScreenState
               TextField(
                 controller: _nameCtrl,
                 decoration: const InputDecoration(labelText: 'Nama Lengkap'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _phoneCtrl,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(labelText: 'Nomor Telepon'),
               ),
               const SizedBox(height: 12),
               TextField(

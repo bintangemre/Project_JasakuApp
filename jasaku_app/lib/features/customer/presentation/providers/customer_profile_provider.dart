@@ -31,16 +31,23 @@ class CustomerProfileNotifier extends StateNotifier<CustomerProfileState> {
   Future<String?> updateProfile({
     String? fullName,
     String? nickname,
+    String? birthDate,
+    String? gender,
+    String? phone,
+    String? address,
   }) async {
     state = CustomerProfileState(isSaving: true, data: state.data);
     try {
       final body = <String, dynamic>{};
       if (fullName != null) body['full_name'] = fullName;
       if (nickname != null) body['nickname'] = nickname;
+      if (birthDate != null) body['birth_date'] = birthDate;
+      if (gender != null) body['gender'] = gender;
+      if (phone != null) body['phone'] = phone;
+      if (address != null) body['address'] = address;
 
-      final res = await _dio.patch(ApiEndpoints.customerProfile, data: body);
-      final updated = CustomerProfileModel.fromJson(res.data['data'] as Map<String, dynamic>);
-      state = CustomerProfileState(data: updated);
+      await _dio.patch(ApiEndpoints.customerProfile, data: body);
+      await fetchProfile();
       return null;
     } on DioException catch (e) {
       return e.response?.data?['message'] as String? ?? 'Gagal memperbarui profil';

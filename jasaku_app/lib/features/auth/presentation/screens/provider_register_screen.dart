@@ -35,6 +35,10 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
   // 2. FILE PORTOFOLIO OPSIONAL (TAMBAHAN BARU)
   final List<File> _portfolioFiles = [];
 
+  // 3. IJAZAH & SERTIFIKAT
+  String? _ijazahPath;
+  final List<Map<String, dynamic>> _certificates = [];
+
   int _currentStep = 0;
   static const _stepTitles = ['Dokumen', 'Keahlian', 'Tarif', 'Data Diri'];
 
@@ -288,8 +292,10 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
           profilePhotoPath: _profilePhotoPath,
           ktpPhotoPath: _ktpPhotoPath,
           selfiePhotoPath: _selfiePhotoPath,
-          portfolioFiles: _portfolioFiles, 
-          services: _selectedServices,     
+          portfolioFiles: _portfolioFiles,
+          ijazahPhotoPath: _ijazahPath,
+          certificates: _certificates.where((c) => c['filePath'] != null).toList(),
+          services: _selectedServices,
         );
 
     if (!mounted) return;
@@ -468,8 +474,153 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
               ),
             ),
           )
-        ]
+        ],
+        const Divider(height: 32),
+        
+        // IJAZAH
+        const Text('Ijazah', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 6),
+        _buildUploadField(label: 'Foto Ijazah', value: _ijazahPath, onTap: () => _pickDocument('Ijazah', (p) => _ijazahPath = p)),
+        const Divider(height: 32),
+        
+        // SERTIFIKAT PENUNJANG
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Sertifikat Penunjang (Opsional)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            TextButton.icon(
+              onPressed: _addCertificate,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Tambah'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        if (_certificates.isEmpty)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(12), color: Colors.grey.shade50),
+            child: const Center(child: Text('Belum ada sertifikat', style: TextStyle(color: Colors.grey, fontSize: 13))),
+          )
+        else
+          ..._certificates.asMap().entries.map((e) => _buildCertificateItem(e.key, e.value)),
       ],
+    );
+  }
+
+  void _addCertificate() {
+    setState(() {
+      _certificates.add({'filePath': null as String?, 'categoryId': null as String?, 'description': ''});
+    });
+  }
+
+  Future<void> _pickCertificateFile(int index) async {
+    final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    if (pickedFile != null) {
+      setState(() {
+        _certificates[index]['filePath'] = pickedFile.path;
+      });
+    }
+  }
+
+  Widget _buildCertificateItem(int index, Map<String, dynamic> cert) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _pickCertificateFile(index),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: cert['filePath'] != null ? const Color(0xFF00A651) : Colors.grey.shade300),
+                      color: cert['filePath'] != null ? const Color(0xFFF0FDF4) : Colors.white,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(cert['filePath'] != null ? Icons.check_circle : Icons.upload_file, size: 18, color: cert['filePath'] != null ? const Color(0xFF00A651) : Colors.grey),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            cert['filePath'] != null ? (cert['filePath'] as String).split('/').last : 'Pilih file',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 12, color: cert['filePath'] != null ? Colors.green.shade700 : Colors.grey),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                onPressed: () => setState(() => _certificates.removeAt(index)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Category picker
+          GestureDetector(
+            onTap: () => _showCertificateCategoryPicker(index),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+              child: Text(
+                cert['categoryId'] != null
+                    ? (_availableServices.firstWhere((s) => s['id'] == cert['categoryId'], orElse: () => {'name': 'Terpilih'})['name'] as String? ?? 'Terpilih')
+                    : 'Pilih kategori layanan',
+                style: TextStyle(fontSize: 13, color: cert['categoryId'] != null ? Colors.black : Colors.grey),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            decoration: InputDecoration(
+              hintText: 'Deskripsi sertifikat (opsional)',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              isDense: true,
+            ),
+            style: const TextStyle(fontSize: 13),
+            onChanged: (v) => cert['description'] = v,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCertificateCategoryPicker(int index) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Pilih Kategori Layanan'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: _availableServices.map((s) => ListTile(
+              title: Text('${s['name']}'),
+              onTap: () {
+                setState(() => _certificates[index]['categoryId'] = s['id']);
+                Navigator.pop(ctx);
+              },
+            )).toList(),
+          ),
+        ),
+      ),
     );
   }
 
