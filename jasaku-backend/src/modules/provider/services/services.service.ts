@@ -32,9 +32,14 @@ export class ProviderServicesService {
         return { service, masterPricingTypes };
     }
     
-    async getProviderServices(providerId: string) {
+    async getProviderServices(userId: string) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: userId }
+        });
+        if (!profile) throw new Error('Profile tidak ditemukan');
+
         return await prisma.provider_services.findMany({
-            where: { provider_id: providerId },
+            where: { provider_id: profile.id },
             include: {
                 services: true,
                 provider_service_prices: {
@@ -46,13 +51,18 @@ export class ProviderServicesService {
         });
     }
 
-    async updateProviderService(providerId: string, serviceId: string, description: string, prices: { pricingTypeId: string; price: number }[]) {
+    async updateProviderService(userId: string, serviceId: string, description: string, prices: { pricingTypeId: string; price: number }[]) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: userId }
+        });
+        if (!profile) throw new Error('Profile tidak ditemukan');
+
         return await prisma.$transaction(async (tx) => {
             // 1. Validasi Akses & Logika Bisnis
             const { masterPricingTypes } = await this.validatePriceLogic(tx, serviceId, prices);
 
             const existingService = await tx.provider_services.findFirst({
-                where: { provider_id: providerId, service_id: serviceId }
+                where: { provider_id: profile.id, service_id: serviceId }
             });
 
             if (!existingService) {
@@ -81,7 +91,9 @@ export class ProviderServicesService {
                 };
             });
 
-            await tx.provider_service_prices.createMany({ data: newPrices });
+            if (newPrices.length > 0) {
+              await tx.provider_service_prices.createMany({ data: newPrices });
+            }
 
             return { message: "Layanan berhasil diperbarui dengan penyesuaian unit otomatis" };
         });

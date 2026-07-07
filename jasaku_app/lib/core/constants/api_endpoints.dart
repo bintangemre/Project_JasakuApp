@@ -76,6 +76,9 @@ class ApiEndpoints {
   static const String providerUpdateProfile = '$baseUrl/api/provider/profile';
   static const String providerPayoutMethods = '$baseUrl/api/provider/payout-methods';
 
+  // Auth
+  static const String resubmitVerification = '$baseUrl/api/auth/provider/resubmit-verification';
+
   // Public provider status & schedule (customer view)
   static String providerStatus(String providerId) => '$baseUrl/api/orders/provider/$providerId/status';
   static String providerSchedule(String providerId) => '$baseUrl/api/orders/provider/$providerId/schedule';

@@ -86,6 +86,11 @@ export const createServiceSchema = z.object({
 export const verifyProviderSchema = z.object({
     status: z.enum(['verified', 'rejected'] as const).optional().default('verified'),
     notes: z.string().optional(),
+    checklist: z.array(z.object({
+        item: z.string(),
+        status: z.enum(['passed', 'failed']),
+        note: z.string().optional(),
+    })).optional(),
 });
 
 export const registerDeviceSchema = z.object({

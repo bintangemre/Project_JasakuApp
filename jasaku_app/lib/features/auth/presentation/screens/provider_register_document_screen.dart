@@ -87,13 +87,27 @@ class _ProviderRegisterDocumentScreenState
   }
 
   Future<void> _pickPortfolio() async {
+    if (_portfolioFiles.length >= 3) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Maksimal 3 foto portofolio')),
+        );
+      }
+      return;
+    }
     final xs = await _picker.pickMultiImage();
     setState(() {
       for (final x in xs) {
-        if (_portfolioFiles.length < 5) {
+        if (_portfolioFiles.length < 3) {
           _portfolioFiles.add(File(x.path));
         }
       }
+    });
+  }
+
+  void _removePortfolio(int index) {
+    setState(() {
+      _portfolioFiles.removeAt(index);
     });
   }
 
@@ -171,6 +185,9 @@ class _ProviderRegisterDocumentScreenState
             ocrBirthPlace: s.ocrBirthPlace,
             ocrBirthDate: s.ocrBirthDate,
             ocrAddress: s.ocrAddress,
+            ocrGender: s.ocrGender,
+            ocrBloodType: s.ocrBloodType,
+            ocrReligion: s.ocrReligion,
             livenessData: s.livenessData,
           );
 
@@ -238,14 +255,7 @@ class _ProviderRegisterDocumentScreenState
               const SizedBox(height: 12),
               _buildLivenessCard(),
               const SizedBox(height: 12),
-              _buildUploadCard(
-                label: 'Portofolio (Opsional)',
-                required: false,
-                path: _portfolioFiles.isNotEmpty
-                    ? '${_portfolioFiles.length} file'
-                    : null,
-                onPick: _pickPortfolio,
-              ),
+              _buildPortfolioCard(),
               const SizedBox(height: 16),
               const Divider(height: 1),
               const SizedBox(height: 16),
@@ -436,11 +446,15 @@ class _ProviderRegisterDocumentScreenState
     if (result != null && mounted) {
       setState(() {
         _ktpPhotoPath = result['ktpPath'] as String?;
+        widget.state.ktpPhotoPath = result['ktpPath'] as String?;
         widget.state.ocrNik = result['nik'] as String?;
         widget.state.ocrFullName = result['fullName'] as String?;
         widget.state.ocrBirthPlace = result['birthPlace'] as String?;
         widget.state.ocrBirthDate = result['birthDate'] as String?;
         widget.state.ocrAddress = result['address'] as String?;
+        widget.state.ocrGender = result['gender'] as String?;
+        widget.state.ocrBloodType = result['bloodType'] as String?;
+        widget.state.ocrReligion = result['religion'] as String?;
       });
     }
   }
@@ -453,6 +467,7 @@ class _ProviderRegisterDocumentScreenState
     if (result != null && mounted) {
       setState(() {
         _selfiePhotoPath = result['selfiePath'] as String?;
+        widget.state.selfiePhotoPath = result['selfiePath'] as String?;
         widget.state.livenessData = result['livenessData'] as Map<String, dynamic>?;
       });
     }
@@ -529,7 +544,10 @@ class _ProviderRegisterDocumentScreenState
                         children: [
                           _miniDataRow('NIK', widget.state.ocrNik!),
                           if (widget.state.ocrFullName != null) _miniDataRow('Nama', widget.state.ocrFullName!),
+                          if (widget.state.ocrGender != null) _miniDataRow('JK', widget.state.ocrGender!),
+                          if (widget.state.ocrBloodType != null) _miniDataRow('Gol.Darah', widget.state.ocrBloodType!),
                           if (widget.state.ocrAddress != null) _miniDataRow('Alamat', widget.state.ocrAddress!),
+                          if (widget.state.ocrReligion != null) _miniDataRow('Agama', widget.state.ocrReligion!),
                         ],
                       ),
                     ),
@@ -653,6 +671,121 @@ class _ProviderRegisterDocumentScreenState
                   const Icon(Icons.chevron_right, color: Color(0xFF7A7A7A)),
                 ],
               ),
+      ),
+    );
+  }
+
+  Widget _buildPortfolioCard() {
+    final count = _portfolioFiles.length;
+    return GestureDetector(
+      onTap: count < 3 ? _pickPortfolio : null,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: count > 0 ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: count > 0 ? const Color(0xFF00A651) : const Color(0xFFE2E8F0),
+            width: count > 0 ? 1.5 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text('Portofolio/Foto Pengalaman Kerja',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                const Spacer(),
+                if (count > 0)
+                  Text('$count/3',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                const Icon(Icons.chevron_right,
+                    color: Color(0xFF7A7A7A), size: 20),
+              ],
+            ),
+            const SizedBox(height: 8),
+            count > 0
+                ? SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (int i = 0; i < count; i++)
+                          _buildPortfolioThumb(i),
+                        if (count < 3)
+                          _buildPortfolioAddButton(),
+                      ],
+                    ),
+                  )
+                : Row(
+                    children: [
+                      Icon(Icons.cloud_upload_outlined,
+                          color: Colors.grey[400], size: 20),
+                      const SizedBox(width: 8),
+                      const Text('Portofolio/Foto Pengalaman Kerja',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortfolioThumb(int index) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.file(
+              _portfolioFiles[index],
+              width: 64,
+              height: 64,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 64,
+                height: 64,
+                color: Colors.grey.shade200,
+                child: const Icon(Icons.broken_image,
+                    color: Colors.grey, size: 24),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -6,
+            right: -6,
+            child: GestureDetector(
+              onTap: () => _removePortfolio(index),
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, size: 12, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPortfolioAddButton() {
+    return GestureDetector(
+      onTap: _pickPortfolio,
+      child: Container(
+        width: 64,
+        height: 64,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300, width: 1.5),
+        ),
+        child: Icon(Icons.add, color: Colors.grey[400], size: 28),
       ),
     );
   }

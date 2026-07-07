@@ -29,6 +29,18 @@ class ProviderServicesRepository {
         [];
   }
 
-  // ❌ Fungsi addProviderService lama telah dihapus dari sini 
-  // karena pengirimannya sudah bersatu ke dalam Auth_Repository via Multipart Form Data.
+  Future<void> updateProviderService({
+    required String serviceId,
+    required String description,
+    required List<Map<String, dynamic>> prices,
+  }) async {
+    await _dio.put(
+      ApiEndpoints.updateProviderService,
+      data: {
+        'serviceId': serviceId,
+        'description': description,
+        'prices': prices,
+      },
+    );
+  }
 }

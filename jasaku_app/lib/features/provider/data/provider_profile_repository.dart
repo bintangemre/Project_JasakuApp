@@ -23,6 +23,10 @@ class ProviderProfileRepository {
     String? profilePhotoPath,
     List<String>? portfolios,
     List<File>? newPortfolioFiles,
+    String? ktpPhotoPath,
+    String? selfiePhotoPath,
+    List<File>? documentFiles,
+    List<String>? deleteDocumentIds,
   }) async {
     final formDataMap = <String, dynamic>{};
     if (fullName != null) formDataMap['full_name'] = fullName;
@@ -33,6 +37,9 @@ class ProviderProfileRepository {
     if (address != null) formDataMap['address'] = address;
     if (domicile != null) formDataMap['domicile'] = domicile;
     if (portfolios != null) formDataMap['existing_portfolios'] = jsonEncode(portfolios);
+    if (deleteDocumentIds != null && deleteDocumentIds.isNotEmpty) {
+      formDataMap['delete_documents'] = jsonEncode(deleteDocumentIds);
+    }
     if (profilePhotoPath != null) {
       formDataMap['profile_photo'] = await MultipartFile.fromFile(
         profilePhotoPath,
@@ -42,6 +49,26 @@ class ProviderProfileRepository {
     if (newPortfolioFiles != null && newPortfolioFiles.isNotEmpty) {
       formDataMap['portfolios'] = await Future.wait(
         newPortfolioFiles.map((f) => MultipartFile.fromFile(
+          f.path,
+          filename: f.path.split('/').last,
+        )),
+      );
+    }
+    if (ktpPhotoPath != null) {
+      formDataMap['ktp_photo'] = await MultipartFile.fromFile(
+        ktpPhotoPath,
+        filename: ktpPhotoPath.split('/').last,
+      );
+    }
+    if (selfiePhotoPath != null) {
+      formDataMap['selfie_photo'] = await MultipartFile.fromFile(
+        selfiePhotoPath,
+        filename: selfiePhotoPath.split('/').last,
+      );
+    }
+    if (documentFiles != null && documentFiles.isNotEmpty) {
+      formDataMap['documents'] = await Future.wait(
+        documentFiles.map((f) => MultipartFile.fromFile(
           f.path,
           filename: f.path.split('/').last,
         )),

@@ -71,13 +71,17 @@ export class AdminService {
         });
     }
 
-    async verifyProvider(providerId: string, status: 'verified' | 'rejected', notes?: string) {
+    async verifyProvider(providerId: string, status: 'verified' | 'rejected', notes?: string, checklist?: Array<{ item: string; status: 'passed' | 'failed'; note?: string }>) {
         const data: any = {
             is_verified: status === 'verified',
             verification_status: status,
         };
-        if (notes !== undefined) {
+        if (status === 'rejected' && checklist && checklist.length > 0) {
+            data.verification_notes = JSON.stringify({ checklist, notes: notes || '' });
+        } else if (notes !== undefined) {
             data.verification_notes = notes;
+        } else if (status === 'verified') {
+            data.verification_notes = null;
         }
         return await prisma.provider_profiles.update({
             where: { id: providerId },

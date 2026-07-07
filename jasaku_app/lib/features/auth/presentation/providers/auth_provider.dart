@@ -11,17 +11,33 @@ class AuthState {
   final bool isLoading;
   final String? error;
   final bool? onboardingCompleted;
+  final String? verificationStatus;
+  final String? verificationNotes;
 
-  const AuthState(
-      {this.user, this.isLoading = false, this.error, this.onboardingCompleted});
+  const AuthState({
+    this.user,
+    this.isLoading = false,
+    this.error,
+    this.onboardingCompleted,
+    this.verificationStatus,
+    this.verificationNotes,
+  });
 
-  AuthState copyWith(
-      {UserModel? user, bool? isLoading, String? error, bool? onboardingCompleted}) {
+  AuthState copyWith({
+    UserModel? user,
+    bool? isLoading,
+    String? error,
+    bool? onboardingCompleted,
+    String? verificationStatus,
+    String? verificationNotes,
+  }) {
     return AuthState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       error: error,
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+      verificationStatus: verificationStatus ?? this.verificationStatus,
+      verificationNotes: verificationNotes ?? this.verificationNotes,
     );
   }
 }
@@ -82,6 +98,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     String? ocrBirthPlace,
     String? ocrBirthDate,
     String? ocrAddress,
+    String? ocrGender,
+    String? ocrBloodType,
+    String? ocrReligion,
     Map<String, dynamic>? livenessData,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -108,6 +127,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         ocrBirthPlace: ocrBirthPlace,
         ocrBirthDate: ocrBirthDate,
         ocrAddress: ocrAddress,
+        ocrGender: ocrGender,
+        ocrBloodType: ocrBloodType,
+        ocrReligion: ocrReligion,
         livenessData: livenessData,
       );
       state = const AuthState();
@@ -156,7 +178,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
       final onboardingCompleted =
           result['data']?['profile']?['onboarding_completed'] as bool?;
-      state = AuthState(user: user, onboardingCompleted: onboardingCompleted);
+      final verificationStatus =
+          result['data']?['profile']?['verification_status'] as String?;
+      final verificationNotes =
+          result['data']?['profile']?['verification_notes'] as String?;
+      state = AuthState(
+        user: user,
+        onboardingCompleted: onboardingCompleted,
+        verificationStatus: verificationStatus,
+        verificationNotes: verificationNotes,
+      );
       return true;
     } catch (e) {
       state = AuthState(error: e.toString());
@@ -267,6 +298,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       await _repo.sendOtp(email: email, phone: phone);
       state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      state = AuthState(error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> resubmitVerification() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await _repo.resubmitVerification();
+      state = state.copyWith(
+        isLoading: false,
+        verificationStatus: 'pending',
+        verificationNotes: null,
+      );
       return true;
     } catch (e) {
       state = AuthState(error: e.toString());

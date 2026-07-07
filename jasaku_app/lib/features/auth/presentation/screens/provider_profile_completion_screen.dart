@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
@@ -18,11 +17,8 @@ class ProviderProfileCompletionScreen extends ConsumerStatefulWidget {
 class _ProviderProfileCompletionScreenState
     extends ConsumerState<ProviderProfileCompletionScreen> {
   final _dio = ApiClient().dio;
-  final _picker = ImagePicker();
   bool _loading = true;
   bool _submitting = false;
-
-  String? _profilePhotoPath;
 
   List<Map<String, dynamic>> _services = [];
   List<Map<String, dynamic>> _pricingTypes = [];
@@ -107,11 +103,6 @@ class _ProviderProfileCompletionScreenState
         .toList();
   }
 
-  Future<void> _pickPhoto() async {
-    final x = await _picker.pickImage(source: ImageSource.gallery);
-    if (x != null) setState(() => _profilePhotoPath = x.path);
-  }
-
   Future<void> _submit() async {
     setState(() => _submitting = true);
 
@@ -144,13 +135,6 @@ class _ProviderProfileCompletionScreenState
       final formDataMap = <String, dynamic>{
         'services': jsonEncode(servicesPayload),
       };
-
-      if (_profilePhotoPath != null) {
-        formDataMap['profile_photo'] = await MultipartFile.fromFile(
-          _profilePhotoPath!,
-          filename: _profilePhotoPath!.split('/').last,
-        );
-      }
 
       if (_usePayout) {
         formDataMap['payoutMethod'] = jsonEncode({
@@ -211,91 +195,39 @@ class _ProviderProfileCompletionScreenState
     final cs = theme.colorScheme;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text('Lengkapi Profil'),
         centerTitle: true,
-        backgroundColor: cs.surface,
+        backgroundColor: Colors.white,
         elevation: 0,
-        foregroundColor: cs.onSurface,
+        foregroundColor: Colors.black87,
+        surfaceTintColor: Colors.transparent,
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Satu langkah lagi!',
-                      style: theme.textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Atur harga layanan dan metode penerimaan sebelum mulai.',
-                      style: TextStyle(
-                        color: cs.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    _buildSectionHeader(
-                        Icons.photo_camera_outlined, 'Foto Profil', cs),
-                    const SizedBox(height: 12),
-                    _buildPhotoSection(cs),
-                    const SizedBox(height: 28),
-
-                    _buildSectionHeader(
-                        Icons.price_change_outlined, 'Atur Harga Layanan', cs),
-                    const SizedBox(height: 12),
+                    _buildHeader(cs),
+                    const SizedBox(height: 24),
                     if (_services.isEmpty)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 32),
-                        decoration: BoxDecoration(
-                          color: cs.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text('Tidak ada layanan terdaftar.',
-                              style: TextStyle(color: cs.onSurfaceVariant)),
-                        ),
-                      )
-                    else
+                      _buildEmptyServices(cs)
+                    else ...[
+                      _buildSectionLabel(
+                          Icons.price_change_outlined, 'Atur Harga Layanan', cs),
+                      const SizedBox(height: 12),
                       ..._services.map((svc) => _buildServiceCard(svc, cs)),
-
-                    const SizedBox(height: 28),
-
-                    _buildSectionHeader(Icons.account_balance_wallet_outlined,
+                    ],
+                    const SizedBox(height: 24),
+                    _buildSectionLabel(Icons.account_balance_wallet_outlined,
                         'Metode Penerimaan', cs),
                     const SizedBox(height: 12),
                     _buildPayoutSection(cs),
-                    const SizedBox(height: 36),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: cs.primary,
-                          foregroundColor: cs.onPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        onPressed: _submitting ? null : _submit,
-                        child: _submitting
-                            ? const CircularProgressIndicator(
-                                color: Colors.white)
-                            : const Text('Simpan & Lanjutkan',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
+                    _buildSubmitButton(cs),
                   ],
                 ),
               ),
@@ -303,207 +235,351 @@ class _ProviderProfileCompletionScreenState
     );
   }
 
-  Widget _buildSectionHeader(IconData icon, String title, ColorScheme cs) {
+  Widget _buildHeader(ColorScheme cs) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            cs.primary.withValues(alpha: 0.08),
+            cs.primary.withValues(alpha: 0.02),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(Icons.rocket_launch_outlined,
+                color: cs.primary, size: 26),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Yuk, satu langkah lagi nih! ✨',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface)),
+                const SizedBox(height: 4),
+                Text(
+                    'Atur harga layanan dan metode penerimaan sebelum memulai.',
+                    style: TextStyle(
+                        fontSize: 13, color: cs.onSurfaceVariant)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionLabel(IconData icon, String title, ColorScheme cs) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: cs.primary),
-        const SizedBox(width: 8),
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: cs.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 17, color: cs.primary),
+        ),
+        const SizedBox(width: 10),
         Text(title,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: cs.onSurface)),
       ],
     );
   }
 
-  Widget _buildPhotoSection(ColorScheme cs) {
-    final hasPhoto = _profilePhotoPath != null;
-    return GestureDetector(
-      onTap: _pickPhoto,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: hasPhoto
-              ? cs.primaryContainer.withValues(alpha: 0.3)
-              : cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: hasPhoto ? cs.primary : cs.outlineVariant,
-            width: hasPhoto ? 1.5 : 1,
+  Widget _buildEmptyServices(ColorScheme cs) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: cs.error.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.info_outline, color: cs.error, size: 26),
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: hasPhoto
-                    ? cs.primaryContainer
-                    : cs.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                hasPhoto ? Icons.check_circle : Icons.cloud_upload_outlined,
-                color: hasPhoto ? cs.primary : cs.onSurfaceVariant,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    hasPhoto
-                        ? 'Foto Profil'
-                        : 'Upload Foto Profil (Opsional)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: hasPhoto ? cs.primary : cs.onSurface,
-                    ),
-                  ),
-                  if (hasPhoto)
-                    Text(
-                      _profilePhotoPath!.split('/').last,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: cs.onSurfaceVariant,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  if (!hasPhoto)
-                    Text(
-                      'Tambahkan foto agar profil lebih menarik',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right,
-                color: hasPhoto ? cs.primary : cs.onSurfaceVariant),
-          ],
-        ),
+          const SizedBox(height: 16),
+          Text('Belum ada layanan terdaftar',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface)),
+          const SizedBox(height: 6),
+          Text('Hubungi admin jika ini seharusnya sudah ada.',
+              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+        ],
       ),
     );
+  }
+
+  ({IconData icon, Color color, Color bg}) _iconForService(String name) {
+    final n = name.trim();
+    if (n.contains('Bangunan') || n.contains('bangunan') || n.contains('bangun') || n.contains('Keramik') || n.contains('keramik')) {
+      return (icon: Icons.home_repair_service, color: const Color(0xFFFF6B00), bg: const Color(0xFFFFF0E0));
+    } else if (n.contains('Listrik') || n.contains('listrik')) {
+      return (icon: Icons.electric_bolt, color: const Color(0xFFFFB300), bg: const Color(0xFFFFF8E1));
+    } else if (n.contains('Bersih') || n.contains('bersih') || n.contains('Cuci') || n.contains('cuci')) {
+      return (icon: Icons.cleaning_services, color: const Color(0xFF059669), bg: const Color(0xFFE6F7F0));
+    } else if (n.contains('Pindah') || n.contains('pindah') || n.contains('Angkut') || n.contains('angkut')) {
+      return (icon: Icons.local_shipping, color: const Color(0xFF2563EB), bg: const Color(0xFFE6EEFF));
+    } else if (n.contains('Kayu') || n.contains('kayu') || n.contains('Furnitur') || n.contains('furnitur')) {
+      return (icon: Icons.handyman, color: const Color(0xFF7C3AED), bg: const Color(0xFFF0E6FF));
+    } else if (n.contains('AC') || n.contains('Elektronik') || n.contains('elektronik')) {
+      return (icon: Icons.ac_unit, color: const Color(0xFF0891B2), bg: const Color(0xFFE0F7FA));
+    } else if (n.contains('Cat') || n.contains('cat') || n.contains('Pengecatan') || n.contains('pengecatan')) {
+      return (icon: Icons.format_paint, color: const Color(0xFFE91E63), bg: const Color(0xFFFCE4EC));
+    } else if (n.contains('Taman') || n.contains('taman') || n.contains('Berkebun') || n.contains('berkebun')) {
+      return (icon: Icons.yard, color: const Color(0xFF4CAF50), bg: const Color(0xFFE8F5E9));
+    } else if (n.contains('Plumbing') || n.contains('plumbing') || n.contains('Pipa') || n.contains('pipa') || n.contains('ledeng')) {
+      return (icon: Icons.plumbing, color: const Color(0xFF00BCD4), bg: const Color(0xFFE0F7FA));
+    } else if (n.contains('Kaca') || n.contains('kaca')) {
+      return (icon: Icons.window, color: const Color(0xFF6366F1), bg: const Color(0xFFEEF2FF));
+    }
+    return (icon: Icons.miscellaneous_services_outlined, color: const Color(0xFF6B7280), bg: const Color(0xFFF3F4F6));
   }
 
   Widget _buildServiceCard(Map<String, dynamic> svc, ColorScheme cs) {
     final svcId = svc['id'] as String;
     final serviceName = svc['services']?['name'] as String? ?? 'Layanan';
+    final categoryName = svc['services']?['categories']?['name'] as String? ?? '';
     final pricing = _getPricingForService(svc);
+    final svcIcon = _iconForService(serviceName);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 0,
-      color: cs.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.06),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(14)),
+            ),
+            child: Row(
               children: [
-                Icon(Icons.miscellaneous_services_outlined,
-                    size: 18, color: cs.primary),
-                const SizedBox(width: 8),
-                Text(serviceName,
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w600)),
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: svcIcon.bg,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(svcIcon.icon,
+                      size: 18, color: svcIcon.color),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(serviceName,
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w600)),
+                      if (categoryName.isNotEmpty)
+                        Text(categoryName,
+                            style: TextStyle(
+                                fontSize: 12, color: cs.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _descControllers[svcId],
-              decoration: InputDecoration(
-                labelText: 'Deskripsi',
-                labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: cs.outlineVariant),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: cs.primary, width: 1.5),
-                ),
-                isDense: true,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 12),
-            ...pricing.map((pt) {
-              final ptId = pt['id'] as String;
-              final key = '${svcId}_$ptId';
-              final unit = pt['default_unit'] as String? ?? '';
-              final label =
-                  (pt['name'] as String? ?? '').replaceAll('_', ' ');
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: TextFormField(
-                  controller: _priceControllers[key],
-                  keyboardType: TextInputType.number,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Deskripsi Layanan',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: cs.onSurfaceVariant)),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _descControllers[svcId],
                   decoration: InputDecoration(
-                    labelText: label,
-                    hintText: 'Masukkan harga',
-                    hintStyle: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)),
-                    suffixText: '/$unit',
-                    suffixStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
-                    prefixText: 'Rp ',
-                    prefixStyle:
-                        TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+                    hintText: 'Deskripsi layanan Anda',
+                    hintStyle:
+                        TextStyle(color: cs.onSurface.withValues(alpha: 0.35)),
+                    filled: true,
+                    fillColor: cs.surfaceContainerLow.withValues(alpha: 0.4),
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(10)),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(color: cs.outlineVariant),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: cs.primary, width: 1.5),
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                          BorderSide(color: cs.primary, width: 1.5),
                     ),
                     isDense: true,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
                   ),
+                  maxLines: 2,
                 ),
-              );
-            }),
-          ],
-        ),
+                const SizedBox(height: 16),
+                Text('Harga',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: cs.onSurfaceVariant)),
+                const SizedBox(height: 8),
+                ...pricing.map((pt) {
+                  final ptId = pt['id'] as String;
+                  final key = '${svcId}_$ptId';
+                  final unit = pt['default_unit'] as String? ?? '';
+                  final label =
+                      (pt['name'] as String? ?? '').replaceAll('_', ' ');
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: TextFormField(
+                      controller: _priceControllers[key],
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: label,
+                        hintText: '0',
+                        hintStyle: TextStyle(
+                            color: cs.onSurface.withValues(alpha: 0.35)),
+                        suffixText: '/$unit',
+                        suffixStyle: TextStyle(
+                            color: cs.onSurfaceVariant, fontSize: 13),
+                        prefixText: 'Rp ',
+                        prefixStyle: TextStyle(
+                            color: cs.onSurfaceVariant, fontSize: 14),
+                        filled: true,
+                        fillColor:
+                            cs.surfaceContainerLow.withValues(alpha: 0.4),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: cs.outlineVariant),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              BorderSide(color: cs.primary, width: 1.5),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
+                      ),
+                    ),
+                  );
+                }),
+                if (pricing.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerLow.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Text('Tidak ada metode harga untuk layanan ini',
+                          style: TextStyle(
+                              fontSize: 12, color: cs.onSurfaceVariant)),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildPayoutSection(ColorScheme cs) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 0,
-      color: cs.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+            child: Row(
               children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: cs.secondary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(Icons.account_balance_wallet_outlined,
+                      size: 18, color: cs.secondary),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Text('Aktifkan metode penerimaan',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: cs.onSurface)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Aktifkan Metode Penerimaan',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600)),
+                      Text(
+                          'Rekening bank atau e-wallet untuk menerima pembayaran',
+                          style: TextStyle(
+                              fontSize: 12, color: cs.onSurfaceVariant)),
+                    ],
+                  ),
                 ),
                 Switch(
                   value: _usePayout,
@@ -512,60 +588,79 @@ class _ProviderProfileCompletionScreenState
                 ),
               ],
             ),
-            if (!_usePayout)
-              Text('Atur rekening bank atau e-wallet untuk menerima pembayaran',
-                  style: TextStyle(
-                      fontSize: 12, color: cs.onSurfaceVariant)),
-            if (_usePayout) ...[
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: _payoutType,
-                decoration: InputDecoration(
-                  labelText: 'Tipe',
-                  labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: cs.outlineVariant),
+          ),
+          if (_usePayout)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: _payoutType,
+                    decoration: _inputDecor('Tipe', cs),
+                    items: const [
+                      DropdownMenuItem(value: 'bank', child: Text('Bank')),
+                      DropdownMenuItem(
+                          value: 'ewallet', child: Text('E-Wallet')),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) setState(() => _payoutType = v);
+                    },
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: cs.primary, width: 1.5),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _payoutProviderCtrl,
+                    decoration: _inputDecor(
+                        _payoutType == 'bank' ? 'Nama Bank' : 'Nama E-Wallet',
+                        cs),
                   ),
-                  isDense: true,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'bank', child: Text('Bank')),
-                  DropdownMenuItem(
-                      value: 'ewallet', child: Text('E-Wallet')),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _payoutAccountCtrl,
+                    decoration: _inputDecor('Nomor Rekening / Akun', cs),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _payoutNameCtrl,
+                    decoration: _inputDecor('Nama Pemilik', cs),
+                  ),
                 ],
-                onChanged: (v) {
-                  if (v != null) setState(() => _payoutType = v);
-                },
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _payoutProviderCtrl,
-                decoration: _inputDecor(
-                    _payoutType == 'bank' ? 'Nama Bank' : 'Nama E-Wallet',
-                    cs),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _payoutAccountCtrl,
-                decoration: _inputDecor('Nomor Rekening / Akun', cs),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _payoutNameCtrl,
-                decoration: _inputDecor('Nama Pemilik', cs),
-              ),
-            ],
-          ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton(ColorScheme cs) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: cs.primary,
+          foregroundColor: cs.onPrimary,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
+        onPressed: _submitting ? null : _submit,
+        child: _submitting
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.5, color: Colors.white))
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text('Simpan & Lanjutkan',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward_rounded, size: 20),
+                ],
+              ),
       ),
     );
   }
@@ -574,18 +669,19 @@ class _ProviderProfileCompletionScreenState
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: cs.onSurfaceVariant),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+      filled: true,
+      fillColor: cs.surfaceContainerLow.withValues(alpha: 0.4),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: cs.outlineVariant),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: cs.primary, width: 1.5),
       ),
-      isDense: true,
       contentPadding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     );
   }
 }

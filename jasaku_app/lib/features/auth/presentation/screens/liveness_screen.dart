@@ -43,6 +43,9 @@ class _LivenessScreenState extends State<LivenessScreen> {
   bool _tiltStarted = false;
   bool _tiltCompleted = false;
   bool _done = false;
+  bool _isFinishing = false;
+  String? _lastSelfiePath;
+  Timer? _detectionTimer;
 
   @override
   void initState() {
@@ -74,13 +77,14 @@ class _LivenessScreenState extends State<LivenessScreen> {
   }
 
   void _startDetection() {
-    Timer.periodic(const Duration(milliseconds: 300), (timer) async {
-      if (_done || !mounted || !_initialized) {
+    _detectionTimer = Timer.periodic(const Duration(milliseconds: 300), (timer) async {
+      if (_done || _isFinishing || !mounted || !_initialized) {
         timer.cancel();
         return;
       }
       try {
         final xfile = await _controller!.takePicture();
+        _lastSelfiePath = xfile.path;
         final image = File(xfile.path);
         final inputImage = InputImage.fromFile(image);
         final faces = await _faceDetector.processImage(inputImage);
@@ -155,12 +159,13 @@ class _LivenessScreenState extends State<LivenessScreen> {
   }
 
   Future<void> _finish() async {
-    final xfile = await _controller?.takePicture();
+    _isFinishing = true;
+    _detectionTimer?.cancel();
     await _faceDetector.close();
     await _controller?.dispose();
     if (!mounted) return;
     Navigator.pop(context, {
-      'selfiePath': xfile?.path,
+      'selfiePath': _lastSelfiePath,
       'livenessData': {
         'completed': _completedChallenges,
         'total': _challengeOrder.length,
@@ -171,6 +176,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
   @override
   void dispose() {
+    _detectionTimer?.cancel();
     _faceDetector.close();
     _controller?.dispose();
     super.dispose();
@@ -186,7 +192,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
         title: const Text('Verifikasi Wajah',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
-      body: !_initialized
+      body: !_initialized || _done
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [

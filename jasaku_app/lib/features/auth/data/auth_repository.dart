@@ -64,6 +64,9 @@ Future<Map<String, dynamic>> registerProvider({
   String? ocrBirthPlace,
   String? ocrBirthDate,
   String? ocrAddress,
+  String? ocrGender,
+  String? ocrBloodType,
+  String? ocrReligion,
   Map<String, dynamic>? livenessData,
 }) async {
   try {
@@ -85,6 +88,9 @@ Future<Map<String, dynamic>> registerProvider({
     if (ocrBirthPlace != null) formDataMap['ocr_birth_place'] = ocrBirthPlace;
     if (ocrBirthDate != null) formDataMap['ocr_birth_date'] = ocrBirthDate;
     if (ocrAddress != null) formDataMap['ocr_address'] = ocrAddress;
+    if (ocrGender != null) formDataMap['ocr_gender'] = ocrGender;
+    if (ocrBloodType != null) formDataMap['ocr_blood_type'] = ocrBloodType;
+    if (ocrReligion != null) formDataMap['ocr_religion'] = ocrReligion;
     if (livenessData != null) formDataMap['liveness_data'] = jsonEncode(livenessData);
 
     if (profilePhotoPath != null) {
@@ -216,6 +222,14 @@ Future<Map<String, dynamic>> registerProvider({
         data: {'email': email, 'phone': phone},
       );
       return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> resubmitVerification() async {
+    try {
+      await _dio.post(ApiEndpoints.resubmitVerification);
     } on DioException catch (e) {
       throw _handleError(e);
     }

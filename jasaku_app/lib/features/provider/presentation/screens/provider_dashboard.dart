@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
+
 import '../../../location/presentation/providers/location_tracker_provider.dart';
 import '../../../../services/routing_service.dart';
 import '../providers/provider_dashboard_provider.dart';
@@ -270,7 +271,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                             shape: BoxShape.circle,
                             image: state.profilePhoto != null
                                 ? DecorationImage(
-                                    image: NetworkImage(state.profilePhoto!),
+                                    image: NetworkImage('${ApiEndpoints.baseUrl}${state.profilePhoto!}'),
                                     fit: BoxFit.cover,
                                   )
                                 : null,

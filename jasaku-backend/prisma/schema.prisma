@@ -412,6 +412,9 @@ model identity_verifications {
   ocr_birth_place   String?
   ocr_birth_date    String?
   ocr_address       String?
+  ocr_gender        String?
+  ocr_blood_type    String?
+  ocr_religion      String?
   ocr_raw_result    Json?    @db.JsonB
   face_match_score  Float?
   face_match_status String   @default("pending") @db.VarChar(20)

@@ -15,7 +15,7 @@ const registerCustomer = async (req: any, res: Response) => {
 
 const registerProvider = async (req: any, res: Response) => {
   try {
-    const { full_name, nickname, email, password, phone, birthDate, gender, address, domicile, services, certificates, ocr_nik, ocr_full_name, ocr_birth_place, ocr_birth_date, ocr_address, liveness_data } = req.body;
+    const { full_name, nickname, email, password, phone, birthDate, gender, address, domicile, services, certificates, ocr_nik, ocr_full_name, ocr_birth_place, ocr_birth_date, ocr_address, ocr_gender, ocr_blood_type, ocr_religion, liveness_data } = req.body;
 
     let parsedServices = [];
     if (services) {
@@ -66,6 +66,9 @@ const registerProvider = async (req: any, res: Response) => {
       ocr_birth_place,
       ocr_birth_date,
       ocr_address,
+      ocr_gender,
+      ocr_blood_type,
+      ocr_religion,
       parsedLiveness
     );
 

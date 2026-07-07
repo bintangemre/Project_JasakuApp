@@ -25,7 +25,31 @@ class _ProviderLoginScreenState extends ConsumerState<ProviderLoginScreen> {
   }
 
   void _afterLogin() {
-    final onboarding = ref.read(authProvider).onboardingCompleted;
+    final state = ref.read(authProvider);
+    final status = state.verificationStatus;
+
+    if (status == 'pending') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ProviderVerificationPendingScreen(
+              status: 'pending'),
+        ),
+      );
+      return;
+    }
+    if (status == 'rejected') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ProviderVerificationPendingScreen(
+              status: 'rejected'),
+        ),
+      );
+      return;
+    }
+
+    final onboarding = state.onboardingCompleted;
     if (onboarding == false) {
       Navigator.pushReplacement(
         context,
@@ -45,16 +69,6 @@ class _ProviderLoginScreenState extends ConsumerState<ProviderLoginScreen> {
         MaterialPageRoute(
           builder: (_) => const ProviderVerificationPendingScreen(
               status: 'pending'),
-        ),
-      );
-      return true;
-    }
-    if (error.contains('ditolak')) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const ProviderVerificationPendingScreen(
-              status: 'rejected'),
         ),
       );
       return true;

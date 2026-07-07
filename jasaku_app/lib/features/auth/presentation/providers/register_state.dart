@@ -25,6 +25,9 @@ class RegisterState {
   String? ocrBirthPlace;
   String? ocrBirthDate;
   String? ocrAddress;
+  String? ocrGender;
+  String? ocrBloodType;
+  String? ocrReligion;
 
   // Liveness
   Map<String, dynamic>? livenessData;

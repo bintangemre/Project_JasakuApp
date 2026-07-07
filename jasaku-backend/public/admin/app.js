@@ -115,12 +115,13 @@ document.addEventListener('alpine:init', () => {
       } catch (e) { toast(e.message, 'error'); }
     },
     async rejectProvider(id) {
-      const notes = await promptModal('Alasan penolakan / saran perbaikan:');
-      if (notes === null) return;
+      if (typeof window.__openChecklistModal !== 'function') return;
+      const result = await window.__openChecklistModal(id);
+      if (!result) return;
       try {
         await apiFetch('/admin/providers/' + id + '/verify', {
           method: 'PATCH',
-          body: JSON.stringify({ status: 'rejected', notes })
+          body: JSON.stringify(result)
         });
         toast('Mitra ditolak dengan catatan');
         this.load();
@@ -174,12 +175,13 @@ document.addEventListener('alpine:init', () => {
       } catch (e) { toast(e.message, 'error'); }
     },
     async rejectFromDetail() {
-      const notes = await promptModal('Alasan penolakan / saran perbaikan:');
-      if (notes === null) return;
+      if (typeof window.__openChecklistModal !== 'function') return;
+      const result = await window.__openChecklistModal(this.provider.id);
+      if (!result) return;
       try {
         await apiFetch('/admin/providers/' + this.provider.id + '/verify', {
           method: 'PATCH',
-          body: JSON.stringify({ status: 'rejected', notes })
+          body: JSON.stringify(result)
         });
         toast('Mitra ditolak dengan catatan');
         this.load();
@@ -191,6 +193,19 @@ document.addEventListener('alpine:init', () => {
       try {
         await apiFetch('/admin/providers/' + this.provider.id + '/unverify', { method: 'PATCH' });
         toast('Status dikembalikan ke pending');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+    },
+    async rejectVerified() {
+      if (typeof window.__openChecklistModal !== 'function') return;
+      const result = await window.__openChecklistModal(this.provider.id);
+      if (!result) return;
+      try {
+        await apiFetch('/admin/providers/' + this.provider.id + '/verify', {
+          method: 'PATCH',
+          body: JSON.stringify(result)
+        });
+        toast('Mitra ditolak dengan catatan');
         this.load();
       } catch (e) { toast(e.message, 'error'); }
     }
@@ -222,6 +237,56 @@ document.addEventListener('alpine:init', () => {
         toast('Ban dicabut');
         this.load();
       } catch (e) { toast(e.message, 'error'); }
+    }
+  }));
+
+  const CHECKLIST_ITEMS = [
+    { id: 'full_name', label: 'Nama lengkap sesuai KTP' },
+    { id: 'profile_photo', label: 'Foto profil wajar dan sesuai' },
+    { id: 'ktp_photo', label: 'Foto KTP jelas dan terbaca' },
+    { id: 'selfie', label: 'Selfie sesuai KTP (face match)' },
+    { id: 'documents', label: 'Dokumen ijazah/sertifikat jelas' },
+    { id: 'phone', label: 'Nomor telepon valid' },
+    { id: 'address', label: 'Alamat domisili valid' },
+    { id: 'services', label: 'Layanan sesuai keahlian' },
+  ];
+
+  let _checklistResolve = null;
+
+  Alpine.data('verificationChecklistModal', () => ({
+    show: false,
+    items: [],
+    additionalNotes: '',
+    submitting: false,
+    init() {
+      window.__openChecklistModal = (providerId) => {
+        this.items = CHECKLIST_ITEMS.map(i => ({ ...i, status: 'passed', note: '' }));
+        this.additionalNotes = '';
+        this.show = true;
+        return new Promise(resolve => { _checklistResolve = resolve; });
+      };
+    },
+    close() {
+      this.show = false;
+      if (_checklistResolve) { _checklistResolve(null); _checklistResolve = null; }
+    },
+    async confirm() {
+      this.submitting = true;
+      const checklist = this.items.map(i => ({
+        item: i.id,
+        status: i.status,
+        note: i.status === 'failed' ? (i.note || '') : undefined,
+      }));
+      this.show = false;
+      this.submitting = false;
+      if (_checklistResolve) {
+        _checklistResolve({
+          status: 'rejected',
+          notes: this.additionalNotes || '',
+          checklist,
+        });
+        _checklistResolve = null;
+      }
     }
   }));
 

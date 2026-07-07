@@ -10,3 +10,5 @@ src/config/firebase/*.json
 
 # Uploaded files
 uploads/
+# ML models (too large for git)
+face-service/model/models/

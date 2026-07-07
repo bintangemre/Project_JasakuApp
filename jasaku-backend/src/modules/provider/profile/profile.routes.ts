@@ -20,6 +20,9 @@ router.patch(
   upload.fields([
     { name: "profile_photo", maxCount: 1 },
     { name: "portfolios", maxCount: 5 },
+    { name: "ktp_photo", maxCount: 1 },
+    { name: "selfie_photo", maxCount: 1 },
+    { name: "documents", maxCount: 5 },
   ]),
   updateProfile
 );

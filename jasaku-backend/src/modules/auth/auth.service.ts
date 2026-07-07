@@ -80,6 +80,9 @@ async registerProvider(
   ocr_birth_place?: string,
   ocr_birth_date?: string,
   ocr_address?: string,
+  ocr_gender?: string,
+  ocr_blood_type?: string,
+  ocr_religion?: string,
   liveness_data?: any
 ) {
   // Normalisasi: empty string → null
@@ -140,6 +143,9 @@ async registerProvider(
     if (ocr_birth_place) identityData.ocr_birth_place = ocr_birth_place;
     if (ocr_birth_date) identityData.ocr_birth_date = ocr_birth_date;
     if (ocr_address) identityData.ocr_address = ocr_address;
+    if (ocr_gender) identityData.ocr_gender = ocr_gender;
+    if (ocr_blood_type) identityData.ocr_blood_type = ocr_blood_type;
+    if (ocr_religion) identityData.ocr_religion = ocr_religion;
     if (liveness_data) {
       identityData.liveness_data = liveness_data;
       identityData.liveness_status = liveness_data?.completed >= 3 ? 'passed' : 'failed';
@@ -201,7 +207,9 @@ async registerProvider(
         });
 
         // Masukkan semua rincian tarif harga ke tabel harga provider
-        await tx.provider_service_prices.createMany({ data: priceData });
+        if (priceData.length > 0) {
+          await tx.provider_service_prices.createMany({ data: priceData });
+        }
       }
     }
     
@@ -267,15 +275,12 @@ async registerProvider(
           if (profile.verification_status === 'pending') {
             throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
           }
-          if (profile.verification_status === 'rejected') {
-            const notes = profile.verification_notes ? ` Alasan: ${profile.verification_notes}` : '';
-            throw new Error(`Akun Anda ditolak. Silakan perbaiki sesuai saran admin.${notes}`);
-          }
+          // Rejected: biarkan login, Flutter akan nampilin screen penolakan
           // Auto-set onboarding_completed untuk provider LAMA (sudah punya tarif, bukan baru daftar 5-step)
           if (profile.verification_status === 'verified' && !profile.onboarding_completed) {
             const hasPricing = await prisma.provider_service_prices.count({
               where: {
-                provider_services: { provider_id: user.id }
+                    provider_services: { provider_id: profile.id }
               }
             }) > 0;
             if (hasPricing) {

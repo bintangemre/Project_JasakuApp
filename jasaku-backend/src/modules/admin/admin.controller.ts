@@ -29,10 +29,11 @@ const verifyProvider = async (req: AuthRequest, res: Response) => {
     const providerId = String(req.params.providerId);
     const status = req.body?.status || 'verified';
     const notes = req.body?.notes;
+    const checklist = req.body?.checklist;
     if (!['verified', 'rejected'].includes(status)) {
       return errorResponse(res, "Status harus 'verified' atau 'rejected'", 400);
     }
-    const result = await new AdminService().verifyProvider(providerId, status, notes);
+    const result = await new AdminService().verifyProvider(providerId, status, notes, checklist);
     return successResponse(res, result, `Provider berhasil ${status === 'verified' ? 'diverifikasi' : 'ditolak'}`);
   } catch (err: any) {
     return errorResponse(res, err.message);

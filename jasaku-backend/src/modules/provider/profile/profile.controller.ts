@@ -78,6 +78,7 @@ const getProfile = async (req: AuthRequest, res: Response) => {
       portfolios: paths.portfolios,
       is_verified: profile.is_verified,
       verification_status: profile.verification_status,
+      verification_notes: profile.verification_notes,
       is_active: profile.is_active,
       task_available: profile.task_available,
       onboarding_completed: profile.onboarding_completed,
@@ -207,6 +208,9 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
     const profilePhoto = files?.['profile_photo']?.[0]?.path;
+    const ktpPhoto = files?.['ktp_photo']?.[0]?.path;
+    const selfiePhoto = files?.['selfie_photo']?.[0]?.path;
+    const uploadedDocuments = files?.['documents']?.map((f) => f.path) || [];
 
     const existingPortfolios: string[] = req.body.existing_portfolios
       ? (typeof req.body.existing_portfolios === 'string'
@@ -231,7 +235,30 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
       domicile: req.body.domicile,
       profile_photo: profilePhoto,
       portfolios,
+      ktp_photo: ktpPhoto,
+      selfie_photo: selfiePhoto,
     });
+
+    const deleteDocIds: string[] = req.body.delete_documents
+      ? (typeof req.body.delete_documents === 'string'
+          ? JSON.parse(req.body.delete_documents)
+          : req.body.delete_documents)
+      : [];
+    if (deleteDocIds.length > 0) {
+      await new ProfileService().deleteProviderDocuments(userId, deleteDocIds);
+    }
+
+    if (uploadedDocuments.length > 0) {
+      const description = req.body.document_description || 'Dokumen pendukung';
+      await prisma.provider_documents.createMany({
+        data: uploadedDocuments.map((path) => ({
+          provider_id: profile.id,
+          type: 'supporting',
+          file_url: path,
+          description,
+        })),
+      });
+    }
 
     return successResponse(res, null, "Profil berhasil diperbarui");
   } catch (err: any) {

@@ -280,7 +280,7 @@ class _CategorySection extends StatelessWidget {
     final n = name.trim();
     if (n.contains('Listrik') || n.contains('listrik')) {
       return (icon: Icons.electric_bolt, color: const Color(0xFFFFB300), bg: const Color(0xFFFFF8E1));
-    } else if (n.contains('Bangunan') || n.contains('bangunan') || n.contains('bangun')) {
+    } else if (n.contains('Bangunan') || n.contains('bangunan') || n.contains('bangun') || n.contains('Keramik') || n.contains('keramik')) {
       return (icon: Icons.home_repair_service, color: const Color(0xFFFF6B00), bg: const Color(0xFFFFF0E0));
     } else if (n.contains('Bersih') || n.contains('bersih') || n.contains('Cuci') || n.contains('cuci')) {
       return (icon: Icons.cleaning_services, color: const Color(0xFF059669), bg: const Color(0xFFE6F7F0));

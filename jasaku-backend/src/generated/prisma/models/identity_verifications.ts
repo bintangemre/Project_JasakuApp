@@ -42,6 +42,9 @@ export type Identity_verificationsMinAggregateOutputType = {
   ocr_birth_place: string | null
   ocr_birth_date: string | null
   ocr_address: string | null
+  ocr_gender: string | null
+  ocr_blood_type: string | null
+  ocr_religion: string | null
   face_match_score: number | null
   face_match_status: string | null
   liveness_status: string | null
@@ -57,6 +60,9 @@ export type Identity_verificationsMaxAggregateOutputType = {
   ocr_birth_place: string | null
   ocr_birth_date: string | null
   ocr_address: string | null
+  ocr_gender: string | null
+  ocr_blood_type: string | null
+  ocr_religion: string | null
   face_match_score: number | null
   face_match_status: string | null
   liveness_status: string | null
@@ -72,6 +78,9 @@ export type Identity_verificationsCountAggregateOutputType = {
   ocr_birth_place: number
   ocr_birth_date: number
   ocr_address: number
+  ocr_gender: number
+  ocr_blood_type: number
+  ocr_religion: number
   ocr_raw_result: number
   face_match_score: number
   face_match_status: number
@@ -99,6 +108,9 @@ export type Identity_verificationsMinAggregateInputType = {
   ocr_birth_place?: true
   ocr_birth_date?: true
   ocr_address?: true
+  ocr_gender?: true
+  ocr_blood_type?: true
+  ocr_religion?: true
   face_match_score?: true
   face_match_status?: true
   liveness_status?: true
@@ -114,6 +126,9 @@ export type Identity_verificationsMaxAggregateInputType = {
   ocr_birth_place?: true
   ocr_birth_date?: true
   ocr_address?: true
+  ocr_gender?: true
+  ocr_blood_type?: true
+  ocr_religion?: true
   face_match_score?: true
   face_match_status?: true
   liveness_status?: true
@@ -129,6 +144,9 @@ export type Identity_verificationsCountAggregateInputType = {
   ocr_birth_place?: true
   ocr_birth_date?: true
   ocr_address?: true
+  ocr_gender?: true
+  ocr_blood_type?: true
+  ocr_religion?: true
   ocr_raw_result?: true
   face_match_score?: true
   face_match_status?: true
@@ -233,6 +251,9 @@ export type Identity_verificationsGroupByOutputType = {
   ocr_birth_place: string | null
   ocr_birth_date: string | null
   ocr_address: string | null
+  ocr_gender: string | null
+  ocr_blood_type: string | null
+  ocr_religion: string | null
   ocr_raw_result: runtime.JsonValue | null
   face_match_score: number | null
   face_match_status: string
@@ -273,6 +294,9 @@ export type identity_verificationsWhereInput = {
   ocr_birth_place?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
   ocr_birth_date?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
   ocr_address?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
+  ocr_gender?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
+  ocr_blood_type?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
+  ocr_religion?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
   ocr_raw_result?: Prisma.JsonNullableFilter<"identity_verifications">
   face_match_score?: Prisma.FloatNullableFilter<"identity_verifications"> | number | null
   face_match_status?: Prisma.StringFilter<"identity_verifications"> | string
@@ -291,6 +315,9 @@ export type identity_verificationsOrderByWithRelationInput = {
   ocr_birth_place?: Prisma.SortOrderInput | Prisma.SortOrder
   ocr_birth_date?: Prisma.SortOrderInput | Prisma.SortOrder
   ocr_address?: Prisma.SortOrderInput | Prisma.SortOrder
+  ocr_gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  ocr_blood_type?: Prisma.SortOrderInput | Prisma.SortOrder
+  ocr_religion?: Prisma.SortOrderInput | Prisma.SortOrder
   ocr_raw_result?: Prisma.SortOrderInput | Prisma.SortOrder
   face_match_score?: Prisma.SortOrderInput | Prisma.SortOrder
   face_match_status?: Prisma.SortOrder
@@ -312,6 +339,9 @@ export type identity_verificationsWhereUniqueInput = Prisma.AtLeast<{
   ocr_birth_place?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
   ocr_birth_date?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
   ocr_address?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
+  ocr_gender?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
+  ocr_blood_type?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
+  ocr_religion?: Prisma.StringNullableFilter<"identity_verifications"> | string | null
   ocr_raw_result?: Prisma.JsonNullableFilter<"identity_verifications">
   face_match_score?: Prisma.FloatNullableFilter<"identity_verifications"> | number | null
   face_match_status?: Prisma.StringFilter<"identity_verifications"> | string
@@ -330,6 +360,9 @@ export type identity_verificationsOrderByWithAggregationInput = {
   ocr_birth_place?: Prisma.SortOrderInput | Prisma.SortOrder
   ocr_birth_date?: Prisma.SortOrderInput | Prisma.SortOrder
   ocr_address?: Prisma.SortOrderInput | Prisma.SortOrder
+  ocr_gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  ocr_blood_type?: Prisma.SortOrderInput | Prisma.SortOrder
+  ocr_religion?: Prisma.SortOrderInput | Prisma.SortOrder
   ocr_raw_result?: Prisma.SortOrderInput | Prisma.SortOrder
   face_match_score?: Prisma.SortOrderInput | Prisma.SortOrder
   face_match_status?: Prisma.SortOrder
@@ -355,6 +388,9 @@ export type identity_verificationsScalarWhereWithAggregatesInput = {
   ocr_birth_place?: Prisma.StringNullableWithAggregatesFilter<"identity_verifications"> | string | null
   ocr_birth_date?: Prisma.StringNullableWithAggregatesFilter<"identity_verifications"> | string | null
   ocr_address?: Prisma.StringNullableWithAggregatesFilter<"identity_verifications"> | string | null
+  ocr_gender?: Prisma.StringNullableWithAggregatesFilter<"identity_verifications"> | string | null
+  ocr_blood_type?: Prisma.StringNullableWithAggregatesFilter<"identity_verifications"> | string | null
+  ocr_religion?: Prisma.StringNullableWithAggregatesFilter<"identity_verifications"> | string | null
   ocr_raw_result?: Prisma.JsonNullableWithAggregatesFilter<"identity_verifications">
   face_match_score?: Prisma.FloatNullableWithAggregatesFilter<"identity_verifications"> | number | null
   face_match_status?: Prisma.StringWithAggregatesFilter<"identity_verifications"> | string
@@ -371,6 +407,9 @@ export type identity_verificationsCreateInput = {
   ocr_birth_place?: string | null
   ocr_birth_date?: string | null
   ocr_address?: string | null
+  ocr_gender?: string | null
+  ocr_blood_type?: string | null
+  ocr_religion?: string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: number | null
   face_match_status?: string
@@ -389,6 +428,9 @@ export type identity_verificationsUncheckedCreateInput = {
   ocr_birth_place?: string | null
   ocr_birth_date?: string | null
   ocr_address?: string | null
+  ocr_gender?: string | null
+  ocr_blood_type?: string | null
+  ocr_religion?: string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: number | null
   face_match_status?: string
@@ -405,6 +447,9 @@ export type identity_verificationsUpdateInput = {
   ocr_birth_place?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_birth_date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_blood_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_religion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   face_match_status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -423,6 +468,9 @@ export type identity_verificationsUncheckedUpdateInput = {
   ocr_birth_place?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_birth_date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_blood_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_religion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   face_match_status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -440,6 +488,9 @@ export type identity_verificationsCreateManyInput = {
   ocr_birth_place?: string | null
   ocr_birth_date?: string | null
   ocr_address?: string | null
+  ocr_gender?: string | null
+  ocr_blood_type?: string | null
+  ocr_religion?: string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: number | null
   face_match_status?: string
@@ -456,6 +507,9 @@ export type identity_verificationsUpdateManyMutationInput = {
   ocr_birth_place?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_birth_date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_blood_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_religion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   face_match_status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -473,6 +527,9 @@ export type identity_verificationsUncheckedUpdateManyInput = {
   ocr_birth_place?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_birth_date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_blood_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_religion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   face_match_status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -495,6 +552,9 @@ export type identity_verificationsCountOrderByAggregateInput = {
   ocr_birth_place?: Prisma.SortOrder
   ocr_birth_date?: Prisma.SortOrder
   ocr_address?: Prisma.SortOrder
+  ocr_gender?: Prisma.SortOrder
+  ocr_blood_type?: Prisma.SortOrder
+  ocr_religion?: Prisma.SortOrder
   ocr_raw_result?: Prisma.SortOrder
   face_match_score?: Prisma.SortOrder
   face_match_status?: Prisma.SortOrder
@@ -516,6 +576,9 @@ export type identity_verificationsMaxOrderByAggregateInput = {
   ocr_birth_place?: Prisma.SortOrder
   ocr_birth_date?: Prisma.SortOrder
   ocr_address?: Prisma.SortOrder
+  ocr_gender?: Prisma.SortOrder
+  ocr_blood_type?: Prisma.SortOrder
+  ocr_religion?: Prisma.SortOrder
   face_match_score?: Prisma.SortOrder
   face_match_status?: Prisma.SortOrder
   liveness_status?: Prisma.SortOrder
@@ -531,6 +594,9 @@ export type identity_verificationsMinOrderByAggregateInput = {
   ocr_birth_place?: Prisma.SortOrder
   ocr_birth_date?: Prisma.SortOrder
   ocr_address?: Prisma.SortOrder
+  ocr_gender?: Prisma.SortOrder
+  ocr_blood_type?: Prisma.SortOrder
+  ocr_religion?: Prisma.SortOrder
   face_match_score?: Prisma.SortOrder
   face_match_status?: Prisma.SortOrder
   liveness_status?: Prisma.SortOrder
@@ -589,6 +655,9 @@ export type identity_verificationsCreateWithoutProvider_profilesInput = {
   ocr_birth_place?: string | null
   ocr_birth_date?: string | null
   ocr_address?: string | null
+  ocr_gender?: string | null
+  ocr_blood_type?: string | null
+  ocr_religion?: string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: number | null
   face_match_status?: string
@@ -605,6 +674,9 @@ export type identity_verificationsUncheckedCreateWithoutProvider_profilesInput =
   ocr_birth_place?: string | null
   ocr_birth_date?: string | null
   ocr_address?: string | null
+  ocr_gender?: string | null
+  ocr_blood_type?: string | null
+  ocr_religion?: string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: number | null
   face_match_status?: string
@@ -637,6 +709,9 @@ export type identity_verificationsUpdateWithoutProvider_profilesInput = {
   ocr_birth_place?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_birth_date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_blood_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_religion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   face_match_status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -653,6 +728,9 @@ export type identity_verificationsUncheckedUpdateWithoutProvider_profilesInput =
   ocr_birth_place?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_birth_date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_blood_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ocr_religion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ocr_raw_result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   face_match_score?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   face_match_status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -672,6 +750,9 @@ export type identity_verificationsSelect<ExtArgs extends runtime.Types.Extension
   ocr_birth_place?: boolean
   ocr_birth_date?: boolean
   ocr_address?: boolean
+  ocr_gender?: boolean
+  ocr_blood_type?: boolean
+  ocr_religion?: boolean
   ocr_raw_result?: boolean
   face_match_score?: boolean
   face_match_status?: boolean
@@ -690,6 +771,9 @@ export type identity_verificationsSelectCreateManyAndReturn<ExtArgs extends runt
   ocr_birth_place?: boolean
   ocr_birth_date?: boolean
   ocr_address?: boolean
+  ocr_gender?: boolean
+  ocr_blood_type?: boolean
+  ocr_religion?: boolean
   ocr_raw_result?: boolean
   face_match_score?: boolean
   face_match_status?: boolean
@@ -708,6 +792,9 @@ export type identity_verificationsSelectUpdateManyAndReturn<ExtArgs extends runt
   ocr_birth_place?: boolean
   ocr_birth_date?: boolean
   ocr_address?: boolean
+  ocr_gender?: boolean
+  ocr_blood_type?: boolean
+  ocr_religion?: boolean
   ocr_raw_result?: boolean
   face_match_score?: boolean
   face_match_status?: boolean
@@ -726,6 +813,9 @@ export type identity_verificationsSelectScalar = {
   ocr_birth_place?: boolean
   ocr_birth_date?: boolean
   ocr_address?: boolean
+  ocr_gender?: boolean
+  ocr_blood_type?: boolean
+  ocr_religion?: boolean
   ocr_raw_result?: boolean
   face_match_score?: boolean
   face_match_status?: boolean
@@ -735,7 +825,7 @@ export type identity_verificationsSelectScalar = {
   verified_at?: boolean
 }
 
-export type identity_verificationsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider_id" | "nik" | "ocr_full_name" | "ocr_birth_place" | "ocr_birth_date" | "ocr_address" | "ocr_raw_result" | "face_match_score" | "face_match_status" | "liveness_data" | "liveness_status" | "created_at" | "verified_at", ExtArgs["result"]["identity_verifications"]>
+export type identity_verificationsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider_id" | "nik" | "ocr_full_name" | "ocr_birth_place" | "ocr_birth_date" | "ocr_address" | "ocr_gender" | "ocr_blood_type" | "ocr_religion" | "ocr_raw_result" | "face_match_score" | "face_match_status" | "liveness_data" | "liveness_status" | "created_at" | "verified_at", ExtArgs["result"]["identity_verifications"]>
 export type identity_verificationsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
 }
@@ -759,6 +849,9 @@ export type $identity_verificationsPayload<ExtArgs extends runtime.Types.Extensi
     ocr_birth_place: string | null
     ocr_birth_date: string | null
     ocr_address: string | null
+    ocr_gender: string | null
+    ocr_blood_type: string | null
+    ocr_religion: string | null
     ocr_raw_result: runtime.JsonValue | null
     face_match_score: number | null
     face_match_status: string
@@ -1197,6 +1290,9 @@ export interface identity_verificationsFieldRefs {
   readonly ocr_birth_place: Prisma.FieldRef<"identity_verifications", 'String'>
   readonly ocr_birth_date: Prisma.FieldRef<"identity_verifications", 'String'>
   readonly ocr_address: Prisma.FieldRef<"identity_verifications", 'String'>
+  readonly ocr_gender: Prisma.FieldRef<"identity_verifications", 'String'>
+  readonly ocr_blood_type: Prisma.FieldRef<"identity_verifications", 'String'>
+  readonly ocr_religion: Prisma.FieldRef<"identity_verifications", 'String'>
   readonly ocr_raw_result: Prisma.FieldRef<"identity_verifications", 'Json'>
   readonly face_match_score: Prisma.FieldRef<"identity_verifications", 'Float'>
   readonly face_match_status: Prisma.FieldRef<"identity_verifications", 'String'>

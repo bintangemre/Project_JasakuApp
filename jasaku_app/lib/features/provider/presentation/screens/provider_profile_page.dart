@@ -4,6 +4,7 @@ import '../providers/provider_profile_provider.dart';
 import '../../../payments/presentation/screens/provider_payout_screen.dart';
 import 'provider_profile_edit_screen.dart';
 import 'provider_reviews_page.dart';
+import 'provider_services_edit_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../reports/presentation/pages/report_form_page.dart';
@@ -339,6 +340,12 @@ class _ProviderProfilePageState extends ConsumerState<ProviderProfilePage> {
           style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
         ),
         trailing: Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ProviderServicesEditScreen(),
+          ),
+        ),
       ),
     );
   }

@@ -245,10 +245,10 @@
                     <div><label class="text-xs text-gray-400 font-medium mb-1 block">Foto Profil</label><a :href="getFileUrl(provider.profile_photo)" target="_blank"><img :src="getFileUrl(provider.profile_photo)" class="w-20 h-20 rounded-xl object-cover border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"></a></div>
                   </template>
                   <template x-if="provider.ktp_photo">
-                    <div><label class="text-xs text-gray-400 font-medium mb-1 block">Foto KTP</label><a :href="getFileUrl(provider.ktp_photo)" target="_blank"><img :src="getFileUrl(provider.ktp_photo)" class="w-20 h-20 rounded-xl object-cover border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"></a></div>
+                    <div><label class="text-xs text-gray-400 font-medium mb-1 block">Foto KTP</label><a :href="getFileUrl(provider.ktp_photo)" target="_blank"><img :src="getFileUrl(provider.ktp_photo)" class="w-28 h-28 rounded-xl object-cover border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"></a></div>
                   </template>
                   <template x-if="provider.selfie_photo">
-                    <div><label class="text-xs text-gray-400 font-medium mb-1 block">Selfie KTP</label><a :href="getFileUrl(provider.selfie_photo)" target="_blank"><img :src="getFileUrl(provider.selfie_photo)" class="w-20 h-20 rounded-xl object-cover border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"></a></div>
+                    <div><label class="text-xs text-gray-400 font-medium mb-1 block">Selfie</label><a :href="getFileUrl(provider.selfie_photo)" target="_blank"><img :src="getFileUrl(provider.selfie_photo)" class="w-28 h-28 rounded-xl object-cover border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"></a></div>
                   </template>
                 </div>
 
@@ -265,21 +265,65 @@
                   <div><label class="text-xs text-gray-400 font-medium uppercase tracking-wide">Email</label><p class="text-gray-800 font-medium mt-1" x-text="provider.users?.email || '-'"></p></div>
                   <div><label class="text-xs text-gray-400 font-medium uppercase tracking-wide">No. HP</label><p class="text-gray-800 font-medium mt-1" x-text="provider.phone || '-'"></p></div>
                   <div><label class="text-xs text-gray-400 font-medium uppercase tracking-wide">Nama Panggilan</label><p class="text-gray-800 font-medium mt-1" x-text="provider.nickname || '-'"></p></div>
-                  <div><label class="text-xs text-gray-400 font-medium uppercase tracking-wide">Jenis Kelamin</label><p class="text-gray-800 font-medium mt-1" x-text="provider.gender === 'male' ? 'Laki-laki' : provider.gender === 'female' ? 'Perempuan' : '-'"></p></div>
+                  <div><label class="text-xs text-gray-400 font-medium uppercase tracking-wide">Jenis Kelamin</label><p class="text-gray-800 font-medium mt-1" x-text="provider.gender || '-'"></p></div>
                   <div><label class="text-xs text-gray-400 font-medium uppercase tracking-wide">Domisili</label><p class="text-gray-800 font-medium mt-1" x-text="provider.domicile || '-'"></p></div>
                   <div><label class="text-xs text-gray-400 font-medium uppercase tracking-wide">Status</label><p class="mt-1"><span class="badge" :class="provider.is_verified ? 'badge-success' : provider.verification_status === 'rejected' ? 'badge-danger' : 'badge-warning'" x-text="provider.is_verified ? 'Terverifikasi' : provider.verification_status === 'rejected' ? 'Ditolak' : 'Pending'"></span></p></div>
                   <div><label class="text-xs text-gray-400 font-medium uppercase tracking-wide">Custom Task</label><p class="mt-1"><span class="badge" :class="provider.custom_task_enabled ? 'badge-success' : 'badge-gray'" x-text="provider.custom_task_enabled ? 'Diaktifkan' : 'Nonaktif'"></span></p></div>
                 </div>
 
+                <!-- OCR & Liveness -->
+                <template x-if="provider.identity_verifications">
+                  <div class="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                    <p class="text-xs font-semibold text-yellow-700 mb-3 uppercase tracking-wide">Hasil Scan KTP</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div><label class="text-xs text-gray-400 font-medium">NIK</label><p class="text-sm text-gray-800 font-medium mt-0.5" x-text="provider.identity_verifications.nik || '-'"></p></div>
+                      <div><label class="text-xs text-gray-400 font-medium">Nama (OCR)</label><p class="text-sm text-gray-800 font-medium mt-0.5" x-text="provider.identity_verifications.ocr_full_name || '-'"></p></div>
+                      <div><label class="text-xs text-gray-400 font-medium">Tempat Lahir</label><p class="text-sm text-gray-800 font-medium mt-0.5" x-text="provider.identity_verifications.ocr_birth_place || '-'"></p></div>
+                      <div><label class="text-xs text-gray-400 font-medium">Tanggal Lahir</label><p class="text-sm text-gray-800 font-medium mt-0.5" x-text="provider.identity_verifications.ocr_birth_date || '-'"></p></div>
+                      <div><label class="text-xs text-gray-400 font-medium">Alamat</label><p class="text-sm text-gray-800 font-medium mt-0.5" x-text="provider.identity_verifications.ocr_address || '-'"></p></div>
+                      <div><label class="text-xs text-gray-400 font-medium">Jenis Kelamin</label><p class="text-sm text-gray-800 font-medium mt-0.5" x-text="provider.identity_verifications.ocr_gender || '-'"></p></div>
+                      <div><label class="text-xs text-gray-400 font-medium">Gol. Darah</label><p class="text-sm text-gray-800 font-medium mt-0.5" x-text="provider.identity_verifications.ocr_blood_type || '-'"></p></div>
+                      <div><label class="text-xs text-gray-400 font-medium">Agama</label><p class="text-sm text-gray-800 font-medium mt-0.5" x-text="provider.identity_verifications.ocr_religion || '-'"></p></div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-yellow-200 flex flex-wrap gap-4">
+                      <div><label class="text-xs text-gray-400 font-medium">Liveness</label><p class="mt-0.5"><span class="badge" :class="provider.identity_verifications.liveness_status === 'passed' ? 'badge-success' : 'badge-danger'" x-text="provider.identity_verifications.liveness_status === 'passed' ? '✅ Lulus' : provider.identity_verifications.liveness_status === 'failed' ? '❌ Gagal' : '⏳ Pending'"></span></p></div>
+                      <div><label class="text-xs text-gray-400 font-medium">Face Match</label><p class="mt-0.5"><span class="badge" :class="provider.identity_verifications.face_match_status === 'matched' ? 'badge-success' : provider.identity_verifications.face_match_status === 'not_matched' ? 'badge-danger' : 'badge-warning'" x-text="provider.identity_verifications.face_match_status === 'matched' ? '✅ Cocok' : provider.identity_verifications.face_match_status === 'not_matched' ? '❌ Tidak Cocok' : '⏳ Pending'"></span></p></div>
+                      <template x-if="provider.identity_verifications.face_match_score != null">
+                        <div><label class="text-xs text-gray-400 font-medium">Skor Kecocokan</label><p class="text-sm text-gray-800 font-medium mt-0.5" x-text="(provider.identity_verifications.face_match_score * 100).toFixed(1) + '%'"></p></div>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Portofolio -->
+                <template x-if="provider.portfolios?.length > 0">
+                  <div class="mt-4">
+                    <p class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2">Portofolio / Foto Pengalaman Kerja</p>
+                    <div class="flex flex-wrap gap-3">
+                      <template x-for="(pf, idx) in provider.portfolios" :key="idx">
+                        <a :href="getFileUrl(pf)" target="_blank">
+                          <img :src="getFileUrl(pf)" class="w-24 h-24 rounded-xl object-cover border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity" :alt="'Portofolio ' + (idx+1)">
+                        </a>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+
                 <!-- Actions -->
                 <div class="mt-6 pt-5 border-t border-gray-100 flex flex-wrap gap-3">
                   <template x-if="!provider.is_verified && provider.verification_status !== 'rejected'">
-                    <button @click="approveFromDetail()" class="btn-success btn-sm"><i class="fas fa-check mr-1"></i>Setujui</button>
+                    <div class="flex flex-wrap gap-3">
+                      <button @click="approveFromDetail()" class="btn-success btn-sm"><i class="fas fa-check mr-1"></i>Setujui</button>
+                      <button @click="rejectFromDetail()" class="btn-danger btn-sm"><i class="fas fa-times mr-1"></i>Tolak dengan Catatan</button>
+                    </div>
                   </template>
-                  <template x-if="!provider.is_verified">
-                    <button @click="rejectFromDetail()" class="btn-danger btn-sm"><i class="fas fa-times mr-1"></i>Tolak dengan Catatan</button>
+                  <template x-if="provider.is_verified">
+                    <div class="flex flex-wrap gap-3">
+                      <button @click="resetToPending()" class="btn-warning btn-sm"><i class="fas fa-undo mr-1"></i>Kembalikan ke Pending</button>
+                      <button @click="rejectVerified()" class="btn-danger btn-sm"><i class="fas fa-times mr-1"></i>Tolak dengan Catatan</button>
+                    </div>
                   </template>
-                  <template x-if="provider.is_verified || provider.verification_status === 'rejected'">
+                  <template x-if="provider.verification_status === 'rejected' && !provider.is_verified">
                     <button @click="resetToPending()" class="btn-warning btn-sm"><i class="fas fa-undo mr-1"></i>Kembalikan ke Pending</button>
                   </template>
                 </div>
@@ -311,7 +355,7 @@
             <template x-if="!loading && provider?.provider_documents?.length > 0">
               <div class="card p-0 overflow-hidden"><div class="table-wrap"><table><thead><tr><th>Tipe</th><th>Keterangan</th><th class="text-right">File</th></tr></thead><tbody>
                 <template x-for="d in provider.provider_documents" :key="d.id">
-                  <tr><td class="font-medium text-gray-800"><span x-text="d.type === 'ijazah' ? 'Ijazah' : 'Sertifikat'"></span></td><td class="text-gray-500" x-text="d.description || '-'"></td><td class="text-right"><a :href="getFileUrl(d.file_url)" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium"><i class="fas fa-external-link-alt mr-1"></i>Lihat</a></td></tr>
+                  <tr><td class="font-medium text-gray-800"><span x-text="d.type === 'ijazah' ? 'Ijazah' : d.type === 'portfolio' ? 'Portofolio' : 'Sertifikat'"></span></td><td class="text-gray-500" x-text="d.description || '-'"></td><td class="text-right"><a :href="getFileUrl(d.file_url)" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium"><i class="fas fa-external-link-alt mr-1"></i>Lihat</a></td></tr>
                 </template>
               </tbody></table></div></div>
             </template>
@@ -418,9 +462,9 @@
               <template x-if="!loading && !selectedCategoryId"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-dollar-sign text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Pilih kategori</p><p class="text-gray-300 text-xs mt-1">Pilih kategori untuk melihat tipe harga</p></div></template>
               <template x-if="!loading && selectedCategoryId && types.length === 0"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-tag text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Belum ada tipe harga</p><p class="text-gray-300 text-xs mt-1">Klik "Tambah" untuk membuat tipe harga baru</p></div></template>
               <template x-if="!loading && types.length > 0">
-                <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Harga</th><th>Durasi</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Deskripsi</th><th>Satuan</th><th class="text-right">Aksi</th></tr></thead><tbody>
                   <template x-for="t in types" :key="t.id">
-                    <tr><td class="font-medium text-gray-800" x-text="t.name"></td><td class="font-medium tabular-nums" x-text="'Rp ' + Number(t.price).toLocaleString('id-ID')"></td><td class="text-gray-500" x-text="t.duration ? t.duration + ' menit' : '-'"></td><td class="text-right"><button @click="confirmDelete(t.id)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button></td></tr>
+                    <tr><td class="font-medium text-gray-800" x-text="t.name"></td><td class="text-gray-500" x-text="t.description || '-'"></td><td class="text-gray-500" x-text="t.default_unit || '-'"></td><td class="text-right"><button @click="confirmDelete(t.id)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button></td></tr>
                   </template>
                 </tbody></table></div>
               </template>
@@ -700,10 +744,53 @@
     <div class="modal-content"><div class="modal-box">
       <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800">Tambah Tipe Harga</h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
       <form @submit.prevent="save" class="space-y-4">
-        <div><label class="form-label">Nama</label><input type="text" x-model="form.name" class="form-input" placeholder="cth: Standar, Premium" required></div>
-        <div class="grid grid-cols-2 gap-4"><div><label class="form-label">Harga (Rp)</label><input type="number" x-model="form.price" class="form-input" placeholder="0" required></div><div><label class="form-label">Durasi (menit)</label><input type="number" x-model="form.duration" class="form-input" placeholder="60"></div></div>
+        <div><label class="form-label">Nama</label><input type="text" x-model="form.name" class="form-input" placeholder="cth: Harian, Borongan" required></div>
+        <div><label class="form-label">Deskripsi (Opsional)</label><input type="text" x-model="form.description" class="form-input" placeholder="cth: Harga per hari kerja"></div>
+        <div><label class="form-label">Satuan (Opsional)</label><input type="text" x-model="form.defaultUnit" class="form-input" placeholder="cth: hari, meter, unit, sesi"></div>
         <div class="flex gap-3 justify-end pt-2"><button type="button" class="btn-secondary" @click="close()">Batal</button><button type="submit" class="btn-primary"><i class="fas fa-save mr-1"></i>Simpan</button></div>
       </form>
+    </div></div>
+  </div>
+
+  <!-- VERIFICATION CHECKLIST MODAL -->
+  <div x-data="verificationChecklistModal" x-show="show" x-cloak>
+    <div class="modal-backdrop" @click="close()"></div>
+    <div class="modal-content"><div class="modal-box max-w-lg">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold text-gray-800">Tolak Mitra — Checklist Verifikasi</h3>
+        <button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button>
+      </div>
+      <p class="text-sm text-gray-500 mb-4">Centang item yang <strong class="text-red-600">tidak sesuai</strong> dan berikan alasan.</p>
+      <div class="space-y-3 max-h-80 overflow-y-auto">
+        <template x-for="(item, idx) in items" :key="item.id">
+          <div class="border border-gray-200 rounded-xl p-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700" x-text="item.label"></span>
+              <div class="flex gap-2">
+                <label class="flex items-center gap-1 text-xs cursor-pointer px-2 py-1 rounded-lg" :class="item.status === 'passed' ? 'bg-green-100 text-green-700' : 'bg-gray-50 text-gray-400'" @click="item.status = 'passed'; item.note = ''">
+                  <i class="fas fa-check-circle"></i> Sesuai
+                </label>
+                <label class="flex items-center gap-1 text-xs cursor-pointer px-2 py-1 rounded-lg" :class="item.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-50 text-gray-400'" @click="item.status = 'failed'">
+                  <i class="fas fa-times-circle"></i> Tidak
+                </label>
+              </div>
+            </div>
+            <div x-show="item.status === 'failed'" class="mt-2">
+              <input type="text" x-model="item.note" class="form-input text-sm" placeholder="Alasan (misal: foto buram, tidak terbaca...)">
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="mt-4">
+        <label class="form-label">Catatan Tambahan (opsional)</label>
+        <textarea x-model="additionalNotes" class="form-input" rows="2" placeholder="Catatan keseluruhan untuk mitra..."></textarea>
+      </div>
+      <div class="flex gap-3 justify-end mt-6">
+        <button type="button" class="btn-secondary" @click="close()">Batal</button>
+        <button type="button" class="btn-danger" @click="confirm()" :disabled="submitting">
+          <i class="fas fa-times mr-1"></i><span x-text="submitting ? 'Menyimpan...' : 'Simpan & Tolak'"></span>
+        </button>
+      </div>
     </div></div>
   </div>
 
@@ -970,11 +1057,11 @@
         }
       }));
 
-      Alpine.store('pricingModal', { show: false, form: { name: '', price: '', duration: '', category_id: '' } });
+      Alpine.store('pricingModal', { show: false, form: { name: '', description: '', defaultUnit: '', categoryId: '' } });
       Alpine.data('pricingModal', () => ({
-        show: false, form: { name: '', price: '', duration: '', category_id: '' },
+        show: false, form: { name: '', description: '', defaultUnit: '', categoryId: '' },
         init() { this.$store.pricingModal = this; },
-        openCreate(categoryId) { this.form = { name: '', price: '', duration: '', category_id: categoryId }; this.show = true; },
+        openCreate(categoryId) { this.form = { name: '', description: '', defaultUnit: '', categoryId: categoryId }; this.show = true; },
         close() { this.show = false; },
         async save() {
           try {
