@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: jasaku-backend
+    env: node
+    rootDir: jasaku-backend
+    buildCommand: npx prisma generate && mkdir -p uploads public/downloads
+    startCommand: npx tsx src/app.ts
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: PORT
+        value: 3000
