@@ -79,6 +79,12 @@ export class ProfileService {
         });
     }
     async updateProfile(userId, data) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: userId },
+            select: { id: true },
+        });
+        if (!profile)
+            throw new Error('Profil provider tidak ditemukan');
         const updateData = {};
         if (data.full_name !== undefined)
             updateData.full_name = data.full_name;
@@ -98,11 +104,33 @@ export class ProfileService {
             updateData.profile_photo = data.profile_photo;
         if (data.portfolios !== undefined)
             updateData.portfolios = data.portfolios;
-        if (Object.keys(updateData).length === 0)
-            return;
-        await prisma.provider_profiles.update({
-            where: { user_id: userId },
-            data: updateData,
+        if (data.ktp_photo !== undefined)
+            updateData.ktp_photo = data.ktp_photo;
+        if (data.selfie_photo !== undefined)
+            updateData.selfie_photo = data.selfie_photo;
+        if (Object.keys(updateData).length > 0) {
+            await prisma.provider_profiles.update({
+                where: { user_id: userId },
+                data: updateData,
+            });
+        }
+        if (data.ktp_photo && data.selfie_photo) {
+            const { runFaceMatchAsync } = await import("../../../config/face_client");
+            runFaceMatchAsync(profile.id, data.ktp_photo, data.selfie_photo).catch((e) => console.warn("Face match non-blocking error:", e.message));
+        }
+    }
+    async deleteProviderDocuments(providerUserId, documentIds) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: providerUserId },
+            select: { id: true },
+        });
+        if (!profile)
+            throw new Error('Profil provider tidak ditemukan');
+        await prisma.provider_documents.deleteMany({
+            where: {
+                id: { in: documentIds },
+                provider_id: profile.id,
+            },
         });
     }
 }

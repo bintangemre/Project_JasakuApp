@@ -17,9 +17,9 @@ export const updateProfile = async (req, res, next) => {
         const userId = req.user?.userId;
         if (!userId)
             return errorResponse(res, "Unauthorized", 401);
-        const { full_name, nickname } = req.body;
+        const { full_name, nickname, birth_date, gender, phone, address } = req.body;
         const avatarPath = req.file ? `/uploads/${req.file.filename}` : undefined;
-        const result = await profileService.updateCustomerProfile(userId, { full_name, nickname }, avatarPath);
+        const result = await profileService.updateCustomerProfile(userId, { full_name, nickname, birth_date, gender, phone, address }, avatarPath);
         return successResponse(res, result, "Profil berhasil diperbarui");
     }
     catch (error) {

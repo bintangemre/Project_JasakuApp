@@ -1,0 +1,139 @@
+@startuml Jasaku — Customer Use Case
+!theme plain
+skinparam usecase {
+  BackgroundColor #FEFEFE
+  BorderColor #333333
+  FontSize 12
+}
+skinparam actor {
+  BorderColor #1565C0
+  FontSize 14
+  FontStyle bold
+}
+skinparam rectangle {
+  BorderColor #1565C0
+  BackgroundColor #E3F2FD
+  RoundCorner 10
+}
+skinparam note {
+  BorderColor #1565C0
+  BackgroundColor #E3F2FD
+}
+skinparam arrow {
+  Color #1565C0
+}
+
+left to right direction
+
+actor "Customer" as Customer #ADD8E6
+
+rectangle "Customer" as CustomerRect {
+  usecase "Register" as C1
+  usecase "Login\n(Email / Google)" as C2
+  note right of C2
+    Google OAuth auto-registers
+    as customer if new user
+  end note
+
+  usecase "Browse Service\nCategories" as C3
+  note right of C3
+    View all categories on
+    home page grid or
+    full list page
+  end note
+
+  usecase "Find Providers\nby Distance" as C4
+  note right of C4
+    Select a service →
+    see providers sorted
+    by distance & rating
+  end note
+
+  usecase "View Provider\nDetail" as C5
+  note right of C5
+    Bottom sheet with:
+    profile, rating, jobs done,
+    portfolios, pricing,
+    availability, schedule
+  end note
+
+  usecase "Create Order" as C6
+  note right of C6
+    • Select date & time
+    • Pick location on map
+    • Add description & photos
+    • Specify quantity
+  end note
+
+  usecase "Pay via Escrow\n(Rekber)" as C7
+  note right of C7
+    Choose payment method:
+    bank transfer, e-wallet,
+    or QRIS → pay to
+    admin rekber account
+  end note
+
+  usecase "Track Order\n(Live Map)" as C8
+  note right of C8
+    Real-time provider
+    location on map with
+    route polyline (polls 5s)
+  end note
+
+  usecase "Cancel Order" as C9
+  note right of C9
+    Allowed when status:
+    pending, accepted
+  end note
+
+  usecase "Rate & Review\nProvider" as C10
+  note right of C10
+    One review per order:
+    rating 1-5 stars +
+    review text
+  end note
+
+  usecase "View Order\nHistory" as C11
+  note right of C11
+    Filter by:
+    All / Active / Completed
+  end note
+
+  usecase "Create Custom\nTask" as C12
+  note right of C12
+    • Title, description,
+      budget, people count
+    • Pick location on map
+    • Pay escrow → admin
+      confirms → provider bids
+  end note
+
+  usecase "Manage\nProfile" as C13
+  usecase "Submit\nReport" as C14
+  usecase "Search\nLocation" as C15
+  note right of C15
+    Geocoding via Photon API
+  end note
+
+  ' ===== RELATIONSHIPS =====
+  C6 ..> C7 : <<include>>
+  C3 ..> C4 : <<include>>
+  C4 ..> C5 : <<include>>
+  C5 ..> C6 : <<include>>
+  C9 ..> C6 : <<extend>>
+  C8 ..> C6 : <<extend>>
+}
+
+Customer --> C1
+Customer --> C2
+Customer --> C3
+Customer --> C6
+Customer --> C8
+Customer --> C10
+Customer --> C11
+Customer --> C12
+Customer --> C13
+Customer --> C14
+Customer --> C15
+
+@enduml

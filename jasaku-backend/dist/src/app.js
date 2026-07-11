@@ -1,3 +1,5 @@
+// @ts-ignore - BigInt serialization for JSON (pg driver returns BigInt for COUNT(*))
+BigInt.prototype.toJSON = function () { return Number(this); };
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes';

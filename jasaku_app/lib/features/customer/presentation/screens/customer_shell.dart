@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'customer_home.dart';
+import 'customer_notifications_page.dart';
 import 'customer_profile.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../orders/presentation/pages/customer_order_list_page.dart';
@@ -28,6 +30,27 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
   void initState() {
     super.initState();
     FcmManager.onNotificationTap = _handleNotificationTap;
+    FcmManager.onForegroundMessage = _onForegroundMessage;
+  }
+
+  void _onForegroundMessage(RemoteMessage msg) {
+    final type = msg.data['type'] ?? '';
+    if (type == 'EXTENSION_REQUEST') {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Ada permintaan perpanjangan waktu baru'),
+          action: SnackBarAction(
+            label: 'Lihat',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CustomerNotificationsPage()),
+              );
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void _handleNotificationTap(String type, Map<String, String> data) {
@@ -56,6 +79,9 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
       case 'ORDER_CANCELLED':
       case 'PAYMENT_SUCCESS':
       case 'PAYMENT_FAILED':
+      case 'EXTENSION_REQUEST':
+      case 'EXTENSION_ACTIVATED':
+      case 'EXTENSION_REJECTED':
         setState(() => _selectedIndex = 1);
         ref.read(unreadNotifProvider.notifier).state = 0;
         break;

@@ -1,13 +1,52 @@
 import { Router } from 'express';
-import { postTask, getAvailableTasks, getMyTasks, getTaskDetail, acceptTask, } from './custom-tasks.controller';
+import { createTask, getAvailableTasks, getMyTasks, getMyAcceptedTasks, getTaskDetail, acceptTask, completeTask, republishTask, getPaymentDetail, uploadPaymentProof, cancelTask, } from './custom-tasks.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { isCustomer, isProvider } from '../../middleware/role.middleware';
 import { validate } from '../../middleware/validate.middleware';
-import { createCustomTaskSchema, } from '../../middleware/schemas';
+import { createCustomTaskSchema } from '../../middleware/schemas';
+import { upload } from '../../middleware/upload.middleware';
 const router = Router();
-router.post('/', authenticate, isCustomer, validate(createCustomTaskSchema), postTask);
+// Utility: search lokasi via Photon (gratis, no key) — MUST be above /:taskId
+router.get('/search-location', authenticate, async (req, res) => {
+    try {
+        const q = String(req.query.q || '');
+        const lat = req.query.lat ? Number(req.query.lat) : undefined;
+        const lng = req.query.lng ? Number(req.query.lng) : undefined;
+        if (!q)
+            return res.json({ success: true, data: [] });
+        let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=5`;
+        if (lat && lng)
+            url += `&lat=${lat}&lon=${lng}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        const features = json.features || [];
+        const results = features.map((f) => ({
+            label: f.properties.name || '',
+            address: [
+                f.properties.name,
+                f.properties.street,
+                f.properties.housenumber,
+                f.properties.city,
+                f.properties.state,
+            ].filter(Boolean).join(', '),
+            lat: f.geometry?.coordinates?.[1],
+            lng: f.geometry?.coordinates?.[0],
+        }));
+        return res.json({ success: true, data: results });
+    }
+    catch {
+        return res.json({ success: true, data: [] });
+    }
+});
+router.post('/', authenticate, isCustomer, validate(createCustomTaskSchema), createTask);
 router.get('/available', authenticate, isProvider, getAvailableTasks);
 router.get('/mine', authenticate, isCustomer, getMyTasks);
+router.get('/my-accepted', authenticate, isProvider, getMyAcceptedTasks);
 router.get('/:taskId', authenticate, getTaskDetail);
 router.post('/:taskId/accept', authenticate, isProvider, acceptTask);
+router.patch('/:taskId/complete', authenticate, isProvider, completeTask);
+router.get('/:taskId/payment', authenticate, isCustomer, getPaymentDetail);
+router.post('/:taskId/payment-proof', authenticate, isCustomer, upload.single('proof'), uploadPaymentProof);
+router.post('/:taskId/republish', authenticate, isCustomer, republishTask);
+router.post('/:taskId/cancel', authenticate, isCustomer, cancelTask);
 export default router;

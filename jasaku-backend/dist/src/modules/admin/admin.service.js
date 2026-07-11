@@ -31,7 +31,8 @@ export class AdminService {
                 },
                 provider_documents: {
                     orderBy: { created_at: 'desc' }
-                }
+                },
+                identity_verifications: true
             }
         });
         if (!profile)
@@ -56,13 +57,19 @@ export class AdminService {
             }
         });
     }
-    async verifyProvider(providerId, status, notes) {
+    async verifyProvider(providerId, status, notes, checklist) {
         const data = {
             is_verified: status === 'verified',
             verification_status: status,
         };
-        if (notes !== undefined) {
+        if (status === 'rejected' && checklist && checklist.length > 0) {
+            data.verification_notes = JSON.stringify({ checklist, notes: notes || '' });
+        }
+        else if (notes !== undefined) {
             data.verification_notes = notes;
+        }
+        else if (status === 'verified') {
+            data.verification_notes = null;
         }
         return await prisma.provider_profiles.update({
             where: { id: providerId },
@@ -146,7 +153,7 @@ export class AdminService {
     }
     async getAllCustomers() {
         return await prisma.profiles_customer.findMany({
-            include: { users: { select: { email: true, phone: true, status: true, created_at: true } } }
+            include: { users: { select: { id: true, email: true, phone: true, status: true, created_at: true } } }
         });
     }
     // CRUD Pricing Types
@@ -173,6 +180,32 @@ export class AdminService {
                 profiles_customer: {
                     select: { id: true, full_name: true, nickname: true }
                 },
+                provider_profiles: {
+                    select: { id: true, full_name: true }
+                },
+                payments: {
+                    select: { id: true, method: true, amount: true, status: true, created_at: true }
+                }
+            }
+        });
+    }
+    // All orders for admin monitoring
+    async getAllOrders() {
+        return await prisma.orders.findMany({
+            orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                total_price: true,
+                description: true,
+                work_date: true,
+                status: true,
+                created_at: true,
+                profiles_customer: {
+                    select: { id: true, full_name: true, nickname: true }
+                },
+                provider_profiles: {
+                    select: { id: true, full_name: true }
+                },
                 payments: {
                     select: { id: true, method: true, amount: true, status: true, created_at: true }
                 }
@@ -181,21 +214,67 @@ export class AdminService {
     }
     // Payment Accounts (Rekber Admin)
     async getPaymentAccounts() {
-        return await prisma.admin_payment_accounts.findMany({
-            orderBy: { created_at: 'asc' }
-        });
+        const [banks, ewallets, qris] = await Promise.all([
+            prisma.admin_bank_accounts.findMany({ orderBy: { created_at: 'asc' } }),
+            prisma.admin_ewallet_accounts.findMany({ orderBy: { created_at: 'asc' } }),
+            prisma.admin_qris_accounts.findMany({ orderBy: { created_at: 'asc' } }),
+        ]);
+        return [
+            ...banks.map(a => ({ ...a, type: 'bank_transfer', account_number: a.account_number, account_name: a.account_name, qris_image_url: null })),
+            ...ewallets.map(a => ({ ...a, type: 'e_wallet', account_number: a.account_number, account_name: a.account_name, qris_image_url: null })),
+            ...qris.map(a => ({ ...a, type: 'qris', account_number: null, account_name: null, qris_image_url: a.qris_image_url })),
+        ];
     }
     async createPaymentAccount(data) {
-        return await prisma.admin_payment_accounts.create({ data });
+        if (data.type === 'bank_transfer') {
+            return await prisma.admin_bank_accounts.create({
+                data: { provider_name: data.provider_name, account_number: data.account_number, account_name: data.account_name }
+            });
+        }
+        if (data.type === 'e_wallet') {
+            return await prisma.admin_ewallet_accounts.create({
+                data: { provider_name: data.provider_name, account_number: data.account_number, account_name: data.account_name }
+            });
+        }
+        if (data.type === 'qris') {
+            return await prisma.admin_qris_accounts.create({
+                data: { provider_name: data.provider_name, qris_image_url: data.qris_image_url ?? '' }
+            });
+        }
+        throw new Error('Tipe rekber tidak valid');
     }
     async updatePaymentAccount(id, data) {
-        return await prisma.admin_payment_accounts.update({
-            where: { id },
-            data
-        });
+        const bank = await prisma.admin_bank_accounts.findUnique({ where: { id } });
+        if (bank) {
+            return await prisma.admin_bank_accounts.update({ where: { id }, data: { provider_name: data.provider_name, account_number: data.account_number, account_name: data.account_name, is_active: data.is_active } });
+        }
+        const ewallet = await prisma.admin_ewallet_accounts.findUnique({ where: { id } });
+        if (ewallet) {
+            return await prisma.admin_ewallet_accounts.update({ where: { id }, data: { provider_name: data.provider_name, account_number: data.account_number, account_name: data.account_name, is_active: data.is_active } });
+        }
+        const qris = await prisma.admin_qris_accounts.findUnique({ where: { id } });
+        if (qris) {
+            return await prisma.admin_qris_accounts.update({ where: { id }, data: { provider_name: data.provider_name, qris_image_url: data.qris_image_url, is_active: data.is_active } });
+        }
+        throw new Error('Rekber tidak ditemukan');
     }
     async deletePaymentAccount(id) {
-        return await prisma.admin_payment_accounts.delete({ where: { id } });
+        const bank = await prisma.admin_bank_accounts.findUnique({ where: { id } });
+        if (bank) {
+            await prisma.admin_bank_accounts.delete({ where: { id } });
+            return;
+        }
+        const ewallet = await prisma.admin_ewallet_accounts.findUnique({ where: { id } });
+        if (ewallet) {
+            await prisma.admin_ewallet_accounts.delete({ where: { id } });
+            return;
+        }
+        const qris = await prisma.admin_qris_accounts.findUnique({ where: { id } });
+        if (qris) {
+            await prisma.admin_qris_accounts.delete({ where: { id } });
+            return;
+        }
+        throw new Error('Rekber tidak ditemukan');
     }
     async getOpenReports() {
         return await prisma.reports.findMany({
@@ -216,28 +295,6 @@ export class AdminService {
                 status,
                 admin_response: response,
                 resolved_at: new Date(),
-            }
-        });
-    }
-    async getPendingTasks() {
-        return await prisma.custom_tasks.findMany({
-            where: { status: 'open' },
-            orderBy: { created_at: 'desc' },
-            select: {
-                id: true,
-                title: true,
-                description: true,
-                budget_min: true,
-                budget_max: true,
-                address: true,
-                deadline: true,
-                status: true,
-                created_at: true,
-                users: {
-                    select: {
-                        profiles_customer: { select: { full_name: true } }
-                    }
-                }
             }
         });
     }

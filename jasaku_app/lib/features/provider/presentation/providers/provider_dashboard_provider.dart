@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/provider_dashboard_repository.dart';
 import 'package:intl/intl.dart';
+import '../../../custom_tasks/data/models/custom_task_model.dart';
 
 class DashboardState {
   final bool isLoading;
@@ -20,6 +21,9 @@ class DashboardState {
   // Orders
   final List<Map<String, dynamic>> orders;
 
+  // Active custom tasks (work flow)
+  final List<CustomTaskModel> activeCustomTasks;
+
   const DashboardState({
     this.isLoading = true,
     this.error,
@@ -33,6 +37,7 @@ class DashboardState {
     this.taskAvailable = true,
     this.servicesCount = 0,
     this.orders = const [],
+    this.activeCustomTasks = const [],
   });
 
   DashboardState copyWith({
@@ -48,6 +53,7 @@ class DashboardState {
     bool? taskAvailable,
     int? servicesCount,
     List<Map<String, dynamic>>? orders,
+    List<CustomTaskModel>? activeCustomTasks,
   }) {
     return DashboardState(
       isLoading: isLoading ?? false,
@@ -62,13 +68,27 @@ class DashboardState {
       taskAvailable: taskAvailable ?? this.taskAvailable,
       servicesCount: servicesCount ?? this.servicesCount,
       orders: orders ?? this.orders,
+      activeCustomTasks: activeCustomTasks ?? this.activeCustomTasks,
     );
   }
 
   Map<String, dynamic>? get activeOrder {
     try {
+      final now = DateTime.now();
       return orders.firstWhere(
-        (o) => ['accepted', 'on_the_way', 'arrived', 'in_progress'].contains(o['status']),
+        (o) {
+          final isActive = ['accepted', 'on_the_way', 'arrived', 'in_progress'].contains(o['status']);
+          if (!isActive) return false;
+          final workDateStr = o['work_date'] as String? ?? '';
+          try {
+            final workDate = DateTime.parse(workDateStr);
+            return workDate.year == now.year &&
+                   workDate.month == now.month &&
+                   workDate.day == now.day;
+          } catch (_) {
+            return false;
+          }
+        },
       );
     } catch (_) {
       return null;
@@ -94,7 +114,9 @@ class DashboardState {
         if (createdAt != null && createdAt.length >= 7) {
           final orderMonth = createdAt.substring(0, 7);
           if (orderMonth == thisMonth) {
-            total += _parsePriceDouble(order['total_price']);
+            final price = _parsePriceDouble(order['total_price']);
+          final fee = _parsePriceDouble(order['platform_fee']);
+          total += (price - fee);
           }
         }
       }
@@ -130,10 +152,12 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       final results = await Future.wait([
         _repo.getProfile(),
         _repo.getOrders(),
+        _repo.getActiveCustomTasks(),
       ]);
 
       final profile = results[0] as Map<String, dynamic>;
       final orders = results[1] as List<Map<String, dynamic>>;
+      final activeCustomTasks = results[2] as List<CustomTaskModel>;
 
       state = DashboardState(
         isLoading: false,
@@ -147,6 +171,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         taskAvailable: profile['task_available'] as bool? ?? true,
         servicesCount: (profile['services_count'] as num?)?.toInt() ?? 0,
         orders: orders,
+        activeCustomTasks: activeCustomTasks,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());

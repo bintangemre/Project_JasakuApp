@@ -22,17 +22,23 @@ Jasaku is a home-service marketplace with two packages in this monorepo.
 
 **Auth token**: `flutter_secure_storage` via `core/utils/storage.dart` (key: `jwt_token`).
 
+**Android product flavors**: Customer dan Mitra punya launcher icon berbeda.
+- `customer` → `com.jasaku.app`, icon Jasaku
+- `mitra` → `com.jasaku.mitra`, icon Mitra Jasaku
+
 **Commands**:
 | Action | Command |
 |---|---|
-| Run customer (emulator) | `flutter run --target lib/main_customer.dart` |
-| Run customer (HP fisik) | `flutter run --target lib/main_customer.dart --dart-define=BASE_URL=IP_LAPTOP:3000 -d DEVICE_ID` |
-| Run provider (emulator) | `flutter run --target lib/main_provider.dart` |
-| Run provider (HP fisik) | `flutter run --target lib/main_provider.dart --dart-define=BASE_URL=IP_LAPTOP:3000 -d DEVICE_ID` |
+| Run customer (emulator) | `flutter run --flavor customer --target lib/main_customer.dart` |
+| Run customer (HP fisik) | `flutter run --flavor customer --target lib/main_customer.dart --dart-define=BASE_URL=IP_LAPTOP:3000 -d DEVICE_ID` |
+| Run provider (emulator) | `flutter run --flavor mitra --target lib/main_provider.dart` |
+| Run provider (HP fisik) | `flutter run --flavor mitra --target lib/main_provider.dart --dart-define=BASE_URL=IP_LAPTOP:3000 -d DEVICE_ID` |
 | Analyze | `flutter analyze` |
 | Test | `flutter test` |
 | Codegen | `dart run build_runner build` |
-| Build APK | `flutter build apk` (or `--target lib/main_customer.dart` / `main_provider.dart`) |
+| Build APK customer | `flutter build apk --flavor customer --target lib/main_customer.dart --dart-define=BASE_URL=URL_PRODUCTION` |
+| Build APK mitra | `flutter build apk --flavor mitra --target lib/main_provider.dart --dart-define=BASE_URL=URL_PRODUCTION` |
+| Generate launcher icons | `dart run tools/generate_icons.dart assets/logo_customer.png customer` / `...logo_mitra.png mitra` |
 | Run with ORS | Add `--dart-define=ORS_API_KEY=YOUR_KEY` for route directions |
 
 **Maps & Routing**:

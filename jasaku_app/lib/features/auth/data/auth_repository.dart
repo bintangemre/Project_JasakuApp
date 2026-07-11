@@ -120,7 +120,7 @@ Future<Map<String, dynamic>> registerProvider({
         portfolioMultipartList.add(
           await MultipartFile.fromFile(
             file.path,
-            filename: file.path.split('/').last,
+            filename: file.path.split(RegExp(r'[/\\]')).last,
           ),
         );
       }
@@ -144,7 +144,7 @@ Future<Map<String, dynamic>> registerProvider({
           certificateFiles.add(
             await MultipartFile.fromFile(
               path,
-              filename: path.split('/').last,
+              filename: path.split(RegExp(r'[/\\]')).last,
             ),
           );
         }
@@ -194,37 +194,6 @@ Future<Map<String, dynamic>> registerProvider({
 
   Future<void> logout() async {
     await StorageService.deleteToken();
-  }
-
-  Future<Map<String, dynamic>> verifyOtp({
-    required String otp,
-    required String email,
-    required String phone,
-  }) async {
-    try {
-      final response = await _dio.post(
-        ApiEndpoints.verifyOtp,
-        data: {'otp': otp, 'email': email, 'phone': phone},
-      );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  Future<Map<String, dynamic>> sendOtp({
-    required String email,
-    required String phone,
-  }) async {
-    try {
-      final response = await _dio.post(
-        ApiEndpoints.sendOtp,
-        data: {'email': email, 'phone': phone},
-      );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
   }
 
   Future<void> resubmitVerification() async {

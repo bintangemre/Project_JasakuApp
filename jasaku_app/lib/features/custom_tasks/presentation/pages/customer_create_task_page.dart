@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../data/custom_tasks_repository.dart';
 
 class CustomerCreateTaskPage extends ConsumerStatefulWidget {
@@ -16,16 +18,20 @@ class CustomerCreateTaskPage extends ConsumerStatefulWidget {
 class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
   final _titleC = TextEditingController();
   final _descC = TextEditingController();
+  final _locationDetailC = TextEditingController();
   final _budgetC = TextEditingController();
   final _peopleC = TextEditingController(text: '1');
   final _searchC = TextEditingController();
   final _repo = CustomTasksRepository();
+  final List<File> _selectedImages = [];
+  final ImagePicker _picker = ImagePicker();
 
   LatLng? _baseLocation;
   final List<_TaskPoint> _points = [];
   List<Map<String, dynamic>> _searchResults = [];
   bool _submitting = false;
   bool _searching = false;
+  int _publishDays = 1;
   late MapController _mapController;
 
   @override
@@ -111,15 +117,19 @@ class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
         'lng': p.lng,
       }).toList();
 
+      final locDetail = _locationDetailC.text.trim();
       await _repo.createTask(
         title: _titleC.text.trim(),
         description: _descC.text.trim().isEmpty ? null : _descC.text.trim(),
         budgetPerPerson: budget,
         requiredPeople: people,
-        address: _baseLocation!.toString(),
+        address: '${_baseLocation!.latitude}, ${_baseLocation!.longitude}',
         lat: _baseLocation!.latitude,
         lng: _baseLocation!.longitude,
         locations: locs,
+        locationDetail: locDetail.isEmpty ? null : locDetail,
+        publishDays: _publishDays,
+        images: _selectedImages,
       );
 
       if (mounted) {
@@ -137,6 +147,56 @@ class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
 
   void _showError(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt_outlined, color: Colors.blue),
+                title: const Text('Ambil Lewat Kamera'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined, color: Colors.blue),
+                title: const Text('Pilih dari Galeri'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    if (_selectedImages.length >= 5) {
+      _showError('Maksimal 5 foto');
+      return;
+    }
+    try {
+      final picked = await _picker.pickImage(source: source, imageQuality: 70);
+      if (picked != null) {
+        setState(() => _selectedImages.add(File(picked.path)));
+      }
+    } catch (_) {}
+  }
+
+  void _removeImage(int idx) {
+    setState(() => _selectedImages.removeAt(idx));
   }
 
   @override
@@ -215,7 +275,7 @@ class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.jasaku.app',
                     ),
                     MarkerLayer(
@@ -343,6 +403,43 @@ class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
               }),
             ],
             const SizedBox(height: 16),
+            TextField(
+              controller: _locationDetailC,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Detail Lokasi (opsional)',
+                hintText: 'Cth: Rumah cat hijau, no. 15, gang samping masjid',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Row(
+              children: [
+                Icon(Icons.timer_outlined, size: 18, color: Colors.grey),
+                SizedBox(width: 8),
+                Text('Masa publish:',
+                    style: TextStyle(fontSize: 13, color: Colors.grey)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: List.generate(3, (i) {
+                final days = i + 1;
+                final selected = _publishDays == days;
+                return ChoiceChip(
+                  label: Text('$days hari',
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: selected ? Colors.white : null)),
+                  selected: selected,
+                  selectedColor: const Color(0xFF2563EB),
+                  onSelected: (_) => setState(() => _publishDays = days),
+                  visualDensity: VisualDensity.compact,
+                );
+              }),
+            ),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
@@ -371,6 +468,70 @@ class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
             ),
             const SizedBox(height: 16),
             _buildPaymentSummary(),
+            const SizedBox(height: 16),
+            const Text('Foto Pendukung (opsional)',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: _showImagePickerOptions,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFCBD5E1)),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.image_outlined, size: 36, color: Colors.grey[400]),
+                    const SizedBox(height: 8),
+                    Text('Ambil Foto atau Pilih Gambar',
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey[700])),
+                    const SizedBox(height: 4),
+                    const Text('Maksimal 5 foto', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                  ],
+                ),
+              ),
+            ),
+            if (_selectedImages.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 80,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _selectedImages.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              _selectedImages[index],
+                              width: 80, height: 80, fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => const SizedBox(width: 80, height: 80, child: Icon(Icons.broken_image)),
+                            ),
+                          ),
+                          Positioned(
+                            top: 2, right: 2,
+                            child: GestureDetector(
+                              onTap: () => _removeImage(index),
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                                child: const Icon(Icons.close, size: 14, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ));
+                  },
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -384,7 +545,7 @@ class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.send_rounded),
-                label: Text(_submitting ? 'Membuat...' : 'Buat Task & Bayar'),
+                label: Text(_submitting ? 'Membuat...' : 'Buat Task'),
               ),
             ),
             const SizedBox(height: 40),

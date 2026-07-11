@@ -1,5 +1,65 @@
 # Progress Log
 
+## 2026-07-08 — Custom Task Payment Flow (Rekber + Upload Bukti)
+
+### Latar Belakang
+Custom task sebelumnya tidak memiliki alur pembayaran — setelah provider accept, customer tidak diarahkan ke halaman pembayaran. Admin mengkonfirmasi payment per-provider (tpId), padahal customer perlu bayar SEKALI untuk semua provider.
+
+### Solusi: Rekber + Upload Bukti + Konfirmasi per Task
+- Customer transfer ke admin rekber (bank/QRIS/e-wallet) sekali untuk total semua provider
+- Upload bukti screenshot di app
+- Admin konfirmasi sekali untuk seluruh task → semua orders+payments jadi 'paid'
+
+### Database
+- **Modified** `prisma/schema.prisma` — tambah `payment_proof` (TEXT), `payment_status` (VARCHAR, default 'unpaid') di `custom_tasks`
+- **Created** `prisma/migrations/0002_add_payment_columns/migration.sql` — ALTER TABLE SQL
+
+### Backend (`jasaku-backend/`)
+
+#### Service (`custom-tasks.service.ts`)
+- **Created** `getPaymentDetail(taskId, userId)` — return total tagihan + admin rekber accounts + status payment terkini
+- **Created** `uploadPaymentProof(taskId, userId, fileUrl)` — simpan URL file bukti, update `payment_status = 'proof_uploaded'`, notifikasi admin via roles lookup
+- **Created** `adminConfirmTaskPayment(taskId)` — konfirmasi SEMUA orders+payments untuk satu task sekaligus (loop per task_providers, update order jadi accepted + payment jadi paid), update `custom_tasks.payment_status = 'paid'`
+- **Created** `getPendingPaymentTasksByTask()` — query group by task untuk admin dashboard (menampilkan task + total amount + bukti)
+- **Modified** `getMyTasks()` — tambah `ct.payment_proof`, `ct.payment_status` di SELECT
+
+#### Controller & Routes
+- **Modified** `custom-tasks.controller.ts` — tambah handler `getPaymentDetail`, `uploadPaymentProof`
+- **Modified** `custom-tasks.routes.ts` — tambah `GET /:taskId/payment`, `POST /:taskId/payment-proof` (multipart, field: 'proof')
+- **Modified** `upload.middleware.ts` — tambah `fs` import, `payment-proofs/` subfolder, routing berdasarkan file fieldname ('proof' → subfolder khusus)
+
+#### Admin
+- **Modified** `admin.controller.ts` — tambah `getPendingTaskPaymentsByTask`, `confirmTaskPaymentByTask`
+- **Modified** `admin.routes.ts` — tambah `GET /tasks/pending-payment-by-task`, `PATCH /tasks/:taskId/confirm-payment-task`
+- Route baru: konfirmasi payment sekaligus untuk seluruh task (bukan per-tpId)
+
+### Flutter App (`jasaku_app/`)
+
+#### Model
+- **Modified** `custom_task_model.dart` — tambah field `paymentProof` (String?), `paymentStatus` (String, default 'unpaid')
+- **Created** `PaymentDetailModel` — model untuk response GET payment: task info, accepted count, amounts (budget/fee/total), payment status, list admin accounts
+- **Created** `AdminAccountModel` — model untuk admin rekber accounts (type, account_name, account_number, provider_name, qris_image_url)
+
+#### Repository
+- **Modified** `custom_tasks_repository.dart` — tambah `getPaymentDetail(taskId)` return `PaymentDetailModel`, `uploadPaymentProof(taskId, File)` via FormData/multipart
+
+#### UI
+- **Created** `customer_payment_page.dart`:
+  - Ringkasan task (title, accepted count, budget/fee/total breakdown)
+  - Daftar admin rekber accounts (bank/QRIS/e-wallet) dengan label type chip + detail rekening
+  - Upload bukti: image picker (galeri), preview image, tombol "Kirim Bukti Pembayaran"
+  - Status banner: warning (unpaid), pending (proof_uploaded), success (paid)
+  - Refreshing pagination
+- **Modified** `task_detail_page.dart`:
+  - Banner merah "Pembayaran Diperlukan" + tombol "Bayar" → navigate ke payment page (saat `unpaid` && accepted_count > 0)
+  - Banner kuning "Menunggu Konfirmasi" (saat `proof_uploaded`)
+  - Banner hijau "Pembayaran sudah dikonfirmasi" (saat `paid`)
+
+### Status
+- Backend: `tsc` ✅ (1 pre-existing error di prisma.config.ts — directUrl)
+- Flutter: `flutter analyze` ✅ (1 pre-existing warning unused_field fixed; sisanya withOpacity deprecation)
+- Database migration: `npx prisma db push` perlu dijalankan
+
 ## 2026-06-30 — Perbaikan Dashboard Provider & Review System
 
 ### Backend (`jasaku-backend/`)

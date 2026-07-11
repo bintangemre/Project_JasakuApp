@@ -1,6 +1,7 @@
 // Defines backend API endpoint URLs for shared Jasaku App network calls.
 class ApiEndpoints {
-  static const String baseUrl = 'http://10.241.188.20:3000';
+  static const String _baseUrlHost = String.fromEnvironment('BASE_URL', defaultValue: '192.168.110.237:3000');
+  static const String baseUrl = 'http://$_baseUrlHost';
   static const String login = '$baseUrl/api/auth/login';
   static const String loginGoogle = '$baseUrl/api/auth/login/google';
   static const String registerCustomer = '$baseUrl/api/auth/register/customer';
@@ -11,6 +12,7 @@ class ApiEndpoints {
   static const String getCategoriesByid = '$baseUrl/api/services/categories/'; // + {id}
   static const String getProviderByService = '$baseUrl/api/services/providers/'; // + {serviceId}
   static const String getProvidersByServiceWithoutDistance = '$baseUrl/api/services/services/providers/non-location';
+  static const String searchServicesApi = '$baseUrl/api/services/services/search'; // + ?q=
   static const String updateLocation = '$baseUrl/api/locations/update';
   static const String updateProviderService = '$baseUrl/api/provider/services/update-service';
   static const String providerAvailableServices = '$baseUrl/api/provider/services/available-services';
@@ -23,10 +25,6 @@ class ApiEndpoints {
   static const String getProviderRequests = '$baseUrl/api/orders/provider/requests';
   static const String updateOrderStatus = '$baseUrl/api/orders/orders/'; // + {orderId}/status
 
-  // OTP
-  static const String sendOtp = '$baseUrl/api/auth/send-otp';
-  static const String verifyOtp = '$baseUrl/api/auth/verify-otp';
-
   // FCM Device
   static const String registerDevice = '$baseUrl/api/notifications/devices/register';
 
@@ -38,6 +36,7 @@ class ApiEndpoints {
   static const String paymentMethods = '$baseUrl/api/payment-methods';
   static const String createPayment = '$baseUrl/api/payments';
   static const String getPaymentByOrder = '$baseUrl/api/payments/order/'; // + {orderId}
+  static const String uploadPaymentProof = '$baseUrl/api/payments/upload-proof/'; // + {orderId}
   static const String savePaymentMethod = '$baseUrl/api/payment-methods/save';
   static const String getMyPaymentMethods = '$baseUrl/api/payment-methods/mine';
 
@@ -63,6 +62,9 @@ class ApiEndpoints {
   static const String customTasks = '$baseUrl/api/custom-tasks';
   static const String customTasksAvailable = '$baseUrl/api/custom-tasks/available';
   static const String customTasksMine = '$baseUrl/api/custom-tasks/mine';
+  static const String customTasksMyAccepted = '$baseUrl/api/custom-tasks/my-accepted';
+  static const String customTasksMyActive = '$baseUrl/api/custom-tasks/my-active';
+  static const String customTaskTracking = '$baseUrl/api/custom-tasks/'; // + {taskId}/tracking
 
   // Reports
   static const String createReport = '$baseUrl/api/reports';
@@ -83,8 +85,14 @@ class ApiEndpoints {
   static String providerStatus(String providerId) => '$baseUrl/api/orders/provider/$providerId/status';
   static String providerSchedule(String providerId) => '$baseUrl/api/orders/provider/$providerId/schedule';
 
+  // Payment accounts (rekber — customer needs to know where to transfer)
+  static const String paymentAccounts = '$baseUrl/api/orders/payment-accounts';
+
   // Extensions
   static String requestExtension(String orderId) => '$baseUrl/api/orders/orders/$orderId/extend';
+  static String orderExtensions(String orderId) => '$baseUrl/api/orders/orders/$orderId/extensions';
+  static String respondExtension(String extensionId) => '$baseUrl/api/orders/extensions/$extensionId/respond';
+  static const String adminAllExtensions = '$baseUrl/api/admin/extensions/all';
   static const String adminPendingExtensions = '$baseUrl/api/admin/extensions/pending';
   static String adminApproveExtension(String extensionId) => '$baseUrl/api/admin/extensions/$extensionId/approve';
 }

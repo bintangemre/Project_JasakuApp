@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../core/constants/api_endpoints.dart';
 import '../../../core/network/api_client.dart';
+import '../../custom_tasks/data/models/custom_task_model.dart';
 
 class ProviderDashboardRepository {
   final Dio _dio = ApiClient().dio;
@@ -29,5 +30,13 @@ class ProviderDashboardRepository {
             ?.map((item) => Map<String, dynamic>.from(item as Map<String, dynamic>))
             .toList() ??
         [];
+  }
+
+  Future<List<CustomTaskModel>> getActiveCustomTasks() async {
+    final response = await _dio.get(ApiEndpoints.customTasksMyActive);
+    final data = response.data['data'] as List<dynamic>? ?? [];
+    return data
+        .map((json) => CustomTaskModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 }

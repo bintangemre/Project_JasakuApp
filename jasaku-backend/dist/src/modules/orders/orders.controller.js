@@ -135,6 +135,29 @@ const getProviderSchedule = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
+const getPublicProviderStatus = async (req, res) => {
+    try {
+        const { providerId } = req.params;
+        const ordersService = new OrdersService();
+        const result = await ordersService.getPublicProviderStatus(providerId);
+        return successResponse(res, result, 'Status mitra berhasil diambil');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const getPublicProviderSchedule = async (req, res) => {
+    try {
+        const { providerId } = req.params;
+        const { startDate, endDate } = req.query;
+        const ordersService = new OrdersService();
+        const result = await ordersService.getPublicProviderSchedule(providerId, startDate, endDate);
+        return successResponse(res, result, 'Jadwal mitra berhasil diambil');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
 const confirmPaymentByAdmin = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -171,4 +194,4 @@ const approveExtension = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
-export { createOrder, getOrderDetails, getCustomerOrders, getProviderOrders, receiveOrderStatus, cancelOrder, getTodayOrders, getProviderSchedule, getProviderRequests, getOrderTracking, confirmPaymentByAdmin, requestExtension, approveExtension };
+export { createOrder, getOrderDetails, getCustomerOrders, getProviderOrders, receiveOrderStatus, cancelOrder, getTodayOrders, getProviderSchedule, getProviderRequests, getOrderTracking, confirmPaymentByAdmin, requestExtension, approveExtension, getPublicProviderStatus, getPublicProviderSchedule };

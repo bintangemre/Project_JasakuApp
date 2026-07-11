@@ -43,7 +43,7 @@ export class AuthService {
     }
     //untuk Jasa (provider)
     //untuk Jasa (provider) - Versi Atomik Sekaligus Menyimpan Keahlian & Tarif
-    async registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, ijazah_photo, certificate_files, certificates, services) {
+    async registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, ijazah_photo, certificate_files, certificates, services, ocr_nik, ocr_full_name, ocr_birth_place, ocr_birth_date, ocr_address, ocr_gender, ocr_blood_type, ocr_religion, liveness_data) {
         // Normalisasi: empty string → null
         const normalizedPhone = phone?.trim() || null;
         // 1. Cek apakah email sudah terdaftar di sistem Jasaku
@@ -90,7 +90,30 @@ export class AuthService {
                     portfolios: portfolios || [],
                 }
             });
-            // C. Simpan Ijazah
+            // C. Buat identity_verifications (untuk OCR & face match)
+            const identityData = { provider_id: profile.id };
+            if (ocr_nik)
+                identityData.nik = ocr_nik;
+            if (ocr_full_name)
+                identityData.ocr_full_name = ocr_full_name;
+            if (ocr_birth_place)
+                identityData.ocr_birth_place = ocr_birth_place;
+            if (ocr_birth_date)
+                identityData.ocr_birth_date = ocr_birth_date;
+            if (ocr_address)
+                identityData.ocr_address = ocr_address;
+            if (ocr_gender)
+                identityData.ocr_gender = ocr_gender;
+            if (ocr_blood_type)
+                identityData.ocr_blood_type = ocr_blood_type;
+            if (ocr_religion)
+                identityData.ocr_religion = ocr_religion;
+            if (liveness_data) {
+                identityData.liveness_data = liveness_data;
+                identityData.liveness_status = liveness_data?.completed >= 3 ? 'passed' : 'failed';
+            }
+            await tx.identity_verifications.create({ data: identityData });
+            // D. Simpan Ijazah
             if (ijazah_photo) {
                 await tx.provider_documents.create({
                     data: {
@@ -101,7 +124,7 @@ export class AuthService {
                     }
                 });
             }
-            // D. Simpan Sertifikat Penunjang
+            // E. Simpan Sertifikat Penunjang
             if (certificate_files && certificate_files.length > 0 && certificates) {
                 for (let i = 0; i < certificate_files.length; i++) {
                     const certInfo = certificates[i] || { categoryId: '', description: '' };
@@ -116,7 +139,7 @@ export class AuthService {
                     });
                 }
             }
-            // E. SIMPAN KEAHLIAN & TARIF SEKALIGUS (Jika dikirim dari Flutter)
+            // F. SIMPAN KEAHLIAN & TARIF SEKALIGUS (Jika dikirim dari Flutter)
             if (services && services.length > 0) {
                 // Ambil seluruh master tipe harga untuk auto-fill data unit di DB
                 const masterPricingTypes = await tx.pricing_types.findMany();
@@ -140,12 +163,19 @@ export class AuthService {
                         };
                     });
                     // Masukkan semua rincian tarif harga ke tabel harga provider
-                    await tx.provider_service_prices.createMany({ data: priceData });
+                    if (priceData.length > 0) {
+                        await tx.provider_service_prices.createMany({ data: priceData });
+                    }
                 }
             }
             return { newUser, profile };
         });
-        // 5. Generate token internal Jasaku untuk auto-login setelah register sukses
+        // 5. Panggil face matching async (jika KTP & selfie tersedia)
+        if (ktp_photo && selfie_photo) {
+            const { runFaceMatchAsync } = await import("../../config/face_client");
+            runFaceMatchAsync(result.profile.id, ktp_photo, selfie_photo).catch((e) => console.warn("Face match non-blocking error:", e.message));
+        }
+        // 6. Generate token internal Jasaku untuk auto-login setelah register sukses
         const token = this.generateToken(result.newUser.id, role.name);
         return {
             token,
@@ -196,15 +226,12 @@ export class AuthService {
                 if (profile.verification_status === 'pending') {
                     throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
                 }
-                if (profile.verification_status === 'rejected') {
-                    const notes = profile.verification_notes ? ` Alasan: ${profile.verification_notes}` : '';
-                    throw new Error(`Akun Anda ditolak. Silakan perbaiki sesuai saran admin.${notes}`);
-                }
+                // Rejected: biarkan login, Flutter akan nampilin screen penolakan
                 // Auto-set onboarding_completed untuk provider LAMA (sudah punya tarif, bukan baru daftar 5-step)
                 if (profile.verification_status === 'verified' && !profile.onboarding_completed) {
                     const hasPricing = await prisma.provider_service_prices.count({
                         where: {
-                            provider_services: { provider_id: user.id }
+                            provider_services: { provider_id: profile.id }
                         }
                     }) > 0;
                     if (hasPricing) {
@@ -335,7 +362,7 @@ export class AuthService {
         this.otpStore.set(email, { otp, email, phone, expiresAt });
         // Untuk development, log OTP ke console
         console.log(`[OTP] Email: ${email}, OTP: ${otp}, berlaku hingga: ${expiresAt}`);
-        return { message: 'OTP berhasil dikirim', otp }; // TODO: Hapus otp di production
+        return { message: 'OTP berhasil dikirim' };
     }
     async verifyOtp(email, phone, otp) {
         const stored = this.otpStore.get(email);

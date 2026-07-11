@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import '../../data/custom_tasks_repository.dart';
 import '../../data/models/custom_task_model.dart';
 import 'customer_create_task_page.dart';
+import 'custom_task_tracking_page.dart';
 import 'task_detail_page.dart';
 
 class CustomerMyTasksPage extends ConsumerStatefulWidget {
@@ -32,7 +34,11 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
     try {
       _tasks = await _repo.getMyTasks();
     } catch (e) {
-      _error = e.toString();
+      if (e is DioException && e.response?.data is Map) {
+        _error = (e.response!.data as Map)['message']?.toString() ?? e.toString();
+      } else {
+        _error = e.toString();
+      }
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -79,20 +85,26 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
   }
 
   Widget _buildCard(CustomTaskModel task, NumberFormat f) {
-    final statusColor = task.status == 'open'
+    String effectiveStatus = task.status;
+    if (effectiveStatus == 'open' && task.acceptedCount > 0) {
+      effectiveStatus = 'in_progress';
+    }
+    final statusColor = effectiveStatus == 'open'
         ? const Color(0xFF2563EB)
-        : task.status == 'in_progress'
+        : effectiveStatus == 'in_progress'
             ? const Color(0xFFF59E0B)
-            : task.status == 'completed'
+            : effectiveStatus == 'completed' || effectiveStatus == 'fulfilled'
                 ? const Color(0xFF10B981)
                 : Colors.grey;
-    final statusLabel = task.status == 'open'
+    final statusLabel = effectiveStatus == 'open'
         ? 'Mencari Mitra'
-        : task.status == 'in_progress'
+        : effectiveStatus == 'in_progress'
             ? 'Berjalan'
-            : task.status == 'completed'
+            : effectiveStatus == 'completed' || effectiveStatus == 'fulfilled'
                 ? 'Selesai'
-                : task.status;
+                : effectiveStatus == 'cancelled'
+                    ? 'Dibatalkan'
+                    : effectiveStatus;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -182,7 +194,7 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
                           ),
                           children: [
                             TileLayer(
-                              urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                               userAgentPackageName: 'com.jasaku.app',
                             ),
                             MarkerLayer(
@@ -201,17 +213,117 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
                     ),
                   ),
                 ],
-                if (task.status == 'completed') ...[
+                if (effectiveStatus == 'in_progress') ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => CustomTaskTrackingPage(taskId: task.id),
+                        ),
+                      ),
+                      icon: const Icon(Icons.map_outlined, size: 16),
+                      label: const Text('Lacak Mitra', style: TextStyle(fontSize: 13)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF2563EB),
+                        side: const BorderSide(color: Color(0xFF2563EB)),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ),
+                ],
+                if (task.status == 'completed' || task.status == 'fulfilled') ...[
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Icon(Icons.check_circle, size: 16, color: const Color(0xFF10B981)),
                       const SizedBox(width: 4),
-                      Text(
-                        '${task.completedCount}/${task.totalProviders} selesai',
-                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                      Expanded(
+                        child: Text(
+                          task.status == 'fulfilled'
+                              ? 'Semua dibayar'
+                              : '${task.completedCount}/${task.totalProviders} selesai',
+                          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () => _confirmDelete(task),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.delete_outline, size: 14, color: Colors.red[400]),
+                              const SizedBox(width: 4),
+                              Text('Hapus',
+                                  style: TextStyle(fontSize: 12, color: Colors.red[400], fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
+                  ),
+                ],
+                if (task.expiresAt != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        task.isExpired ? Icons.timer_off : Icons.timer,
+                        size: 16,
+                        color: task.isExpired ? Colors.red : const Color(0xFFF59E0B),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          task.isExpired
+                              ? 'Kedaluwarsa ${DateFormat('dd MMM yyyy', 'id').format(task.expiresAt!)}'
+                              : 'Berlaku hingga ${DateFormat('dd MMM yyyy', 'id').format(task.expiresAt!)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: task.isExpired ? Colors.red : Colors.grey[500],
+                            fontWeight: task.isExpired ? FontWeight.w600 : null,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                if (task.isExpired && task.status == 'open') ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        try {
+                          await _repo.republishTask(task.id);
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Task dipublikasi ulang!')),
+                            );
+                            _load();
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: const Text('Publikasi Ulang', style: TextStyle(fontSize: 12)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF2563EB),
+                        side: const BorderSide(color: Color(0xFF2563EB)),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
                   ),
                 ],
               ],
@@ -220,6 +332,40 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDelete(CustomTaskModel task) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Task?'),
+        content: Text('Task "${task.title}" akan dihapus permanen. Lanjutkan?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await _repo.deleteTask(task.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Task berhasil dihapus')),
+        );
+        _load();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
   }
 
   Widget _buildError() {
@@ -231,11 +377,19 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
           children: [
             Icon(Icons.cloud_off_rounded, size: 72, color: Colors.grey[300]),
             const SizedBox(height: 20),
-            Text('Gagal memuat task',
+            const Text('Gagal memuat task',
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[700])),
+                    color: Color(0xFF1E293B))),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600])),
+            ],
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _load,

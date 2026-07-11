@@ -67,7 +67,9 @@ const getProfile = async (req, res) => {
             portfolios: paths.portfolios,
             is_verified: profile.is_verified,
             verification_status: profile.verification_status,
+            verification_notes: profile.verification_notes,
             is_active: profile.is_active,
+            task_available: profile.task_available,
             onboarding_completed: profile.onboarding_completed,
             rating: profile.rating ? Number(profile.rating) : 0,
             total_jobs: profile.total_jobs,
@@ -179,12 +181,16 @@ const updateProfile = async (req, res) => {
         }
         const files = req.files;
         const profilePhoto = files?.['profile_photo']?.[0]?.path;
-        let portfolios;
-        if (req.body.portfolios) {
-            portfolios = typeof req.body.portfolios === 'string'
-                ? JSON.parse(req.body.portfolios)
-                : req.body.portfolios;
-        }
+        const ktpPhoto = files?.['ktp_photo']?.[0]?.path;
+        const selfiePhoto = files?.['selfie_photo']?.[0]?.path;
+        const uploadedDocuments = files?.['documents']?.map((f) => f.path) || [];
+        const existingPortfolios = req.body.existing_portfolios
+            ? (typeof req.body.existing_portfolios === 'string'
+                ? JSON.parse(req.body.existing_portfolios)
+                : req.body.existing_portfolios)
+            : [];
+        const uploadedPortfolios = (files?.['portfolios']?.map((f) => f.path) || []);
+        const portfolios = [...existingPortfolios, ...uploadedPortfolios];
         let birthDate;
         if (req.body.birth_date) {
             birthDate = req.body.birth_date;
@@ -199,7 +205,28 @@ const updateProfile = async (req, res) => {
             domicile: req.body.domicile,
             profile_photo: profilePhoto,
             portfolios,
+            ktp_photo: ktpPhoto,
+            selfie_photo: selfiePhoto,
         });
+        const deleteDocIds = req.body.delete_documents
+            ? (typeof req.body.delete_documents === 'string'
+                ? JSON.parse(req.body.delete_documents)
+                : req.body.delete_documents)
+            : [];
+        if (deleteDocIds.length > 0) {
+            await new ProfileService().deleteProviderDocuments(userId, deleteDocIds);
+        }
+        if (uploadedDocuments.length > 0) {
+            const description = req.body.document_description || 'Dokumen pendukung';
+            await prisma.provider_documents.createMany({
+                data: uploadedDocuments.map((path) => ({
+                    provider_id: profile.id,
+                    type: 'supporting',
+                    file_url: path,
+                    description,
+                })),
+            });
+        }
         return successResponse(res, null, "Profil berhasil diperbarui");
     }
     catch (err) {
@@ -207,4 +234,29 @@ const updateProfile = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
-export { getProfile, toggleAvailability, completeOnboarding, updateProfile };
+const toggleTaskAvailability = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) {
+            return errorResponse(res, "Anda harus login terlebih dahulu", 401);
+        }
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: userId },
+            select: { task_available: true },
+        });
+        if (!profile) {
+            return errorResponse(res, "Profil provider tidak ditemukan", 404);
+        }
+        const newStatus = !profile.task_available;
+        await prisma.provider_profiles.update({
+            where: { user_id: userId },
+            data: { task_available: newStatus },
+        });
+        return successResponse(res, { task_available: newStatus }, newStatus ? "Siap menerima task" : "Sedang tidak menerima task");
+    }
+    catch (err) {
+        console.error("[toggleTaskAvailability]", err);
+        return errorResponse(res, err.message);
+    }
+};
+export { getProfile, toggleAvailability, toggleTaskAvailability, completeOnboarding, updateProfile };

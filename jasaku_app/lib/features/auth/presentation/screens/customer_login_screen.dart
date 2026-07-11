@@ -65,29 +65,10 @@ class _CustomerLoginScreenState extends ConsumerState<CustomerLoginScreen> {
           child: Column(
             children: [
               const SizedBox(height: 48),
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: AppColors.primaryGradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.home_repair_service,
-                  color: Colors.white,
-                  size: 40,
-                ),
+              Image.asset(
+                'assets/images/Logo Aplikasi Jasa.png',
+                width: 100,
+                height: 100,
               ),
               const SizedBox(height: 24),
               const Text(

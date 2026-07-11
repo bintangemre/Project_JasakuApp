@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'provider_dashboard.dart';
 import 'provider_requests_page.dart';
 import 'provider_profile_page.dart';
+import 'provider_order_management_page.dart';
 import '../providers/provider_dashboard_provider.dart';
 import '../providers/provider_profile_provider.dart';
-import '../../../orders/presentation/pages/provider_order_list_page.dart';
-import '../../../notifications/data/services/fcm_manager.dart';
 import '../../../custom_tasks/presentation/pages/provider_my_bids_page.dart';
 import '../../../location/presentation/providers/location_tracker_provider.dart';
 import '../../../admin/presentation/screens/admin_pending_extensions_page.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../notifications/data/services/fcm_manager.dart';
+
+final unreadProviderProvider = StateProvider<int>((ref) => 0);
 
 class ProviderShell extends ConsumerStatefulWidget {
   const ProviderShell({super.key});
@@ -25,7 +28,7 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
   List<Widget> _pages(bool isAdmin) => [
         const ProviderHomePage(),
         const ProviderRequestsPage(),
-        const ProviderOrderListPage(),
+        const ProviderOrderManagementPage(),
         const ProviderProfilePage(),
         if (isAdmin) const AdminPendingExtensionsPage(),
       ];
@@ -34,6 +37,7 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
   void initState() {
     super.initState();
     FcmManager.onNotificationTap = _handleNotificationTap;
+    FcmManager.onForegroundMessage = _handleForegroundMessage;
     ref.read(locationTrackerProvider.notifier).startTracking();
   }
 
@@ -43,8 +47,18 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
     super.dispose();
   }
 
+  void _handleForegroundMessage(RemoteMessage message) {
+    if (!mounted) return;
+    final data = message.data as Map<String, String>? ?? {};
+    final type = data['type'] as String? ?? '';
+    if (type == 'NEW_ORDER' || type == 'NEW_CUSTOM_TASK' || type == 'CUSTOM_TASK_ACCEPTED') {
+      ref.read(unreadProviderProvider.notifier).state++;
+    }
+  }
+
   void _handleNotificationTap(String type, Map<String, String> data) {
     if (!mounted) return;
+    ref.read(unreadProviderProvider.notifier).state = 0;
     switch (type) {
       case 'NEW_CUSTOM_TASK':
       case 'CUSTOM_TASK_ACCEPTED':
@@ -58,6 +72,9 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
         break;
       case 'ORDER_CANCELLED':
       case 'PAYMENT_RECEIVED':
+      case 'EXTENSION_APPROVED':
+      case 'EXTENSION_REJECTED':
+      case 'EXTENSION_ACTIVATED':
         setState(() => _selectedIndex = 2);
         break;
     }
@@ -67,6 +84,9 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
     setState(() {
       _selectedIndex = index;
     });
+    if (index == 1 || index == 2) {
+      ref.read(unreadProviderProvider.notifier).state = 0;
+    }
     if (index == 0) {
       Future.microtask(() => ref.read(dashboardProvider.notifier).loadDashboard());
     }
@@ -79,11 +99,15 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final isAdmin = authState.user?.isAdmin ?? false;
+    final unreadCount = ref.watch(unreadProviderProvider);
     debugPrint('[ProviderShell] user role: ${authState.user?.role} isAdmin: $isAdmin');
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      body: SafeArea(child: _pages(isAdmin)[_selectedIndex]),
+      body: SafeArea(child: IndexedStack(
+        index: _selectedIndex,
+        children: _pages(isAdmin),
+      )),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: const Color(0xFF00A651),
@@ -94,8 +118,15 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
         onTap: _onTap,
         items: [
           const BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded), label: 'Beranda'),
-          const BottomNavigationBarItem(icon: Icon(Icons.history_toggle_off), label: 'Permintaan'),
-          const BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Riwayat'),
+          BottomNavigationBarItem(
+            icon: Badge(
+              isLabelVisible: _selectedIndex != 1 && unreadCount > 0,
+              label: Text(unreadCount > 9 ? '9+' : '$unreadCount'),
+              child: const Icon(Icons.history_toggle_off),
+            ),
+            label: 'Permintaan',
+          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Orderan'),
           const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profil'),
           if (isAdmin)
             const BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: 'Admin'),

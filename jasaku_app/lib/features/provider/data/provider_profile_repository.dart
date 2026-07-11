@@ -43,34 +43,34 @@ class ProviderProfileRepository {
     if (profilePhotoPath != null) {
       formDataMap['profile_photo'] = await MultipartFile.fromFile(
         profilePhotoPath,
-        filename: profilePhotoPath.split('/').last,
+        filename: profilePhotoPath.split(RegExp(r'[/\\]')).last,
       );
     }
     if (newPortfolioFiles != null && newPortfolioFiles.isNotEmpty) {
       formDataMap['portfolios'] = await Future.wait(
         newPortfolioFiles.map((f) => MultipartFile.fromFile(
           f.path,
-          filename: f.path.split('/').last,
+          filename: f.path.split(RegExp(r'[/\\]')).last,
         )),
       );
     }
     if (ktpPhotoPath != null) {
       formDataMap['ktp_photo'] = await MultipartFile.fromFile(
         ktpPhotoPath,
-        filename: ktpPhotoPath.split('/').last,
+        filename: ktpPhotoPath.split(RegExp(r'[/\\]')).last,
       );
     }
     if (selfiePhotoPath != null) {
       formDataMap['selfie_photo'] = await MultipartFile.fromFile(
         selfiePhotoPath,
-        filename: selfiePhotoPath.split('/').last,
+        filename: selfiePhotoPath.split(RegExp(r'[/\\]')).last,
       );
     }
     if (documentFiles != null && documentFiles.isNotEmpty) {
       formDataMap['documents'] = await Future.wait(
         documentFiles.map((f) => MultipartFile.fromFile(
           f.path,
-          filename: f.path.split('/').last,
+          filename: f.path.split(RegExp(r'[/\\]')).last,
         )),
       );
     }

@@ -2,12 +2,86 @@ import 'package:flutter/material.dart';
 import 'provider_login_screen.dart';
 import 'provider_register_category_screen.dart';
 import '../providers/register_state.dart';
+import '../../../../core/utils/storage.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/constants/api_endpoints.dart';
 
-class ProviderWelcomeScreen extends StatelessWidget {
+class ProviderWelcomeScreen extends StatefulWidget {
   const ProviderWelcomeScreen({super.key});
 
   @override
+  State<ProviderWelcomeScreen> createState() => _ProviderWelcomeScreenState();
+}
+
+class _ProviderWelcomeScreenState extends State<ProviderWelcomeScreen> {
+  bool _checking = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    await Future.delayed(const Duration(milliseconds: 1500));
+    if (!mounted) return;
+
+    final hasToken = await StorageService.hasToken();
+    if (hasToken) {
+      try {
+        await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
+        if (mounted) Navigator.pushReplacementNamed(context, '/provider/shell');
+        return;
+      } catch (_) {
+        await StorageService.deleteToken();
+      }
+    }
+
+    if (mounted) setState(() => _checking = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_checking) {
+      return Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF0F766E), Color(0xFF0F766E)],
+            ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                  child: const Icon(Icons.business_center, size: 60, color: Colors.white),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Jasaku Mitra',
+                  style: TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 24),
+                const SizedBox(
+                  width: 24, height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(

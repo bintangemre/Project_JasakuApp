@@ -1,0 +1,108 @@
+@startuml Jasaku — Admin Use Case
+!theme plain
+skinparam usecase {
+  BackgroundColor #FEFEFE
+  BorderColor #333333
+  FontSize 12
+}
+skinparam actor {
+  BorderColor #C62828
+  FontSize 14
+  FontStyle bold
+}
+skinparam rectangle {
+  BorderColor #C62828
+  BackgroundColor #FCE4EC
+  RoundCorner 10
+}
+skinparam note {
+  BorderColor #C62828
+  BackgroundColor #FFEBEE
+}
+
+left to right direction
+
+actor "Admin" as Admin #FFB6C1
+
+rectangle "Admin" as AdminRect {
+  usecase "Login" as A1
+
+  usecase "View Dashboard\n& Metrics" as A2
+  note right of A2
+    Platform overview:
+    user counts, revenue,
+    order statistics
+  end note
+
+  usecase "Verify Providers\n(Review KYC)" as A3
+  note right of A3
+    • Review uploaded KTP,
+      selfie, ijazah, portfolio
+    • Verify OCR & liveness data
+    • Approve or reject
+      with notes & checklist
+  end note
+
+  usecase "Manage Categories" as A4
+  note right of A4
+    CRUD service categories
+    (e.g. Kelistrikan,
+     Bangunan, Kebersihan)
+  end note
+
+  usecase "Manage Services\n& Pricing Types" as A5
+  note right of A5
+    CRUD services & pricing
+    types per category
+  end note
+
+  usecase "Confirm Order\nPayments (Escrow)" as A6
+  note right of A6
+    1. Customer pays to
+       admin rekber account
+    2. Admin confirms payment
+    3. Provider works
+    4. Admin releases payout
+  end note
+
+  usecase "Approve / Reject\nExtensions" as A7
+
+  usecase "Manage Users\n(Ban / Unban)" as A8
+
+  usecase "Handle Reports" as A9
+  note right of A9
+    View open reports,
+    respond with resolution
+  end note
+
+  usecase "Manage Payment\nAccounts (Rekber)" as A10
+  note right of A10
+    CRUD admin escrow accounts:
+    bank transfer, e-wallet, QRIS
+  end note
+
+  usecase "Confirm Custom\nTask Payments" as A11
+  note right of A11
+    • Confirm customer payment
+      for custom task
+    • Release payout to
+      provider after completion
+  end note
+
+  usecase "Send Push\nNotifications" as A12
+}
+
+Admin --> A1
+Admin --> A2
+Admin --> A3
+Admin --> A4
+Admin --> A5
+Admin --> A6
+Admin --> A7
+Admin --> A8
+Admin --> A9
+Admin --> A10
+Admin --> A11
+Admin --> A12
+
+@enduml

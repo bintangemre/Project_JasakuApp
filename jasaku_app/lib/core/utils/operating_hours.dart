@@ -1,0 +1,53 @@
+class OperatingHours {
+  static const int startHour = 8;
+  static const int startMinute = 0;
+  static const int endHour = 17;
+  static const int endMinute = 0;
+  static const int orderCutoffHour = 15;
+  static const int orderCutoffMinute = 0;
+  static const int warningStartHour = 14;
+  static const int warningStartMinute = 30;
+
+  static int _totalMinutes(int h, int m) => h * 60 + m;
+
+  static bool isWithinOperatingHours() {
+    final now = DateTime.now();
+    final total = _totalMinutes(now.hour, now.minute);
+    return total >= _totalMinutes(startHour, startMinute) &&
+           total < _totalMinutes(endHour, endMinute);
+  }
+
+  static bool canCompleteWork() {
+    final now = DateTime.now();
+    final total = _totalMinutes(now.hour, now.minute);
+    return total >= _totalMinutes(startHour, startMinute) &&
+           total < _totalMinutes(endHour, endMinute);
+  }
+
+  static ({bool allowed, String? warning}) canOrderNow() {
+    final now = DateTime.now();
+    final total = _totalMinutes(now.hour, now.minute);
+    final start = _totalMinutes(startHour, startMinute);
+    final cutoff = _totalMinutes(orderCutoffHour, orderCutoffMinute);
+    final warningStart = _totalMinutes(warningStartHour, warningStartMinute);
+
+    if (total < start) {
+      return (allowed: false, warning: 'Belum jam operasional (08:00-16:00 WITA)');
+    }
+    if (total >= cutoff) {
+      return (allowed: false, warning: 'Sudah lewat jam operasional, silahkan order untuk besok');
+    }
+    if (total >= warningStart) {
+      return (
+        allowed: true,
+        warning: 'Waktu pemesanan mepet dengan jam operasional berakhir. Sarankan order besok pagi jam 08:00 atau lihat jadwal mitra.',
+      );
+    }
+    return (allowed: true, warning: null);
+  }
+
+  static bool isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year && date.month == now.month && date.day == now.day;
+  }
+}

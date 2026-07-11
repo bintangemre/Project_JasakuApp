@@ -203,7 +203,7 @@ class _ProviderOrderListPageState extends ConsumerState<ProviderOrderListPage> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.jasaku.app',
               ),
               MarkerLayer(

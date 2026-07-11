@@ -1,97 +1,182 @@
 import { CustomTasksService } from './custom-tasks.service';
 import { successResponse, errorResponse } from '../../utils/response';
-import { prisma } from '../../config/prisma';
-import { NotificationService } from '../notifications/notifications.service';
-const customTasksService = new CustomTasksService();
-const postTask = async (req, res) => {
+const service = new CustomTasksService();
+export const createTask = async (req, res) => {
     try {
-        const customerId = req.user?.userId;
-        if (!customerId)
-            return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
-        const { title, description, budget, address, lat, lng, deadline } = req.body;
-        const result = await customTasksService.postTask(customerId, {
-            title,
-            description,
-            budget,
-            address,
-            lat,
-            lng,
-            deadline,
-        });
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const result = await service.createTask(userId, req.body);
         return successResponse(res, result, 'Task berhasil dibuat', 201);
     }
     catch (err) {
         return errorResponse(res, err.message);
     }
 };
-const getAvailableTasks = async (req, res) => {
+export const getAvailableTasks = async (req, res) => {
     try {
         const { lat, lng, radius } = req.query;
-        const result = await customTasksService.getAvailableTasks(lat ? Number(lat) : undefined, lng ? Number(lng) : undefined, radius ? Number(radius) : undefined);
-        return successResponse(res, result, 'Daftar task tersedia berhasil diambil');
+        const result = await service.getAvailableTasks(lat ? Number(lat) : undefined, lng ? Number(lng) : undefined, radius ? Number(radius) : undefined);
+        return successResponse(res, result, 'Daftar task tersedia');
     }
     catch (err) {
         return errorResponse(res, err.message);
     }
 };
-const getMyTasks = async (req, res) => {
+export const getMyTasks = async (req, res) => {
     try {
-        const customerId = req.user?.userId;
-        if (!customerId)
-            return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
-        const result = await customTasksService.getMyTasks(customerId);
-        return successResponse(res, result, 'Daftar task Anda berhasil diambil');
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const result = await service.getMyTasks(userId);
+        return successResponse(res, result, 'Daftar task Anda');
     }
     catch (err) {
         return errorResponse(res, err.message);
     }
 };
-const getTaskDetail = async (req, res) => {
+export const getMyAcceptedTasks = async (req, res) => {
     try {
-        const taskId = req.params.taskId;
-        const result = await customTasksService.getTaskDetail(taskId);
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const result = await service.getMyAcceptedTasks(userId);
+        return successResponse(res, result, 'Daftar task yang diterima');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const getTaskDetail = async (req, res) => {
+    try {
+        const taskId = String(req.params.taskId);
+        const result = await service.getTaskDetail(taskId);
         if (!result)
             return errorResponse(res, 'Task tidak ditemukan', 404);
-        return successResponse(res, result, 'Detail task berhasil diambil');
+        return successResponse(res, result, 'Detail task');
     }
     catch (err) {
         return errorResponse(res, err.message);
     }
 };
-const acceptTask = async (req, res) => {
+export const acceptTask = async (req, res) => {
     try {
-        const providerId = req.user?.userId;
-        if (!providerId)
-            return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
-        const taskId = req.params.taskId;
-        const result = await customTasksService.acceptTask(providerId, taskId);
-        return successResponse(res, result, 'Task diterima, silakan lanjutkan pembayaran', 201);
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const taskId = String(req.params.taskId);
+        const result = await service.acceptTask(userId, taskId);
+        return successResponse(res, result, 'Task diterima!');
     }
     catch (err) {
         return errorResponse(res, err.message);
     }
 };
-const confirmTaskByAdmin = async (req, res) => {
+export const completeTask = async (req, res) => {
     try {
-        const taskId = req.params.taskId;
-        const { status } = req.body; // 'confirmed' | 'rejected'
-        const task = await customTasksService.getTaskDetail(taskId);
-        if (!task)
-            return errorResponse(res, 'Task tidak ditemukan', 404);
-        await prisma.custom_tasks.update({
-            where: { id: taskId },
-            data: { status }
-        });
-        try {
-            await NotificationService.sendToUser(task.customer_id, status === 'confirmed' ? 'Task Disetujui' : 'Task Ditolak', status === 'confirmed'
-                ? `Task "${task.title}" telah disetujui admin. Provider dapat menerima task ini.`
-                : `Maaf, task "${task.title}" ditolak oleh admin.`, { taskId, type: status === 'confirmed' ? 'TASK_CONFIRMED' : 'TASK_REJECTED' });
-        }
-        catch (_) { }
-        return successResponse(res, null, status === 'confirmed' ? 'Task disetujui' : 'Task ditolak');
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const taskId = String(req.params.taskId);
+        const result = await service.completeTask(userId, taskId);
+        return successResponse(res, result, 'Task selesai');
     }
     catch (err) {
         return errorResponse(res, err.message);
     }
 };
-export { postTask, getAvailableTasks, getMyTasks, getTaskDetail, acceptTask, confirmTaskByAdmin, };
+export const republishTask = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const taskId = String(req.params.taskId);
+        const result = await service.republishTask(userId, taskId);
+        return successResponse(res, result, 'Task berhasil dipublikasi ulang');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const getPaymentDetail = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const taskId = String(req.params.taskId);
+        const result = await service.getPaymentDetail(taskId, userId);
+        return successResponse(res, result, 'Detail pembayaran');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const uploadPaymentProof = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const taskId = String(req.params.taskId);
+        const file = req.file;
+        if (!file)
+            return errorResponse(res, 'Upload bukti pembayaran terlebih dahulu', 400);
+        const fileUrl = `/uploads/payment-proofs/${file.filename}`;
+        const result = await service.uploadPaymentProof(taskId, userId, fileUrl);
+        return successResponse(res, result, 'Bukti pembayaran berhasil diupload');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const cancelTask = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const taskId = String(req.params.taskId);
+        const result = await service.cancelTask(userId, taskId);
+        return successResponse(res, result, 'Task dibatalkan');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+// Admin endpoints
+export const getPendingPaymentTasks = async (req, res) => {
+    try {
+        const result = await service.getPendingPaymentTasks();
+        return successResponse(res, result, 'Daftar task pending payment');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const getPendingPayoutTasks = async (req, res) => {
+    try {
+        const result = await service.getPendingPayoutTasks();
+        return successResponse(res, result, 'Daftar task pending payout');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const confirmTaskPayment = async (req, res) => {
+    try {
+        const tpId = String(req.params.tpId);
+        const result = await service.confirmTaskPayment(tpId);
+        return successResponse(res, result, 'Pembayaran dikonfirmasi');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const confirmTaskPayout = async (req, res) => {
+    try {
+        const tpId = String(req.params.tpId);
+        const result = await service.confirmTaskPayout(tpId);
+        return successResponse(res, result, 'Pembayaran ke provider dikonfirmasi');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};

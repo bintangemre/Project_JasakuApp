@@ -18,6 +18,7 @@ class FcmManager {
   final _dio = ApiClient().dio;
 
   static void Function(String type, Map<String, String> data)? onNotificationTap;
+  static void Function(RemoteMessage message)? onForegroundMessage;
 
   @pragma('vm:entry-point')
   static Future<void> handleBackgroundMessage(RemoteMessage message) async {
@@ -93,6 +94,8 @@ class FcmManager {
       const NotificationDetails(android: androidDetails),
       payload: payload,
     );
+
+    FcmManager.onForegroundMessage?.call(message);
   }
 
   void _onNotificationTap(NotificationResponse response) {

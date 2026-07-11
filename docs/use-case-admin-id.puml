@@ -1,0 +1,117 @@
+@startuml Jasaku — Use Case Admin (Bahasa Indonesia)
+!theme plain
+skinparam usecase {
+  BackgroundColor #FEFEFE
+  BorderColor #333333
+  FontSize 12
+}
+skinparam actor {
+  BorderColor #C62828
+  FontSize 14
+  FontStyle bold
+}
+skinparam rectangle {
+  BorderColor #C62828
+  BackgroundColor #FCE4EC
+  RoundCorner 10
+}
+skinparam note {
+  BorderColor #C62828
+  BackgroundColor #FFEBEE
+}
+
+left to right direction
+
+actor "Admin" as Admin #FFB6C1
+
+rectangle "Admin" as AdminRect {
+  usecase "Login" as A1
+
+  usecase "Lihat Dashboard\n& Metrik" as A2
+  note right of A2
+    Gambaran platform:
+    jumlah pengguna,
+    pendapatan, statistik
+    pesanan
+  end note
+
+  usecase "Verifikasi Mitra\n(Review KYC)" as A3
+  note right of A3
+    • Review KTP, selfie,
+      ijazah, portofolio
+    • Verifikasi data OCR
+      & liveness
+    • Setujui atau tolak
+      dengan catatan
+  end note
+
+  usecase "Kelola\nKategori" as A4
+  note right of A4
+    CRUD kategori layanan
+    (contoh: Kelistrikan,
+     Bangunan, Kebersihan)
+  end note
+
+  usecase "Kelola Layanan\n& Tipe Harga" as A5
+  note right of A5
+    CRUD layanan & tipe
+    harga per kategori
+  end note
+
+  usecase "Konfirmasi\nPembayaran (Rekber)" as A6
+  note right of A6
+    1. Customer bayar ke
+       rekber admin
+    2. Admin konfirmasi
+    3. Mitra bekerja
+    4. Admin cairkan dana
+       ke mitra
+  end note
+
+  usecase "Setujui / Tolak\nPerpanjangan" as A7
+
+  usecase "Kelola\nPengguna" as A8
+  note right of A8
+    Ban / Unban customer
+    atau mitra
+  end note
+
+  usecase "Tangani\nLaporan" as A9
+  note right of A9
+    Lihat laporan masuk,
+    beri tanggapan &
+    resolusi
+  end note
+
+  usecase "Kelola Akun\nPembayaran (Rekber)" as A10
+  note right of A10
+    CRUD akun escrow admin:
+    transfer bank, e-wallet,
+    QRIS
+  end note
+
+  usecase "Konfirmasi\nPembayaran Task" as A11
+  note right of A11
+    • Konfirmasi pembayaran
+      customer untuk custom task
+    • Cairkan dana ke mitra
+      setelah selesai
+  end note
+
+  usecase "Kirim Notifikasi\nPush" as A12
+}
+
+Admin --> A1
+Admin --> A2
+Admin --> A3
+Admin --> A4
+Admin --> A5
+Admin --> A6
+Admin --> A7
+Admin --> A8
+Admin --> A9
+Admin --> A10
+Admin --> A11
+Admin --> A12
+
+@enduml

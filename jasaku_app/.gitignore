@@ -46,3 +46,6 @@ app.*.map.json
 
 # Firebase Admin SDK Credentials
 jasaku-backend/src/config/firebase/*.json
+
+# Dev run scripts (contain ORS_API_KEY etc.)
+run_*.ps1

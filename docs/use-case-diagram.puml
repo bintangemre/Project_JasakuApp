@@ -1,0 +1,188 @@
+@startuml Jasaku — Use Case Diagram
+!theme plain
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #FEFEFE
+  BorderColor #333333
+  FontSize 12
+}
+skinparam actor {
+  BorderColor #1A73E8
+  FontSize 14
+  FontStyle bold
+}
+skinparam rectangle {
+  BorderColor #666666
+  BackgroundColor #FAFAFA
+  RoundCorner 10
+}
+skinparam note {
+  BorderColor #999999
+  BackgroundColor #FFFDE7
+}
+
+left to right direction
+
+' ==================== ACTORS ====================
+actor "Customer" as Customer #ADD8E6
+actor "Provider\n(Mitra)" as Provider #90EE90
+actor "Admin" as Admin #FFB6C1
+
+' ==================== CUSTOMER ====================
+rectangle "Customer" as C_rect #E8F4FD {
+  usecase "Register" as C1
+  usecase "Login\n(Email / Google)" as C2
+  usecase "Browse Service\nCategories" as C3
+  usecase "Find Providers\nby Distance" as C4
+  usecase "View Provider\nDetail" as C5
+  usecase "Create Order" as C6
+  usecase "Pay via Escrow\n(Rekber)" as C7
+  usecase "Track Order\n(Live Map)" as C8
+  usecase "Cancel Order" as C9
+  usecase "Rate & Review\nProvider" as C10
+  usecase "View Order\nHistory" as C11
+  usecase "Create Custom\nTask" as C12
+  usecase "Manage\nProfile" as C13
+  usecase "Submit\nReport" as C14
+  usecase "Search\nLocation" as C15
+
+  C6 ..> C7 : <<include>>
+  C3 ..> C4 : <<include>>
+  C4 ..> C5 : <<include>>
+  C5 ..> C6 : <<include>>
+  C9 ..> C6 : <<extend>>
+  C8 ..> C6 : <<extend>>
+}
+
+' ==================== PROVIDER ====================
+rectangle "Provider (Mitra)" as P_rect #E8F5E9 {
+  usecase "Register\n(Multi-step)" as P1
+  usecase "Login\n(Verification\nCheck)" as P2
+  usecase "Resubmit\nVerification" as P3
+  usecase "Complete\nOnboarding" as P4
+  usecase "Toggle\nAvailability" as P5
+  usecase "View Incoming\nRequests" as P6
+  usecase "Accept / Reject\nOrder" as P7
+  usecase "Update Order\nStatus" as P8
+  usecase "Request\nExtension" as P9
+  usecase "View Schedule\n& Earnings" as P10
+  usecase "Manage Services\n& Pricing" as P11
+  usecase " Manage Payout\nMethods" as P12
+  usecase "Update Live\nLocation" as P13
+  usecase "Browse Available\nCustom Tasks" as P14
+  usecase "Accept Custom\nTask" as P15
+  usecase "Complete Custom\nTask" as P16
+  usecase "Manage\nProfile" as P17
+  usecase "View\nReviews" as P18
+
+  P1 ..> P3 : <<extend>>
+  P6 ..> P7 : <<include>>
+  P7 ..> P8 : <<include>>
+  P8 ..> P9 : <<extend>>
+  P14 ..> P15 : <<include>>
+  P15 ..> P16 : <<include>>
+}
+
+' ==================== ADMIN ====================
+rectangle "Admin" as A_rect #FCE4EC {
+  usecase "Login" as A1
+  usecase "View Dashboard\n& Metrics" as A2
+  usecase "Verify Providers\n(Review KYC)" as A3
+  usecase "Manage\nCategories" as A4
+  usecase "Manage Services\n& Pricing Types" as A5
+  usecase "Confirm Order\nPayments" as A6
+  usecase "Approve / Reject\nExtensions" as A7
+  usecase "Manage Users\n(Ban/Unban)" as A8
+  usecase "Handle\nReports" as A9
+  usecase "Manage Payment\nAccounts (Rekber)" as A10
+  usecase "Confirm Custom\nTask Payments" as A11
+  usecase "Send Push\nNotifications" as A12
+}
+
+' ==================== RELATIONSHIPS ====================
+
+' Customer → UC
+Customer --> C1
+Customer --> C2
+Customer --> C3
+Customer --> C6
+Customer --> C8
+Customer --> C10
+Customer --> C11
+Customer --> C12
+Customer --> C13
+Customer --> C14
+Customer --> C15
+
+' Provider → UC
+Provider --> P1
+Provider --> P2
+Provider --> P4
+Provider --> P5
+Provider --> P6
+Provider --> P10
+Provider --> P11
+Provider --> P12
+Provider --> P13
+Provider --> P14
+Provider --> P17
+Provider --> P18
+
+' Admin → UC
+Admin --> A1
+Admin --> A2
+Admin --> A3
+Admin --> A4
+Admin --> A5
+Admin --> A6
+Admin --> A7
+Admin --> A8
+Admin --> A9
+Admin --> A10
+Admin --> A11
+Admin --> A12
+
+' ==================== NOTES ====================
+
+note right of C6
+  **Create Order:**
+  • Select date & time
+  • Pick location on map
+  • Add description & photos
+  • Specify quantity
+end note
+
+note right of P1
+  **Registration Steps:**
+  1. Select categories
+  2. Personal info
+  3. Upload documents
+    (KTP, selfie, portfolio,
+     ijazah, certificates)
+  4. KTP OCR scan
+  5. Liveness detection
+  6. Accept terms
+  → Pending verification
+end note
+
+note right of A3
+  **Provider Verification:**
+  • Review uploaded KTP,
+    selfie, ijazah, portfolio
+  • Verify identity via OCR
+    & liveness check
+  • Approve or reject
+    with notes
+end note
+
+note right of A6
+  **Escrow Payment Flow:**
+  1. Customer pays to
+     admin rekber account
+  2. Admin confirms payment
+  3. Provider works
+  4. Admin releases payout
+     to provider
+end note
+
+@enduml

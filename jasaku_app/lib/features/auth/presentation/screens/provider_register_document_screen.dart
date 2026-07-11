@@ -874,7 +874,7 @@ class _ProviderRegisterDocumentScreenState
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          path.split('/').last,
+                          path.split(RegExp(r'[/\\]')).last,
                           style: const TextStyle(
                               fontSize: 12, color: Color(0xFF00A651)),
                           overflow: TextOverflow.ellipsis,

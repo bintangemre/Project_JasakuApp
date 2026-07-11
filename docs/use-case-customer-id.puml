@@ -1,0 +1,141 @@
+@startuml Jasaku — Use Case Customer (Bahasa Indonesia)
+!theme plain
+skinparam usecase {
+  BackgroundColor #FEFEFE
+  BorderColor #333333
+  FontSize 12
+}
+skinparam actor {
+  BorderColor #1565C0
+  FontSize 14
+  FontStyle bold
+}
+skinparam rectangle {
+  BorderColor #1565C0
+  BackgroundColor #E3F2FD
+  RoundCorner 10
+}
+skinparam note {
+  BorderColor #1565C0
+  BackgroundColor #E3F2FD
+}
+skinparam arrow {
+  Color #1565C0
+}
+
+left to right direction
+
+actor "Customer" as Customer #ADD8E6
+
+rectangle "Customer" as CustomerRect {
+  usecase "Daftar Akun" as C1
+  usecase "Login\n(Email / Google)" as C2
+  note right of C2
+    Google OAuth otomatis
+    daftar sebagai customer
+    jika pengguna baru
+  end note
+
+  usecase "Lihat Kategori\nLayanan" as C3
+  note right of C3
+    Lihat semua kategori
+    di halaman utama
+    atau daftar lengkap
+  end note
+
+  usecase "Cari Mitra\nberdasarkan Jarak" as C4
+  note right of C4
+    Pilih layanan →
+    lihat mitra diurutkan
+    berdasarkan jarak & rating
+  end note
+
+  usecase "Lihat Detail\nMitra" as C5
+  note right of C5
+    Bottom sheet dengan:
+    profil, rating, pekerjaan,
+    portofolio, harga,
+    ketersediaan, jadwal
+  end note
+
+  usecase "Buat Pesanan" as C6
+  note right of C6
+    • Pilih tanggal & waktu
+    • Pilih lokasi di peta
+    • Tambah deskripsi & foto
+    • Tentukan jumlah
+  end note
+
+  usecase "Bayar via Rekber\n(Escrow)" as C7
+  note right of C7
+    Pilih metode bayar:
+    transfer bank, e-wallet,
+    atau QRIS → bayar ke
+    rekening admin
+  end note
+
+  usecase "Lacak Pesanan\n(Peta Langsung)" as C8
+  note right of C8
+    Lokasi mitra real-time
+    di peta dengan rute
+    polyline (update tiap 5s)
+  end note
+
+  usecase "Batalkan\nPesanan" as C9
+  note right of C9
+    Bisa dibatalkan jika
+    status: pending atau
+    accepted
+  end note
+
+  usecase "Beri Rating\n& Ulasan" as C10
+  note right of C10
+    Satu ulasan per pesanan:
+    rating 1-5 bintang +
+    teks ulasan
+  end note
+
+  usecase "Lihat Riwayat\nPesanan" as C11
+  note right of C11
+    Filter: Semua / Aktif /
+    Selesai
+  end note
+
+  usecase "Buat Custom\nTask" as C12
+  note right of C12
+    • Judul, deskripsi,
+      budget, jumlah orang
+    • Pilih lokasi di peta
+    • Bayar escrow → admin
+      konfirmasi → mitra bid
+  end note
+
+  usecase "Kelola\nProfil" as C13
+  usecase "Kirim\nLaporan" as C14
+  usecase "Cari\nLokasi" as C15
+  note right of C15
+    Geocoding via Photon API
+  end note
+
+  ' ===== RELASI =====
+  C6 ..> C7 : <<include>>
+  C3 ..> C4 : <<include>>
+  C4 ..> C5 : <<include>>
+  C5 ..> C6 : <<include>>
+  C9 ..> C6 : <<extend>>
+  C8 ..> C6 : <<extend>>
+}
+
+Customer --> C1
+Customer --> C2
+Customer --> C3
+Customer --> C6
+Customer --> C8
+Customer --> C10
+Customer --> C11
+Customer --> C12
+Customer --> C13
+Customer --> C14
+Customer --> C15
+
+@enduml

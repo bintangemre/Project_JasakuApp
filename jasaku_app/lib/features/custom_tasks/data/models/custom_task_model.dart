@@ -1,3 +1,29 @@
+double? _toDouble(dynamic v) {
+  if (v == null) return null;
+  if (v is num) return v.toDouble();
+  return double.tryParse(v.toString());
+}
+
+int _toInt(dynamic v, {int fallback = 0}) {
+  if (v == null) return fallback;
+  if (v is int) return v;
+  return int.tryParse(v.toString()) ?? fallback;
+}
+
+DateTime _parseDateTime(dynamic v) {
+  if (v == null) return DateTime.now();
+  if (v is DateTime) return v;
+  if (v is String) return DateTime.tryParse(v) ?? DateTime.now();
+  return DateTime.now();
+}
+
+DateTime? _parseDateTimeNullable(dynamic v) {
+  if (v == null) return null;
+  if (v is DateTime) return v;
+  if (v is String) return DateTime.tryParse(v);
+  return null;
+}
+
 class TaskLocationModel {
   final String id;
   final String? label;
@@ -20,9 +46,9 @@ class TaskLocationModel {
       id: json['id'] as String? ?? '',
       label: json['label'] as String?,
       address: json['address'] as String? ?? '',
-      lat: (json['lat'] as num?)?.toDouble(),
-      lng: (json['lng'] as num?)?.toDouble(),
-      stopOrder: json['stop_order'] as int? ?? 0,
+      lat: _toDouble(json['lat']),
+      lng: _toDouble(json['lng']),
+      stopOrder: _toInt(json['stop_order']),
     );
   }
 }
@@ -58,12 +84,12 @@ class TaskProviderModel {
       id: json['id'] as String? ?? '',
       fullName: provider?['full_name'] as String?,
       profilePhoto: provider?['profile_photo'] as String?,
-      rating: (provider?['rating'] as num?)?.toDouble(),
+      rating: _toDouble(provider?['rating']),
       status: json['status'] as String? ?? 'accepted',
       payoutConfirmed: json['payout_confirmed'] as bool? ?? false,
       orderId: firstOrder?['id'] as String?,
       orderStatus: firstOrder?['status'] as String?,
-      orderTotalPrice: (firstOrder?['total_price'] as num?)?.toDouble(),
+      orderTotalPrice: _toDouble(firstOrder?['total_price']),
     );
   }
 }
@@ -77,6 +103,11 @@ class CustomTaskModel {
   final int acceptedCount;
   final double platformFeeRate;
   final String? address;
+  final String? locationDetail;
+  final int publishDays;
+  final DateTime? expiresAt;
+  final String? paymentProof;
+  final String paymentStatus;
   final double? lat;
   final double? lng;
   final String status;
@@ -89,11 +120,13 @@ class CustomTaskModel {
   final int completedCount;
   final String? tpId;
   final String? tpStatus;
+  final String? workStatus;
   final String? orderId;
   final String? orderStatus;
   final double? totalPrice;
   final double? platformFee;
   final bool payoutConfirmed;
+  final List<String> images;
 
   CustomTaskModel({
     required this.id,
@@ -104,6 +137,11 @@ class CustomTaskModel {
     this.acceptedCount = 0,
     this.platformFeeRate = 5,
     this.address,
+    this.locationDetail,
+    this.publishDays = 1,
+    this.expiresAt,
+    this.paymentProof,
+    this.paymentStatus = 'unpaid',
     this.lat,
     this.lng,
     this.status = 'open',
@@ -116,11 +154,13 @@ class CustomTaskModel {
     this.completedCount = 0,
     this.tpId,
     this.tpStatus,
+    this.workStatus,
     this.orderId,
     this.orderStatus,
     this.totalPrice,
     this.platformFee,
     this.payoutConfirmed = false,
+    this.images = const [],
   });
 
   double get totalBudget => budgetPerPerson * requiredPeople;
@@ -129,6 +169,7 @@ class CustomTaskModel {
   int get slotsLeft => requiredPeople - acceptedCount;
   bool get isFull => acceptedCount >= requiredPeople;
   bool get isOpen => status == 'open';
+  bool get isExpired => expiresAt != null && expiresAt!.isBefore(DateTime.now());
 
   factory CustomTaskModel.fromJson(Map<String, dynamic> json) {
     final locs = json['task_locations'] as List<dynamic>?;
@@ -138,28 +179,109 @@ class CustomTaskModel {
       id: json['task_id'] as String? ?? json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
       description: json['description'] as String?,
-      budgetPerPerson: (json['budget_per_person'] as num?)?.toDouble() ?? 0,
-      requiredPeople: json['required_people'] as int? ?? 1,
-      acceptedCount: json['accepted_count'] as int? ?? 0,
-      platformFeeRate: (json['platform_fee_rate'] as num?)?.toDouble() ?? 5,
+      budgetPerPerson: _toDouble(json['budget_per_person']) ?? 0,
+      requiredPeople: _toInt(json['required_people'], fallback: 1),
+      acceptedCount: _toInt(json['accepted_count']),
+      platformFeeRate: _toDouble(json['platform_fee_rate']) ?? 5,
       address: json['address'] as String?,
-      lat: (json['lat'] as num?)?.toDouble(),
-      lng: (json['lng'] as num?)?.toDouble(),
+      locationDetail: json['location_detail'] as String?,
+      publishDays: _toInt(json['publish_days'], fallback: 1),
+      expiresAt: _parseDateTimeNullable(json['expires_at']),
+      paymentProof: json['payment_proof'] as String?,
+      paymentStatus: json['payment_status'] as String? ?? 'unpaid',
+      lat: _toDouble(json['lat']),
+      lng: _toDouble(json['lng']),
       status: json['task_status'] as String? ?? json['status'] as String? ?? 'open',
       customerName: json['customer_name'] as String?,
-      distanceMeters: (json['distance_meters'] as num?)?.toDouble(),
-      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ?? DateTime.now(),
+      distanceMeters: _toDouble(json['distance_meters']),
+      createdAt: _parseDateTime(json['created_at']),
       locations: locs?.map((e) => TaskLocationModel.fromJson(e as Map<String, dynamic>)).toList() ?? [],
       providers: provs?.map((e) => TaskProviderModel.fromJson(e as Map<String, dynamic>)).toList() ?? [],
-      totalProviders: json['total_providers'] as int? ?? 0,
-      completedCount: json['completed_count'] as int? ?? 0,
+      totalProviders: _toInt(json['total_providers']),
+      completedCount: _toInt(json['completed_count']),
       tpId: json['tp_id'] as String?,
       tpStatus: json['tp_status'] as String?,
+      workStatus: json['work_status'] as String?,
       orderId: json['order_id'] as String?,
       orderStatus: json['order_status'] as String?,
-      totalPrice: (json['total_price'] as num?)?.toDouble(),
-      platformFee: (json['platform_fee'] as num?)?.toDouble(),
+      totalPrice: _toDouble(json['total_price']),
+      platformFee: _toDouble(json['platform_fee']),
       payoutConfirmed: json['payout_confirmed'] as bool? ?? false,
+      images: (json['images'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+    );
+  }
+}
+
+class AdminAccountModel {
+  final String id;
+  final String type;
+  final String accountName;
+  final String accountNumber;
+  final String providerName;
+  final String? qrisImageUrl;
+
+  AdminAccountModel({
+    required this.id,
+    required this.type,
+    required this.accountName,
+    required this.accountNumber,
+    required this.providerName,
+    this.qrisImageUrl,
+  });
+
+  factory AdminAccountModel.fromJson(Map<String, dynamic> json) {
+    return AdminAccountModel(
+      id: json['id'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      accountName: json['account_name'] as String? ?? '',
+      accountNumber: json['account_number'] as String? ?? '',
+      providerName: json['provider_name'] as String? ?? '',
+      qrisImageUrl: json['qris_image_url'] as String?,
+    );
+  }
+}
+
+class PaymentDetailModel {
+  final String taskId;
+  final String title;
+  final int acceptedCount;
+  final int requiredPeople;
+  final double budgetPerPerson;
+  final double feePerPerson;
+  final double totalAmount;
+  final String paymentStatus;
+  final String? paymentProof;
+  final List<AdminAccountModel> adminAccounts;
+
+  PaymentDetailModel({
+    required this.taskId,
+    required this.title,
+    required this.acceptedCount,
+    required this.requiredPeople,
+    required this.budgetPerPerson,
+    required this.feePerPerson,
+    required this.totalAmount,
+    required this.paymentStatus,
+    this.paymentProof,
+    this.adminAccounts = const [],
+  });
+
+  factory PaymentDetailModel.fromJson(Map<String, dynamic> json) {
+    final accounts = json['admin_accounts'] as List<dynamic>?;
+    return PaymentDetailModel(
+      taskId: json['task_id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      acceptedCount: _toInt(json['accepted_count']),
+      requiredPeople: _toInt(json['required_people']),
+      budgetPerPerson: _toDouble(json['budget_per_person']) ?? 0,
+      feePerPerson: _toDouble(json['fee_per_person']) ?? 0,
+      totalAmount: _toDouble(json['total_amount']) ?? 0,
+      paymentStatus: json['payment_status'] as String? ?? 'unpaid',
+      paymentProof: json['payment_proof'] as String?,
+      adminAccounts: accounts
+              ?.map((e) => AdminAccountModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }

@@ -25,6 +25,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
+        manifestPlaceholders["appLabel"] = "Jasaku"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -38,17 +39,21 @@ android {
         create("customer") {
             dimension = "app"
             applicationId = "com.jasaku.app"
+            manifestPlaceholders["appLabel"] = "Jasaku"
         }
 
         create("mitra") {
             dimension = "app"
             applicationId = "com.jasaku.mitra"
+            manifestPlaceholders["appLabel"] = "Mitra Jasaku"
         }
 
     }
 
     buildTypes {
         release {
+            isMinifyEnabled = false
+            isShrinkResources = false
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")

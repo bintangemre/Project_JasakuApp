@@ -40,8 +40,12 @@ export const JsonNull = runtime.JsonNull;
 export const AnyNull = runtime.AnyNull;
 export const ModelName = {
     categories: 'categories',
-    admin_payment_accounts: 'admin_payment_accounts',
+    admin_bank_accounts: 'admin_bank_accounts',
+    admin_ewallet_accounts: 'admin_ewallet_accounts',
+    admin_qris_accounts: 'admin_qris_accounts',
     custom_tasks: 'custom_tasks',
+    task_locations: 'task_locations',
+    task_providers: 'task_providers',
     order_attachments: 'order_attachments',
     order_items: 'order_items',
     order_locations: 'order_locations',
@@ -63,6 +67,7 @@ export const ModelName = {
     provider_profiles: 'provider_profiles',
     provider_locations: 'provider_locations',
     reviews: 'reviews',
+    identity_verifications: 'identity_verifications',
     user_devices: 'user_devices'
 };
 /*
@@ -81,11 +86,26 @@ export const CategoriesScalarFieldEnum = {
     created_at: 'created_at',
     icon_url: 'icon_url'
 };
-export const Admin_payment_accountsScalarFieldEnum = {
+export const Admin_bank_accountsScalarFieldEnum = {
     id: 'id',
-    type: 'type',
-    account_name: 'account_name',
+    provider_name: 'provider_name',
     account_number: 'account_number',
+    account_name: 'account_name',
+    is_active: 'is_active',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+};
+export const Admin_ewallet_accountsScalarFieldEnum = {
+    id: 'id',
+    provider_name: 'provider_name',
+    account_number: 'account_number',
+    account_name: 'account_name',
+    is_active: 'is_active',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+};
+export const Admin_qris_accountsScalarFieldEnum = {
+    id: 'id',
     provider_name: 'provider_name',
     qris_image_url: 'qris_image_url',
     is_active: 'is_active',
@@ -95,15 +115,38 @@ export const Admin_payment_accountsScalarFieldEnum = {
 export const Custom_tasksScalarFieldEnum = {
     id: 'id',
     customer_id: 'customer_id',
-    provider_id: 'provider_id',
     title: 'title',
     description: 'description',
-    budget: 'budget',
+    budget_per_person: 'budget_per_person',
+    required_people: 'required_people',
+    accepted_count: 'accepted_count',
+    platform_fee_rate: 'platform_fee_rate',
     address: 'address',
-    photos: 'photos',
-    deadline: 'deadline',
+    location_detail: 'location_detail',
+    publish_days: 'publish_days',
+    expires_at: 'expires_at',
+    payment_proof: 'payment_proof',
+    payment_status: 'payment_status',
     status: 'status',
-    created_at: 'created_at'
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+};
+export const Task_locationsScalarFieldEnum = {
+    id: 'id',
+    task_id: 'task_id',
+    label: 'label',
+    address: 'address',
+    stop_order: 'stop_order'
+};
+export const Task_providersScalarFieldEnum = {
+    id: 'id',
+    task_id: 'task_id',
+    provider_id: 'provider_id',
+    status: 'status',
+    accepted_at: 'accepted_at',
+    completed_at: 'completed_at',
+    payout_confirmed: 'payout_confirmed',
+    payout_at: 'payout_at'
 };
 export const Order_attachmentsScalarFieldEnum = {
     id: 'id',
@@ -130,6 +173,7 @@ export const OrdersScalarFieldEnum = {
     customer_id: 'customer_id',
     provider_id: 'provider_id',
     custom_task_id: 'custom_task_id',
+    task_provider_id: 'task_provider_id',
     status: 'status',
     total_price: 'total_price',
     platform_fee: 'platform_fee',
@@ -264,6 +308,7 @@ export const Profiles_customerScalarFieldEnum = {
     nickname: 'nickname',
     birth_date: 'birth_date',
     gender: 'gender',
+    address: 'address',
     avatar_url: 'avatar_url',
     created_at: 'created_at',
     updated_at: 'updated_at'
@@ -287,6 +332,8 @@ export const Provider_profilesScalarFieldEnum = {
     is_active: 'is_active',
     onboarding_completed: 'onboarding_completed',
     custom_task_enabled: 'custom_task_enabled',
+    service_available: 'service_available',
+    task_available: 'task_available',
     rating: 'rating',
     total_jobs: 'total_jobs',
     created_at: 'created_at',
@@ -309,6 +356,25 @@ export const ReviewsScalarFieldEnum = {
     created_at: 'created_at',
     updated_at: 'updated_at'
 };
+export const Identity_verificationsScalarFieldEnum = {
+    id: 'id',
+    provider_id: 'provider_id',
+    nik: 'nik',
+    ocr_full_name: 'ocr_full_name',
+    ocr_birth_place: 'ocr_birth_place',
+    ocr_birth_date: 'ocr_birth_date',
+    ocr_address: 'ocr_address',
+    ocr_gender: 'ocr_gender',
+    ocr_blood_type: 'ocr_blood_type',
+    ocr_religion: 'ocr_religion',
+    ocr_raw_result: 'ocr_raw_result',
+    face_match_score: 'face_match_score',
+    face_match_status: 'face_match_status',
+    liveness_data: 'liveness_data',
+    liveness_status: 'liveness_status',
+    created_at: 'created_at',
+    verified_at: 'verified_at'
+};
 export const User_devicesScalarFieldEnum = {
     id: 'id',
     user_id: 'user_id',
@@ -322,6 +388,10 @@ export const SortOrder = {
     asc: 'asc',
     desc: 'desc'
 };
+export const NullableJsonNullValueInput = {
+    DbNull: DbNull,
+    JsonNull: JsonNull
+};
 export const QueryMode = {
     default: 'default',
     insensitive: 'insensitive'
@@ -329,4 +399,9 @@ export const QueryMode = {
 export const NullsOrder = {
     first: 'first',
     last: 'last'
+};
+export const JsonNullValueFilter = {
+    DbNull: DbNull,
+    JsonNull: JsonNull,
+    AnyNull: AnyNull
 };

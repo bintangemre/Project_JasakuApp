@@ -4,8 +4,10 @@ class OrderModel {
   final String id;
   final String status;
   final int totalPrice;
+  final int additionalFee;
   final String? description;
   final DateTime? workDate;
+  final DateTime? endDate;
   final DateTime? createdAt;
   final String? providerName;
   final String? providerId;
@@ -18,8 +20,10 @@ class OrderModel {
     required this.id,
     required this.status,
     required this.totalPrice,
+    this.additionalFee = 0,
     this.description,
     this.workDate,
+    this.endDate,
     this.createdAt,
     this.providerName,
     this.providerId,
@@ -42,8 +46,10 @@ class OrderModel {
       id: json['id'] as String,
       status: json['status'] as String? ?? 'pending',
       totalPrice: _parsePrice(json['total_price']),
+      additionalFee: _parsePrice(json['additional_fee']),
       description: json['description'] as String?,
       workDate: json['work_date'] != null ? DateTime.tryParse(json['work_date'] as String) : null,
+      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) : null,
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
       providerName: provider?['full_name'] as String?,
       providerId: provider?['user_id'] as String?,
@@ -65,8 +71,10 @@ class OrderModel {
       id: json['id'] as String,
       status: json['status'] as String? ?? 'pending',
       totalPrice: _parsePrice(json['total_price']),
+      additionalFee: _parsePrice(json['additional_fee']),
       description: json['description'] as String?,
       workDate: json['work_date'] != null ? DateTime.tryParse(json['work_date'] as String) : null,
+      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) : null,
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
       customerName: (json['profiles_customer'] as Map<String, dynamic>?)?['full_name'] as String?,
       address: address,
@@ -92,6 +100,9 @@ class OrderModel {
 
   String get formattedDate {
     if (workDate == null) return '-';
+    if (endDate != null && endDate != workDate) {
+      return '${workDate!.day} ${_monthName(workDate!.month)} ${workDate!.year} - ${endDate!.day} ${_monthName(endDate!.month)} ${endDate!.year}';
+    }
     return '${workDate!.day} ${_monthName(workDate!.month)} ${workDate!.year}';
   }
 

@@ -72,6 +72,11 @@ export const createServiceSchema = z.object({
 export const verifyProviderSchema = z.object({
     status: z.enum(['verified', 'rejected']).optional().default('verified'),
     notes: z.string().optional(),
+    checklist: z.array(z.object({
+        item: z.string(),
+        status: z.enum(['passed', 'failed']),
+        note: z.string().optional(),
+    })).optional(),
 });
 export const registerDeviceSchema = z.object({
     fcmToken: z.string().min(1, 'fcmToken wajib diisi'),
@@ -80,13 +85,20 @@ export const registerDeviceSchema = z.object({
 });
 export const createCustomTaskSchema = z.object({
     title: z.string().min(1, 'Judul task wajib diisi').max(150, 'Maksimal 150 karakter'),
-    description: z.string().optional(),
-    budgetMin: z.number().positive('Budget minimal harus lebih dari 0').optional(),
-    budgetMax: z.number().positive('Budget maksimal harus lebih dari 0').optional(),
-    address: z.string().min(1, 'Alamat wajib diisi'),
+    description: z.string().optional().nullable(),
+    budget_per_person: z.number().positive('Budget per orang harus lebih dari 0'),
+    required_people: z.number().int().min(1, 'Minimal 1 orang').default(1),
+    address: z.string().optional(),
+    location_detail: z.string().optional().nullable(),
+    publish_days: z.number().int().min(1, 'Minimal 1 hari').max(3, 'Maksimal 3 hari').default(1),
     lat: z.number().min(-90).max(90, 'Latitude tidak valid'),
     lng: z.number().min(-180).max(180, 'Longitude tidak valid'),
-    deadline: z.string().optional(),
+    locations: z.array(z.object({
+        label: z.string().optional(),
+        address: z.string().min(1, 'Alamat titik wajib diisi'),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+    })).optional().default([]),
 });
 export const submitBidSchema = z.object({
     offeredPrice: z.number().positive('Harga penawaran harus lebih dari 0'),

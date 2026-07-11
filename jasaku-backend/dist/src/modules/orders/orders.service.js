@@ -238,15 +238,21 @@ export class OrdersService {
         });
         if (!profile)
             return [];
+        const terminalStatuses = ["completed", "cancelled", "rejected"];
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const whereClause = { customer_id: profile.id };
         if (statusFilter) {
             if (statusFilter === 'active') {
-                whereClause.status = { notIn: ["completed", "cancelled", "rejected"] };
+                whereClause.status = { notIn: terminalStatuses };
             }
             else {
                 whereClause.status = statusFilter;
             }
         }
+        whereClause.NOT = {
+            status: { in: terminalStatuses },
+            created_at: { lt: twentyFourHoursAgo },
+        };
         return await prisma.orders.findMany({
             where: whereClause,
             orderBy: { created_at: "desc" },
@@ -328,10 +334,13 @@ export class OrdersService {
         if (!profile)
             return [];
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
         const expiredOrders = await prisma.orders.findMany({
             where: {
                 provider_id: profile.id,
                 status: 'pending',
+                work_date: { lte: todayStart },
                 OR: [
                     { start_date: null, created_at: { lt: fiveMinutesAgo } },
                     { start_date: { not: null, lt: fiveMinutesAgo } }
@@ -357,10 +366,6 @@ export class OrdersService {
             where: {
                 provider_id: profile.id,
                 status: 'pending',
-                OR: [
-                    { start_date: null, created_at: { gte: fiveMinutesAgo } },
-                    { start_date: { not: null, gte: fiveMinutesAgo } }
-                ]
             },
             select: {
                 id: true,
@@ -407,39 +412,66 @@ export class OrdersService {
         return orders;
     }
     async receiveOrderStatus(userId, orderId, status) {
-        const order = await prisma.orders.findUnique({
-            where: { id: orderId }
-        });
-        if (!order)
-            throw new Error("Order tidak ditemukan");
-        // orders.provider_id → provider_profiles.id; userId → users.id
         const profile = await prisma.provider_profiles.findUnique({
             where: { user_id: userId },
             select: { id: true }
         });
-        if (!profile || order.provider_id !== profile.id) {
-            throw new Error("Anda tidak berhak mengubah order ini");
+        if (!profile)
+            throw new Error("Profile provider tidak ditemukan");
+        // Accept path — atomic transaction mencegah race condition (double-accept)
+        if (status === 'accepted') {
+            return await prisma.$transaction(async (tx) => {
+                const order = await tx.orders.findUnique({ where: { id: orderId } });
+                if (!order)
+                    throw new Error("Order tidak ditemukan");
+                if (order.provider_id !== profile.id)
+                    throw new Error("Anda tidak berhak mengubah order ini");
+                const current = order.status || 'pending';
+                const allowed = VALID_TRANSITIONS[current] || [];
+                if (!allowed.includes('accepted'))
+                    throw new Error(`Status ${current} tidak bisa berubah ke accepted`);
+                const activeOrder = await tx.orders.findFirst({
+                    where: {
+                        provider_id: profile.id,
+                        status: { in: ["accepted", "on_the_way", "arrived", "in_progress"] },
+                        work_date: order.work_date,
+                        NOT: { id: orderId }
+                    }
+                });
+                if (activeOrder)
+                    throw new Error("Selesaikan pekerjaan aktif terlebih dahulu.");
+                // updateMany + filter status pending = atomic: cuma 1 yg berhasil
+                const result = await tx.orders.updateMany({
+                    where: { id: orderId, status: 'pending' },
+                    data: { status: 'accepted', start_date: new Date() }
+                });
+                if (result.count === 0)
+                    throw new Error("Order sudah diambil provider lain");
+                const updated = await tx.orders.findUnique({ where: { id: orderId } });
+                try {
+                    const customerProfile = await tx.profiles_customer.findUnique({
+                        where: { id: order.customer_id },
+                        select: { user_id: true }
+                    });
+                    if (customerProfile?.user_id) {
+                        await NotificationService.sendToUser(customerProfile.user_id, "Pesanan Diterima", "Provider telah menerima pesanan Anda.", { orderId, type: "ORDER_ACCEPTED" });
+                    }
+                }
+                catch (_) { }
+                return updated;
+            });
         }
+        // Non-accept flows (rejected, on_the_way, arrived, in_progress, completed)
+        const order = await prisma.orders.findUnique({ where: { id: orderId } });
+        if (!order)
+            throw new Error("Order tidak ditemukan");
+        if (order.provider_id !== profile.id)
+            throw new Error("Anda tidak berhak mengubah order ini");
         const current = order.status || 'pending';
         const allowed = VALID_TRANSITIONS[current] || [];
-        if (!allowed.includes(status)) {
+        if (!allowed.includes(status))
             throw new Error(`Status ${current} tidak bisa berubah ke ${status}`);
-        }
-        if (status === "accepted") {
-            const activeOrder = await prisma.orders.findFirst({
-                where: {
-                    provider_id: profile.id,
-                    status: { in: ["accepted", "on_the_way", "arrived", "in_progress"] },
-                    NOT: { id: orderId }
-                }
-            });
-            if (activeOrder)
-                throw new Error("Selesaikan pekerjaan aktif terlebih dahulu.");
-        }
         const updateData = { status };
-        if (status === 'accepted') {
-            updateData.start_date = new Date();
-        }
         const updated = await prisma.orders.update({
             where: { id: orderId },
             data: updateData
@@ -449,7 +481,6 @@ export class OrdersService {
                 where: { id: order.provider_id },
                 data: { total_jobs: { increment: 1 } }
             });
-            // Buka jadwal provider untuk tanggal tsb
             if (order.work_date) {
                 await prisma.provider_schedules.updateMany({
                     where: { provider_id: order.provider_id, work_date: order.work_date },
@@ -457,7 +488,7 @@ export class OrdersService {
                 });
             }
         }
-        // Notifikasi — order.customer_id = profiles_customer.id, need users.id
+        // Notifikasi untuk non-accept statuses
         try {
             const customerProfile = await prisma.profiles_customer.findUnique({
                 where: { id: order.customer_id },
@@ -465,10 +496,7 @@ export class OrdersService {
             });
             const customerUserId = customerProfile?.user_id;
             if (customerUserId) {
-                if (status === 'accepted') {
-                    await NotificationService.sendToUser(customerUserId, "Pesanan Diterima", "Provider telah menerima pesanan Anda.", { orderId, type: "ORDER_ACCEPTED" });
-                }
-                else if (status === 'rejected') {
+                if (status === 'rejected') {
                     await NotificationService.sendToUser(customerUserId, "Pesanan Ditolak", "Maaf, provider menolak pesanan Anda.", { orderId, type: "ORDER_REJECTED" });
                 }
                 else if (status === 'on_the_way') {
@@ -520,6 +548,48 @@ export class OrdersService {
                     }
                 }
             }
+        });
+    }
+    async getPublicProviderStatus(providerId) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: providerId },
+            select: { id: true, is_active: true, task_available: true }
+        });
+        if (!profile)
+            return { hasActiveOrder: false, is_active: false, task_available: false };
+        const activeOrder = await prisma.orders.findFirst({
+            where: {
+                provider_id: profile.id,
+                status: { in: ['accepted', 'on_the_way', 'arrived', 'in_progress'] },
+            },
+            select: { id: true }
+        });
+        return {
+            hasActiveOrder: !!activeOrder,
+            is_active: profile.is_active,
+            task_available: profile.task_available,
+        };
+    }
+    async getPublicProviderSchedule(providerId, startDate, endDate) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: providerId },
+            select: { id: true }
+        });
+        if (!profile)
+            return [];
+        const whereClause = { provider_id: profile.id, is_booked: true };
+        if (startDate && endDate) {
+            whereClause.work_date = { gte: new Date(startDate), lte: new Date(endDate) };
+        }
+        else {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            whereClause.work_date = { gte: today };
+        }
+        return await prisma.provider_schedules.findMany({
+            where: whereClause,
+            orderBy: { work_date: 'asc' },
+            select: { work_date: true }
         });
     }
     async getTodayOrders(userId) {
@@ -664,6 +734,27 @@ export class OrdersService {
         if (ext.status !== 'pending') {
             throw new Error(`Extension sudah ${ext.status}`);
         }
+        if (status === 'approved' && ext.orders?.work_date) {
+            const extDates = [];
+            for (let i = 1; i <= ext.extension_count; i++) {
+                const d = new Date(ext.orders.work_date);
+                d.setDate(d.getDate() + i);
+                extDates.push(d);
+            }
+            const conflicts = await prisma.provider_schedules.findMany({
+                where: {
+                    provider_id: ext.orders.provider_id,
+                    work_date: { in: extDates },
+                    is_booked: true,
+                    order_id: { not: ext.order_id },
+                },
+                select: { work_date: true }
+            });
+            if (conflicts.length > 0) {
+                const dates = conflicts.map(c => c.work_date.toISOString().split('T')[0]).join(', ');
+                throw new Error(`Tidak dapat approve extension: tanggal ${dates} sudah dibooking oleh customer lain`);
+            }
+        }
         const updated = await prisma.order_extensions.update({
             where: { id: extensionId },
             data: { status }
@@ -731,8 +822,8 @@ export class OrdersService {
                 where: { order_id: orderId },
                 data: { status: 'paid', paid_at: new Date() }
             });
-            // Buat jadwal provider untuk tanggal kerja
-            if (order.work_date) {
+            // Buat jadwal provider untuk tanggal kerja (skip untuk custom task)
+            if (order.work_date && order.assignment_type !== 'custom_task') {
                 await tx.provider_schedules.upsert({
                     where: {
                         provider_id_work_date: {

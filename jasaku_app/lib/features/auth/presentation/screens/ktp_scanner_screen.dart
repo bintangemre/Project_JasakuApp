@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
 
 class KtpScannerScreen extends StatefulWidget {
   const KtpScannerScreen({super.key});
@@ -77,7 +78,7 @@ class _KtpScannerScreenState extends State<KtpScannerScreen> {
     try {
       final options = DocumentScannerOptions(
         documentFormat: DocumentFormat.jpeg,
-        mode: ScannerMode.base,
+        mode: ScannerMode.filter,
         pageLimit: 1,
         isGalleryImport: true,
       );
@@ -138,9 +139,51 @@ class _KtpScannerScreenState extends State<KtpScannerScreen> {
     }
   }
 
+  Future<File> _preprocessImage(File file) async {
+    final bytes = await file.readAsBytes();
+    final image = img.decodeImage(bytes);
+    if (image == null) return file;
+
+    final processed = img.grayscale(image);
+    final w = processed.width;
+    final h = processed.height;
+
+    num luma(int x, int y) => processed.getPixel(x, y).r;
+    void setGray(int x, int y, num v) {
+      processed.setPixelRgba(x, y, v, v, v, 255);
+    }
+
+    num minP = 255, maxP = 0;
+    for (int y = 0; y < h; y++) {
+      for (int x = 0; x < w; x++) {
+        final l = luma(x, y);
+        if (l < minP) minP = l;
+        if (l > maxP) maxP = l;
+      }
+    }
+
+    final range = maxP - minP;
+    if (range > 20 && range < 245) {
+      for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+          final l = luma(x, y);
+          final s = ((l - minP) / range * 255);
+          setGray(x, y, s);
+        }
+      }
+    }
+
+    final outPath =
+        '${Directory.systemTemp.path}/ktp_ocr_${DateTime.now().millisecondsSinceEpoch}.png';
+    final outFile = File(outPath);
+    await outFile.writeAsBytes(img.encodePng(processed));
+    return outFile;
+  }
+
   Future<void> _processImage(File file) async {
     try {
-      final inputImage = InputImage.fromFile(file);
+      final processed = await _preprocessImage(file);
+      final inputImage = InputImage.fromFile(processed);
       final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
       final recognizedText = await recognizer.processImage(inputImage);
 
@@ -170,8 +213,6 @@ class _KtpScannerScreenState extends State<KtpScannerScreen> {
     _religionController.text = _religion ?? '';
   }
 
-  /// Sort text lines by their bounding box position (Y then X)
-  /// to get correct visual reading order from KTP layout.
   List<String> _getOrderedLines(RecognizedText recognizedText) {
     final textLines = <TextLine>[];
     for (final block in recognizedText.blocks) {
@@ -180,7 +221,7 @@ class _KtpScannerScreenState extends State<KtpScannerScreen> {
 
     textLines.sort((a, b) {
       final yDiff = a.boundingBox.top - b.boundingBox.top;
-      if (yDiff.abs() > 8) return yDiff.round();
+      if (yDiff.abs() > 10) return yDiff.round();
       return (a.boundingBox.left - b.boundingBox.left).round();
     });
 
@@ -189,12 +230,17 @@ class _KtpScannerScreenState extends State<KtpScannerScreen> {
     double? currentTop;
 
     for (final line in textLines) {
-      if (currentTop == null || (line.boundingBox.top - currentTop).abs() > 8) {
+      final text = line.text.trim();
+      if (text.isEmpty) continue;
+      if (text.length <= 1) continue;
+      if (RegExp(r'^[\s\:\;\-\_\.\,\(\)\[\]\/\\]+$').hasMatch(text)) continue;
+
+      if (currentTop == null || (line.boundingBox.top - currentTop).abs() > 14) {
         if (currentLine != null) merged.add(currentLine);
-        currentLine = line.text;
+        currentLine = text;
         currentTop = line.boundingBox.top;
       } else {
-        currentLine = '$currentLine ${line.text}';
+        currentLine = '$currentLine $text';
       }
     }
     if (currentLine != null) merged.add(currentLine);
@@ -203,117 +249,119 @@ class _KtpScannerScreenState extends State<KtpScannerScreen> {
   }
 
   void _parseKtpText(List<String> lines) {
-    for (int i = 0; i < lines.length; i++) {
-      final line = lines[i];
-      final lineLower = line.toLowerCase();
+    final clean = <String>[];
+    for (final l in lines) {
+      final t = l.trim();
+      if (t.isEmpty) continue;
+      if (t.length <= 1) continue;
+      if (RegExp(r'^[\s\:\;\-\.\,\(\)\[\]\/\\]+$').hasMatch(t)) continue;
+      clean.add(t);
+    }
 
+    // ===== PASS 1: Label-based extraction =====
+    int? nikLineIdx;
+
+    for (int i = 0; i < clean.length; i++) {
+      final line = clean[i];
+      final lower = line.toLowerCase();
+
+      // --- NIK ---
       if (_nik == null) {
-        final nikMatch = RegExp(r'\b(\d{16})\b').firstMatch(line);
-        if (nikMatch != null) {
-          _nik = nikMatch.group(1);
+        final nikVal = _extractDigits(line);
+        if (nikVal != null) {
+          _nik = nikVal;
+          nikLineIdx = i;
           continue;
         }
-        if (lineLower.startsWith('nik') || lineLower.startsWith('nik ')) {
-          final val = _extractValue(line, 'nik');
-          final m = RegExp(r'\b(\d{16})\b').firstMatch(val);
-          if (m != null) _nik = m.group(1);
-          if (_nik == null && i + 1 < lines.length) {
-            final next = lines[i + 1];
-            final m2 = RegExp(r'\b(\d{16})\b').firstMatch(next);
-            if (m2 != null && !_isLineLabel(next.toLowerCase())) _nik = m2.group(1);
+
+        if (_hasLabel(lower, 'nik|n1k')) {
+          final val = _extractValue(line, lower);
+          final ext = _extractDigits(val);
+          if (ext != null) {
+            _nik = ext;
+            nikLineIdx = i;
+            continue;
           }
-          continue;
+          if (i + 1 < clean.length) {
+            final ext2 = _extractDigits(clean[i + 1]);
+            if (ext2 != null) {
+              _nik = ext2;
+              nikLineIdx = i + 1;
+              continue;
+            }
+          }
         }
       }
 
-      if (_fullName == null && _hasLabel(lineLower, 'nama')) {
-        String val = _extractValue(line, 'nama');
-        if (val.isNotEmpty && !_isLineLabel(val)) _fullName = val;
-        if (_fullName == null && i + 1 < lines.length) {
-          final next = lines[i + 1];
-          if (next.isNotEmpty && !_isLineLabel(next)) _fullName = next;
+      // --- Nama ---
+      if (_fullName == null && _hasLabel(lower, 'nama|nama lengkap|n a m a')) {
+        String val = _extractValue(line, lower);
+        if (val.isNotEmpty && !_isLabel(val)) { _fullName = val; continue; }
+        if (i + 1 < clean.length) {
+          final next = clean[i + 1];
+          if (!_isLabel(next)) { _fullName = next; continue; }
         }
-        continue;
       }
 
+      // --- Tempat / Tgl Lahir ---
       if (_birthPlace == null && _birthDate == null &&
-          (lineLower.contains('tempat') || lineLower.contains('tgl lahir') || lineLower.contains('tanggal lahir'))) {
-        if (_hasLabel(lineLower, 'tempat/tgl lahir') || _hasLabel(lineLower, 'tempat/tgl') ||
-            (_hasLabel(lineLower, 'tempat') && _hasLabel(lineLower, 'lahir'))) {
-          String val;
-          if (lineLower.contains('tempat/tgl')) {
-            val = _extractValue(line, 'tempat/tgl lahir');
-          } else {
-            val = _extractValue(line, 'tempat');
-          }
-          if (val.isEmpty && i + 1 < lines.length) {
-            val = lines[i + 1];
-          }
-          if (val.isNotEmpty && !_isLineLabel(val)) {
-            final parts = val.split(',');
-            _birthPlace = parts[0].trim();
-            if (parts.length > 1) {
-              _birthDate = parts.sublist(1).join(',').trim();
-            }
-          }
+          _hasLabel(lower, 'tempat/tgl lahir|tempat/tgl|tempat lahir|tanggal lahir|tgl lahir|tempat|lahir')) {
+        String full = _extractValue(line, lower);
+        if (full.isEmpty && i + 1 < clean.length) full = clean[i + 1];
+        if (full.isNotEmpty && !_isLabel(full)) {
+          final parts = full.split(',');
+          if (parts.isNotEmpty) _birthPlace = parts[0].trim();
+          if (parts.length > 1) _birthDate = parts.sublist(1).join(',').trim();
           continue;
         }
       }
 
-      if (_gender == null && _hasLabel(lineLower, 'jenis kelamin')) {
-        final afterLabel = _extractValue(line, 'jenis kelamin');
-        final trimmed = afterLabel.trim();
-
-        _gender = trimmed;
-
-        if (trimmed.isNotEmpty) {
-          final bloodMatch = RegExp(r'gol\.?\s*darah\s*[:\s]*\s*([a-zA-Z0-9+\\-]+)',
-              caseSensitive: false).firstMatch(trimmed);
-          if (bloodMatch != null) {
-            _bloodType ??= bloodMatch.group(1)!.trim();
-            _gender = trimmed.substring(0, bloodMatch.start).trim();
+      // --- Jenis Kelamin (sometimes combined with Gol. Darah) ---
+      if (_gender == null && _hasLabel(lower, 'jenis kelamin|jenis|jk|kelamin')) {
+        String val = _extractValue(line, lower);
+        if (val.isNotEmpty) {
+          // Normalize to handle OCR misreads (e.g. "G0L D4R4H" -> "gol darah")
+          final norm = _normalizeOcr(val.toLowerCase().replaceAll(RegExp(r'\s+'), ''));
+          final hasBt = RegExp(r'gol[.]?da?rah|gol[.]?|golongan').hasMatch(norm);
+          if (hasBt) {
+            final btNormMatch = RegExp(r'gol[.]?da?rah|gol[.]?|golongan').firstMatch(norm)!;
+            final splitAt = _findSplitPos(val, btNormMatch.start);
+            if (splitAt > 0) {
+              _bloodType ??= val.substring(splitAt).replaceAll(RegExp(r'^[\s:,\-]+'), '').trim();
+              _gender = val.substring(0, splitAt).trim();
+            }
+          }
+          _gender = _extractGender(_gender ?? val);
+        }
+        if (_gender == null || _gender!.isEmpty) {
+          if (i + 1 < clean.length && !_isLabel(clean[i + 1])) {
+            _gender = _extractGender(clean[i + 1]);
           }
         }
         continue;
       }
 
-      if (_bloodType == null &&
-          (_hasLabel(lineLower, 'gol. darah') || _hasLabel(lineLower, 'gol darah') || _hasLabel(lineLower, 'gol.'))) {
-        String val;
-        if (lineLower.contains('gol. darah')) {
-          val = _extractValue(line, 'gol. darah');
-        } else if (lineLower.contains('gol darah')) {
-          val = _extractValue(line, 'gol darah');
-        } else {
-          val = _extractValue(line, 'gol.');
-        }
+      // --- Gol. Darah (standalone line) ---
+      if (_bloodType == null && _hasLabel(lower, 'gol[.]? darah|gol[.]?|golongan darah|gol darah')) {
+        String val = _extractValue(line, lower);
+        if (val.isEmpty && i + 1 < clean.length) val = clean[i + 1];
         val = val.trim();
-        if (val.isNotEmpty && !_isLineLabel(val)) _bloodType = val;
-        if (_bloodType == null && i + 1 < lines.length) {
-          final next = lines[i + 1].trim();
-          if (next.isNotEmpty && !_isLineLabel(next) && next.length <= 3) _bloodType = next;
-        }
+        if (val.isNotEmpty && val.length <= 4) { _bloodType = val.toUpperCase(); }
         continue;
       }
 
-      if (_address == null && _hasLabel(lineLower, 'alamat')) {
-        String val = _extractValue(line, 'alamat');
-        if (val.isEmpty) {
-          if (i + 1 < lines.length) val = lines[i + 1];
-        }
-        if (val.isNotEmpty && !_isLineLabel(val)) _address = val;
-
-        if (_address != null) {
-          final addrParts = <String>[_address!];
-          for (int j = i + 1; j < lines.length; j++) {
-            final l = lines[j].toLowerCase();
-            if (l.startsWith('agama') || l.startsWith('status') || l.startsWith('pekerjaan') ||
-                l.startsWith('kewarganegaraan') || l.startsWith('berlaku')) {
-              break;
-            }
-            if (l.startsWith('rt/rw') || l.startsWith('kel/desa') || l.startsWith('kecamatan')) {
-              final subVal = _extractValue(lines[j], l.split(RegExp(r'[\s:]'))[0]);
-              addrParts.add(subVal.isNotEmpty ? subVal : lines[j]);
+      // --- Alamat ---
+      if (_address == null && _hasLabel(lower, 'alamat')) {
+        String val = _extractValue(line, lower);
+        if (val.isEmpty && i + 1 < clean.length) val = clean[i + 1];
+        if (val.isNotEmpty && !_isLabel(val)) {
+          final addrParts = <String>[val];
+          for (int j = i + 1; j < clean.length; j++) {
+            final nl = clean[j].toLowerCase();
+            if (_hasLabel(nl, 'agama|status|pekerjaan|kewarganegaraan|berlaku')) break;
+            if (_hasLabel(nl, 'rt/rw|rt|rw|kel/desa|kelurahan|kecamatan|kabupaten|kota|provinsi|kode pos')) {
+              final subVal = _extractValue(clean[j], nl);
+              addrParts.add(subVal.isNotEmpty ? subVal : clean[j]);
             } else {
               break;
             }
@@ -323,56 +371,254 @@ class _KtpScannerScreenState extends State<KtpScannerScreen> {
         continue;
       }
 
-      if (_religion == null && _hasLabel(lineLower, 'agama')) {
-        String val = _extractValue(line, 'agama');
-        if (val.isNotEmpty && !_isLineLabel(val)) _religion = val;
-        if (_religion == null && i + 1 < lines.length) {
-          final next = lines[i + 1];
-          if (next.isNotEmpty && !_isLineLabel(next)) _religion = next;
+      // --- Agama ---
+      if (_religion == null && _hasLabel(lower, 'agama')) {
+        String val = _extractValue(line, lower);
+        if (val.isNotEmpty && !_isLabel(val)) { _religion = val; continue; }
+        if (i + 1 < clean.length) {
+          final next = clean[i + 1];
+          if (!_isLabel(next)) { _religion = next; continue; }
         }
-        break;
+      }
+    }
+
+    // ===== PASS 2: Pattern-based fallbacks =====
+
+    // NIK — scan ALL lines if still not found
+    if (_nik == null) {
+      for (final line in clean) {
+        final nikVal = _extractDigits(line);
+        if (nikVal != null) {
+          _nik = nikVal;
+          nikLineIdx = clean.indexOf(line);
+          break;
+        }
+      }
+    }
+
+    // Name — if NIK found, the line right after NIK is usually the name
+    if (_fullName == null && nikLineIdx != null && nikLineIdx + 1 < clean.length) {
+      final candidate = clean[nikLineIdx + 1];
+      if (!_isLabel(candidate) && !RegExp(r'^\d+$').hasMatch(candidate)) {
+        _fullName = candidate;
+      }
+    }
+
+    // Birth place/date — find date patterns in any line
+    if (_birthPlace == null || _birthDate == null) {
+      for (final line in clean) {
+        final dateMatch = RegExp(
+          r'(\d{1,2})\s*[-/]\s*(\d{1,2})\s*[-/]\s*(\d{2,4})',
+        ).firstMatch(line);
+        if (dateMatch != null) {
+          final day = dateMatch.group(1)!.trim();
+          final month = dateMatch.group(2)!.trim();
+          final year = dateMatch.group(3)!.trim();
+          _birthDate ??= '$day-$month-$year';
+
+          if (_birthPlace == null) {
+            final parts = line.split(RegExp(r'[,;]'));
+            final beforeDate = line.substring(0, dateMatch.start).trim();
+            final city = beforeDate
+                .replaceAll(RegExp(r'(tempat|tgl|lahir|tanggal)[\s:/]*', caseSensitive: false), '')
+                .replaceAll(RegExp(r'[,;\-:\s]+$'), '')
+                .trim();
+            if (city.isNotEmpty && !_isLabel(city)) {
+              _birthPlace = city;
+            } else if (parts.length > 1) {
+              _birthPlace = parts[0].trim();
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    // Gender — search for "LAKI" or "PEREMPUAN" anywhere (with OCR normalization)
+    if (_gender == null) {
+      for (final line in clean) {
+        _gender = _extractGender(line);
+        if (_gender != null) break;
+        // Try normalized
+        final norm = _normalizeOcr(line.toUpperCase());
+        _gender = _extractGender(norm);
+        if (_gender != null) break;
+      }
+    }
+
+    // Blood type — search for standalone blood type lines or near "gol" labels
+    if (_bloodType == null) {
+      for (final line in clean) {
+        final trimmed = line.trim().toUpperCase();
+        if (RegExp(r'^(A|B|AB|O)[+\-]?$').hasMatch(trimmed)) {
+          _bloodType = trimmed;
+          break;
+        }
+        // Check if line contains blood type near "gol" (normalized)
+        final norm = _normalizeOcr(line.toLowerCase().replaceAll(RegExp(r'\s+'), ''));
+        final btMatch = RegExp(r'gol[.]?da?rah[:\s]*([a-z0-9+\-]+)').firstMatch(norm);
+        if (btMatch != null) {
+          final bt = btMatch.group(1)!.trim().toUpperCase();
+          if (RegExp(r'^(A|B|AB|O)[+\-]?$').hasMatch(bt)) {
+            _bloodType = bt;
+            break;
+          }
+        }
+      }
+    }
+
+    // Religion — search for known religions
+    if (_religion == null) {
+      const religions = ['ISLAM', 'KRISTEN', 'KATOLIK', 'HINDU', 'BUDDHA', 'KONGHUCU', 'BUDHA'];
+      for (final line in clean) {
+        final upper = line.toUpperCase();
+        for (final r in religions) {
+          if (upper.contains(r) && upper.length < 20) {
+            _religion = r;
+            break;
+          }
+        }
+        if (_religion != null) break;
       }
     }
   }
 
-  bool _hasLabel(String lineLower, String label) {
-    if (lineLower.startsWith(label)) return true;
-    if (lineLower.startsWith('$label ')) return true;
-    if (lineLower.startsWith('$label:')) return true;
-    if (lineLower.startsWith('$label/')) return true;
-    if (lineLower.replaceAll(RegExp(r'\s+'), '').startsWith(label.replaceAll(' ', ''))) return true;
-    return false;
-  }
-
-  static const _labelSet = {
-    'nik', 'nama', 'tempat', 'lahir', 'tempat/tgl lahir',
-    'jenis kelamin', 'jenis',
-    'gol. darah', 'gol darah', 'gol.',
-    'alamat', 'rt/rw', 'kel/desa', 'kecamatan',
-    'agama',
-    'status perkawinan', 'pekerjaan',
-    'kewarganegaraan', 'berlaku hingga',
-  };
-
-  bool _isLineLabel(String s) {
-    final lower = s.toLowerCase().trim();
-    if (lower.isEmpty) return false;
-    if (_labelSet.contains(lower)) return true;
-    for (final label in _labelSet) {
-      if (lower.startsWith('$label ') || lower.startsWith('$label:')) return true;
+  bool _hasLabel(String lower, String pattern) {
+    final labels = pattern.split('|');
+    for (final label in labels) {
+      final lbl = label.trim().toLowerCase();
+      if (lower.contains(lbl)) return true;
+    }
+    // OCR fuzzy pass: common character misreads
+    final fuzzy = _normalizeOcr(lower.replaceAll(RegExp(r'\s+'), ''));
+    for (final label in labels) {
+      final fl = _normalizeOcr(label.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ''));
+      if (fuzzy.contains(fl)) return true;
     }
     return false;
   }
 
-  String _extractValue(String line, String label) {
-    final lineLower = line.toLowerCase();
-    int labelIdx = lineLower.indexOf(label.toLowerCase());
-    if (labelIdx < 0) return '';
-    String afterLabel = line.substring(labelIdx + label.length).trim();
-    if (afterLabel.startsWith(':')) {
-      afterLabel = afterLabel.substring(1).trim();
+  String _normalizeOcr(String s) {
+    return s
+        .replaceAll('1', 'i')
+        .replaceAll('0', 'o')
+        .replaceAll('3', 'e')
+        .replaceAll('4', 'a')
+        .replaceAll('5', 's')
+        .replaceAll('6', 'g')
+        .replaceAll('8', 'b')
+        .replaceAll('l', 'i')
+        .replaceAll('|', 'i')
+        .replaceAll('!', 'i')
+        .replaceAll('@', 'a')
+        .replaceAll('#', 'h')
+        .replaceAll('\$', 's')
+        .replaceAll('2', 'z');
+  }
+
+  bool _isLabel(String text) {
+    final lower = text.toLowerCase().trim();
+    if (lower.length < 3) return false;
+    const labels = {
+      'nik', 'nama', 'nama lengkap', 'tempat', 'tgl', 'tanggal', 'lahir',
+      'tempat/tgl lahir', 'tempat/tgl', 'tempat lahir', 'tanggal lahir',
+      'jenis kelamin', 'jenis', 'jk',
+      'gol. darah', 'gol darah', 'gol.', 'golongan darah',
+      'alamat', 'rt/rw', 'rw', 'rt', 'kel/desa', 'kelurahan',
+      'kecamatan', 'kabupaten', 'kota', 'provinsi', 'kode pos',
+      'agama', 'status perkawinan', 'status', 'perkawinan',
+      'pekerjaan', 'kewarganegaraan', 'berlaku hingga', 'berlaku',
+    };
+    if (labels.contains(lower)) return true;
+    for (final l in labels) {
+      if (lower.startsWith('$l ') || lower.startsWith('$l:') || lower.startsWith('$l/')) return true;
     }
-    return afterLabel;
+    return false;
+  }
+
+  String _extractValue(String line, String lineLower) {
+    const labels = [
+      'nama lengkap', 'nama',
+      'tempat/tgl lahir', 'tempat/tgl', 'tempat lahir', 'tanggal lahir', 'tgl lahir',
+      'jenis kelamin', 'jenis', 'jk',
+      'gol. darah', 'gol darah', 'golongan darah', 'gol.',
+      'kel/desa', 'kelurahan', 'kecamatan', 'kabupaten', 'kota', 'provinsi', 'kode pos',
+      'rt/rw', 'rw', 'rt',
+      'nik', 'alamat', 'agama',
+    ];
+
+    // Try exact match first
+    int bestIdx = lineLower.length;
+    String? bestLabel;
+    for (final label in labels) {
+      int idx = lineLower.indexOf(label);
+      if (idx >= 0) {
+        if (idx < bestIdx || (idx == bestIdx && label.length > (bestLabel?.length ?? 0))) {
+          bestIdx = idx;
+          bestLabel = label;
+        }
+      }
+    }
+
+    // Fallback: normalized match for OCR misreads
+    if (bestLabel == null) {
+      final norm = _normalizeOcr(lineLower.replaceAll(RegExp(r'\s+'), ''));
+      for (final label in labels) {
+        final normLabel = _normalizeOcr(label.toLowerCase().replaceAll(RegExp(r'\s+'), ''));
+        int idx = norm.indexOf(normLabel);
+        if (idx >= 0) {
+          if (idx < bestIdx || (idx == bestIdx && label.length > (bestLabel?.length ?? 0))) {
+            bestIdx = idx;
+            bestLabel = label;
+          }
+        }
+      }
+      // If matched via normalized, we can't map back to position, so return whole line
+      if (bestLabel != null) {
+        String after = line.trimLeft();
+        if (after.startsWith(':')) after = after.substring(1).trimLeft();
+        if (after.startsWith('-')) after = after.substring(1).trimLeft();
+        return after.trim();
+      }
+      return '';
+    }
+
+    String after = line.substring(bestIdx + bestLabel.length).trimLeft();
+    if (after.startsWith(':')) after = after.substring(1).trimLeft();
+    if (after.startsWith('-')) after = after.substring(1).trimLeft();
+    return after.trim();
+  }
+
+  String? _extractDigits(String text) {
+    final m = RegExp(r'(\d{16})').firstMatch(text);
+    if (m != null) return m.group(1);
+    final ms = RegExp(r'(\d{4})\s*[\.\-\s]?\s*(\d{4})\s*[\.\-\s]?\s*(\d{4})\s*[\.\-\s]?\s*(\d{4})').firstMatch(text);
+    if (ms != null) return '${ms.group(1)}${ms.group(2)}${ms.group(3)}${ms.group(4)}';
+    return null;
+  }
+
+  int _findSplitPos(String original, int normIndex) {
+    // Map a position in the normalized string back to the original string
+    int count = 0;
+    for (int i = 0; i < original.length; i++) {
+      if (original[i].trim().isNotEmpty) count++;
+      if (count > normIndex) return i;
+    }
+    return original.length ~/ 2;
+  }
+
+  String? _extractGender(String val) {
+    if (val.isEmpty) return null;
+    final upper = val.toUpperCase();
+    // Direct match first
+    if (upper.contains('LAKI-LAKI')) return 'LAKI-LAKI';
+    if (upper.contains('LAKI')) return 'LAKI-LAKI';
+    if (upper.contains('PEREMPUAN')) return 'PEREMPUAN';
+    // Normalized match for OCR errors (e.g. "LAKHLAKI" from misread)
+    final norm = _normalizeOcr(upper.replaceAll(RegExp(r'\s+'), ''));
+    if (norm.contains('LAKILAKI') || norm.contains('LAK1LAK1') || norm.contains('LAKIL4K1')) return 'LAKI-LAKI';
+    if (norm.contains('PEREMPUAN') || norm.contains('PER3MPUAN') || norm.contains('P3R3MPUAN')) return 'PEREMPUAN';
+    return null;
   }
 
   void _confirm() {

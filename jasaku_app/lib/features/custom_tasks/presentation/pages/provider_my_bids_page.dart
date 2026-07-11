@@ -90,7 +90,7 @@ class _ProviderMyBidsPageState extends ConsumerState<ProviderMyBidsPage> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => TaskDetailPage(taskId: task.id)),
+            MaterialPageRoute(builder: (_) => TaskDetailPage(taskId: task.id, isProvider: true)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -164,7 +164,7 @@ class _ProviderMyBidsPageState extends ConsumerState<ProviderMyBidsPage> {
                           ),
                           children: [
                             TileLayer(
-                              urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                               userAgentPackageName: 'com.jasaku.app',
                             ),
                             MarkerLayer(
@@ -173,8 +173,31 @@ class _ProviderMyBidsPageState extends ConsumerState<ProviderMyBidsPage> {
                                   point: LatLng(task.lat!, task.lng!),
                                   width: 30,
                                   height: 30,
-                                  child: const Icon(Icons.person_pin_circle, color: Colors.red, size: 28),
+                                  child: const Icon(Icons.location_on, color: Color(0xFF2563EB), size: 28),
                                 ),
+                                ...task.locations
+                                    .where((loc) => loc.lat != null && loc.lng != null)
+                                    .toList()
+                                    .asMap()
+                                    .entries
+                                    .map((e) {
+                                  final loc = e.value;
+                                  final idx = e.key + 1;
+                                  return Marker(
+                                    point: LatLng(loc.lat!, loc.lng!),
+                                    width: 26,
+                                    height: 26,
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text('$idx',
+                                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ],
@@ -183,7 +206,41 @@ class _ProviderMyBidsPageState extends ConsumerState<ProviderMyBidsPage> {
                     ),
                   ),
                 ],
-                if (tpStatus == 'accepted' && !(task.payoutConfirmed)) ...[
+                if (task.locations.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.flag_outlined, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text('${task.locations.length + 1} titik',
+                          style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    ],
+                  ),
+                ],
+                if (task.paymentStatus != 'paid') ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF3E0),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.info_outline, size: 14, color: Colors.orange.shade700),
+                        const SizedBox(width: 6),
+                        Text(
+                          task.paymentStatus == 'unpaid'
+                              ? 'Menunggu penyesuaian customer'
+                              : 'Menunggu konfirmasi admin',
+                          style: TextStyle(fontSize: 12, color: Colors.orange.shade800, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (tpStatus == 'accepted' && task.paymentStatus == 'paid' && !(task.payoutConfirmed)) ...[
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,

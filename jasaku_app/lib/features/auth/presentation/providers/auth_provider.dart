@@ -281,30 +281,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState();
   }
 
-  Future<bool> verifyOtp(String otp, String email, String phone) async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      await _repo.verifyOtp(otp: otp, email: email, phone: phone);
-      state = state.copyWith(isLoading: false);
-      return true;
-    } catch (e) {
-      state = AuthState(error: e.toString());
-      return false;
-    }
-  }
-
-  Future<bool> sendOtp(String email, String phone) async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      await _repo.sendOtp(email: email, phone: phone);
-      state = state.copyWith(isLoading: false);
-      return true;
-    } catch (e) {
-      state = AuthState(error: e.toString());
-      return false;
-    }
-  }
-
   Future<bool> resubmitVerification() async {
     state = state.copyWith(isLoading: true, error: null);
     try {

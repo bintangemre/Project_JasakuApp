@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import '../../core/constants/api_endpoints.dart';
 
 class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
@@ -37,7 +38,7 @@ class AuthService {
     String idToken,
     String expectedRole,
   ) async {
-    final url = Uri.parse('http://10.241.188.20:3000/api/auth/login/google');
+    final url = Uri.parse(ApiEndpoints.loginGoogle);
 
     final response = await http.post(
       url,

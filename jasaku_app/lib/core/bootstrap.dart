@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import '../firebase/firebase_options.dart';
 import '../features/notifications/data/services/fcm_manager.dart';
 import '../services/routing_service.dart';
@@ -16,6 +17,8 @@ Future<void> bootstrap(Widget app) async {
   RoutingService.init(
     const String.fromEnvironment('ORS_API_KEY', defaultValue: ''),
   );
+
+  await initializeDateFormatting('id');
 
   runApp(app);
 }

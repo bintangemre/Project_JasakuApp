@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import '../../data/custom_tasks_repository.dart';
 import '../../data/models/custom_task_model.dart';
+import '../../../../core/constants/api_endpoints.dart';
 import 'task_detail_page.dart';
 
 class ProviderAvailableTasksPage extends ConsumerStatefulWidget {
@@ -121,7 +122,7 @@ class _ProviderAvailableTasksPageState
           borderRadius: BorderRadius.circular(12),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(
-                builder: (_) => TaskDetailPage(taskId: task.id)),
+                builder: (_) => TaskDetailPage(taskId: task.id, isProvider: true)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -182,6 +183,26 @@ class _ProviderAvailableTasksPageState
                       style:
                           TextStyle(fontSize: 13, color: Colors.grey[500])),
                 ],
+                if (task.images.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 60,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: task.images.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 6),
+                      itemBuilder: (_, i) {
+                        final url = task.images[i].startsWith('http') ? task.images[i] : '${ApiEndpoints.baseUrl}/${task.images[i]}';
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.network(url, width: 60, height: 60, fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(width: 60, height: 60, color: Colors.grey[200], child: const Icon(Icons.broken_image, size: 20, color: Colors.grey)),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -214,7 +235,7 @@ class _ProviderAvailableTasksPageState
                           ),
                           children: [
                             TileLayer(
-                              urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                               userAgentPackageName: 'com.jasaku.app',
                             ),
                             MarkerLayer(
@@ -223,14 +244,48 @@ class _ProviderAvailableTasksPageState
                                   point: LatLng(task.lat!, task.lng!),
                                   width: 30,
                                   height: 30,
-                                  child: const Icon(Icons.person_pin_circle, color: Colors.red, size: 28),
+                                  child: const Icon(Icons.location_on, color: Color(0xFF2563EB), size: 28),
                                 ),
+                                ...task.locations
+                                    .where((loc) => loc.lat != null && loc.lng != null)
+                                    .toList()
+                                    .asMap()
+                                    .entries
+                                    .map((e) {
+                                  final loc = e.value;
+                                  final idx = e.key + 1;
+                                  return Marker(
+                                    point: LatLng(loc.lat!, loc.lng!),
+                                    width: 26,
+                                    height: 26,
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text('$idx',
+                                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ],
                         ),
                       ),
                     ),
+                  ),
+                ],
+                if (task.locations.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.flag_outlined, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text('${task.locations.length + 1} titik',
+                          style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    ],
                   ),
                 ],
                 const SizedBox(height: 12),

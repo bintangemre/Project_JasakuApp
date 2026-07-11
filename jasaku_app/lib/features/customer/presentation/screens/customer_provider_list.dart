@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' as latlong;
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/utils/operating_hours.dart';
 import 'customer_orders.dart';
 
 /*class Providerlist extends StatelessWidget {
@@ -369,10 +370,11 @@ class ProviderListScreen extends StatelessWidget {
                     radius: 32,
                     backgroundColor: const Color(0xFFF1F5F9),
                     backgroundImage: NetworkImage(
-                      provider.image ??
-                        'https://ui-avatars.com/api/?name=${provider.name}&background=DBEAFE&color=1E40AF',
+                      provider.image != null && provider.image!.isNotEmpty
+                          ? _imageUrl(provider.image)
+                          : 'https://ui-avatars.com/api/?name=N&background=DBEAFE&color=1E40AF',
+                    ),
                   ),
-                ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -679,8 +681,9 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                           radius: 36,
                           backgroundColor: const Color(0xFFF1F5F9),
                           backgroundImage: NetworkImage(
-                            provider.image ??
-                                'https://ui-avatars.com/api/?name=${provider.name}&background=DBEAFE&color=1E40AF',
+                            provider.image != null && provider.image!.isNotEmpty
+                                ? _imageUrl(provider.image)
+                                : 'https://ui-avatars.com/api/?name=N&background=DBEAFE&color=1E40AF',
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -769,6 +772,35 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                                 'Tidak bisa order hari ini, silakan booking di hari lain',
                                 style: TextStyle(
                                   color: Color(0xFF991B1B),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    // Warning jam operasional
+                    if (!_loadingStatus && !OperatingHours.isWithinOperatingHours()) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7ED),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFFD6A8)),
+                        ),
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.access_time, color: Color(0xFFE67E22), size: 20),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Anda sedang di luar jam operasional (08:00-16:00 WITA), silahkan cek jadwal penyedia jasa',
+                                style: TextStyle(
+                                  color: Color(0xFF9C6B3E),
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -916,7 +948,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                               child: GestureDetector(
                                 onTap: () => _showImagePreview(context, url),
                                 child: Image.network(
-                                  '${ApiEndpoints.baseUrl}$url',
+                                  _imageUrl(url),
                                   width: 100,
                                   height: 100,
                                   fit: BoxFit.cover,
@@ -1016,7 +1048,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: (_hasActiveOrder || !_serviceAvailable)
+                          onPressed: (_hasActiveOrder || !_serviceAvailable || !OperatingHours.isWithinOperatingHours())
                               ? null
                               : () {
                                   if (provider.pricingTypeId == null) {
@@ -1047,7 +1079,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                                   );
                                 },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: (_hasActiveOrder || !_serviceAvailable)
+                            backgroundColor: (_hasActiveOrder || !_serviceAvailable || !OperatingHours.isWithinOperatingHours())
                                 ? const Color(0xFF94A3B8)
                                 : const Color(0xFF2563EB),
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -1061,7 +1093,9 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                                 ? "Sedang Tidak Tersedia"
                                 : _hasActiveOrder
                                     ? "Sedang Sibuk"
-                                    : "Pesan Sekarang",
+                                    : !OperatingHours.isWithinOperatingHours()
+                                        ? "Di Luar Jam Operasional"
+                                        : "Pesan Sekarang",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -1127,7 +1161,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.network(
-              '${ApiEndpoints.baseUrl}$url',
+              _imageUrl(url),
               fit: BoxFit.contain,
               errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, color: Colors.white, size: 48),
               loadingBuilder: (_, child, progress) => progress == null
@@ -1282,4 +1316,11 @@ class ProviderModel {
       isActive: profileData?['is_active'] as bool? ?? true,
     );
   }
+}
+
+String _imageUrl(String? path) {
+  if (path == null || path.isEmpty) return '';
+  final normalized = path.replaceAll('\\', '/');
+  final clean = normalized.startsWith('/') ? normalized.substring(1) : normalized;
+  return '${ApiEndpoints.baseUrl}/$clean';
 }

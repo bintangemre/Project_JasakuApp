@@ -1,7 +1,10 @@
 ﻿import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import '../widgets/payment_method_picker.dart';
 import '../../domain/models/payment_method_model.dart';
 import '../../../../core/network/api_client.dart';
@@ -20,12 +23,16 @@ class PaymentInstructionScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PaymentInstructionScreen> createState() => _PaymentInstructionScreenState();
+  ConsumerState<PaymentInstructionScreen> createState() =>
+      _PaymentInstructionScreenState();
 }
 
-class _PaymentInstructionScreenState extends ConsumerState<PaymentInstructionScreen> {
+class _PaymentInstructionScreenState
+    extends ConsumerState<PaymentInstructionScreen> {
   bool _isConfirmed = false;
   bool _isLoadingStatus = false;
+  bool _isUploading = false;
+  String? _proofPath;
   Timer? _pollTimer;
 
   @override
@@ -58,6 +65,45 @@ class _PaymentInstructionScreenState extends ConsumerState<PaymentInstructionScr
       }
     } catch (_) {}
     if (mounted) setState(() => _isLoadingStatus = false);
+  }
+
+  Future<void> _pickProof() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() => _proofPath = pickedFile.path);
+    }
+  }
+
+  Future<void> _uploadProof() async {
+    if (_proofPath == null) return;
+    setState(() => _isUploading = true);
+    try {
+      final formData = FormData.fromMap({
+        'proof': await MultipartFile.fromFile(_proofPath!),
+      });
+      await ApiClient().dio.post(
+        ApiEndpoints.uploadPaymentProof + widget.orderId,
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+        ),
+      );
+
+      if (mounted) {
+        setState(() => _proofPath = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Bukti pembayaran berhasil diupload")),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal upload: $e")),
+        );
+      }
+    }
+    if (mounted) setState(() => _isUploading = false);
   }
 
   @override
@@ -148,43 +194,16 @@ class _PaymentInstructionScreenState extends ConsumerState<PaymentInstructionScr
           ),
           const SizedBox(height: 8),
           Text(
-            "Silakan transfer ke rekening berikut:",
+            "Silakan lakukan pembayaran sesuai petunjuk di bawah:",
             style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 24),
 
-          if (method != null && method.accountNumber != null) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(_iconData(method.icon), size: 20, color: const Color(0xFF2563EB)),
-                      const SizedBox(width: 8),
-                      Text(
-                        method.type,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 24),
-                  _detailRow("Penyedia", method.providerName ?? '-'),
-                  const SizedBox(height: 12),
-                  _detailRow("Nomor Rekening", method.accountNumber ?? '-'),
-                  const SizedBox(height: 12),
-                  _detailRow("Atas Nama", method.accountName ?? '-'),
-                ],
-              ),
-            ),
-          ] else ...[
+          if (method != null && method.qrisImageUrl != null)
+            _buildQRISSection(method)
+          else if (method != null && method.accountNumber != null)
+            _buildBankSection(method)
+          else ...[
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -202,25 +221,7 @@ class _PaymentInstructionScreenState extends ConsumerState<PaymentInstructionScr
 
           const SizedBox(height: 16),
 
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text("Total Transfer", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                Text(
-                  "Rp ${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}",
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2563EB)),
-                ),
-              ],
-            ),
-          ),
+          _buildTotalSection(),
 
           const SizedBox(height: 8),
 
@@ -237,7 +238,8 @@ class _PaymentInstructionScreenState extends ConsumerState<PaymentInstructionScr
               children: [
                 if (_isLoadingStatus)
                   const SizedBox(
-                    width: 16, height: 16,
+                    width: 16,
+                    height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFE67E22)),
                   )
                 else
@@ -255,6 +257,10 @@ class _PaymentInstructionScreenState extends ConsumerState<PaymentInstructionScr
 
           const SizedBox(height: 32),
 
+          _buildProofSection(),
+
+          const SizedBox(height: 16),
+
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -269,6 +275,184 @@ class _PaymentInstructionScreenState extends ConsumerState<PaymentInstructionScr
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQRISSection(PaymentMethod method) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(Icons.qr_code, size: 20, color: const Color(0xFF2563EB)),
+              const SizedBox(width: 8),
+              const Text(
+                "Pembayaran QRIS",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const Divider(height: 24),
+          Text(
+            "Penyedia: ${method.providerName ?? '-'}",
+            style: const TextStyle(fontSize: 13, color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: method.qrisImageUrl!.startsWith('http')
+                ? Image.network(
+                    method.qrisImageUrl!,
+                    height: 200,
+                    width: 200,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 200,
+                      width: 200,
+                      color: Colors.grey[100],
+                      child: Icon(Icons.qr_code, size: 80, color: Colors.grey[400]),
+                    ),
+                  )
+                : Image.network(
+                    '${ApiEndpoints.baseUrl}${method.qrisImageUrl!}',
+                    height: 200,
+                    width: 200,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 200,
+                      width: 200,
+                      color: Colors.grey[100],
+                      child: Icon(Icons.qr_code, size: 80, color: Colors.grey[400]),
+                    ),
+                  ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Scan QR code di atas dengan aplikasi perbankan Anda",
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBankSection(PaymentMethod method) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(_iconData(method.icon), size: 20, color: const Color(0xFF2563EB)),
+              const SizedBox(width: 8),
+              Text(
+                method.type,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const Divider(height: 24),
+          _detailRow("Penyedia", method.providerName ?? '-'),
+          const SizedBox(height: 12),
+          _detailRow("Nomor Rekening", method.accountNumber ?? '-'),
+          const SizedBox(height: 12),
+          _detailRow("Atas Nama", method.accountName ?? '-'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTotalSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text("Total Transfer", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          Text(
+            "Rp ${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}",
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2563EB)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProofSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Upload Bukti Pembayaran",
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          if (_proofPath != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                File(_proofPath!),
+                height: 150,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+          Row(
+            children: [
+              OutlinedButton.icon(
+                onPressed: _pickProof,
+                icon: const Icon(Icons.image),
+                label: Text(_proofPath != null ? "Ganti Gambar" : "Pilih Gambar"),
+              ),
+              if (_proofPath != null) ...[
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: _isUploading ? null : _uploadProof,
+                  icon: _isUploading
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Icon(Icons.upload),
+                  label: const Text("Upload"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            ],
           ),
         ],
       ),
@@ -293,10 +477,14 @@ class _PaymentInstructionScreenState extends ConsumerState<PaymentInstructionScr
 
   IconData _iconData(String icon) {
     switch (icon) {
-      case 'account_balance': return Icons.account_balance;
-      case 'qr_code': return Icons.qr_code;
-      case 'wallet': return Icons.wallet;
-      default: return Icons.account_balance;
+      case 'account_balance':
+        return Icons.account_balance;
+      case 'qr_code':
+        return Icons.qr_code;
+      case 'wallet':
+        return Icons.wallet;
+      default:
+        return Icons.account_balance;
     }
   }
 }

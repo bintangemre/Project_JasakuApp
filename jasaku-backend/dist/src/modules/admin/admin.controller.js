@@ -1,7 +1,5 @@
 import { AdminService } from "./admin.service";
 import { successResponse, errorResponse } from "../../utils/response";
-import { prisma } from "../../config/prisma";
-import { NotificationService } from "../notifications/notifications.service";
 const getDashboardMetrics = async (req, res) => {
     try {
         const result = await new AdminService().getDashboardMetrics();
@@ -25,10 +23,11 @@ const verifyProvider = async (req, res) => {
         const providerId = String(req.params.providerId);
         const status = req.body?.status || 'verified';
         const notes = req.body?.notes;
+        const checklist = req.body?.checklist;
         if (!['verified', 'rejected'].includes(status)) {
             return errorResponse(res, "Status harus 'verified' atau 'rejected'", 400);
         }
-        const result = await new AdminService().verifyProvider(providerId, status, notes);
+        const result = await new AdminService().verifyProvider(providerId, status, notes, checklist);
         return successResponse(res, result, `Provider berhasil ${status === 'verified' ? 'diverifikasi' : 'ditolak'}`);
     }
     catch (err) {
@@ -286,6 +285,15 @@ const getPendingPaymentOrders = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
+const getAllOrders = async (req, res) => {
+    try {
+        const result = await new AdminService().getAllOrders();
+        return successResponse(res, result, "Daftar semua order berhasil diambil");
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
 // Extensions
 const getPendingExtensions = async (req, res) => {
     try {
@@ -321,38 +329,63 @@ const respondToReport = async (req, res) => {
     }
 };
 // Custom Tasks
-const getPendingTasks = async (req, res) => {
+import { CustomTasksService } from '../custom-tasks/custom-tasks.service';
+const customTasksService = new CustomTasksService();
+const getPendingTaskPayments = async (req, res) => {
     try {
-        const result = await new AdminService().getPendingTasks();
-        return successResponse(res, result, "Daftar task berhasil diambil");
+        const result = await customTasksService.getPendingPaymentTasks();
+        return successResponse(res, result, "Daftar task pending payment");
     }
     catch (err) {
         return errorResponse(res, err.message);
     }
 };
-const confirmTask = async (req, res) => {
+const getPendingTaskPaymentsByTask = async (req, res) => {
+    try {
+        const result = await customTasksService.getPendingPaymentTasksByTask();
+        return successResponse(res, result, "Daftar task pending payment (grup per task)");
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const confirmTaskPaymentByTask = async (req, res) => {
     try {
         const taskId = String(req.params.taskId);
-        const status = String(req.body.status);
-        const task = await prisma.custom_tasks.findUnique({ where: { id: taskId } });
-        if (!task)
-            return errorResponse(res, 'Task tidak ditemukan', 404);
-        if (task.status !== 'open')
-            return errorResponse(res, 'Task sudah diproses', 400);
-        await prisma.custom_tasks.update({
-            where: { id: taskId },
-            data: { status }
-        });
-        try {
-            await NotificationService.sendToUser(task.customer_id, status === 'confirmed' ? 'Task Disetujui' : 'Task Ditolak', status === 'confirmed'
-                ? `Task "${task.title}" telah disetujui admin. Provider dapat menerima task ini.`
-                : `Maaf, task "${task.title}" ditolak oleh admin.`, { taskId, type: status === 'confirmed' ? 'TASK_CONFIRMED' : 'TASK_REJECTED' });
-        }
-        catch (_) { }
-        return successResponse(res, null, status === 'confirmed' ? 'Task disetujui' : 'Task ditolak');
+        const result = await customTasksService.adminConfirmTaskPayment(taskId);
+        return successResponse(res, result, "Pembayaran seluruh task dikonfirmasi");
     }
     catch (err) {
         return errorResponse(res, err.message);
     }
 };
-export { getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail, getCategories, getServicesByCategory, getPricingTypesByCategory, createCategory, updateCategory, deleteCategory, createService, updateService, deleteService, getAllProviders, getAllCustomers, banUser, unbanUser, createPricingType, deletePricingType, getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount, uploadQrisImage, getPendingPaymentOrders, getPendingExtensions, getPendingTasks, confirmTask, getOpenReports, respondToReport };
+const getPendingTaskPayouts = async (req, res) => {
+    try {
+        const result = await customTasksService.getPendingPayoutTasks();
+        return successResponse(res, result, "Daftar task pending payout");
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const confirmTaskPayment = async (req, res) => {
+    try {
+        const tpId = String(req.params.tpId);
+        const result = await customTasksService.confirmTaskPayment(tpId);
+        return successResponse(res, result, "Pembayaran dikonfirmasi");
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const confirmTaskPayout = async (req, res) => {
+    try {
+        const tpId = String(req.params.tpId);
+        const result = await customTasksService.confirmTaskPayout(tpId);
+        return successResponse(res, result, "Pembayaran ke provider dikonfirmasi");
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export { getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail, getCategories, getServicesByCategory, getPricingTypesByCategory, createCategory, updateCategory, deleteCategory, createService, updateService, deleteService, getAllProviders, getAllCustomers, banUser, unbanUser, createPricingType, deletePricingType, getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount, uploadQrisImage, getPendingPaymentOrders, getAllOrders, getPendingExtensions, getPendingTaskPayments, getPendingTaskPaymentsByTask, getPendingTaskPayouts, confirmTaskPayment, confirmTaskPaymentByTask, confirmTaskPayout, getOpenReports, respondToReport };

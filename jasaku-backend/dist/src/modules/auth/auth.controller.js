@@ -13,7 +13,7 @@ const registerCustomer = async (req, res) => {
 };
 const registerProvider = async (req, res) => {
     try {
-        const { full_name, nickname, email, password, phone, birthDate, gender, address, domicile, services, certificates } = req.body;
+        const { full_name, nickname, email, password, phone, birthDate, gender, address, domicile, services, certificates, ocr_nik, ocr_full_name, ocr_birth_place, ocr_birth_date, ocr_address, ocr_gender, ocr_blood_type, ocr_religion, liveness_data } = req.body;
         let parsedServices = [];
         if (services) {
             parsedServices = typeof services === 'string' ? JSON.parse(services) : services;
@@ -30,7 +30,11 @@ const registerProvider = async (req, res) => {
         const ijazah_photo = req.files?.['ijazah_photo']?.[0]?.path || null;
         const certificateFiles = req.files?.['certificate_files']?.map((file) => file.path) || [];
         const authService = new AuthService();
-        const result = await authService.registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, ijazah_photo, certificateFiles, parsedCertificates, parsedServices);
+        let parsedLiveness = null;
+        if (liveness_data) {
+            parsedLiveness = typeof liveness_data === 'string' ? JSON.parse(liveness_data) : liveness_data;
+        }
+        const result = await authService.registerProvider(full_name, nickname, email, password, phone, birthDate, gender, address, domicile, profile_photo, ktp_photo, selfie_photo, portfolios, ijazah_photo, certificateFiles, parsedCertificates, parsedServices, ocr_nik, ocr_full_name, ocr_birth_place, ocr_birth_date, ocr_address, ocr_gender, ocr_blood_type, ocr_religion, parsedLiveness);
         return successResponse(res, result, 'Registrasi penyedia layanan berhasil', 201);
     }
     catch (err) {
@@ -101,7 +105,7 @@ const verifyOtp = async (req, res) => {
 const getVerificationStatus = async (req, res) => {
     try {
         const authService = new AuthService();
-        const result = await authService.getProviderVerificationStatus(req.user.id);
+        const result = await authService.getProviderVerificationStatus(req.user.userId);
         return successResponse(res, result);
     }
     catch (err) {
@@ -111,7 +115,7 @@ const getVerificationStatus = async (req, res) => {
 const resubmitVerification = async (req, res) => {
     try {
         const authService = new AuthService();
-        await authService.resubmitProviderVerification(req.user.id);
+        await authService.resubmitProviderVerification(req.user.userId);
         return successResponse(res, null, 'Pengajuan ulang verifikasi berhasil dikirim');
     }
     catch (err) {

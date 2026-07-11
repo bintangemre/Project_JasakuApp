@@ -45,11 +45,19 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
   Future<void> _fetchTracking() async {
     try {
       final response = await _dio.get('${ApiEndpoints.getOrderTracking}${widget.orderId}/tracking');
-      final data = response.data['data'] as Map<String, dynamic>?;
-      if (data == null) return;
+      final rawData = response.data;
+      final data = rawData['data'] as Map<String, dynamic>?;
+      debugPrint('[Tracking] Raw response: $rawData');
+      if (data == null) {
+        debugPrint('[Tracking] data is null — full response: $rawData');
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
 
       final providerLoc = data['providerLocation'] as Map<String, dynamic>?;
       final orderLoc = data['orderLocation'] as Map<String, dynamic>?;
+      debugPrint('[Tracking] providerLocation: $providerLoc');
+      debugPrint('[Tracking] orderLocation: $orderLoc');
 
       setState(() {
         _providerPos = providerLoc != null && providerLoc['lat'] != null
@@ -71,7 +79,8 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
       } else if (_orderPos != null) {
         _mapController.move(_orderPos!, 15.0);
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[Tracking] Error: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -99,7 +108,7 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.jasaku.app',
                     ),
                     if (_routePoints.length > 1)

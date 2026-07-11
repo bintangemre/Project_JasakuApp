@@ -13,6 +13,7 @@ export const getCustomerProfile = async (userId) => {
                     nickname: true,
                     birth_date: true,
                     gender: true,
+                    address: true,
                     avatar_url: true,
                 }
             }
@@ -28,22 +29,42 @@ export const updateCustomerProfile = async (userId, data, avatarPath) => {
     });
     if (!profile)
         throw new Error("Profil customer tidak ditemukan");
-    const updateData = {};
+    const profileData = {};
     if (data.full_name !== undefined)
-        updateData.full_name = data.full_name;
+        profileData.full_name = data.full_name;
     if (data.nickname !== undefined)
-        updateData.nickname = data.nickname;
+        profileData.nickname = data.nickname;
+    if (data.birth_date !== undefined)
+        profileData.birth_date = data.birth_date;
+    if (data.gender !== undefined)
+        profileData.gender = data.gender;
+    if (data.address !== undefined)
+        profileData.address = data.address;
     if (avatarPath !== undefined)
-        updateData.avatar_url = avatarPath;
+        profileData.avatar_url = avatarPath;
+    if (data.phone !== undefined) {
+        const normalizedPhone = data.phone?.trim() || null;
+        if (normalizedPhone) {
+            const existing = await prisma.users.findUnique({ where: { phone: normalizedPhone } });
+            if (existing && existing.id !== userId) {
+                throw new Error("Nomor telepon sudah terdaftar");
+            }
+        }
+        await prisma.users.update({
+            where: { id: userId },
+            data: { phone: normalizedPhone }
+        });
+    }
     const updated = await prisma.profiles_customer.update({
         where: { user_id: userId },
-        data: updateData,
+        data: profileData,
         select: {
             id: true,
             full_name: true,
             nickname: true,
             birth_date: true,
             gender: true,
+            address: true,
             avatar_url: true,
         }
     });

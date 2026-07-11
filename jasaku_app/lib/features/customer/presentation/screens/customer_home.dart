@@ -8,9 +8,11 @@ import '../../../notifications/presentation/providers/notification_provider.dart
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../custom_tasks/presentation/pages/customer_create_task_page.dart';
+import '../../../custom_tasks/presentation/pages/customer_my_tasks_page.dart';
 import 'customer_services.dart';
+import 'customer_search_page.dart';
 import 'customer_providers_by_category.dart';
+import 'customer_notifications_page.dart';
 final customerHomeOrdersProvider = FutureProvider.autoDispose<List<OrderModel>>((ref) async {
   final response = await ApiClient().dio.get(ApiEndpoints.getCustomerOrders);
   final data = response.data['data'] as List<dynamic>? ?? [];
@@ -104,40 +106,47 @@ class CustomerHome extends ConsumerWidget {
                   ),
                 ],
               ),
-              Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CustomerNotificationsPage()),
+                  );
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.notifications_outlined, color: Colors.white, size: 24),
                     ),
-                    child: const Icon(Icons.notifications_outlined, color: Colors.white, size: 24),
-                  ),
-                  if (unreadNotif > 0)
-                    Positioned(
-                      right: 4,
-                      top: 4,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          unreadNotif > 9 ? '9+' : '$unreadNotif',
-                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    if (unreadNotif > 0)
+                      Positioned(
+                        right: 4,
+                        top: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            unreadNotif > 9 ? '9+' : '$unreadNotif',
+                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
           GestureDetector(
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const CustomerServices()),
+                MaterialPageRoute(builder: (_) => const CustomerSearchPage()),
               );
             },
             child: Container(
@@ -246,7 +255,7 @@ class CustomerHome extends ConsumerWidget {
                     label: 'Custom Task',
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const CustomerCreateTaskPage()),
+                        MaterialPageRoute(builder: (_) => const CustomerMyTasksPage()),
                       );
                     },
                   ),

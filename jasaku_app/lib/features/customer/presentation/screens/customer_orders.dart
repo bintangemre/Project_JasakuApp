@@ -162,6 +162,24 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
     });
   }
 
+  bool _showTimeWarning() {
+    final dateText = _dateController.text;
+    if (dateText.isEmpty) return false;
+    try {
+      final selectedDate = DateTime.parse(dateText);
+      final now = DateTime.now();
+      final isToday = selectedDate.year == now.year && selectedDate.month == now.month && selectedDate.day == now.day;
+      if (!isToday) return false;
+
+      final totalMinutes = now.hour * 60 + now.minute;
+      final warningStart = 14 * 60 + 30;
+      final cutoff = 15 * 60;
+      return totalMinutes >= warningStart && totalMinutes < cutoff;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -198,7 +216,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
         }
       } else if (next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${next.errorMessage}")),
+          SnackBar(content: Text("Ups: ${next.errorMessage}")),
         );
       }
     });
@@ -331,7 +349,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                           ),
                           children: [
                             TileLayer(
-                              urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                               userAgentPackageName: 'com.jasaku.app',
                             ),
                             MarkerLayer(
@@ -470,6 +488,31 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                       selectedId: _selectedPaymentMethod,
                       onChanged: (id) => setState(() => _selectedPaymentMethod = id),
                     ),
+                    const SizedBox(height: 16),
+                    // Warning waktu mepet
+                    if (_showTimeWarning())
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7ED),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFFD6A8)),
+                        ),
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.access_time, size: 16, color: Color(0xFFE67E22)),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Waktu pemesanan mepet dengan jam operasional berakhir. Sarankan order besok pagi jam 08:00 atau lihat jadwal mitra.',
+                                style: TextStyle(fontSize: 12, color: Color(0xFF9C6B3E)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     const SizedBox(height: 24),
                   ],
                 ),
