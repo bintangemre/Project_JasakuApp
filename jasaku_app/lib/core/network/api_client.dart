@@ -29,9 +29,6 @@ class ApiClient {
           return handler.next(options);
         },
         onError: (error, handler) async {
-          if (error.response?.statusCode == 401) {
-            await StorageService.deleteToken();
-          }
           return handler.next(error);
         },
       ),

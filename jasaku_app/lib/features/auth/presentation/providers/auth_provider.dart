@@ -301,6 +301,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (fullName.isNotEmpty) userJson['name'] = fullName;
       verificationStatus = providerProfile['verification_status'] as String?;
       verificationNotes = providerProfile['verification_notes'] as String?;
+      onboardingCompleted = providerProfile['onboarding_completed'] as bool?;
     }
     if (customerProfile != null) {
       final fullName = (customerProfile['full_name'] as String? ?? '').trim();
