@@ -7,7 +7,7 @@ services:
     startCommand: npx tsx src/app.ts
     envVars:
       - key: NODE_VERSION
-        value: 20
+        value: 22
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET
