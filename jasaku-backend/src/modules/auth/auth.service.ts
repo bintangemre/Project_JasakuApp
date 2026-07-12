@@ -458,18 +458,24 @@ async registerProvider(
       select: {
         id: true,
         email: true,
-        role: true,
-        name: true,
+        roles: { select: { name: true } },
         phone: true,
         profiles_customer: {
           select: { full_name: true, profile_photo: true }
         },
         provider_profiles: {
-          select: { full_name: true, profile_photo: true, verification_status: true, is_active: true, verification_notes: true }
+          select: { full_name: true, profile_photo: true, verification_status: true, is_active: true, verification_notes: true, onboarding_completed: true }
         }
       }
     });
     if (!user) throw new Error('User tidak ditemukan');
-    return user;
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.roles.name,
+      phone: user.phone,
+      profiles_customer: user.profiles_customer,
+      provider_profiles: user.provider_profiles,
+    };
   }
 }
