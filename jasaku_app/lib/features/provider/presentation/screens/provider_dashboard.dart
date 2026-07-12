@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/image_url.dart';
 import '../../../../core/network/api_client.dart';
 
 import '../../../location/presentation/providers/location_tracker_provider.dart';
@@ -32,6 +33,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
   LatLng? _customerLatLng;
   final MapController _mapController = MapController();
   Timer? _routeTimer;
+  Timer? _dataTimer;
   LatLng? _lastProviderPos;
   bool _extensionLoading = false;
   String? _extensionStatusText;
@@ -53,6 +55,10 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
       if (pos == null) return;
       _fetchRoute(LatLng(pos.latitude, pos.longitude), LatLng(lat, lng));
     });
+    _dataTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!mounted) return;
+      ref.read(dashboardProvider.notifier).loadDashboard();
+    });
     Future.microtask(() {
       ref.read(dashboardProvider.notifier).loadDashboard();
     });
@@ -61,6 +67,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
   @override
   void dispose() {
     _routeTimer?.cancel();
+    _dataTimer?.cancel();
     super.dispose();
   }
 
@@ -398,7 +405,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                             shape: BoxShape.circle,
                             image: state.profilePhoto != null
                                 ? DecorationImage(
-                                    image: NetworkImage('${ApiEndpoints.baseUrl}${state.profilePhoto!}'),
+                                    image: NetworkImage(imageUrl(state.profilePhoto)),
                                     fit: BoxFit.cover,
                                   )
                                 : null,

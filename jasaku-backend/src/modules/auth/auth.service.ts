@@ -465,7 +465,7 @@ async registerProvider(
           select: { full_name: true, profile_photo: true }
         },
         provider_profiles: {
-          select: { full_name: true, profile_photo: true, verification_status: true, is_active: true }
+          select: { full_name: true, profile_photo: true, verification_status: true, is_active: true, verification_notes: true }
         }
       }
     });

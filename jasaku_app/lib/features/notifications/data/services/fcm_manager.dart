@@ -55,6 +55,13 @@ class FcmManager {
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
 
     FirebaseMessaging.onMessageOpenedApp.listen(_onNotificationTapMessage);
+
+    final initialMessage = await _messaging.getInitialMessage();
+    if (initialMessage != null) {
+      Future.delayed(const Duration(seconds: 2), () {
+        _onNotificationTapMessage(initialMessage);
+      });
+    }
   }
 
   Future<void> _requestPermission() async {

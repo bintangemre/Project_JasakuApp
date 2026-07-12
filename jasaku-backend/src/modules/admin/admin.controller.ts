@@ -4,7 +4,7 @@ import { AuthRequest } from "../../middleware/auth.middleware";
 import { successResponse, errorResponse } from "../../utils/response";
 import { prisma } from "../../config/prisma";
 import { NotificationService } from "../notifications/notifications.service";
-import path from 'path';
+import { uploadToStorage } from "../../services/storage.service";
 
 const getDashboardMetrics = async (req: AuthRequest, res: Response) => {
   try {
@@ -270,7 +270,7 @@ const uploadQrisImage = async (req: AuthRequest, res: Response) => {
     if (!req.file) {
       return errorResponse(res, "File gambar QRIS wajib diupload", 400);
     }
-    const qrisImageUrl = `/uploads/${req.file.filename}`;
+    const qrisImageUrl = await uploadToStorage(req.file.buffer, 'admin/qris', req.file.originalname);
     await new AdminService().updatePaymentAccount(id, { qris_image_url: qrisImageUrl });
     return successResponse(res, { qris_image_url: qrisImageUrl }, "QRIS berhasil diupload");
   } catch (err: any) {

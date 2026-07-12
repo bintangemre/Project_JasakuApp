@@ -11,6 +11,7 @@ import '../../../custom_tasks/presentation/pages/provider_my_bids_page.dart';
 import '../../../location/presentation/providers/location_tracker_provider.dart';
 import '../../../admin/presentation/screens/admin_pending_extensions_page.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../auth/presentation/screens/provider_verification_pending_screen.dart';
 import '../../../notifications/data/services/fcm_manager.dart';
 
 final unreadProviderProvider = StateProvider<int>((ref) => 0);
@@ -51,18 +52,29 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
     if (!mounted) return;
     final data = message.data as Map<String, String>? ?? {};
     final type = data['type'] as String? ?? '';
-    if (type == 'NEW_ORDER' || type == 'NEW_CUSTOM_TASK' || type == 'CUSTOM_TASK_ACCEPTED') {
+    if (type == 'NEW_ORDER' || type == 'NEW_CUSTOM_TASK' || type == 'CUSTOM_TASK_ACCEPTED' ||
+        type == 'CUSTOM_TASK_PAYOUT_CONFIRMED' || type == 'NEW_REVIEW') {
       ref.read(unreadProviderProvider.notifier).state++;
+    }
+    if (type == 'PAYMENT_RECEIVED' || type == 'ORDER_CANCELLED' ||
+        type == 'EXTENSION_APPROVED' || type == 'EXTENSION_REJECTED' ||
+        type == 'EXTENSION_ACTIVATED' || type == 'NEW_ORDER' ||
+        type == 'CUSTOM_TASK_ACCEPTED' || type == 'CUSTOM_TASK_COMPLETED' ||
+        type == 'PROVIDER_VERIFIED' || type == 'PROVIDER_REJECTED' ||
+        type == 'CUSTOM_TASK_PAYOUT_CONFIRMED' || type == 'CUSTOM_TASK_FULL') {
+      ref.read(dashboardProvider.notifier).loadDashboard();
     }
   }
 
   void _handleNotificationTap(String type, Map<String, String> data) {
     if (!mounted) return;
     ref.read(unreadProviderProvider.notifier).state = 0;
+    ref.read(dashboardProvider.notifier).loadDashboard();
     switch (type) {
       case 'NEW_CUSTOM_TASK':
       case 'CUSTOM_TASK_ACCEPTED':
       case 'CUSTOM_TASK_COMPLETED':
+      case 'CUSTOM_TASK_FULL':
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const ProviderMyBidsPage()),
         );
@@ -75,7 +87,17 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
       case 'EXTENSION_APPROVED':
       case 'EXTENSION_REJECTED':
       case 'EXTENSION_ACTIVATED':
+      case 'CUSTOM_TASK_PAYOUT_CONFIRMED':
         setState(() => _selectedIndex = 2);
+        break;
+      case 'PROVIDER_VERIFIED':
+        ref.read(profileProvider.notifier).loadProfile();
+        setState(() => _selectedIndex = 3);
+        break;
+      case 'PROVIDER_REJECTED':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ProviderVerificationPendingScreen(status: 'rejected')),
+        );
         break;
     }
   }

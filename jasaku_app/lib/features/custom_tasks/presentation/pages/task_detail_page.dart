@@ -4,7 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/image_url.dart';
 import '../../../../services/routing_service.dart';
 import '../../../location/presentation/providers/location_tracker_provider.dart';
 import '../../data/custom_tasks_repository.dart';
@@ -141,7 +141,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                     itemCount: task.images.length,
                     separatorBuilder: (_, __) => const SizedBox(width: 8),
                     itemBuilder: (_, i) {
-                      final imgUrl = task.images[i].startsWith('http') ? task.images[i] : '${ApiEndpoints.baseUrl}/${task.images[i]}';
+                      final imgUrl = imageUrl(task.images[i]);
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(

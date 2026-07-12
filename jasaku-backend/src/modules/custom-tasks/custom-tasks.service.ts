@@ -466,7 +466,7 @@ export class CustomTasksService {
       isNowFull
         ? `Semua provider telah menerima task "${task.title}". Lakukan pembayaran untuk memulai.`
         : `Provider "${profile.full_name}" telah menerima task "${task.title}". Menunggu provider lain.`,
-      { taskId, orderId: result.order.id, providerName: profile.full_name, type: 'TASK_ACCEPTED' }
+      { taskId, orderId: result.order.id, providerName: profile.full_name, type: 'CUSTOM_TASK_ACCEPTED' }
     ).catch(() => {});
 
     // Jika sudah penuh, notifikasi semua provider lain — parallel, fire & forget
@@ -481,7 +481,7 @@ export class CustomTasksService {
               p.provider_profiles.user_id,
               'Task Siap Dibayar!',
               `Task "${task.title}" sudah penuh! Customer akan segera melakukan pembayaran.`,
-              { taskId, type: 'TASK_FULL' }
+              { taskId, type: 'CUSTOM_TASK_FULL' }
             )
           )
         );
@@ -588,7 +588,7 @@ export class CustomTasksService {
         tp.custom_tasks.customer_id,
         notif.title,
         notif.body,
-        { taskId, tpId: tp.id, workStatus, type: 'WORK_STATUS_UPDATED' }
+        { taskId, tpId: tp.id, workStatus, type: 'CUSTOM_TASK_WORK_STATUS' }
       ).catch(() => {});
     }
 
@@ -645,7 +645,7 @@ export class CustomTasksService {
         tp.custom_tasks.customer_id,
         'Task Selesai!',
         `Provider telah menyelesaikan task "${tp.custom_tasks.title}". Admin akan memproses pembayaran.`,
-        { taskId, tpId: tp.id, type: 'TASK_COMPLETED' }
+        { taskId, tpId: tp.id, type: 'CUSTOM_TASK_COMPLETED' }
       );
     } catch (_) {}
 
@@ -684,7 +684,7 @@ export class CustomTasksService {
         customerId,
         'Task Dipublikasi Ulang!',
         `Task "${task.title}" telah dipublikasi ulang dan tersedia untuk provider.`,
-        { taskId, type: 'TASK_REPUBLISHED' }
+        { taskId, type: 'CUSTOM_TASK_REPUBLISHED' }
       );
     } catch (_) {}
 
@@ -780,7 +780,7 @@ export class CustomTasksService {
         tp.custom_tasks.customer_id,
         'Pembayaran Dikonfirmasi!',
         `Pembayaran task "${tp.custom_tasks.title}" telah dikonfirmasi. Provider siap bekerja!`,
-        { tpId, type: 'TASK_PAYMENT_CONFIRMED' }
+        { tpId, type: 'CUSTOM_TASK_PAYMENT_CONFIRMED' }
       );
     } catch (_) {}
 
@@ -820,7 +820,7 @@ export class CustomTasksService {
         tp.provider_profiles.user_id,
         'Pembayaran Dikirim!',
         `Pembayaran untuk task "${tp.custom_tasks.title}" sudah dikirim ke rekening Anda.`,
-        { tpId, type: 'TASK_PAYOUT_CONFIRMED' }
+        { tpId, type: 'CUSTOM_TASK_PAYOUT_CONFIRMED' }
       );
     } catch (_) {}
 
@@ -959,7 +959,7 @@ export class CustomTasksService {
           uid!,
           'Pembayaran Dikonfirmasi!',
           `Pembayaran task "${task.title}" telah dikonfirmasi. Kamu bisa mulai bekerja!`,
-          { taskId, type: 'TASK_PAYMENT_CONFIRMED' }
+          { taskId, type: 'CUSTOM_TASK_PAYMENT_CONFIRMED' }
         )
       )
     );

@@ -7,6 +7,7 @@ import 'provider_reviews_page.dart';
 import 'provider_services_edit_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/image_url.dart';
 import '../../../reports/presentation/pages/report_form_page.dart';
 import '../../../reports/presentation/pages/report_history_page.dart';
 import '../../../orders/presentation/pages/provider_order_list_page.dart';
@@ -105,7 +106,7 @@ class _ProviderProfilePageState extends ConsumerState<ProviderProfilePage> {
           backgroundImage:
               state.profilePhoto != null
                   ? NetworkImage(
-                    '${ApiEndpoints.baseUrl}${state.profilePhoto!}',
+                    imageUrl(state.profilePhoto),
                   )
                   : null,
           backgroundColor: cs.primaryContainer.withValues(alpha: 0.5),
@@ -392,7 +393,7 @@ class _ProviderProfilePageState extends ConsumerState<ProviderProfilePage> {
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          '${ApiEndpoints.baseUrl}$url',
+                          imageUrl(url),
                           width: 100,
                           height: 100,
                           fit: BoxFit.cover,

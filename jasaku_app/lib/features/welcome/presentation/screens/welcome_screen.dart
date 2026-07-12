@@ -1,17 +1,20 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/storage.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
-class WelcomeScreen extends StatefulWidget {
+class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
+  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
@@ -25,11 +28,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final hasToken = await StorageService.hasToken();
     if (hasToken) {
       try {
-        await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
+        final response = await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
+        final meData = response.data['data'] as Map<String, dynamic>?;
+        if (meData != null) {
+          ref.read(authProvider.notifier).restoreSession(meData);
+        }
         if (mounted) Navigator.pushReplacementNamed(context, '/customer/shell');
         return;
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 401) {
+          await StorageService.deleteToken();
+        }
       } catch (_) {
-        await StorageService.deleteToken();
+        // Network/timeout error — jangan hapus token
       }
     }
 

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../data/custom_tasks_repository.dart';
 import '../../data/models/custom_task_model.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/image_url.dart';
 
 class CustomerPaymentPage extends ConsumerStatefulWidget {
   final String taskId;
@@ -214,9 +215,7 @@ class _CustomerPaymentPageState extends ConsumerState<CustomerPaymentPage> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.network(
-                            a.qrisImageUrl!.startsWith('/')
-                                ? '${ApiEndpoints.baseUrl}${a.qrisImageUrl}'
-                                : a.qrisImageUrl!,
+                            imageUrl(a.qrisImageUrl),
                             height: 200,
                             width: double.infinity,
                             fit: BoxFit.contain,

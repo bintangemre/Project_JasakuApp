@@ -404,7 +404,7 @@ export class OrdersService {
         });
         if (!profile) return [];
 
-        const whereClause: any = { provider_id: profile.id };
+        const whereClause: any = { provider_id: profile.id, assignment_type: { not: 'custom_task' } };
         if (statusFilter) {
             whereClause.status = statusFilter;
         }
@@ -470,29 +470,6 @@ export class OrdersService {
                     (order.order_locations[0] as Record<string, unknown>).lng = loc.lng;
                 }
             }
-
-            // Custom tasks: ambil lat/lng dari custom_tasks untuk order ct tanpa order_locations
-            const ctOrderIds = orders
-                .filter((o: any) => o.custom_task_id && (!locMap.has(o.id) || (o.order_locations?.length ?? 0) === 0))
-                .map((o: any) => o.custom_task_id)
-                .filter(Boolean) as string[];
-            if (ctOrderIds.length > 0) {
-                const ctLocs = await prisma.$queryRaw<Array<{ id: string; lat: number | null; lng: number | null }>>`
-                    SELECT ct.id, ST_Y(ct.location::geometry) as lat, ST_X(ct.location::geometry) as lng
-                    FROM custom_tasks ct
-                    WHERE ct.id = ANY(${ctOrderIds}::uuid[])
-                `;
-                const ctLocMap = new Map(ctLocs.map(l => [l.id, l]));
-                for (const order of orders) {
-                    if ((order as any).custom_task_id && (!locMap.has(order.id) || (order as any).order_locations?.length === 0)) {
-                        const ctLoc = ctLocMap.get((order as any).custom_task_id!);
-                        if (ctLoc) {
-                            (order as Record<string, unknown>).ct_lat = ctLoc.lat;
-                            (order as Record<string, unknown>).ct_lng = ctLoc.lng;
-                        }
-                    }
-                }
-            }
         }
 
         return orders;
@@ -545,6 +522,7 @@ export class OrdersService {
             where: {
                 provider_id: profile.id,
                 status: 'pending',
+                assignment_type: { not: 'custom_task' },
             },
             select: {
                 id: true,
@@ -616,6 +594,7 @@ export class OrdersService {
                     where: {
                         provider_id: profile.id,
                         status: { in: ["accepted", "on_the_way", "arrived", "in_progress"] },
+                        assignment_type: { not: 'custom_task' },
                         work_date: order.work_date,
                         NOT: { id: orderId }
                     }

@@ -85,10 +85,27 @@ export class AdminService {
         } else if (status === 'verified') {
             data.verification_notes = null;
         }
-        return await prisma.provider_profiles.update({
+        const updated = await prisma.provider_profiles.update({
             where: { id: providerId },
             data,
         });
+
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { id: providerId },
+            select: { user_id: true }
+        });
+        if (profile) {
+            const title = status === 'verified' ? 'Akun Terverifikasi' : 'Akun Ditolak';
+            const body = status === 'verified'
+                ? 'Selamat! Akun Mitra Anda telah diverifikasi. Silakan mulai menerima pesanan.'
+                : 'Maaf, akun Mitra Anda ditolak. Silakan periksa detail di aplikasi.';
+            NotificationService.sendToUser(
+                profile.user_id, title, body,
+                { type: status === 'verified' ? 'PROVIDER_VERIFIED' : 'PROVIDER_REJECTED' }
+            ).catch(() => {});
+        }
+
+        return updated;
     }
 
     async unverifyProvider(providerId: string) {
@@ -150,17 +167,31 @@ export class AdminService {
 
     // Customer management
     async banUser(userId: string) {
-        return await prisma.users.update({
+        const result = await prisma.users.update({
             where: { id: userId },
             data: { status: 'banned' }
         });
+        NotificationService.sendToUser(
+            userId,
+            'Akun Diblokir',
+            'Akun Anda telah diblokir oleh admin. Hubungi CS untuk informasi lebih lanjut.',
+            { type: 'ACCOUNT_BANNED' }
+        ).catch(() => {});
+        return result;
     }
 
     async unbanUser(userId: string) {
-        return await prisma.users.update({
+        const result = await prisma.users.update({
             where: { id: userId },
             data: { status: 'active' }
         });
+        NotificationService.sendToUser(
+            userId,
+            'Akun Diaktifkan',
+            'Akun Anda telah diaktifkan kembali. Anda bisa login sekarang.',
+            { type: 'ACCOUNT_UNBANNED' }
+        ).catch(() => {});
+        return result;
     }
 
     async warnProvider(providerId: string) {

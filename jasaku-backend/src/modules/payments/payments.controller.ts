@@ -4,6 +4,7 @@ import { AuthRequest } from "../../middleware/auth.middleware";
 import { successResponse, errorResponse } from "../../utils/response";
 import { NotificationService } from "../notifications/notifications.service";
 import { prisma } from "../../config/prisma";
+import { uploadToStorage } from "../../services/storage.service";
 
 const getPaymentMethods = async (req: AuthRequest, res: Response) => {
   try {
@@ -82,7 +83,7 @@ const uploadPaymentProof = async (req: AuthRequest, res: Response) => {
     const file = req.file;
     if (!file) return errorResponse(res, "Upload bukti pembayaran terlebih dahulu", 400);
 
-    const fileUrl = `/uploads/payment-proofs/${file.filename}`;
+    const fileUrl = await uploadToStorage(file.buffer, 'payment-proofs', file.originalname);
     const result = await new PaymentsService().uploadPaymentProof(orderId, fileUrl);
     return successResponse(res, result, "Bukti pembayaran berhasil diupload");
   } catch (err: any) {

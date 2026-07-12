@@ -33,7 +33,6 @@ app.get('/health', (_req, res) => res.send('OK'));
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static('uploads'));
 app.use('/admin', express.static('public/admin', { index: 'index.html' }));
 app.get('/admin', (_req, res) => res.redirect('/admin/'));
 

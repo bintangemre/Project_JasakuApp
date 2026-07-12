@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { CustomTasksService } from './custom-tasks.service';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import { successResponse, errorResponse } from '../../utils/response';
+import { uploadToStorage } from '../../services/storage.service';
 
 const service = new CustomTasksService();
 
@@ -155,7 +156,7 @@ export const uploadPaymentProof = async (req: AuthRequest, res: Response) => {
     const file = req.file;
     if (!file) return errorResponse(res, 'Upload bukti pembayaran terlebih dahulu', 400);
 
-    const fileUrl = `/uploads/payment-proofs/${file.filename}`;
+    const fileUrl = await uploadToStorage(file.buffer, 'payment-proofs', file.originalname);
     const result = await service.uploadPaymentProof(taskId, userId, fileUrl);
     return successResponse(res, result, 'Bukti pembayaran berhasil diupload');
   } catch (err: any) {

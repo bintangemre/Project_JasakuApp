@@ -1,19 +1,23 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'provider_login_screen.dart';
 import 'provider_register_category_screen.dart';
+import 'provider_verification_pending_screen.dart';
 import '../providers/register_state.dart';
+import '../providers/auth_provider.dart';
 import '../../../../core/utils/storage.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
 
-class ProviderWelcomeScreen extends StatefulWidget {
+class ProviderWelcomeScreen extends ConsumerStatefulWidget {
   const ProviderWelcomeScreen({super.key});
 
   @override
-  State<ProviderWelcomeScreen> createState() => _ProviderWelcomeScreenState();
+  ConsumerState<ProviderWelcomeScreen> createState() => _ProviderWelcomeScreenState();
 }
 
-class _ProviderWelcomeScreenState extends State<ProviderWelcomeScreen> {
+class _ProviderWelcomeScreenState extends ConsumerState<ProviderWelcomeScreen> {
   bool _checking = true;
 
   @override
@@ -29,11 +33,36 @@ class _ProviderWelcomeScreenState extends State<ProviderWelcomeScreen> {
     final hasToken = await StorageService.hasToken();
     if (hasToken) {
       try {
-        await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
-        if (mounted) Navigator.pushReplacementNamed(context, '/provider/shell');
-        return;
+        final response = await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
+        final meData = response.data['data'] as Map<String, dynamic>?;
+        if (meData != null) {
+          ref.read(authProvider.notifier).restoreSession(meData);
+          final status = ref.read(authProvider).verificationStatus;
+          if (status == 'pending' || status == 'rejected') {
+            if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProviderVerificationPendingScreen(status: status!),
+                ),
+              );
+            }
+            return;
+          }
+          final onboarding = ref.read(authProvider).onboardingCompleted;
+          if (onboarding == false) {
+            if (mounted) Navigator.pushReplacementNamed(context, '/provider/profile-completion');
+          } else {
+            if (mounted) Navigator.pushReplacementNamed(context, '/provider/shell');
+          }
+          return;
+        }
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 401) {
+          await StorageService.deleteToken();
+        }
       } catch (_) {
-        await StorageService.deleteToken();
+        // Network/timeout error — jangan hapus token
       }
     }
 

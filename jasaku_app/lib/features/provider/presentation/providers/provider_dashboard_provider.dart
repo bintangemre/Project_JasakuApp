@@ -77,6 +77,7 @@ class DashboardState {
       final now = DateTime.now();
       return orders.firstWhere(
         (o) {
+          if (o['assignment_type'] == 'custom_task') return false;
           final isActive = ['accepted', 'on_the_way', 'arrived', 'in_progress'].contains(o['status']);
           if (!isActive) return false;
           final workDateStr = o['work_date'] as String? ?? '';

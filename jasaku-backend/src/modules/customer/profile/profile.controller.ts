@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { successResponse, errorResponse } from "../../../utils/response";
 import { AuthRequest } from "../../../middleware/auth.middleware";
 import * as profileService from "./profile.service";
+import { uploadToStorage } from "../../../services/storage.service";
 
 export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -20,12 +21,17 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
         if (!userId) return errorResponse(res, "Unauthorized", 401);
 
         const { full_name, nickname, birth_date, gender, phone, address } = req.body;
-        const avatarPath = (req as any).file ? `/uploads/${(req as any).file.filename}` : undefined;
+
+        let avatarUrl: string | undefined;
+        const file = (req as any).file;
+        if (file) {
+            avatarUrl = await uploadToStorage(file.buffer, 'customer/avatar', file.originalname);
+        }
 
         const result = await profileService.updateCustomerProfile(
             userId,
             { full_name, nickname, birth_date, gender, phone, address },
-            avatarPath
+            avatarUrl
         );
         return successResponse(res, result, "Profil berhasil diperbarui");
     } catch (error: any) {

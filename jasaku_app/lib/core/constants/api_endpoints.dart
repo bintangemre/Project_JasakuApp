@@ -1,7 +1,7 @@
 // Defines backend API endpoint URLs for shared Jasaku App network calls.
 class ApiEndpoints {
-  static const String _baseUrlHost = String.fromEnvironment('BASE_URL', defaultValue: '192.168.110.237:3000');
-  static const String baseUrl = 'http://$_baseUrlHost';
+  static const String _baseUrlHost = String.fromEnvironment('BASE_URL', defaultValue: 'jasakuapp.onrender.com');
+  static const String baseUrl = 'https://$_baseUrlHost';
   static const String login = '$baseUrl/api/auth/login';
   static const String loginGoogle = '$baseUrl/api/auth/login/google';
   static const String registerCustomer = '$baseUrl/api/auth/register/customer';

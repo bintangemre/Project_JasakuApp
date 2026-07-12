@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/image_url.dart';
 import '../providers/provider_profile_provider.dart';
 
 class ProviderProfileEditScreen extends ConsumerStatefulWidget {
@@ -411,7 +412,7 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
             height: 90,
             child: isNetwork
                 ? Image.network(
-                    '${ApiEndpoints.baseUrl}$url',
+                    imageUrl(url),
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       color: const Color(0xFFF1F5F9),

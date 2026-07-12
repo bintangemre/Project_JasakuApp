@@ -1,4 +1,5 @@
 import { prisma } from "../../config/prisma";
+import { NotificationService } from "../notifications/notifications.service";
 
 export class ReviewsService {
     // mengirim review dan rating setelah layanan selesai
@@ -27,6 +28,13 @@ export class ReviewsService {
                 total_reviews: agg._count
             }
         });
+
+        NotificationService.sendToUser(
+            providerId,
+            'Review Baru',
+            `Anda mendapat review ${rating} bintang dari customer.`,
+            { type: 'NEW_REVIEW', orderId }
+        ).catch(() => {});
 
         return result;
     }

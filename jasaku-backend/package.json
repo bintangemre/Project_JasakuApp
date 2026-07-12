@@ -17,6 +17,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
+    "@supabase/supabase-js": "^2.110.2",
     "axios": "^1.18.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",

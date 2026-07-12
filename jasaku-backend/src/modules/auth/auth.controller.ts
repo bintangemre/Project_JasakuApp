@@ -2,6 +2,7 @@ import { Response } from "express";
 import { AuthService } from "./auth.service";
 import { successResponse, errorResponse } from "../../utils/response";
 import { AuthRequest } from "../../middleware/auth.middleware";
+import { uploadToStorage } from "../../services/storage.service";
 
 const registerCustomer = async (req: any, res: Response) => {
   try {
@@ -28,14 +29,24 @@ const registerProvider = async (req: any, res: Response) => {
       parsedCertificates = typeof certificates === 'string' ? JSON.parse(certificates) : certificates;
     }
 
-    const profile_photo = req.files?.['profile_photo']?.[0]?.path || req.body.profile_photo;
-    const ktp_photo = req.files?.['ktp_photo']?.[0]?.path || req.body.ktp_photo;
-    const selfie_photo = req.files?.['selfie_photo']?.[0]?.path || req.body.selfie_photo;
-    const portfolios = req.files?.['portfolios']?.map((file: any) => file.path) || [];
+    const uploadFile = async (file: any, folder: string): Promise<string | null> => {
+      if (!file) return null;
+      return uploadToStorage(file.buffer, folder, file.originalname);
+    };
+
+    const uploadMultiple = async (files: any[], folder: string): Promise<string[]> => {
+      if (!files?.length) return [];
+      return Promise.all(files.map(f => uploadToStorage(f.buffer, folder, f.originalname)));
+    };
+
+    const profile_photo = await uploadFile(req.files?.['profile_photo']?.[0], 'provider/profile-photo') || req.body.profile_photo;
+    const ktp_photo = await uploadFile(req.files?.['ktp_photo']?.[0], 'provider/ktp') || req.body.ktp_photo;
+    const selfie_photo = await uploadFile(req.files?.['selfie_photo']?.[0], 'provider/selfie') || req.body.selfie_photo;
+    const portfolios = await uploadMultiple(req.files?.['portfolios'] || [], 'provider/portfolios');
     
     // Ijazah & Sertifikat
-    const ijazah_photo = req.files?.['ijazah_photo']?.[0]?.path || null;
-    const certificateFiles = req.files?.['certificate_files']?.map((file: any) => file.path) || [];
+    const ijazah_photo = await uploadFile(req.files?.['ijazah_photo']?.[0], 'provider/documents') || null;
+    const certificateFiles = await uploadMultiple(req.files?.['certificate_files'] || [], 'provider/documents');
 
     const authService = new AuthService();
     

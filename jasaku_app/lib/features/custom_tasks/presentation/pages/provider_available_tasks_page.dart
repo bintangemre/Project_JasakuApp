@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import '../../data/custom_tasks_repository.dart';
 import '../../data/models/custom_task_model.dart';
-import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/image_url.dart';
 import 'task_detail_page.dart';
 
 class ProviderAvailableTasksPage extends ConsumerStatefulWidget {
@@ -192,7 +192,7 @@ class _ProviderAvailableTasksPageState
                       itemCount: task.images.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 6),
                       itemBuilder: (_, i) {
-                        final url = task.images[i].startsWith('http') ? task.images[i] : '${ApiEndpoints.baseUrl}/${task.images[i]}';
+                        final url = imageUrl(task.images[i]);
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(6),
                           child: Image.network(url, width: 60, height: 60, fit: BoxFit.cover,

@@ -281,6 +281,41 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState();
   }
 
+  void restoreSession(Map<String, dynamic> meData) {
+    final userJson = <String, dynamic>{
+      'id': meData['id']?.toString() ?? '',
+      'email': meData['email']?.toString() ?? '',
+      'role': meData['role']?.toString() ?? '',
+      'name': meData['name']?.toString() ?? '',
+    };
+
+    String? verificationStatus;
+    String? verificationNotes;
+    bool? onboardingCompleted;
+
+    final providerProfile = meData['provider_profiles'] as Map<String, dynamic>?;
+    final customerProfile = meData['profiles_customer'] as Map<String, dynamic>?;
+
+    if (providerProfile != null) {
+      final fullName = (providerProfile['full_name'] as String? ?? '').trim();
+      if (fullName.isNotEmpty) userJson['name'] = fullName;
+      verificationStatus = providerProfile['verification_status'] as String?;
+      verificationNotes = providerProfile['verification_notes'] as String?;
+    }
+    if (customerProfile != null) {
+      final fullName = (customerProfile['full_name'] as String? ?? '').trim();
+      if (fullName.isNotEmpty) userJson['name'] = fullName;
+    }
+
+    final user = UserModel.fromJson(userJson);
+    state = AuthState(
+      user: user,
+      verificationStatus: verificationStatus,
+      verificationNotes: verificationNotes,
+      onboardingCompleted: onboardingCompleted,
+    );
+  }
+
   Future<bool> resubmitVerification() async {
     state = state.copyWith(isLoading: true, error: null);
     try {

@@ -9,6 +9,7 @@ import '../widgets/payment_method_picker.dart';
 import '../../domain/models/payment_method_model.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/image_url.dart';
 
 class PaymentInstructionScreen extends ConsumerStatefulWidget {
   final String orderId;
@@ -310,21 +311,8 @@ class _PaymentInstructionScreenState
           const SizedBox(height: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: method.qrisImageUrl!.startsWith('http')
-                ? Image.network(
-                    method.qrisImageUrl!,
-                    height: 200,
-                    width: 200,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => Container(
-                      height: 200,
-                      width: 200,
-                      color: Colors.grey[100],
-                      child: Icon(Icons.qr_code, size: 80, color: Colors.grey[400]),
-                    ),
-                  )
-                : Image.network(
-                    '${ApiEndpoints.baseUrl}${method.qrisImageUrl!}',
+            child: Image.network(
+                    imageUrl(method.qrisImageUrl),
                     height: 200,
                     width: 200,
                     fit: BoxFit.contain,

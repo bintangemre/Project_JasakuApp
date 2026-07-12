@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' as latlong;
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/utils/image_url.dart';
 import '../../../../core/utils/operating_hours.dart';
 import 'customer_orders.dart';
 
@@ -366,13 +367,39 @@ class ProviderListScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Foto Profil Bulat Bersih
-                  CircleAvatar(
-                    radius: 32,
-                    backgroundColor: const Color(0xFFF1F5F9),
-                    backgroundImage: NetworkImage(
-                      provider.image != null && provider.image!.isNotEmpty
-                          ? _imageUrl(provider.image)
-                          : 'https://ui-avatars.com/api/?name=N&background=DBEAFE&color=1E40AF',
+                  SizedBox(
+                    width: 64,
+                    height: 64,
+                    child: ClipOval(
+                      child: Image.network(
+                        provider.image != null && provider.image!.isNotEmpty
+                            ? imageUrl(provider.image)
+                            : 'https://ui-avatars.com/api/?name=N&background=DBEAFE&color=1E40AF',
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (ctx, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            width: 64,
+                            height: 64,
+                            color: const Color(0xFFF1F5F9),
+                            child: const Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF94A3B8)),
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 64,
+                          height: 64,
+                          color: const Color(0xFFF1F5F9),
+                          child: const Icon(Icons.person, color: Color(0xFF94A3B8), size: 32),
+                        ),
+                      ),
                     ),
                   ),
                 const SizedBox(width: 14),
@@ -677,13 +704,39 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                     // Header Informasi Utama Profil
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 36,
-                          backgroundColor: const Color(0xFFF1F5F9),
-                          backgroundImage: NetworkImage(
-                            provider.image != null && provider.image!.isNotEmpty
-                                ? _imageUrl(provider.image)
-                                : 'https://ui-avatars.com/api/?name=N&background=DBEAFE&color=1E40AF',
+                        SizedBox(
+                          width: 72,
+                          height: 72,
+                          child: ClipOval(
+                            child: Image.network(
+                              provider.image != null && provider.image!.isNotEmpty
+                            ? imageUrl(provider.image)
+                                  : 'https://ui-avatars.com/api/?name=N&background=DBEAFE&color=1E40AF',
+                              width: 72,
+                              height: 72,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (ctx, child, progress) {
+                                if (progress == null) return child;
+                                return Container(
+                                  width: 72,
+                                  height: 72,
+                                  color: const Color(0xFFF1F5F9),
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF94A3B8)),
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (_, __, ___) => Container(
+                                width: 72,
+                                height: 72,
+                                color: const Color(0xFFF1F5F9),
+                                child: const Icon(Icons.person, color: Color(0xFF94A3B8), size: 36),
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -948,10 +1001,25 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                               child: GestureDetector(
                                 onTap: () => _showImagePreview(context, url),
                                 child: Image.network(
-                                  _imageUrl(url),
+                                  imageUrl(url),
                                   width: 100,
                                   height: 100,
                                   fit: BoxFit.cover,
+                                  loadingBuilder: (ctx, child, progress) {
+                                    if (progress == null) return child;
+                                    return Container(
+                                      width: 100,
+                                      height: 100,
+                                      color: const Color(0xFFF1F5F9),
+                                      child: const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF94A3B8)),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                   errorBuilder: (_, __, ___) => Container(
                                     width: 100,
                                     height: 100,
@@ -1161,7 +1229,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.network(
-              _imageUrl(url),
+              imageUrl(url),
               fit: BoxFit.contain,
               errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, color: Colors.white, size: 48),
               loadingBuilder: (_, child, progress) => progress == null
@@ -1316,11 +1384,4 @@ class ProviderModel {
       isActive: profileData?['is_active'] as bool? ?? true,
     );
   }
-}
-
-String _imageUrl(String? path) {
-  if (path == null || path.isEmpty) return '';
-  final normalized = path.replaceAll('\\', '/');
-  final clean = normalized.startsWith('/') ? normalized.substring(1) : normalized;
-  return '${ApiEndpoints.baseUrl}/$clean';
 }

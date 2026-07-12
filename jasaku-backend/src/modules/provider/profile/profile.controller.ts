@@ -3,9 +3,11 @@ import { prisma } from "../../../config/prisma";
 import { AuthRequest } from "../../../middleware/auth.middleware";
 import { successResponse, errorResponse } from "../../../utils/response";
 import { ProfileService } from "./profile.service";
+import { uploadToStorage } from "../../../services/storage.service";
 
 function normalizePath(p: string | null | undefined): string | null {
   if (!p) return null;
+  if (p.startsWith('http://') || p.startsWith('https://')) return p;
   return p.startsWith('/') ? p : `/${p}`;
 }
 
@@ -165,7 +167,10 @@ const completeOnboarding = async (req: AuthRequest, res: Response) => {
     }
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-    const profilePhoto = files?.['profile_photo']?.[0]?.path;
+    const profilePhotoFile = files?.['profile_photo']?.[0];
+    const profilePhoto = profilePhotoFile
+      ? await uploadToStorage(profilePhotoFile.buffer, 'provider/profile-photo', profilePhotoFile.originalname)
+      : undefined;
 
     let services: any = req.body.services;
     if (typeof services === 'string') {
@@ -207,17 +212,28 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
     }
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-    const profilePhoto = files?.['profile_photo']?.[0]?.path;
-    const ktpPhoto = files?.['ktp_photo']?.[0]?.path;
-    const selfiePhoto = files?.['selfie_photo']?.[0]?.path;
-    const uploadedDocuments = files?.['documents']?.map((f) => f.path) || [];
+
+    const uploadFile = async (file: any, folder: string): Promise<string | undefined> => {
+      if (!file) return undefined;
+      return uploadToStorage(file.buffer, folder, file.originalname);
+    };
+
+    const uploadMultiple = async (files: any[], folder: string): Promise<string[]> => {
+      if (!files?.length) return [];
+      return Promise.all(files.map(f => uploadToStorage(f.buffer, folder, f.originalname)));
+    };
+
+    const profilePhoto = await uploadFile(files?.['profile_photo']?.[0], 'provider/profile-photo');
+    const ktpPhoto = await uploadFile(files?.['ktp_photo']?.[0], 'provider/ktp');
+    const selfiePhoto = await uploadFile(files?.['selfie_photo']?.[0], 'provider/selfie');
+    const uploadedDocuments = await uploadMultiple(files?.['documents'] || [], 'provider/documents');
 
     const existingPortfolios: string[] = req.body.existing_portfolios
       ? (typeof req.body.existing_portfolios === 'string'
           ? JSON.parse(req.body.existing_portfolios)
           : req.body.existing_portfolios)
       : [];
-    const uploadedPortfolios = (files?.['portfolios']?.map((f) => f.path) || []);
+    const uploadedPortfolios = await uploadMultiple(files?.['portfolios'] || [], 'provider/portfolios');
     const portfolios = [...existingPortfolios, ...uploadedPortfolios];
 
     let birthDate: string | undefined;

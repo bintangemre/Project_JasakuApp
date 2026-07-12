@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/utils/image_url.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 class ProviderReviewsPage extends ConsumerStatefulWidget {
@@ -128,7 +129,7 @@ class _ProviderReviewsPageState extends ConsumerState<ProviderReviewsPage> {
                           CircleAvatar(
                             radius: 22,
                             backgroundImage:
-                                avatar != null ? NetworkImage(avatar) : null,
+                                avatar != null ? NetworkImage(imageUrl(avatar)) : null,
                             child:
                                 avatar == null
                                     ? Icon(

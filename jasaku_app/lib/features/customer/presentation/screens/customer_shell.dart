@@ -51,15 +51,27 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
         ),
       );
     }
+    if (type == 'ORDER_ACCEPTED' || type == 'ORDER_CANCELLED' ||
+        type == 'ON_THE_WAY' || type == 'ARRIVED' || type == 'IN_PROGRESS' ||
+        type == 'COMPLETED' || type == 'PAYMENT_SUCCESS' || type == 'PAYMENT_FAILED' ||
+        type == 'EXTENSION_ACTIVATED' || type == 'EXTENSION_REJECTED' ||
+        type == 'CUSTOM_TASK_ACCEPTED' || type == 'CUSTOM_TASK_COMPLETED' ||
+        type == 'PAYMENT_CONFIRMED' || type == 'CUSTOM_TASK_WORK_STATUS' ||
+        type == 'CUSTOM_TASK_REPUBLISHED' || type == 'CUSTOM_TASK_PAYMENT_CONFIRMED') {
+      ref.invalidate(customerHomeOrdersProvider);
+    }
   }
 
   void _handleNotificationTap(String type, Map<String, String> data) {
     if (!mounted) return;
+    ref.invalidate(customerHomeOrdersProvider);
     switch (type) {
-      case 'CUSTOM_TASK_BID':
       case 'NEW_CUSTOM_TASK':
       case 'CUSTOM_TASK_ACCEPTED':
       case 'CUSTOM_TASK_COMPLETED':
+      case 'CUSTOM_TASK_WORK_STATUS':
+      case 'CUSTOM_TASK_REPUBLISHED':
+      case 'CUSTOM_TASK_PAYMENT_CONFIRMED':
         final taskId = data['taskId'] ?? '';
         if (taskId.isNotEmpty) {
           Navigator.of(context).push(
@@ -79,6 +91,7 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
       case 'ORDER_CANCELLED':
       case 'PAYMENT_SUCCESS':
       case 'PAYMENT_FAILED':
+      case 'PAYMENT_CONFIRMED':
       case 'EXTENSION_REQUEST':
       case 'EXTENSION_ACTIVATED':
       case 'EXTENSION_REJECTED':
@@ -94,6 +107,7 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
     });
     if (index == 1) {
       ref.read(unreadNotifProvider.notifier).state = 0;
+      ref.invalidate(customerHomeOrdersProvider);
     }
   }
 

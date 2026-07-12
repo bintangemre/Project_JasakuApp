@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/image_url.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../orders/presentation/pages/customer_order_list_page.dart';
@@ -132,7 +133,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                   backgroundColor: Colors.grey.shade200,
                   backgroundImage: data?.avatarUrl != null
                       ? NetworkImage(
-                          '${ApiEndpoints.baseUrl}${data!.avatarUrl}')
+                          imageUrl(data!.avatarUrl))
                       : null,
                   child: data?.avatarUrl == null
                       ? const Icon(Icons.person_rounded,
