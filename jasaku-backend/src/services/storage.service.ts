@@ -8,6 +8,7 @@ export async function uploadToStorage(
   folder: string,
   originalName: string,
 ): Promise<string> {
+  if (!supabase) throw new Error('Supabase Storage belum dikonfigurasi. Set env SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY.');
   const ext = path.extname(originalName).toLowerCase();
   const filename = `${folder}/${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
 
@@ -30,6 +31,7 @@ export async function uploadToStorage(
 }
 
 export async function deleteFromStorage(fileUrl: string): Promise<void> {
+  if (!supabase) return;
   const filePath = extractPath(fileUrl);
   if (!filePath) return;
 
