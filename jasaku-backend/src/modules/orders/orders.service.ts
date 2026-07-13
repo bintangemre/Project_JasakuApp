@@ -404,7 +404,7 @@ export class OrdersService {
         });
         if (!profile) return [];
 
-        const whereClause: any = { provider_id: profile.id, assignment_type: { not: 'custom_task' } };
+        const whereClause: any = { provider_id: profile.id };
         if (statusFilter) {
             whereClause.status = statusFilter;
         }
