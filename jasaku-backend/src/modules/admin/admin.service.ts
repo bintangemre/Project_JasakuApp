@@ -470,4 +470,49 @@ export class AdminService {
             }
         });
     }
+
+    async getNotificationCounts() {
+        const [
+            pendingPayments,
+            pendingExtensions,
+            pendingTaskPayments,
+            pendingTaskPayouts,
+            pendingProviders,
+            openReports,
+        ] = await Promise.all([
+            // Regular orders pending payment confirmation
+            prisma.orders.count({
+                where: { status: 'pending_payment', task_provider_id: null }
+            }),
+            // Order extensions pending payment
+            prisma.order_extensions.count({ where: { status: 'pending_payment' } }),
+            // Custom task orders pending payment (orders linked to task_providers with pending status)
+            prisma.$queryRaw<[{count: bigint}]>`
+                SELECT COUNT(*) as count FROM orders o
+                JOIN task_providers tp ON o.task_provider_id = tp.id
+                WHERE o.status IN ('pending_payment', 'accepted')
+            `.then(r => Number(r[0]?.count || 0)),
+            // Custom task payouts pending release
+            prisma.task_providers.count({
+                where: {
+                    status: 'completed',
+                    payout_confirmed: false,
+                }
+            }),
+            // Provider verifications pending
+            prisma.provider_profiles.count({ where: { verification_status: 'pending' } }),
+            // Open reports
+            prisma.reports.count({ where: { status: 'open' } }),
+        ]);
+
+        return {
+            pendingPayments,
+            pendingExtensions,
+            pendingTaskPayments,
+            pendingTaskPayouts,
+            pendingProviders,
+            openReports,
+            total: pendingPayments + pendingExtensions + pendingTaskPayments + pendingTaskPayouts + pendingProviders + openReports,
+        };
+    }
 }

@@ -56,6 +56,27 @@ function toggleDark() {
   document.documentElement.classList.toggle('dark', dark);
 }
 
+let _notifInterval = null;
+async function fetchNotificationCounts() {
+  try {
+    const data = await apiFetch('/admin/notifications/counts');
+    if (data) {
+      Alpine.store('notifications').counts = data;
+      Alpine.store('notifications').total = data.total || 0;
+    }
+  } catch (e) { /* silent */ }
+}
+
+function startNotificationPolling() {
+  fetchNotificationCounts();
+  if (_notifInterval) clearInterval(_notifInterval);
+  _notifInterval = setInterval(fetchNotificationCounts, 15000);
+}
+
+function stopNotificationPolling() {
+  if (_notifInterval) { clearInterval(_notifInterval); _notifInterval = null; }
+}
+
 function confirmModal(msg) {
   return new Promise((resolve) => {
     const store = Alpine.store('confirm');
@@ -92,12 +113,15 @@ document.addEventListener('alpine:init', () => {
   Alpine.store('theme', {
     dark: localStorage.getItem('dark') === 'true' || (!localStorage.getItem('dark') && window.matchMedia('(prefers-color-scheme: dark)').matches)
   });
+  Alpine.store('notifications', { counts: {}, total: 0, dropdownOpen: false });
 
   Alpine.data('providersPage', () => ({
     loading: true,
     providers: [],
     filter: 'all',
-    init() { requireAuth(); this.load(); },
+    _interval: null,
+    init() { requireAuth(); this.load(); this._interval = setInterval(() => this.load(), 15000); },
+    destroy() { if (this._interval) clearInterval(this._interval); },
     async load() {
       this.loading = true;
       try {
@@ -295,7 +319,9 @@ document.addEventListener('alpine:init', () => {
     loading: true,
     extensions: [],
     activating: null,
-    init() { requireAuth(); this.load(); },
+    _interval: null,
+    init() { requireAuth(); this.load(); this._interval = setInterval(() => this.load(), 15000); },
+    destroy() { if (this._interval) clearInterval(this._interval); },
     async load() {
       this.loading = true;
       try {
@@ -321,15 +347,38 @@ document.addEventListener('alpine:init', () => {
       if (Alpine.store('theme').dark) document.documentElement.classList.add('dark');
       if (!getToken()) {
         Alpine.store('nav').page = 'login';
+        stopNotificationPolling();
         return;
       }
       const hash = window.location.hash.replace('#', '');
       Alpine.store('nav').page = (hash && hash !== 'login') ? hash : 'dashboard';
+      startNotificationPolling();
     },
     menu: sidebarMenu,
     get pageTitle() {
       const map = { dashboard: 'Beranda', 'confirm-payment': 'Konfirmasi Bayar', 'confirm-extension': 'Konfirmasi Ekstensi', 'custom-tasks': 'Custom Task', providers: 'Mitra', 'provider-detail': 'Detail Mitra', customers: 'Pelanggan', categories: 'Kategori', services: 'Layanan', payments: 'Pembayaran', 'pricing-types': 'Tipe Harga', reports: 'Laporan' };
       return map[Alpine.store('nav').page] || '';
+    },
+    get notifDropdownItems() {
+      const c = Alpine.store('notifications').counts;
+      const items = [];
+      if (c.pendingPayments > 0) items.push({ label: 'Konfirmasi Bayar', count: c.pendingPayments, page: 'confirm-payment', icon: 'fa-hand-holding-usd', color: 'text-amber-500' });
+      if (c.pendingExtensions > 0) items.push({ label: 'Konfirmasi Ekstensi', count: c.pendingExtensions, page: 'confirm-extension', icon: 'fa-calendar-plus', color: 'text-blue-500' });
+      if (c.pendingTaskPayments > 0) items.push({ label: 'Custom Task — Bayar', count: c.pendingTaskPayments, page: 'custom-tasks', icon: 'fa-tasks', color: 'text-purple-500' });
+      if (c.pendingTaskPayouts > 0) items.push({ label: 'Custom Task — Pencairan', count: c.pendingTaskPayouts, page: 'custom-tasks', icon: 'fa-money-bill-wave', color: 'text-emerald-500' });
+      if (c.pendingProviders > 0) items.push({ label: 'Mitra Pending', count: c.pendingProviders, page: 'providers', icon: 'fa-hard-hat', color: 'text-indigo-500' });
+      if (c.openReports > 0) items.push({ label: 'Laporan Baru', count: c.openReports, page: 'reports', icon: 'fa-flag', color: 'text-red-500' });
+      return items;
+    },
+    toggleNotifDropdown() {
+      Alpine.store('notifications').dropdownOpen = !Alpine.store('notifications').dropdownOpen;
+    },
+    closeNotifDropdown() {
+      Alpine.store('notifications').dropdownOpen = false;
+    },
+    navigateFromNotif(page) {
+      Alpine.store('notifications').dropdownOpen = false;
+      navigate(page);
     }
   }));
 });

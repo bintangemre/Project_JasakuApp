@@ -100,7 +100,13 @@
             <div x-show="!$store.sidebar.collapsed && item.header" class="text-[10px] uppercase tracking-widest text-white/30 px-3 pt-4 pb-1 font-semibold select-none" x-text="item.header"></div>
             <div class="sidebar-item group relative" :class="{ 'active': $store.nav.page === item.id }" @click="navigate(item.id)" :title="$store.sidebar.collapsed ? item.label : ''">
               <i class="fas text-sm w-5 text-center shrink-0" :class="item.icon"></i>
-              <span x-show="!$store.sidebar.collapsed" class="overflow-hidden transition-all duration-200" x-text="item.label"></span>
+              <span x-show="!$store.sidebar.collapsed" class="overflow-hidden transition-all duration-200 flex-1" x-text="item.label"></span>
+              <template x-if="item.badgeKey && $store.notifications.counts[item.badgeKey] > 0">
+                <span class="notif-badge" :class="$store.sidebar.collapsed ? 'notif-badge-collapsed' : 'notif-badge-side'" x-text="$store.notifications.counts[item.badgeKey]"></span>
+              </template>
+              <template x-if="item.badgeKeys && !item.badgeKey">
+                <span class="notif-badge" :class="$store.sidebar.collapsed ? 'notif-badge-collapsed' : 'notif-badge-side'" x-show="item.badgeKeys.reduce((s,k) => s + ($store.notifications.counts[k]||0), 0) > 0" x-text="item.badgeKeys.reduce((s,k) => s + ($store.notifications.counts[k]||0), 0)"></span>
+              </template>
             </div>
           </div>
         </template>
@@ -137,7 +143,14 @@
             <div>
               <div x-show="item.header" class="text-[10px] uppercase tracking-widest text-white/30 px-3 pt-3 pb-1 font-semibold" x-text="item.header"></div>
               <div class="sidebar-item" :class="{ 'active': $store.nav.page === item.id }" @click="navigate(item.id); $store.mobile.show = false">
-                <i class="fas text-sm w-5 text-center" :class="item.icon"></i><span x-text="item.label"></span>
+                <i class="fas text-sm w-5 text-center" :class="item.icon"></i>
+                <span class="flex-1" x-text="item.label"></span>
+                <template x-if="item.badgeKey && $store.notifications.counts[item.badgeKey] > 0">
+                  <span class="notif-badge notif-badge-side" x-text="$store.notifications.counts[item.badgeKey]"></span>
+                </template>
+                <template x-if="item.badgeKeys && !item.badgeKey">
+                  <span class="notif-badge notif-badge-side" x-show="item.badgeKeys.reduce((s,k) => s + ($store.notifications.counts[k]||0), 0) > 0" x-text="item.badgeKeys.reduce((s,k) => s + ($store.notifications.counts[k]||0), 0)"></span>
+                </template>
               </div>
             </div>
           </template>
@@ -159,6 +172,42 @@
           </div>
         </div>
         <div class="flex items-center gap-3 shrink-0">
+          <!-- Notification Bell -->
+          <div class="relative" @click.away="$store.notifications.dropdownOpen = false">
+            <button @click="toggleNotifDropdown()" class="relative p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-xl hover:bg-gray-100">
+              <i class="fas fa-bell text-lg"></i>
+              <template x-if="$store.notifications.total > 0">
+                <span class="absolute -top-0.5 -right-0.5 notif-badge-bell" x-text="$store.notifications.total > 99 ? '99+' : $store.notifications.total"></span>
+              </template>
+            </button>
+            <!-- Dropdown -->
+            <div x-show="$store.notifications.dropdownOpen" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95 translate-y-1" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+              <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <span class="text-sm font-semibold text-gray-800">Notifikasi</span>
+                <span class="text-xs text-gray-400" x-text="$store.notifications.total + ' aktifitas'"></span>
+              </div>
+              <div class="max-h-80 overflow-y-auto">
+                <template x-if="notifDropdownItems.length === 0">
+                  <div class="px-4 py-8 text-center">
+                    <i class="fas fa-check-circle text-emerald-400 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-400 font-medium">Semua sudah ditindak</p>
+                  </div>
+                </template>
+                <template x-for="(item, idx) in notifDropdownItems" :key="idx">
+                  <button @click="navigateFromNotif(item.page)" class="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left border-b border-gray-50 last:border-0">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" :class="item.color.replace('text-', 'bg-').replace('500', '100')">
+                      <i class="fas text-sm" :class="[item.icon, item.color]"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-800 truncate" x-text="item.label"></p>
+                      <p class="text-xs text-gray-400" x-text="item.count + ' menunggu'"></p>
+                    </div>
+                    <span class="notif-badge-count" x-text="item.count"></span>
+                  </button>
+                </template>
+              </div>
+            </div>
+          </div>
           <span class="text-xs text-gray-400 hidden sm:block truncate max-w-[120px]" x-text="getUser().email || ''"></span>
           <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center ring-2 ring-indigo-200"><span class="text-xs font-bold text-indigo-600" x-text="getUser().email ? getUser().email[0].toUpperCase() : 'A'"></span></div>
         </div>
@@ -872,16 +921,16 @@
     document.querySelector('html').setAttribute('x-data', 'adminApp');
     const sidebarMenu = [
       { id: 'dashboard', label: 'Beranda', icon: 'fa-chart-pie', header: 'Utama' },
-      { id: 'confirm-payment', label: 'Konfirmasi Bayar', icon: 'fa-hand-holding-usd', header: 'Transaksi' },
-      { id: 'confirm-extension', label: 'Konfirmasi Ekstensi', icon: 'fa-calendar-plus' },
-      { id: 'custom-tasks', label: 'Custom Task', icon: 'fa-tasks' },
-      { id: 'providers', label: 'Mitra', icon: 'fa-hard-hat', header: 'Manajemen' },
+      { id: 'confirm-payment', label: 'Konfirmasi Bayar', icon: 'fa-hand-holding-usd', header: 'Transaksi', badgeKey: 'pendingPayments' },
+      { id: 'confirm-extension', label: 'Konfirmasi Ekstensi', icon: 'fa-calendar-plus', badgeKey: 'pendingExtensions' },
+      { id: 'custom-tasks', label: 'Custom Task', icon: 'fa-tasks', badgeKeys: ['pendingTaskPayments', 'pendingTaskPayouts'] },
+      { id: 'providers', label: 'Mitra', icon: 'fa-hard-hat', header: 'Manajemen', badgeKey: 'pendingProviders' },
       { id: 'customers', label: 'Pelanggan', icon: 'fa-users' },
       { id: 'categories', label: 'Kategori', icon: 'fa-tags', header: 'Konten' },
       { id: 'services', label: 'Layanan', icon: 'fa-tools' },
       { id: 'payments', label: 'Pembayaran', icon: 'fa-credit-card' },
       { id: 'pricing-types', label: 'Tipe Harga', icon: 'fa-dollar-sign' },
-      { id: 'reports', label: 'Laporan', icon: 'fa-flag', header: 'Lainnya' },
+      { id: 'reports', label: 'Laporan', icon: 'fa-flag', header: 'Lainnya', badgeKey: 'openReports' },
     ];
 
     document.addEventListener('alpine:init', () => {
@@ -1026,7 +1075,9 @@
 
       Alpine.data('confirmPaymentPage', () => ({
         loading: true, orders: [], filteredOrders: [], confirming: null, statusFilter: '',
-        init() { requireAuth(); this.load(); },
+        _interval: null,
+        init() { requireAuth(); this.load(); this._interval = setInterval(() => this.load(), 15000); },
+        destroy() { if (this._interval) clearInterval(this._interval); },
         async load() {
           this.loading = true;
           try { this.orders = await apiFetch('/admin/orders/all'); this.filterOrders(); } catch (e) { toast(e.message, 'error'); }
@@ -1083,7 +1134,9 @@
       Alpine.data('customTasksPage', () => ({
         loading: true, processing: null, tab: 'payment',
         pendingPaymentTasks: [], pendingPayoutTasks: [],
-        init() { requireAuth(); this.load(); },
+        _interval: null,
+        init() { requireAuth(); this.load(); this._interval = setInterval(() => this.load(), 15000); },
+        destroy() { if (this._interval) clearInterval(this._interval); },
         async load() {
           this.loading = true;
           try {
@@ -1122,7 +1175,9 @@
 
       Alpine.data('reportsPage', () => ({
         loading: true, reports: [],
-        init() { requireAuth(); this.loadReports(); },
+        _interval: null,
+        init() { requireAuth(); this.loadReports(); this._interval = setInterval(() => this.loadReports(), 15000); },
+        destroy() { if (this._interval) clearInterval(this._interval); },
         async loadReports() {
           this.loading = true;
           try { this.reports = await apiFetch('/admin/reports/open'); } catch (e) { toast(e.message, 'error'); }

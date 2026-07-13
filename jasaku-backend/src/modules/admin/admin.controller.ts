@@ -349,6 +349,15 @@ const respondToReport = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const getNotificationCounts = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getNotificationCounts();
+    return successResponse(res, result, "Notification counts berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
 // Custom Tasks
 import { CustomTasksService } from '../custom-tasks/custom-tasks.service';
 const customTasksService = new CustomTasksService();
@@ -430,5 +439,6 @@ export {
   confirmTaskPaymentByTask,
   confirmTaskPayout,
   getOpenReports,
-  respondToReport
+  respondToReport,
+  getNotificationCounts
 };

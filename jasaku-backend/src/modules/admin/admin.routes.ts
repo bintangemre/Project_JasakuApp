@@ -21,6 +21,7 @@ import {
   confirmTaskPayment,
   confirmTaskPaymentByTask,
   confirmTaskPayout,
+  getNotificationCounts,
 } from './admin.controller';
 import { confirmPaymentByAdmin, approveExtension, activateExtension } from '../orders/orders.controller';
 import { authenticate } from '../../middleware/auth.middleware';
@@ -31,8 +32,9 @@ import { upload } from '../../middleware/upload.middleware';
 
 const router = Router();
 
-// Dashboard
+// Dashboard & Notifications
 router.get('/dashboard', authenticate, isAdmin, getDashboardMetrics);
+router.get('/notifications/counts', authenticate, isAdmin, getNotificationCounts);
 
 // Provider verification
 router.get('/providers/pending', authenticate, isAdmin, getPendingProviders);
