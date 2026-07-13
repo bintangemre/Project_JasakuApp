@@ -1,10 +1,11 @@
 import multer from 'multer';
+import path from 'path';
 
 const storage = multer.memoryStorage();
 
 const fileFilter = (_req: any, file: any, cb: any) => {
   const allowed = ['.jpg', '.jpeg', '.png', '.pdf'];
-  const ext = require('path').extname(file.originalname).toLowerCase();
+  const ext = path.extname(file.originalname).toLowerCase();
   if (allowed.includes(ext)) {
     cb(null, true);
   } else {
