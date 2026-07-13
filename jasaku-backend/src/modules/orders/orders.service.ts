@@ -499,6 +499,7 @@ export class OrdersService {
             select: {
                 id: true,
                 customer_id: true,
+                work_date: true,
                 profiles_customer: { select: { user_id: true } }
             }
         });
@@ -508,6 +509,13 @@ export class OrdersService {
                 where: { id: order.id },
                 data: { status: 'cancelled' }
             });
+            // Bersihkan provider_schedules agar tanggal bisa dipakai order lain
+            if (order.work_date) {
+                await prisma.provider_schedules.updateMany({
+                    where: { provider_id: profile.id, work_date: order.work_date },
+                    data: { is_booked: false }
+                });
+            }
             try {
                 await NotificationService.sendToUser(
                     order.profiles_customer.user_id,
@@ -662,6 +670,14 @@ export class OrdersService {
                     data: { is_booked: false }
                 });
             }
+        }
+
+        // Bersihkan provider_schedules saat rejected agar tanggal bisa dipakai order lain
+        if (status === 'rejected' && order.work_date) {
+            await prisma.provider_schedules.updateMany({
+                where: { provider_id: order.provider_id, work_date: order.work_date },
+                data: { is_booked: false }
+            });
         }
 
         // Notifikasi untuk non-accept statuses
@@ -830,6 +846,14 @@ export class OrdersService {
             where: { id: orderId },
             data: { status: 'cancelled' }
         });
+
+        // Bersihkan provider_schedules agar tanggal bisa dipakai order lain
+        if (order.work_date) {
+            await prisma.provider_schedules.updateMany({
+                where: { provider_id: order.provider_id, work_date: order.work_date },
+                data: { is_booked: false }
+            });
+        }
 
         try {
             const providerProfile = await prisma.provider_profiles.findUnique({

@@ -85,7 +85,9 @@ export function canOrderNow(): { allowed: boolean; warning?: string } {
 
 export function isSameWitaDate(date: Date): boolean {
   const now = new Date();
-  return date.getFullYear() === now.getFullYear() &&
-         date.getMonth() === now.getMonth() &&
-         date.getDate() === now.getDate();
+  const nowWita = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+  const dateWita = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  return nowWita.getUTCFullYear() === dateWita.getUTCFullYear() &&
+         nowWita.getUTCMonth() === dateWita.getUTCMonth() &&
+         nowWita.getUTCDate() === dateWita.getUTCDate();
 }
