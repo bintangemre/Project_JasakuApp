@@ -5,7 +5,7 @@ import { AuthRequest } from './auth.middleware';
 export const validate = (schema: ZodSchema) => {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
-            schema.parse(req.body);
+            req.body = schema.parse(req.body);
             next();
         } catch (err) {
             if (err instanceof ZodError) {
