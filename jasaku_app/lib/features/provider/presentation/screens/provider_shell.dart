@@ -64,8 +64,21 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
     FcmManager.onNotificationTap = _handleNotificationTap;
     FcmManager.onForegroundMessage = _handleForegroundMessage;
     ref.read(locationTrackerProvider.notifier).startTracking();
+    _fetchUserProfile();
     _fetchCounts();
     _countsTimer = Timer.periodic(const Duration(seconds: 30), (_) => _fetchCounts());
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      final response = await _dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
+      final meData = response.data['data'] as Map<String, dynamic>?;
+      if (meData != null && mounted) {
+        ref.read(authProvider.notifier).restoreSession(meData);
+      }
+    } catch (_) {
+      // Network error — user stays as fallback
+    }
   }
 
   @override
