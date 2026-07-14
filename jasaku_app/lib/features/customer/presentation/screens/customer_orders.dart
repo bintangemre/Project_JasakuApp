@@ -172,8 +172,8 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
       if (!isToday) return false;
 
       final totalMinutes = now.hour * 60 + now.minute;
-      final warningStart = 14 * 60 + 30;
-      final cutoff = 15 * 60;
+      final warningStart = 15 * 60;
+      final cutoff = 16 * 60;
       return totalMinutes >= warningStart && totalMinutes < cutoff;
     } catch (_) {
       return false;
@@ -183,7 +183,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().add(const Duration(days: 1)),
+      initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 30)),
     );
@@ -506,7 +506,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Waktu pemesanan mepet dengan jam operasional berakhir. Sarankan order besok pagi jam 08:00 atau lihat jadwal mitra.',
+                                'Jam operasional berakhir pukul 16:00 WITA. Pilih hari lain atau pesan 2 hari kerja. Jika tetap pesan, provider bisa minta extensi jika pekerjaan belum selesai.',
                                 style: TextStyle(fontSize: 12, color: Color(0xFF9C6B3E)),
                               ),
                             ),

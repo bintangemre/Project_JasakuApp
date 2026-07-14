@@ -1,11 +1,11 @@
 const OP_START_HOUR = 8;
 const OP_START_MIN = 0;
-const OP_END_HOUR = 17;
+const OP_END_HOUR = 16;
 const OP_END_MIN = 0;
-const ORDER_CUTOFF_HOUR = 15;
+const ORDER_CUTOFF_HOUR = 16;
 const ORDER_CUTOFF_MIN = 0;
-const WARNING_START_HOUR = 14;
-const WARNING_START_MIN = 30;
+const WARNING_START_HOUR = 15;
+const WARNING_START_MIN = 0;
 
 function getTotalMinutes(h: number, m: number): number {
   return h * 60 + m;
@@ -59,7 +59,7 @@ export function canCompleteWork(): { allowed: boolean; message?: string } {
     return { allowed: false, message: `Belum jam operasional (${String(OP_START_HOUR).padStart(2, '0')}:${String(OP_START_MIN).padStart(2, '0')} WITA)` };
   }
   if (nowTotal >= endTotal) {
-    return { allowed: false, message: "Sudah lewat jam operasional. Batas konfirmasi selesai pukul 16:59 WITA" };
+    return { allowed: false, message: "Sudah lewat jam operasional. Batas konfirmasi selesai pukul 15:59 WITA" };
   }
   return { allowed: true };
 }
@@ -78,7 +78,7 @@ export function canOrderNow(): { allowed: boolean; warning?: string } {
     return { allowed: false, warning: "Sudah lewat jam operasional, silahkan order untuk besok" };
   }
   if (nowTotal >= warningStartTotal) {
-    return { allowed: true, warning: "Waktu pemesanan mepet dengan jam operasional berakhir. Sarankan order besok pagi jam 08:00 atau lihat jadwal mitra." };
+    return { allowed: true, warning: "Jam operasional berakhir pukul 16:00 WITA. Pilih hari lain atau pesan 2 hari kerja. Jika tetap pesan, provider bisa minta extensi jika pekerjaan belum selesai." };
   }
   return { allowed: true };
 }

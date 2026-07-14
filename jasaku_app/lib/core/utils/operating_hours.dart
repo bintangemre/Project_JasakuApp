@@ -1,12 +1,12 @@
 class OperatingHours {
   static const int startHour = 8;
   static const int startMinute = 0;
-  static const int endHour = 17;
+  static const int endHour = 16;
   static const int endMinute = 0;
-  static const int orderCutoffHour = 15;
+  static const int orderCutoffHour = 16;
   static const int orderCutoffMinute = 0;
-  static const int warningStartHour = 14;
-  static const int warningStartMinute = 30;
+  static const int warningStartHour = 15;
+  static const int warningStartMinute = 0;
 
   static int _totalMinutes(int h, int m) => h * 60 + m;
 
@@ -40,7 +40,7 @@ class OperatingHours {
     if (total >= warningStart) {
       return (
         allowed: true,
-        warning: 'Waktu pemesanan mepet dengan jam operasional berakhir. Sarankan order besok pagi jam 08:00 atau lihat jadwal mitra.',
+        warning: 'Jam operasional berakhir pukul 16:00 WITA. Pilih hari lain atau pesan 2 hari kerja. Jika tetap pesan, provider bisa minta extensi jika pekerjaan belum selesai.',
       );
     }
     return (allowed: true, warning: null);
