@@ -512,7 +512,7 @@ export class AdminService {
             pendingTaskPayouts,
             pendingProviders,
             openReports,
-            total: pendingPayments + pendingExtensions + pendingTaskPayments + pendingTaskPayouts + pendingProviders + openReports,
+            total: pendingPayments + pendingExtensions + pendingTaskPayments + pendingProviders + openReports,
         };
     }
 }
