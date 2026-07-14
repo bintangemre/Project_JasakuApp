@@ -461,7 +461,7 @@ async registerProvider(
         roles: { select: { name: true } },
         phone: true,
         profiles_customer: {
-          select: { full_name: true, profile_photo: true }
+          select: { full_name: true, avatar_url: true }
         },
         provider_profiles: {
           select: { full_name: true, profile_photo: true, verification_status: true, is_active: true, verification_notes: true, onboarding_completed: true }
