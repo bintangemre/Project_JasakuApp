@@ -832,9 +832,19 @@
       <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800" x-text="isEdit ? 'Edit Rekening' : 'Tambah Rekening'"></h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
       <form @submit.prevent="save" class="space-y-4">
         <div><label class="form-label">Tipe</label><select x-model="form.type" class="form-select"><option value="bank_transfer">Bank Transfer</option><option value="e_wallet">E-Wallet</option><option value="qris">QRIS</option></select></div>
-        <div><label class="form-label">Nama Pemilik</label><input type="text" x-model="form.account_name" class="form-input" placeholder="cth: PT Jasaku" required></div>
-        <div><label class="form-label">Nomor Rekening</label><input type="text" x-model="form.account_number" class="form-input" placeholder="1234567890" required></div>
+        <div x-show="form.type !== 'qris'"><label class="form-label">Nama Pemilik</label><input type="text" x-model="form.account_name" class="form-input" placeholder="cth: PT Jasaku" :required="form.type !== 'qris'"></div>
+        <div x-show="form.type !== 'qris'"><label class="form-label">Nomor Rekening</label><input type="text" x-model="form.account_number" class="form-input" placeholder="1234567890" :required="form.type !== 'qris'"></div>
         <div><label class="form-label">Nama Bank / Penyedia</label><input type="text" x-model="form.provider_name" class="form-input" placeholder="BCA, GoPay, DANA, dll" required></div>
+        <div x-show="form.type === 'qris'" class="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50">
+          <label class="form-label">Gambar QRIS</label>
+          <template x-if="isEdit && form.qris_image_url && !qrisFile">
+            <div class="mb-3"><img :src="form.qris_image_url" class="max-h-48 mx-auto rounded-lg shadow-sm border border-gray-100"><p class="text-xs text-gray-400 text-center mt-2">Gambar QRIS saat ini</p></div>
+          </template>
+          <template x-if="qrisFile">
+            <div class="mb-3"><img :src="qrisPreviewUrl" class="max-h-48 mx-auto rounded-lg shadow-sm border border-gray-100"><p class="text-xs text-green-600 text-center mt-2" x-text="qrisFile.name"></p></div>
+          </template>
+          <label class="block cursor-pointer text-center py-3 px-4 border-2 border-dashed border-indigo-300 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors"><i class="fas fa-cloud-upload-alt mr-1"></i><span x-text="qrisFile ? 'Ganti Gambar' : 'Pilih Gambar QRIS'"></span><input type="file" accept="image/*" class="hidden" @change="pickQris($event)"></label>
+        </div>
         <div class="flex gap-3 justify-end pt-2"><button type="button" class="btn-secondary" @click="close()">Batal</button><button type="submit" class="btn-primary"><i class="fas fa-save mr-1"></i>Simpan</button></div>
       </form>
     </div></div>
@@ -1031,17 +1041,20 @@
         openQris(a) { Alpine.store('qrisModal').open(a.qris_image_url, a.account_name); }
       }));
 
-      Alpine.store('paymentModal', { show: false, isEdit: false, editId: null, form: { type: 'bank_transfer', account_name: '', account_number: '', provider_name: '' } });
+      Alpine.store('paymentModal', { show: false, isEdit: false, editId: null, form: { type: 'bank_transfer', account_name: '', account_number: '', provider_name: '' }, qrisFile: null, qrisPreviewUrl: '' });
       Alpine.data('paymentModal', () => ({
-        show: false, isEdit: false, editId: null, form: { type: 'bank_transfer', account_name: '', account_number: '', provider_name: '' },
+        show: false, isEdit: false, editId: null, form: { type: 'bank_transfer', account_name: '', account_number: '', provider_name: '' }, qrisFile: null, qrisPreviewUrl: '',
         init() { this.$store.paymentModal = this; },
-        openCreate() { this.isEdit = false; this.editId = null; this.form = { type: 'bank_transfer', account_name: '', account_number: '', provider_name: '' }; this.show = true; },
-        openEdit(a) { this.isEdit = true; this.editId = a.id; this.form = { type: a.type, account_name: a.account_name, account_number: a.account_number, provider_name: a.provider_name || '' }; this.show = true; },
+        openCreate() { this.isEdit = false; this.editId = null; this.form = { type: 'bank_transfer', account_name: '', account_number: '', provider_name: '' }; this.qrisFile = null; this.qrisPreviewUrl = ''; this.show = true; },
+        openEdit(a) { this.isEdit = true; this.editId = a.id; this.form = { type: a.type, account_name: a.account_name, account_number: a.account_number, provider_name: a.provider_name || '', qris_image_url: a.qris_image_url || '' }; this.qrisFile = null; this.qrisPreviewUrl = ''; this.show = true; },
+        pickQris(e) { const file = e.target.files[0]; if (!file) return; this.qrisFile = file; this.qrisPreviewUrl = URL.createObjectURL(file); },
         close() { this.show = false; },
         async save() {
           try {
             if (this.isEdit) { await apiFetch('/admin/payment-accounts/' + this.editId, { method: 'PUT', body: JSON.stringify(this.form) }); toast('Rekening diperbarui'); }
             else { await apiFetch('/admin/payment-accounts', { method: 'POST', body: JSON.stringify(this.form) }); toast('Rekening ditambahkan'); }
+            const savedId = this.isEdit ? this.editId : null;
+            if (savedId && this.qrisFile) { const fd = new FormData(); fd.append('qris', this.qrisFile); await apiFetch('/admin/payment-accounts/' + savedId + '/qris-upload', { method: 'POST', body: fd }); toast('Gambar QRIS berhasil diupload'); }
             this.close(); Alpine.store('nav').page = 'payments';
             document.querySelector('[x-data="paymentsPage"]')?.__x?.$data.load();
           } catch (e) { toast(e.message, 'error'); }
