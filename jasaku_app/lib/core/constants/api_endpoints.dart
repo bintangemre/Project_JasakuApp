@@ -1,99 +1,99 @@
 // Defines backend API endpoint URLs for shared Jasaku App network calls.
 class ApiEndpoints {
-  static const String _baseUrlHost = String.fromEnvironment('BASE_URL', defaultValue: 'jasakuapp.onrender.com');
-  static const String baseUrl = 'https://$_baseUrlHost';
-  static const String login = '$baseUrl/api/auth/login';
-  static const String loginGoogle = '$baseUrl/api/auth/login/google';
-  static const String registerCustomer = '$baseUrl/api/auth/register/customer';
-  static const String registerProvider = '$baseUrl/api/auth/register/provider';
-  static const String logout = '$baseUrl/api/auth/logout';
+  static const String _raw = String.fromEnvironment('BASE_URL', defaultValue: 'jasakuapp.onrender.com');
+  static final String baseUrl = _raw.startsWith('http') ? _raw : 'https://$_raw';
+  static final String login = '$baseUrl/api/auth/login';
+  static final String loginGoogle = '$baseUrl/api/auth/login/google';
+  static final String registerCustomer = '$baseUrl/api/auth/register/customer';
+  static final String registerProvider = '$baseUrl/api/auth/register/provider';
+  static final String logout = '$baseUrl/api/auth/logout';
 
-  static const String getAllCategories = '$baseUrl/api/services/categories';
-  static const String getCategoriesByid = '$baseUrl/api/services/categories/'; // + {id}
-  static const String getProviderByService = '$baseUrl/api/services/providers/'; // + {serviceId}
-  static const String getProvidersByServiceWithoutDistance = '$baseUrl/api/services/services/providers/non-location';
-  static const String searchServicesApi = '$baseUrl/api/services/services/search'; // + ?q=
-  static const String updateLocation = '$baseUrl/api/locations/update';
-  static const String updateProviderService = '$baseUrl/api/provider/services/update-service';
-  static const String providerAvailableServices = '$baseUrl/api/provider/services/available-services';
-  static const String providerAvailablePricingTypes = '$baseUrl/api/provider/services/available-pricing-types';
-  static const String createOrder = '$baseUrl/api/orders/orders';
-  static const String getOrderDetails = '$baseUrl/api/orders/orders/'; // + {orderId}
-  static const String getCustomerOrders = '$baseUrl/api/orders/customer/orders';
-  static const String getCustomerActiveOrders = '$baseUrl/api/orders/customer/orders?status=active';
-  static const String getProviderOrders = '$baseUrl/api/orders/provider/orders';
-  static const String getProviderRequests = '$baseUrl/api/orders/provider/requests';
-  static const String updateOrderStatus = '$baseUrl/api/orders/orders/'; // + {orderId}/status
+  static final String getAllCategories = '$baseUrl/api/services/categories';
+  static final String getCategoriesByid = '$baseUrl/api/services/categories/'; // + {id}
+  static final String getProviderByService = '$baseUrl/api/services/providers/'; // + {serviceId}
+  static final String getProvidersByServiceWithoutDistance = '$baseUrl/api/services/services/providers/non-location';
+  static final String searchServicesApi = '$baseUrl/api/services/services/search'; // + ?q=
+  static final String updateLocation = '$baseUrl/api/locations/update';
+  static final String updateProviderService = '$baseUrl/api/provider/services/update-service';
+  static final String providerAvailableServices = '$baseUrl/api/provider/services/available-services';
+  static final String providerAvailablePricingTypes = '$baseUrl/api/provider/services/available-pricing-types';
+  static final String createOrder = '$baseUrl/api/orders/orders';
+  static final String getOrderDetails = '$baseUrl/api/orders/orders/'; // + {orderId}
+  static final String getCustomerOrders = '$baseUrl/api/orders/customer/orders';
+  static final String getCustomerActiveOrders = '$baseUrl/api/orders/customer/orders?status=active';
+  static final String getProviderOrders = '$baseUrl/api/orders/provider/orders';
+  static final String getProviderRequests = '$baseUrl/api/orders/provider/requests';
+  static final String updateOrderStatus = '$baseUrl/api/orders/orders/'; // + {orderId}/status
 
   // FCM Device
-  static const String registerDevice = '$baseUrl/api/notifications/devices/register';
+  static final String registerDevice = '$baseUrl/api/notifications/devices/register';
 
   // Reviews
-  static const String createReview = '$baseUrl/api/reviews';
-  static const String getProviderReviews = '$baseUrl/api/reviews/provider/'; // + {providerId}
+  static final String createReview = '$baseUrl/api/reviews';
+  static final String getProviderReviews = '$baseUrl/api/reviews/provider/'; // + {providerId}
 
   // Payments
-  static const String paymentMethods = '$baseUrl/api/payment-methods';
-  static const String createPayment = '$baseUrl/api/payments';
-  static const String getPaymentByOrder = '$baseUrl/api/payments/order/'; // + {orderId}
-  static const String uploadPaymentProof = '$baseUrl/api/payments/upload-proof/'; // + {orderId}
-  static const String savePaymentMethod = '$baseUrl/api/payment-methods/save';
-  static const String getMyPaymentMethods = '$baseUrl/api/payment-methods/mine';
+  static final String paymentMethods = '$baseUrl/api/payment-methods';
+  static final String createPayment = '$baseUrl/api/payments';
+  static final String getPaymentByOrder = '$baseUrl/api/payments/order/'; // + {orderId}
+  static final String uploadPaymentProof = '$baseUrl/api/payments/upload-proof/'; // + {orderId}
+  static final String savePaymentMethod = '$baseUrl/api/payment-methods/save';
+  static final String getMyPaymentMethods = '$baseUrl/api/payment-methods/mine';
 
   // Order status tracking
-  static const String cancelOrder = '$baseUrl/api/orders/orders/'; // + {orderId}/cancel
-  static const String getOrderTracking = '$baseUrl/api/orders/orders/'; // + {orderId}/tracking
-  static const String getProviderLocation = '$baseUrl/api/locations/provider/'; // + {providerId}
+  static final String cancelOrder = '$baseUrl/api/orders/orders/'; // + {orderId}/cancel
+  static final String getOrderTracking = '$baseUrl/api/orders/orders/'; // + {orderId}/tracking
+  static final String getProviderLocation = '$baseUrl/api/locations/provider/'; // + {providerId}
 
   // Admin
-  static const String adminDashboard = '$baseUrl/api/admin/dashboard';
-  static const String adminPendingProviders = '$baseUrl/api/admin/providers/pending';
-  static const String adminVerifyProvider = '$baseUrl/api/admin/providers/'; // + {providerId}/verify
-  static const String adminAllProviders = '$baseUrl/api/admin/providers';
-  static const String adminAllCustomers = '$baseUrl/api/admin/customers';
-  static const String adminBanUser = '$baseUrl/api/admin/users/'; // + {userId}/ban
-  static const String adminCreateCategory = '$baseUrl/api/admin/categories';
-  static const String adminCreateService = '$baseUrl/api/admin/services';
+  static final String adminDashboard = '$baseUrl/api/admin/dashboard';
+  static final String adminPendingProviders = '$baseUrl/api/admin/providers/pending';
+  static final String adminVerifyProvider = '$baseUrl/api/admin/providers/'; // + {providerId}/verify
+  static final String adminAllProviders = '$baseUrl/api/admin/providers';
+  static final String adminAllCustomers = '$baseUrl/api/admin/customers';
+  static final String adminBanUser = '$baseUrl/api/admin/users/'; // + {userId}/ban
+  static final String adminCreateCategory = '$baseUrl/api/admin/categories';
+  static final String adminCreateService = '$baseUrl/api/admin/services';
 
   // Customer Profile
-  static const String customerProfile = '$baseUrl/api/customer/profile';
+  static final String customerProfile = '$baseUrl/api/customer/profile';
 
   // Custom Tasks
-  static const String customTasks = '$baseUrl/api/custom-tasks';
-  static const String customTasksAvailable = '$baseUrl/api/custom-tasks/available';
-  static const String customTasksMine = '$baseUrl/api/custom-tasks/mine';
-  static const String customTasksMyAccepted = '$baseUrl/api/custom-tasks/my-accepted';
-  static const String customTasksMyActive = '$baseUrl/api/custom-tasks/my-active';
-  static const String customTaskTracking = '$baseUrl/api/custom-tasks/'; // + {taskId}/tracking
+  static final String customTasks = '$baseUrl/api/custom-tasks';
+  static final String customTasksAvailable = '$baseUrl/api/custom-tasks/available';
+  static final String customTasksMine = '$baseUrl/api/custom-tasks/mine';
+  static final String customTasksMyAccepted = '$baseUrl/api/custom-tasks/my-accepted';
+  static final String customTasksMyActive = '$baseUrl/api/custom-tasks/my-active';
+  static final String customTaskTracking = '$baseUrl/api/custom-tasks/'; // + {taskId}/tracking
 
   // Reports
-  static const String createReport = '$baseUrl/api/reports';
-  static const String myReports = '$baseUrl/api/reports/mine';
+  static final String createReport = '$baseUrl/api/reports';
+  static final String myReports = '$baseUrl/api/reports/mine';
 
   // Provider Dashboard
-  static const String providerProfile = '$baseUrl/api/provider/profile';
-  static const String providerCounts = '$baseUrl/api/provider/counts';
-  static const String providerServices = '$baseUrl/api/provider/services';
-  static const String providerAvailability = '$baseUrl/api/provider/profile/availability';
-  static const String providerCompleteOnboarding = '$baseUrl/api/provider/profile/complete';
-  static const String providerUpdateProfile = '$baseUrl/api/provider/profile';
-  static const String providerPayoutMethods = '$baseUrl/api/provider/payout-methods';
+  static final String providerProfile = '$baseUrl/api/provider/profile';
+  static final String providerCounts = '$baseUrl/api/provider/counts';
+  static final String providerServices = '$baseUrl/api/provider/services';
+  static final String providerAvailability = '$baseUrl/api/provider/profile/availability';
+  static final String providerCompleteOnboarding = '$baseUrl/api/provider/profile/complete';
+  static final String providerUpdateProfile = '$baseUrl/api/provider/profile';
+  static final String providerPayoutMethods = '$baseUrl/api/provider/payout-methods';
 
   // Auth
-  static const String resubmitVerification = '$baseUrl/api/auth/provider/resubmit-verification';
+  static final String resubmitVerification = '$baseUrl/api/auth/provider/resubmit-verification';
 
   // Public provider status & schedule (customer view)
   static String providerStatus(String providerId) => '$baseUrl/api/orders/provider/$providerId/status';
   static String providerSchedule(String providerId) => '$baseUrl/api/orders/provider/$providerId/schedule';
 
   // Payment accounts (rekber — customer needs to know where to transfer)
-  static const String paymentAccounts = '$baseUrl/api/orders/payment-accounts';
+  static final String paymentAccounts = '$baseUrl/api/orders/payment-accounts';
 
   // Extensions
   static String requestExtension(String orderId) => '$baseUrl/api/orders/orders/$orderId/extend';
   static String orderExtensions(String orderId) => '$baseUrl/api/orders/orders/$orderId/extensions';
   static String respondExtension(String extensionId) => '$baseUrl/api/orders/extensions/$extensionId/respond';
-  static const String adminAllExtensions = '$baseUrl/api/admin/extensions/all';
-  static const String adminPendingExtensions = '$baseUrl/api/admin/extensions/pending';
+  static final String adminAllExtensions = '$baseUrl/api/admin/extensions/all';
+  static final String adminPendingExtensions = '$baseUrl/api/admin/extensions/pending';
   static String adminApproveExtension(String extensionId) => '$baseUrl/api/admin/extensions/$extensionId/approve';
 }
