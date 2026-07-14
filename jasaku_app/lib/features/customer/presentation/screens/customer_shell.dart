@@ -5,9 +5,6 @@ import 'customer_home.dart';
 import 'customer_notifications_page.dart';
 import 'customer_profile.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/network/api_client.dart';
-import '../../../../core/constants/api_endpoints.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../orders/presentation/pages/customer_order_list_page.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 import '../../../notifications/data/services/fcm_manager.dart';
@@ -34,19 +31,6 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
     super.initState();
     FcmManager.onNotificationTap = _handleNotificationTap;
     FcmManager.onForegroundMessage = _onForegroundMessage;
-    _fetchUserProfile();
-  }
-
-  Future<void> _fetchUserProfile() async {
-    try {
-      final response = await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
-      final meData = response.data['data'] as Map<String, dynamic>?;
-      if (meData != null && mounted) {
-        ref.read(authProvider.notifier).restoreSession(meData);
-      }
-    } catch (_) {
-      // Network error — user stays as "Customer" fallback
-    }
   }
 
   void _onForegroundMessage(RemoteMessage msg) {

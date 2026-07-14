@@ -1,9 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'provider_login_screen.dart';
 import 'provider_register_category_screen.dart';
+import 'provider_verification_pending_screen.dart';
 import '../providers/register_state.dart';
+import '../providers/auth_provider.dart';
 import '../../../../core/utils/storage.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/constants/api_endpoints.dart';
 
 class ProviderWelcomeScreen extends ConsumerStatefulWidget {
   const ProviderWelcomeScreen({super.key});
@@ -22,15 +27,50 @@ class _ProviderWelcomeScreenState extends ConsumerState<ProviderWelcomeScreen> {
   }
 
   Future<void> _checkAuth() async {
+    if (!mounted) return;
+
     final hasToken = await StorageService.hasToken();
     if (!mounted) return;
 
-    if (hasToken) {
-      Navigator.pushReplacementNamed(context, '/provider/shell');
+    if (!hasToken) {
+      setState(() => _checking = false);
       return;
     }
 
-    setState(() => _checking = false);
+    try {
+      final response = await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
+      final meData = response.data['data'] as Map<String, dynamic>?;
+      if (meData != null) {
+        ref.read(authProvider.notifier).restoreSession(meData);
+        final status = ref.read(authProvider).verificationStatus;
+        if (status == 'pending' || status == 'rejected') {
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ProviderVerificationPendingScreen(status: status!),
+              ),
+            );
+          }
+          return;
+        }
+        final onboarding = ref.read(authProvider).onboardingCompleted;
+        if (onboarding == false) {
+          if (mounted) Navigator.pushReplacementNamed(context, '/provider/profile-completion');
+        } else {
+          if (mounted) Navigator.pushReplacementNamed(context, '/provider/shell');
+        }
+        return;
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        await StorageService.deleteToken();
+        if (mounted) setState(() => _checking = false);
+        return;
+      }
+    } catch (_) {}
+
+    if (mounted) Navigator.pushReplacementNamed(context, '/provider/shell');
   }
 
   @override
@@ -87,7 +127,6 @@ class _ProviderWelcomeScreenState extends ConsumerState<ProviderWelcomeScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -132,12 +171,10 @@ class _ProviderWelcomeScreenState extends ConsumerState<ProviderWelcomeScreen> {
                   ],
                 ),
               ),
-              // Buttons
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
-                    // Login Button
                     SizedBox(
                       width: double.infinity,
                       height: 52,
@@ -167,7 +204,6 @@ class _ProviderWelcomeScreenState extends ConsumerState<ProviderWelcomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    // Register Button
                     SizedBox(
                       width: double.infinity,
                       height: 52,
