@@ -42,24 +42,19 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           final meData = body['data'] as Map<String, dynamic>?;
           if (meData != null) {
             ref.read(authProvider.notifier).restoreSession(meData);
+            if (mounted) Navigator.pushReplacementNamed(context, '/customer/shell');
+            return;
           }
         }
-        break;
       } on DioException catch (e) {
         if (e.response?.statusCode == 401) {
           await StorageService.deleteToken();
           if (mounted) Navigator.pushReplacementNamed(context, '/login');
           return;
         }
-        if (attempt < 2) {
-          await Future.delayed(const Duration(seconds: 2));
-          continue;
-        }
-      } catch (_) {
-        if (attempt < 2) {
-          await Future.delayed(const Duration(seconds: 2));
-          continue;
-        }
+      } catch (_) {}
+      if (attempt < 2) {
+        await Future.delayed(const Duration(seconds: 2));
       }
     }
 

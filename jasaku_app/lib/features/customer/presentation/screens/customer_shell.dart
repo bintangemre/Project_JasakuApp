@@ -5,10 +5,13 @@ import 'customer_home.dart';
 import 'customer_notifications_page.dart';
 import 'customer_profile.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/constants/api_endpoints.dart';
 import '../../../orders/presentation/pages/customer_order_list_page.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 import '../../../notifications/data/services/fcm_manager.dart';
 import '../../../custom_tasks/presentation/pages/task_detail_page.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 class CustomerShell extends ConsumerStatefulWidget {
   const CustomerShell({super.key});
@@ -31,6 +34,24 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
     super.initState();
     FcmManager.onNotificationTap = _handleNotificationTap;
     FcmManager.onForegroundMessage = _onForegroundMessage;
+    _restoreUserIfNeeded();
+  }
+
+  Future<void> _restoreUserIfNeeded() async {
+    final authState = ref.read(authProvider);
+    if (authState.user != null) return;
+    try {
+      final response = await ApiClient().dio.get(
+        '${ApiEndpoints.baseUrl}/api/auth/me',
+      );
+      final body = response.data;
+      if (body is Map<String, dynamic>) {
+        final meData = body['data'] as Map<String, dynamic>?;
+        if (meData != null && mounted) {
+          ref.read(authProvider.notifier).restoreSession(meData);
+        }
+      }
+    } catch (_) {}
   }
 
   void _onForegroundMessage(RemoteMessage msg) {

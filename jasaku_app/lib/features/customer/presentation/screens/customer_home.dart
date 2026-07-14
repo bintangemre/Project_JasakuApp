@@ -25,21 +25,6 @@ final customerHomeOrdersProvider = FutureProvider.autoDispose<List<OrderModel>>(
 class CustomerHome extends ConsumerWidget {
   const CustomerHome({super.key});
 
-  Future<void> _restoreUserIfPossible(WidgetRef ref) async {
-    try {
-      final response = await ApiClient().dio.get(
-        '${ApiEndpoints.baseUrl}/api/auth/me',
-      );
-      final body = response.data;
-      if (body is Map<String, dynamic>) {
-        final meData = body['data'] as Map<String, dynamic>?;
-        if (meData != null) {
-          ref.read(authProvider.notifier).restoreSession(meData);
-        }
-      }
-    } catch (_) {}
-  }
-
   Color _statusColor(String status) {
     switch (status) {
       case 'pending': return Colors.orange;
@@ -58,11 +43,6 @@ class CustomerHome extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final ordersAsync = ref.watch(customerHomeOrdersProvider);
-
-    if (authState.user == null) {
-      _restoreUserIfPossible(ref);
-    }
-
     final userName =
         (authState.user?.displayName ?? 'Customer').split(' ').first;
     return RefreshIndicator(
