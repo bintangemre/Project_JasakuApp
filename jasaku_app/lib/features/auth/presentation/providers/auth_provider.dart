@@ -135,7 +135,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         ocrReligion: ocrReligion,
         livenessData: livenessData,
       );
-      final token = result['token'] as String?;
+      final data = result['data'] as Map<String, dynamic>?;
+      final token = data?['token'] as String?;
       if (token != null) {
         await StorageService.saveToken(token);
         _reRegisterFcmToken();
