@@ -2,6 +2,41 @@ import {prisma} from '../../config/prisma';
 import { NotificationService } from '../notifications/notifications.service';
 
 export class AdminService {
+    // Cache for payment method labels
+    private _paymentMethodCache: Map<string, string> = new Map();
+
+    private async resolvePaymentMethodLabel(methodId: string | null): Promise<string> {
+        if (!methodId) return '-';
+        if (this._paymentMethodCache.has(methodId)) return this._paymentMethodCache.get(methodId)!;
+
+        let label = methodId;
+        try {
+            if (methodId.startsWith('transfer_')) {
+                const uuid = methodId.replace('transfer_', '');
+                const account = await prisma.admin_bank_accounts.findUnique({ where: { id: uuid } });
+                if (account) label = `Transfer ${account.provider_name} - ${account.account_name}`;
+            } else if (methodId.startsWith('ewallet_')) {
+                const uuid = methodId.replace('ewallet_', '');
+                const account = await prisma.admin_ewallet_accounts.findUnique({ where: { id: uuid } });
+                if (account) label = `${account.provider_name} - ${account.account_name}`;
+            } else if (methodId.startsWith('qris_')) {
+                const uuid = methodId.replace('qris_', '');
+                const account = await prisma.admin_qris_accounts.findUnique({ where: { id: uuid } });
+                if (account) label = `QRIS ${account.provider_name}`;
+            }
+        } catch (_) {}
+        this._paymentMethodCache.set(methodId, label);
+        return label;
+    }
+
+    private async resolvePaymentMethods(methodIds: (string | null)[]): Promise<Map<string, string>> {
+        const unique = [...new Set(methodIds.filter(Boolean))];
+        const result = new Map<string, string>();
+        for (const id of unique) {
+            result.set(id!, await this.resolvePaymentMethodLabel(id));
+        }
+        return result;
+    }
     // Dashboard metrics
     async getDashboardMetrics() {
         const [
@@ -294,11 +329,18 @@ export class AdminService {
             payoutMethods.map(pm => [pm.provider_id, pm])
         );
 
+        const allMethodIds = orders.flatMap(o => o.payments?.map(p => p.method) || []);
+        const methodLabelMap = await this.resolvePaymentMethods(allMethodIds);
+
         return orders.map(o => ({
             ...o,
             provider_payout: o.provider_profiles?.id
                 ? (payoutByProviderId[o.provider_profiles.id] ?? null)
                 : null,
+            payments: o.payments?.map(p => ({
+                ...p,
+                method_label: p.method ? (methodLabelMap.get(p.method) || p.method) : '-',
+            })),
         }));
     }
 
@@ -518,11 +560,18 @@ export class AdminService {
             payoutMethods.map(pm => [pm.provider_id, pm])
         );
 
+        const allMethodIds = orders.flatMap(o => o.payments?.map(p => p.method) || []);
+        const methodLabelMap = await this.resolvePaymentMethods(allMethodIds);
+
         return orders.map(o => ({
             ...o,
             provider_payout: o.provider_profiles?.id
                 ? (payoutByProviderId[o.provider_profiles.id] ?? null)
                 : null,
+            payments: o.payments?.map(p => ({
+                ...p,
+                method_label: p.method ? (methodLabelMap.get(p.method) || p.method) : '-',
+            })),
         }));
     }
 
