@@ -730,13 +730,14 @@
                   </div>
                 </template>
                 <template x-if="!loading && pendingPaymentTasks.length > 0">
-                  <div class="table-wrap"><table><thead><tr><th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Total</th><th>Bukti</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                  <div class="table-wrap"><table><thead><tr><th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Total Dibayar</th><th>Fee Platform</th><th>Bukti</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
                     <template x-for="tp in pendingPaymentTasks" :key="tp.tp_id">
                       <tr>
                         <td><span class="font-medium text-gray-800" x-text="tp.title || '-'"></span></td>
                         <td class="text-gray-600" x-text="tp.customer_name || '-'"></td>
                         <td><span class="text-gray-600" x-text="tp.provider_name || '-'"></span></td>
                         <td class="font-medium tabular-nums" x-text="'Rp ' + (tp.total_price || 0).toLocaleString('id-ID')"></td>
+                        <td class="tabular-nums text-sm text-amber-600" x-text="'Rp ' + (tp.platform_fee || 0).toLocaleString('id-ID')"></td>
                         <td><template x-if="tp.payment_proof"><button @click="Alpine.store('proofModal').open(getFileUrl(tp.payment_proof), tp.title)" class="text-indigo-600 hover:text-indigo-800 underline text-xs font-medium"><i class="fas fa-image mr-1"></i>Lihat</button></template><template x-if="!tp.payment_proof"><span class="text-xs text-gray-400">-</span></template></td>
                         <td><span x-show="tp.order_status === 'accepted'" class="badge badge-success">Sudah Dibayar</span><span x-show="tp.order_status !== 'accepted'" class="badge badge-warning">Menunggu Bayar</span></td>
                         <td class="text-center">
@@ -794,14 +795,15 @@
                 <template x-if="!loading && visiblePayouts.length > 0">
                   <div class="table-wrap"><table><thead><tr>
                     <template x-if="selectMode"><th class="w-10"><input type="checkbox" @change="toggleSelectAll($event)" :checked="selectedIds.length === confirmedPayouts.length && confirmedPayouts.length > 0"></th></template>
-                    <th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Total</th><th>Rekening Tujuan</th><th>No. Rekening</th><th>A/N</th><th>Bukti</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                    <th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Diterima Mitra</th><th>Fee Platform</th><th>Rekening Tujuan</th><th>No. Rekening</th><th>A/N</th><th>Bukti</th><th class="text-center">Aksi</th></tr></thead><tbody>
                     <template x-for="tp in visiblePayouts" :key="tp.tp_id">
                       <tr>
                         <template x-if="selectMode"><td class="text-center"><input type="checkbox" :value="tp.tp_id" :checked="selectedIds.includes(tp.tp_id)" @change="toggleSelect(tp.tp_id)"></td></template>
                         <td><span class="font-medium text-gray-800" x-text="tp.title || '-'"></span></td>
                         <td class="text-gray-600" x-text="tp.customer_name || '-'"></td>
                         <td><span class="text-gray-600" x-text="tp.provider_name || '-'"></span></td>
-                        <td class="font-medium tabular-nums" x-text="'Rp ' + (tp.total_price || 0).toLocaleString('id-ID')"></td>
+                        <td class="font-medium tabular-nums" x-text="'Rp ' + ((tp.total_price || 0) - (tp.platform_fee || 0)).toLocaleString('id-ID')"></td>
+                        <td class="tabular-nums text-sm text-amber-600" x-text="'Rp ' + (tp.platform_fee || 0).toLocaleString('id-ID')"></td>
                         <td><template x-if="tp.bank_name"><span class="text-xs font-medium" x-text="tp.bank_name"></span><span x-show="tp.payout_type" class="ml-1 badge" :class="tp.payout_type === 'bank' ? 'badge-primary' : 'badge-info'" x-text="tp.payout_type === 'bank' ? 'Bank' : 'E-Wallet'"></span></template><template x-if="!tp.bank_name"><span class="text-xs text-red-400">-</span></template></td>
                         <td><template x-if="tp.account_number"><span class="tabular-nums text-sm font-medium" x-text="tp.account_number"></span></template><template x-if="!tp.account_number"><span class="text-xs text-red-400">-</span></template></td>
                         <td><template x-if="tp.account_name"><span class="text-sm" x-text="tp.account_name"></span></template><template x-if="!tp.account_name"><span class="text-xs text-red-400">-</span></template></td>
