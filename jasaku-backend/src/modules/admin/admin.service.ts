@@ -479,7 +479,7 @@ export class AdminService {
                 status: 'completed',
                 task_provider_id: null, // regular orders only, not custom tasks
             },
-            orderBy: { payout_confirmed: 'asc', created_at: 'desc' },
+            orderBy: [{ payout_confirmed: 'asc' }, { created_at: 'desc' }],
             select: {
                 id: true,
                 total_price: true,
