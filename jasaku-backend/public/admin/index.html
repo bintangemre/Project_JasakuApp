@@ -670,11 +670,16 @@
                       <td><span class="badge badge-info">Selesai</span></td>
                       <td class="text-center">
                         <template x-if="!o.payout_confirmed">
-                          <button @click="confirmPayout(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
-                            <i x-show="confirming === o.id" class="fas fa-spinner fa-spin mr-1"></i>
-                            <i x-show="confirming !== o.id" class="fas fa-check mr-1"></i>
-                            <span x-text="confirming === o.id ? 'Memproses...' : 'Konfirmasi'"></span>
-                          </button>
+                          <div class="flex items-center justify-center gap-1">
+                            <button @click="confirmPayout(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
+                              <i x-show="confirming === o.id" class="fas fa-spinner fa-spin mr-1"></i>
+                              <i x-show="confirming !== o.id" class="fas fa-check mr-1"></i>
+                              <span x-text="confirming === o.id ? 'Memproses...' : 'Konfirmasi'"></span>
+                            </button>
+                            <button @click="deleteOrder(o.id)" :disabled="confirming === o.id" class="btn-danger btn-sm" title="Hapus Order">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
                         </template>
                         <template x-if="o.payout_confirmed">
                           <span class="text-xs text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>Sudah Dicairkan</span>
@@ -1203,6 +1208,17 @@
           try {
             await apiFetch('/admin/orders/' + orderId + '/confirm-payout', { method: 'PATCH' });
             toast('Pencairan dana berhasil dikonfirmasi');
+            this.load();
+          } catch (e) { toast(e.message, 'error'); }
+          finally { this.confirming = null; }
+        },
+        async deleteOrder(orderId) {
+          const ok = await confirmModal('Hapus order ini? Order akan dibatalkan dan tidak bisa dikembalikan.');
+          if (!ok) return;
+          this.confirming = orderId;
+          try {
+            await apiFetch('/admin/orders/' + orderId, { method: 'DELETE' });
+            toast('Order berhasil dihapus');
             this.load();
           } catch (e) { toast(e.message, 'error'); }
           finally { this.confirming = null; }

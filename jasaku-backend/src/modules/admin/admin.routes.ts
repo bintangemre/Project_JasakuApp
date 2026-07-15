@@ -24,6 +24,7 @@ import {
   getNotificationCounts,
   getCompletedOrdersPendingPayout,
   confirmOrderPayout,
+  deleteOrder,
 } from './admin.controller';
 import { confirmPaymentByAdmin, approveExtension, activateExtension } from '../orders/orders.controller';
 import { authenticate } from '../../middleware/auth.middleware';
@@ -82,6 +83,7 @@ router.patch('/orders/:orderId/confirm-payment', authenticate, isAdmin, confirmP
 // Payout Confirmation (Pencairan Dana) — regular orders
 router.get('/orders/pending-payout', authenticate, isAdmin, getCompletedOrdersPendingPayout);
 router.patch('/orders/:orderId/confirm-payout', authenticate, isAdmin, confirmOrderPayout);
+router.delete('/orders/:orderId', authenticate, isAdmin, deleteOrder);
 
 // Extensions
 router.get('/extensions/all', authenticate, isAdmin, getAllExtensions);

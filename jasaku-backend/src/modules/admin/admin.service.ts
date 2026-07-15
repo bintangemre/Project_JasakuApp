@@ -556,6 +556,23 @@ export class AdminService {
         return updated;
     }
 
+    async deleteOrder(orderId: string) {
+        const order = await prisma.orders.findUnique({
+            where: { id: orderId },
+            select: {
+                id: true, status: true, payout_confirmed: true,
+                custom_task_id: true, task_provider_id: true,
+                customer_id: true, provider_id: true
+            }
+        });
+        if (!order) throw new Error('Order tidak ditemukan');
+        if (order.payout_confirmed) throw new Error('Order sudah dicairkan, tidak bisa dihapus');
+
+        await prisma.orders.delete({ where: { id: orderId } });
+
+        return { message: 'Order berhasil dihapus' };
+    }
+
     async getNotificationCounts() {
         const [
             pendingPayments,

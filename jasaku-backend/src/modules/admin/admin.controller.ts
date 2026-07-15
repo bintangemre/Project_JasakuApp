@@ -440,6 +440,16 @@ const confirmOrderPayout = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const deleteOrder = async (req: AuthRequest, res: Response) => {
+  try {
+    const orderId = String(req.params.orderId);
+    const result = await new AdminService().deleteOrder(orderId);
+    return successResponse(res, result, "Order berhasil dihapus");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
 export {
   getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail,
   getCategories, getServicesByCategory, getPricingTypesByCategory,
@@ -464,5 +474,6 @@ export {
   respondToReport,
   getNotificationCounts,
   getCompletedOrdersPendingPayout,
-  confirmOrderPayout
+  confirmOrderPayout,
+  deleteOrder
 };
