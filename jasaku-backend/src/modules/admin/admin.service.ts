@@ -472,15 +472,14 @@ export class AdminService {
         });
     }
 
-    // Orders completed, pending payout (regular orders only)
+    // All completed orders (regular orders only) — shows both pending and confirmed payouts
     async getCompletedOrdersPendingPayout() {
         const orders = await prisma.orders.findMany({
             where: {
                 status: 'completed',
-                payout_confirmed: false,
                 task_provider_id: null, // regular orders only, not custom tasks
             },
-            orderBy: { created_at: 'desc' },
+            orderBy: { payout_confirmed: 'asc', created_at: 'desc' },
             select: {
                 id: true,
                 total_price: true,

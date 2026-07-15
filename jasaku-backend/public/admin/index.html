@@ -669,11 +669,16 @@
                       <td><span class="badge badge-warning" x-text="o.payments?.length ? (o.payments[0].method || '-') : '-'"></span></td>
                       <td><span class="badge badge-info">Selesai</span></td>
                       <td class="text-center">
-                        <button @click="confirmPayout(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
-                          <i x-show="confirming === o.id" class="fas fa-spinner fa-spin mr-1"></i>
-                          <i x-show="confirming !== o.id" class="fas fa-check mr-1"></i>
-                          <span x-text="confirming === o.id ? 'Memproses...' : 'Konfirmasi'"></span>
-                        </button>
+                        <template x-if="!o.payout_confirmed">
+                          <button @click="confirmPayout(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
+                            <i x-show="confirming === o.id" class="fas fa-spinner fa-spin mr-1"></i>
+                            <i x-show="confirming !== o.id" class="fas fa-check mr-1"></i>
+                            <span x-text="confirming === o.id ? 'Memproses...' : 'Konfirmasi'"></span>
+                          </button>
+                        </template>
+                        <template x-if="o.payout_confirmed">
+                          <span class="text-xs text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>Sudah Dicairkan</span>
+                        </template>
                       </td>
                     </tr>
                   </template>
