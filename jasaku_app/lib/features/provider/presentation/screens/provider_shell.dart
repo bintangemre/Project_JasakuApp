@@ -63,9 +63,26 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
     super.initState();
     FcmManager.onNotificationTap = _handleNotificationTap;
     FcmManager.onForegroundMessage = _handleForegroundMessage;
+    _reRegisterFcm();
     ref.read(locationTrackerProvider.notifier).startTracking();
     _fetchCounts();
     _countsTimer = Timer.periodic(const Duration(seconds: 30), (_) => _fetchCounts());
+  }
+
+  Future<void> _reRegisterFcm() async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      debugPrint('[FCM] ProviderShell re-register: token=${token != null ? '${token.substring(0, 20)}...' : 'NULL'}');
+      if (token != null) {
+        await _dio.post(ApiEndpoints.registerDevice, data: {
+          'fcmToken': token,
+          'deviceType': 'android',
+        });
+        debugPrint('[FCM] ProviderShell device registered OK');
+      }
+    } catch (e) {
+      debugPrint('[FCM] ProviderShell register FAILED: $e');
+    }
   }
 
   @override

@@ -34,7 +34,23 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
     super.initState();
     FcmManager.onNotificationTap = _handleNotificationTap;
     FcmManager.onForegroundMessage = _onForegroundMessage;
+    _reRegisterFcm();
     _restoreUserIfNeeded();
+  }
+
+  Future<void> _reRegisterFcm() async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        await ApiClient().dio.post(ApiEndpoints.registerDevice, data: {
+          'fcmToken': token,
+          'deviceType': 'android',
+        });
+        debugPrint('[FCM] CustomerShell device registered OK');
+      }
+    } catch (e) {
+      debugPrint('[FCM] CustomerShell register FAILED: $e');
+    }
   }
 
   Future<void> _restoreUserIfNeeded() async {
