@@ -1,9 +1,12 @@
 // StateNotifier Riverpod untuk mengelola login, register, dan role guard Jasaku App.
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/models/user_model.dart';
 import '../../../services/auth_services.dart';
+import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/storage.dart';
 
 class AuthState {
@@ -188,11 +191,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
         verificationStatus: verificationStatus,
         verificationNotes: verificationNotes,
       );
+      _reRegisterFcmToken();
       return true;
     } catch (e) {
       state = AuthState(error: e.toString());
       return false;
     }
+  }
+
+  void _reRegisterFcmToken() async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        final dio = ApiClient().dio;
+        await dio.post(ApiEndpoints.registerDevice, data: {
+          'fcmToken': token,
+          'deviceType': Platform.isIOS ? 'ios' : 'android',
+        });
+      }
+    } catch (_) {}
   }
 
   Future<bool> loginWithGoogle({required String expectedRole}) async {
@@ -265,6 +282,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final onboardingCompleted =
           data['profile']?['onboarding_completed'] as bool?;
       state = AuthState(user: user, onboardingCompleted: onboardingCompleted);
+      _reRegisterFcmToken();
       return true;
       } else {
         state = AuthState(error: result['message'] ?? 'Login Google Gagal');
