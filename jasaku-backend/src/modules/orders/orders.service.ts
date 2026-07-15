@@ -747,10 +747,15 @@ export class OrdersService {
         });
         if (!profile) return { hasActiveOrder: false, is_active: false, task_available: false };
 
+        const todayStart = getTodayWitaDate();
+        const tomorrowStart = new Date(todayStart);
+        tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+
         const activeOrder = await prisma.orders.findFirst({
             where: {
                 provider_id: profile.id,
                 status: { in: ['accepted', 'on_the_way', 'arrived', 'in_progress'] },
+                work_date: { gte: todayStart, lt: tomorrowStart },
             },
             select: { id: true }
         });
