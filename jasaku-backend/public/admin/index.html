@@ -537,7 +537,20 @@
                   <option value="cancelled">Dibatalkan</option>
                 </select>
               </div>
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2">
+                <template x-if="!selectMode">
+                  <div class="flex items-center gap-2">
+                    <button @click="toggleHistory()" class="btn-secondary btn-sm" x-text="showHistory ? 'Sembunyikan Riwayat' : 'Lihat Riwayat'"></button>
+                    <button @click="startSelect()" class="btn-danger btn-sm" x-show="confirmedOrders.length > 0"><i class="fas fa-trash-alt mr-1"></i>Hapus Riwayat</button>
+                  </div>
+                </template>
+                <template x-if="selectMode">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500" x-text="selectedIds.length + ' dipilih'"></span>
+                    <button @click="hideSelected()" class="btn-danger btn-sm" :disabled="selectedIds.length === 0"><i class="fas fa-eye-slash mr-1"></i>Sembunyikan</button>
+                    <button @click="cancelSelect()" class="btn-secondary btn-sm">Batal</button>
+                  </div>
+                </template>
                 <span class="text-xs text-gray-400" x-text="filteredOrders.length + ' pesanan'"></span>
                 <button @click="load()" class="btn-secondary btn-sm" :disabled="loading"><i class="fas fa-sync-alt mr-1" :class="loading ? 'fa-spin' : ''"></i>Refresh</button>
               </div>
@@ -551,9 +564,12 @@
                 </div>
               </template>
               <template x-if="!loading && filteredOrders.length > 0">
-                <div class="table-wrap"><table><thead><tr><th>Pelanggan</th><th>Mitra</th><th>Total</th><th>Metode Pembayaran</th><th>Bukti Bayar</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                <div class="table-wrap"><table><thead><tr>
+                    <template x-if="selectMode"><th class="w-10"><input type="checkbox" @change="toggleSelectAll($event)" :checked="selectedIds.length === confirmedOrders.filter(o => !hiddenOrders.includes(o.id)).length && confirmedOrders.length > 0"></th></template>
+                    <th>Pelanggan</th><th>Mitra</th><th>Total</th><th>Metode Pembayaran</th><th>Bukti Bayar</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
                   <template x-for="o in filteredOrders" :key="o.id">
                     <tr>
+                      <template x-if="selectMode"><td class="text-center"><input type="checkbox" :value="o.id" :checked="selectedIds.includes(o.id)" @change="toggleSelect(o.id)"></td></template>
                       <td><div><span class="font-medium text-gray-800" x-text="o.profiles_customer?.full_name || '-'"></span><span class="text-xs text-gray-400 block" x-text="o.profiles_customer?.nickname ? '@' + o.profiles_customer.nickname : ''"></span></div></td>
                       <td class="text-gray-600" x-text="o.provider_profiles?.full_name || '-'"></td>
                       <td class="font-medium tabular-nums" x-text="'Rp ' + (Number(o.total_price) + Number(o.platform_fee || 0)).toLocaleString('id-ID')"></td>
@@ -1186,8 +1202,14 @@
 
       Alpine.data('confirmPaymentPage', () => ({
         loading: true, orders: [], filteredOrders: [], confirming: null, statusFilter: '',
+        showHistory: false, selectMode: false, selectedIds: [], hiddenOrders: [],
         _interval: null,
-        init() { requireAuth(); this.load(); this._interval = setInterval(() => this.load(), 15000); },
+        init() {
+          requireAuth();
+          this.hiddenOrders = JSON.parse(localStorage.getItem('confirm_payment_hidden') || '[]');
+          this.load();
+          this._interval = setInterval(() => this.load(), 15000);
+        },
         destroy() { if (this._interval) clearInterval(this._interval); },
         async load() {
           this.loading = true;
@@ -1195,8 +1217,10 @@
           finally { this.loading = false; }
         },
         filterOrders() {
-          if (!this.statusFilter) { this.filteredOrders = this.orders; return; }
-          this.filteredOrders = this.orders.filter(o => o.status === this.statusFilter);
+          let list = this.orders;
+          if (this.statusFilter) list = list.filter(o => o.status === this.statusFilter);
+          if (!this.showHistory) list = list.filter(o => !this.hiddenOrders.includes(o.id));
+          this.filteredOrders = list;
         },
         formatDate(dateStr) {
           if (!dateStr) return '-';
@@ -1239,6 +1263,30 @@
             'cancelled': 'badge-gray'
           };
           return classes[status] || 'badge-gray';
+        },
+        get confirmedOrders() { return this.orders.filter(o => o.status === 'completed' || o.status === 'rejected' || o.status === 'cancelled' || (o.status !== 'pending_payment' && o.status !== 'pending')); },
+        toggleHistory() { this.showHistory = !this.showHistory; this.filterOrders(); },
+        startSelect() {
+          this.selectMode = true;
+          this.selectedIds = this.confirmedOrders.filter(o => !this.hiddenOrders.includes(o.id)).map(o => o.id);
+        },
+        cancelSelect() { this.selectMode = false; this.selectedIds = []; },
+        toggleSelect(id) {
+          if (this.selectedIds.includes(id)) this.selectedIds = this.selectedIds.filter(x => x !== id);
+          else this.selectedIds.push(id);
+        },
+        toggleSelectAll(e) {
+          if (e.target.checked) this.selectedIds = this.confirmedOrders.filter(o => !this.hiddenOrders.includes(o.id)).map(o => o.id);
+          else this.selectedIds = [];
+        },
+        hideSelected() {
+          if (this.selectedIds.length === 0) return;
+          this.hiddenOrders = [...new Set([...this.hiddenOrders, ...this.selectedIds])];
+          localStorage.setItem('confirm_payment_hidden', JSON.stringify(this.hiddenOrders));
+          toast(this.selectedIds.length + ' riwayat disembunyikan');
+          this.selectMode = false;
+          this.selectedIds = [];
+          this.filterOrders();
         }
       }));
 
