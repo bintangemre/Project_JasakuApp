@@ -1,5 +1,21 @@
 import 'package:intl/intl.dart';
 
+class OrderAttachment {
+  final String id;
+  final String fileUrl;
+  final DateTime? createdAt;
+
+  OrderAttachment({required this.id, required this.fileUrl, this.createdAt});
+
+  factory OrderAttachment.fromJson(Map<String, dynamic> json) {
+    return OrderAttachment(
+      id: json['id'] as String,
+      fileUrl: json['file_url'] as String? ?? '',
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
+    );
+  }
+}
+
 class OrderModel {
   final String id;
   final String status;
@@ -15,6 +31,8 @@ class OrderModel {
   final String? address;
   final double? lat;
   final double? lng;
+  final List<OrderAttachment> attachments;
+  final List<Map<String, dynamic>> items;
 
   OrderModel({
     required this.id,
@@ -31,6 +49,8 @@ class OrderModel {
     this.address,
     this.lat,
     this.lng,
+    this.attachments = const [],
+    this.items = const [],
   });
 
   static int _parsePrice(dynamic value) {
@@ -42,6 +62,14 @@ class OrderModel {
 
   factory OrderModel.fromCustomerJson(Map<String, dynamic> json) {
     final provider = json['provider_profiles'] as Map<String, dynamic>?;
+    final attachments = (json['order_attachments'] as List<dynamic>?)
+            ?.map((a) => OrderAttachment.fromJson(a as Map<String, dynamic>))
+            .toList() ??
+        [];
+    final items = (json['order_items'] as List<dynamic>?)
+            ?.map((i) => Map<String, dynamic>.from(i as Map))
+            .toList() ??
+        [];
     return OrderModel(
       id: json['id'] as String,
       status: json['status'] as String? ?? 'pending',
@@ -53,6 +81,8 @@ class OrderModel {
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
       providerName: provider?['full_name'] as String?,
       providerId: provider?['user_id'] as String?,
+      attachments: attachments,
+      items: items,
     );
   }
 
@@ -67,6 +97,14 @@ class OrderModel {
       lat = loc['lat'] != null ? double.tryParse(loc['lat'].toString()) : null;
       lng = loc['lng'] != null ? double.tryParse(loc['lng'].toString()) : null;
     }
+    final attachments = (json['order_attachments'] as List<dynamic>?)
+            ?.map((a) => OrderAttachment.fromJson(a as Map<String, dynamic>))
+            .toList() ??
+        [];
+    final items = (json['order_items'] as List<dynamic>?)
+            ?.map((i) => Map<String, dynamic>.from(i as Map))
+            .toList() ??
+        [];
     return OrderModel(
       id: json['id'] as String,
       status: json['status'] as String? ?? 'pending',
@@ -80,6 +118,8 @@ class OrderModel {
       address: address,
       lat: lat,
       lng: lng,
+      attachments: attachments,
+      items: items,
     );
   }
 

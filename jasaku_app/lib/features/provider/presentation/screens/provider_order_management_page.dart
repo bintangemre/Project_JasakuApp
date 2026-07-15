@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/operating_hours.dart';
+import 'provider_order_detail_page.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 
@@ -162,13 +163,22 @@ class _ProviderOrderManagementPageState extends ConsumerState<ProviderOrderManag
           final status = order['status'] as String? ?? '';
           final isActive = ['accepted', 'on_the_way', 'arrived', 'in_progress'].contains(status);
 
-          return Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Colors.grey[200]!),
-            ),
-            child: Padding(
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProviderOrderDetailPage(rawOrder: order),
+                ),
+              );
+            },
+            child: Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Colors.grey[200]!),
+              ),
+              child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,6 +224,7 @@ class _ProviderOrderManagementPageState extends ConsumerState<ProviderOrderManag
                 ],
               ),
             ),
+          ),
           );
         },
       ),
