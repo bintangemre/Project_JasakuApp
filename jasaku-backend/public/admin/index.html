@@ -762,22 +762,42 @@
           <!-- Tab: Pending Payout -->
           <template x-if="tab === 'payout'">
             <div class="card p-0 overflow-hidden">
-              <div class="p-5 pb-0 flex items-center justify-between gap-3">
-                <span class="text-xs text-gray-400" x-text="pendingPayoutTasks.length + ' total pencairan'"></span>
-                <button @click="load()" class="btn-secondary btn-sm" :disabled="loading"><i class="fas fa-sync-alt mr-1" :class="loading ? 'fa-spin' : ''"></i>Refresh</button>
+              <div class="p-5 pb-0 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <template x-if="!selectMode">
+                    <div class="flex items-center gap-2">
+                      <button @click="toggleHistory()" class="btn-secondary btn-sm" x-text="showHistory ? 'Sembunyikan Riwayat' : 'Lihat Riwayat'"></button>
+                      <button @click="startSelect()" class="btn-danger btn-sm" x-show="confirmedPayouts.length > 0"><i class="fas fa-trash-alt mr-1"></i>Hapus Riwayat</button>
+                    </div>
+                  </template>
+                  <template x-if="selectMode">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs text-gray-500" x-text="selectedIds.length + ' dipilih'"></span>
+                      <button @click="hideSelected()" class="btn-danger btn-sm" :disabled="selectedIds.length === 0"><i class="fas fa-eye-slash mr-1"></i>Sembunyikan</button>
+                      <button @click="cancelSelect()" class="btn-secondary btn-sm">Batal</button>
+                    </div>
+                  </template>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-gray-400" x-text="visiblePayouts.length + ' pencairan'"></span>
+                  <button @click="load()" class="btn-secondary btn-sm" :disabled="loading"><i class="fas fa-sync-alt mr-1" :class="loading ? 'fa-spin' : ''"></i>Refresh</button>
+                </div>
               </div>
               <div class="p-5 pt-3">
                 <template x-if="loading"><div class="space-y-3"><template x-for="i in 4"><div class="skeleton h-16 rounded-xl"></div></template></div></template>
-                <template x-if="!loading && pendingPayoutTasks.length === 0">
+                <template x-if="!loading && visiblePayouts.length === 0">
                   <div class="text-center py-12">
                     <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-check-circle text-emerald-500 text-2xl"></i></div>
                     <p class="text-gray-400 text-sm font-medium">Tidak ada pencairan pending</p>
                   </div>
                 </template>
-                <template x-if="!loading && pendingPayoutTasks.length > 0">
-                  <div class="table-wrap"><table><thead><tr><th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Total</th><th>Rekening Tujuan</th><th>No. Rekening</th><th>A/N</th><th>Bukti</th><th class="text-center">Aksi</th></tr></thead><tbody>
-                    <template x-for="tp in pendingPayoutTasks" :key="tp.tp_id">
+                <template x-if="!loading && visiblePayouts.length > 0">
+                  <div class="table-wrap"><table><thead><tr>
+                    <template x-if="selectMode"><th class="w-10"><input type="checkbox" @change="toggleSelectAll($event)" :checked="selectedIds.length === confirmedPayouts.length && confirmedPayouts.length > 0"></th></template>
+                    <th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Total</th><th>Rekening Tujuan</th><th>No. Rekening</th><th>A/N</th><th>Bukti</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                    <template x-for="tp in visiblePayouts" :key="tp.tp_id">
                       <tr>
+                        <template x-if="selectMode"><td class="text-center"><input type="checkbox" :value="tp.tp_id" :checked="selectedIds.includes(tp.tp_id)" @change="toggleSelect(tp.tp_id)"></td></template>
                         <td><span class="font-medium text-gray-800" x-text="tp.title || '-'"></span></td>
                         <td class="text-gray-600" x-text="tp.customer_name || '-'"></td>
                         <td><span class="text-gray-600" x-text="tp.provider_name || '-'"></span></td>
@@ -1261,9 +1281,23 @@
       Alpine.data('customTasksPage', () => ({
         loading: true, processing: null, tab: 'payment',
         pendingPaymentTasks: [], pendingPayoutTasks: [],
+        showHistory: false, selectMode: false, selectedIds: [], hiddenPayouts: [],
         _interval: null,
-        init() { requireAuth(); this.load(); this._interval = setInterval(() => this.load(), 15000); },
+        init() {
+          requireAuth();
+          this.hiddenPayouts = JSON.parse(localStorage.getItem('custom_task_payout_hidden') || '[]');
+          this.load();
+          this._interval = setInterval(() => this.load(), 15000);
+        },
         destroy() { if (this._interval) clearInterval(this._interval); },
+        get confirmedPayouts() { return this.pendingPayoutTasks.filter(tp => tp.payout_confirmed); },
+        get visiblePayouts() {
+          return this.pendingPayoutTasks.filter(tp => {
+            if (tp.payout_confirmed && !this.showHistory) return !this.hiddenPayouts.includes(tp.tp_id);
+            if (tp.payout_confirmed && this.showHistory) return true;
+            return true;
+          });
+        },
         async load() {
           this.loading = true;
           try {
@@ -1297,6 +1331,25 @@
             this.load();
           } catch (e) { toast(e.message, 'error'); }
           finally { this.processing = null; }
+        },
+        toggleHistory() { this.showHistory = !this.showHistory; },
+        startSelect() { this.selectMode = true; this.selectedIds = this.confirmedPayouts.map(tp => tp.tp_id); },
+        cancelSelect() { this.selectMode = false; this.selectedIds = []; },
+        toggleSelect(id) {
+          if (this.selectedIds.includes(id)) this.selectedIds = this.selectedIds.filter(x => x !== id);
+          else this.selectedIds.push(id);
+        },
+        toggleSelectAll(e) {
+          if (e.target.checked) this.selectedIds = this.confirmedPayouts.map(tp => tp.tp_id);
+          else this.selectedIds = [];
+        },
+        hideSelected() {
+          if (this.selectedIds.length === 0) return;
+          this.hiddenPayouts = [...new Set([...this.hiddenPayouts, ...this.selectedIds])];
+          localStorage.setItem('custom_task_payout_hidden', JSON.stringify(this.hiddenPayouts));
+          toast(this.selectedIds.length + ' riwayat disembunyikan');
+          this.selectMode = false;
+          this.selectedIds = [];
         }
       }));
 
