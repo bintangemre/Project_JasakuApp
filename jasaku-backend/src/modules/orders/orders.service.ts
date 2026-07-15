@@ -143,6 +143,7 @@ export class OrdersService {
                     customer_id: customerProfile.id,
                     provider_id: providerProfile.id,
                     total_price: totalPrice,
+                    platform_fee: 2000,
                     description: data.description,
                     work_date: parsedDate,
                     end_date: parsedDate,
