@@ -551,7 +551,7 @@
                 </div>
               </template>
               <template x-if="!loading && filteredOrders.length > 0">
-                <div class="table-wrap"><table><thead><tr><th>Pelanggan</th><th>Mitra</th><th>Rekening Tujuan</th><th>No. Rekening</th><th>A/N</th><th>Total</th><th>Metode</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                <div class="table-wrap"><table><thead><tr><th>Pelanggan</th><th>Mitra</th><th>Rekening Pengirim</th><th>No. Rekening</th><th>A/N</th><th>Total</th><th>Metode Pembayaran</th><th>Bukti Bayar</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
                   <template x-for="o in filteredOrders" :key="o.id">
                     <tr>
                       <td><div><span class="font-medium text-gray-800" x-text="o.profiles_customer?.full_name || '-'"></span><span class="text-xs text-gray-400 block" x-text="o.profiles_customer?.nickname ? '@' + o.profiles_customer.nickname : ''"></span></div></td>
@@ -587,6 +587,14 @@
                       </td>
                       <td class="font-medium tabular-nums" x-text="'Rp ' + Number(o.total_price).toLocaleString('id-ID')"></td>
                       <td><span class="badge badge-warning" x-text="o.payments?.length ? (o.payments[0].method || '-') : '-'"></span></td>
+                      <td>
+                        <template x-if="o.payments?.length && o.payments[0].payment_proof">
+                          <button @click="Alpine.store('proofModal').open(getFileUrl(o.payments[0].payment_proof), 'Bukti Pembayaran')" class="text-indigo-600 hover:text-indigo-800 underline text-xs font-medium"><i class="fas fa-image mr-1"></i>Lihat</button>
+                        </template>
+                        <template x-if="!o.payments?.length || !o.payments[0].payment_proof">
+                          <span class="text-xs text-gray-400">Belum diupload</span>
+                        </template>
+                      </td>
                       <td><span class="badge" :class="statusBadge(o.status)" x-text="statusLabel(o.status)"></span></td>
                       <td class="text-center">
                         <button x-show="o.status === 'pending_payment'" @click="confirmPayment(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">

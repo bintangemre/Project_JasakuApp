@@ -270,7 +270,7 @@ export class AdminService {
                     select: { id: true, full_name: true }
                 },
                 payments: {
-                    select: { id: true, method: true, amount: true, status: true, created_at: true }
+                    select: { id: true, method: true, amount: true, status: true, created_at: true, payment_proof: true }
                 }
             }
         });

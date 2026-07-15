@@ -40,7 +40,8 @@ class OrderFormNotifier extends StateNotifier<OrderFormState> {
         return;
       }
 
-      final orderId = orderResponse.data['data']?['id'] as String?;
+      final responseData = orderResponse.data['data'];
+      final orderId = (responseData?['order']?['id'] ?? responseData?['id']) as String?;
       if (orderId == null) {
         state = OrderFormState(isLoading: false, errorMessage: "Gagal mendapatkan ID pesanan");
         return;
