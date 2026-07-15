@@ -1,6 +1,7 @@
 // StateNotifier Riverpod untuk mengelola login, register, dan role guard Jasaku App.
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/models/user_model.dart';
@@ -207,15 +208,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   void _reRegisterFcmToken() async {
     try {
-      final token = await FirebaseMessaging.instance.getToken();
-      if (token != null) {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      debugPrint('[FCM] Token obtained: ${fcmToken?.substring(0, 20)}...');
+      if (fcmToken != null) {
         final dio = ApiClient().dio;
-        await dio.post(ApiEndpoints.registerDevice, data: {
-          'fcmToken': token,
+        final savedJwt = await StorageService.getToken();
+        debugPrint('[FCM] JWT saved: ${savedJwt != null}');
+        final resp = await dio.post(ApiEndpoints.registerDevice, data: {
+          'fcmToken': fcmToken,
           'deviceType': Platform.isIOS ? 'ios' : 'android',
         });
+        debugPrint('[FCM] Register device response: ${resp.statusCode}');
+      } else {
+        debugPrint('[FCM] FCM token is NULL');
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[FCM] Register device FAILED: $e');
+    }
   }
 
   Future<bool> loginWithGoogle({required String expectedRole}) async {
