@@ -108,7 +108,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      await _repo.registerProvider(
+      final result = await _repo.registerProvider(
         fullName: fullName,
         nickname: nickname,
         email: email,
@@ -135,6 +135,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
         ocrReligion: ocrReligion,
         livenessData: livenessData,
       );
+      final token = result['token'] as String?;
+      if (token != null) {
+        await StorageService.saveToken(token);
+        _reRegisterFcmToken();
+      }
       state = const AuthState();
       return true;
     } catch (e) {
