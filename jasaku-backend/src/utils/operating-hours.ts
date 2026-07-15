@@ -1,11 +1,11 @@
-const OP_START_HOUR = 8;
+const OP_START_HOUR = 0;
 const OP_START_MIN = 0;
-const OP_END_HOUR = 16;
-const OP_END_MIN = 0;
-const ORDER_CUTOFF_HOUR = 16;
-const ORDER_CUTOFF_MIN = 0;
-const WARNING_START_HOUR = 15;
-const WARNING_START_MIN = 0;
+const OP_END_HOUR = 23;
+const OP_END_MIN = 59;
+const ORDER_CUTOFF_HOUR = 23;
+const ORDER_CUTOFF_MIN = 59;
+const WARNING_START_HOUR = 23;
+const WARNING_START_MIN = 59;
 
 function getTotalMinutes(h: number, m: number): number {
   return h * 60 + m;

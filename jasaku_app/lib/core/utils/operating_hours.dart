@@ -3,10 +3,10 @@ class OperatingHours {
   static const int startMinute = 0;
   static const int endHour = 23;
   static const int endMinute = 59;
-  static const int orderCutoffHour = 16;
-  static const int orderCutoffMinute = 0;
-  static const int warningStartHour = 15;
-  static const int warningStartMinute = 0;
+  static const int orderCutoffHour = 23;
+  static const int orderCutoffMinute = 59;
+  static const int warningStartHour = 23;
+  static const int warningStartMinute = 59;
 
   static int _totalMinutes(int h, int m) => h * 60 + m;
 
