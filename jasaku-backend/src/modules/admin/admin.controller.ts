@@ -230,8 +230,11 @@ const getPaymentAccounts = async (req: AuthRequest, res: Response) => {
 const createPaymentAccount = async (req: AuthRequest, res: Response) => {
   try {
     const { type, account_name, account_number, provider_name, qris_image_url } = req.body;
-    if (!type || !account_name || !account_number || !provider_name) {
-      return errorResponse(res, "type, account_name, account_number, provider_name wajib diisi", 400);
+    if (!type || !provider_name) {
+      return errorResponse(res, "type dan provider_name wajib diisi", 400);
+    }
+    if (type !== 'qris' && (!account_name || !account_number)) {
+      return errorResponse(res, "account_name dan account_number wajib diisi untuk bank/e-wallet", 400);
     }
     if (!['bank_transfer', 'e_wallet', 'qris'].includes(type)) {
       return errorResponse(res, "type harus 'bank_transfer', 'e_wallet', atau 'qris'", 400);

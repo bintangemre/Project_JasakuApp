@@ -1086,8 +1086,10 @@
         close() { this.show = false; },
         async save() {
           try {
-            if (this.isEdit) { await apiFetch('/admin/payment-accounts/' + this.editId, { method: 'PUT', body: JSON.stringify(this.form) }); toast('Rekening diperbarui'); }
-            else { await apiFetch('/admin/payment-accounts', { method: 'POST', body: JSON.stringify(this.form) }); toast('Rekening ditambahkan'); }
+            const payload = { ...this.form };
+            if (payload.type === 'qris') { delete payload.account_name; delete payload.account_number; }
+            if (this.isEdit) { await apiFetch('/admin/payment-accounts/' + this.editId, { method: 'PUT', body: JSON.stringify(payload) }); toast('Rekening diperbarui'); }
+            else { await apiFetch('/admin/payment-accounts', { method: 'POST', body: JSON.stringify(payload) }); toast('Rekening ditambahkan'); }
             const savedId = this.isEdit ? this.editId : null;
             if (savedId && this.qrisFile) { const fd = new FormData(); fd.append('qris', this.qrisFile); await apiFetch('/admin/payment-accounts/' + savedId + '/qris-upload', { method: 'POST', body: fd }); toast('Gambar QRIS berhasil diupload'); }
             this.close(); Alpine.store('nav').page = 'payments';
