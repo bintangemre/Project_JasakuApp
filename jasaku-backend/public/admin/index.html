@@ -566,12 +566,12 @@
               <template x-if="!loading && filteredOrders.length > 0">
                 <div class="table-wrap"><table><thead><tr>
                     <template x-if="selectMode"><th class="w-10"><input type="checkbox" @change="toggleSelectAll($event)" :checked="selectedIds.length === confirmedOrders.filter(o => !hiddenOrders.includes(o.id)).length && confirmedOrders.length > 0"></th></template>
-                    <th>Pelanggan</th><th>Mitra</th><th>Total</th><th>Metode Pembayaran</th><th>Bukti Bayar</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                    <th>Pelanggan</th><th>Mitra</th><th>Tanggal</th><th>Total</th><th>Metode Pembayaran</th><th>Bukti Bayar</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
                   <template x-for="o in filteredOrders" :key="o.id">
                     <tr>
                       <template x-if="selectMode"><td class="text-center"><input type="checkbox" :value="o.id" :checked="selectedIds.includes(o.id)" @change="toggleSelect(o.id)"></td></template>
                       <td><div><span class="font-medium text-gray-800" x-text="o.profiles_customer?.full_name || '-'"></span><span class="text-xs text-gray-400 block" x-text="o.profiles_customer?.nickname ? '@' + o.profiles_customer.nickname : ''"></span></div></td>
-                      <td class="text-gray-600" x-text="o.provider_profiles?.full_name || '-'"></td>
+                      <td class="text-gray-500 text-sm" x-text="formatDate(o.created_at)"></td>
                       <td class="font-medium tabular-nums" x-text="'Rp ' + (Number(o.total_price) + Number(o.platform_fee || 0)).toLocaleString('id-ID')"></td>
                       <td><span class="badge badge-warning" x-text="o.payments?.length ? (o.payments[0].method || '-') : '-'"></span></td>
                       <td>
@@ -680,12 +680,13 @@
               <template x-if="!loading && visibleOrders.length > 0">
                 <div class="table-wrap"><table><thead><tr>
                   <template x-if="selectMode"><th class="w-10"><input type="checkbox" @change="toggleSelectAll($event)" :checked="selectedIds.length === confirmedOrders.length && confirmedOrders.length > 0"></th></template>
-                  <th>Pelanggan</th><th>Mitra</th><th>No. Rekening Mitra</th><th>Total</th><th>Metode</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                  <th>Pelanggan</th><th>Mitra</th><th>Tanggal</th><th>No. Rekening Mitra</th><th>Total</th><th>Metode</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
                   <template x-for="o in visibleOrders" :key="o.id">
                     <tr>
                       <template x-if="selectMode"><td class="text-center"><input type="checkbox" :value="o.id" :checked="selectedIds.includes(o.id)" @change="toggleSelect(o.id)"></td></template>
                       <td><div><span class="font-medium text-gray-800" x-text="o.profiles_customer?.full_name || '-'"></span></div></td>
                       <td class="text-gray-600" x-text="o.provider_profiles?.full_name || '-'"></td>
+                      <td class="text-gray-500 text-sm" x-text="formatDate(o.created_at)"></td>
                       <td>
                         <template x-if="o.provider_payout?.account_number">
                           <div>
@@ -765,13 +766,14 @@
                 <template x-if="!loading && visiblePaymentTasks.length > 0">
                   <div class="table-wrap"><table><thead><tr>
                     <template x-if="selectModePayment"><th class="w-10"><input type="checkbox" @change="toggleSelectAllPayment($event)" :checked="selectedIdsPayment.length === confirmedPaymentTasks.length && confirmedPaymentTasks.length > 0"></th></template>
-                    <th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Total Dibayar</th><th>Bukti</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                    <th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Tanggal</th><th>Total Dibayar</th><th>Bukti</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
                     <template x-for="tp in visiblePaymentTasks" :key="tp.tp_id">
                       <tr>
                         <template x-if="selectModePayment"><td class="text-center"><input type="checkbox" :value="tp.tp_id" :checked="selectedIdsPayment.includes(tp.tp_id)" @change="toggleSelectPayment(tp.tp_id)"></td></template>
                         <td><span class="font-medium text-gray-800" x-text="tp.title || '-'"></span></td>
                         <td class="text-gray-600" x-text="tp.customer_name || '-'"></td>
                         <td><span class="text-gray-600" x-text="tp.provider_name || '-'"></span></td>
+                        <td class="text-gray-500 text-sm" x-text="formatDate(tp.accepted_at)"></td>
                         <td class="font-medium tabular-nums" x-text="'Rp ' + (tp.total_price || 0).toLocaleString('id-ID')"></td>
                         <td><template x-if="tp.payment_proof"><button @click="Alpine.store('proofModal').open(getFileUrl(tp.payment_proof), tp.title)" class="text-indigo-600 hover:text-indigo-800 underline text-xs font-medium"><i class="fas fa-image mr-1"></i>Lihat</button></template><template x-if="!tp.payment_proof"><span class="text-xs text-gray-400">-</span></template></td>
                         <td><span x-show="tp.order_status === 'accepted'" class="badge badge-success">Sudah Dibayar</span><span x-show="tp.order_status !== 'accepted'" class="badge badge-warning">Menunggu Bayar</span></td>
@@ -830,13 +832,14 @@
                 <template x-if="!loading && visiblePayouts.length > 0">
                   <div class="table-wrap"><table><thead><tr>
                     <template x-if="selectMode"><th class="w-10"><input type="checkbox" @change="toggleSelectAll($event)" :checked="selectedIds.length === confirmedPayouts.length && confirmedPayouts.length > 0"></th></template>
-                    <th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Diterima Mitra</th><th>Rekening Tujuan</th><th>No. Rekening</th><th>A/N</th><th>Bukti</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                    <th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Tanggal</th><th>Diterima Mitra</th><th>Rekening Tujuan</th><th>No. Rekening</th><th>A/N</th><th>Bukti</th><th class="text-center">Aksi</th></tr></thead><tbody>
                     <template x-for="tp in visiblePayouts" :key="tp.tp_id">
                       <tr>
                         <template x-if="selectMode"><td class="text-center"><input type="checkbox" :value="tp.tp_id" :checked="selectedIds.includes(tp.tp_id)" @change="toggleSelect(tp.tp_id)"></td></template>
                         <td><span class="font-medium text-gray-800" x-text="tp.title || '-'"></span></td>
                         <td class="text-gray-600" x-text="tp.customer_name || '-'"></td>
                         <td><span class="text-gray-600" x-text="tp.provider_name || '-'"></span></td>
+                        <td class="text-gray-500 text-sm" x-text="formatDate(tp.completed_at)"></td>
                         <td class="font-medium tabular-nums" x-text="'Rp ' + ((tp.total_price || 0) - (tp.platform_fee || 0)).toLocaleString('id-ID')"></td>
                         <td><template x-if="tp.bank_name"><span class="text-xs font-medium" x-text="tp.bank_name"></span><span x-show="tp.payout_type" class="ml-1 badge" :class="tp.payout_type === 'bank' ? 'badge-primary' : 'badge-info'" x-text="tp.payout_type === 'bank' ? 'Bank' : 'E-Wallet'"></span></template><template x-if="!tp.bank_name"><span class="text-xs text-red-400">-</span></template></td>
                         <td><template x-if="tp.account_number"><span class="tabular-nums text-sm font-medium" x-text="tp.account_number"></span></template><template x-if="!tp.account_number"><span class="text-xs text-red-400">-</span></template></td>
@@ -1325,6 +1328,11 @@
           } catch (e) { toast(e.message, 'error'); }
           finally { this.confirming = null; }
         },
+        formatDate(dateStr) {
+          if (!dateStr) return '-';
+          const d = new Date(dateStr);
+          return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        },
         toggleHistory() { this.showHistory = !this.showHistory; },
         startSelect() { this.selectMode = true; this.selectedIds = this.confirmedOrders.map(o => o.id); },
         cancelSelect() { this.selectMode = false; this.selectedIds = []; },
@@ -1447,6 +1455,11 @@
           toast(this.selectedIdsPayment.length + ' riwayat disembunyikan');
           this.selectModePayment = false;
           this.selectedIdsPayment = [];
+        },
+        formatDate(dateStr) {
+          if (!dateStr) return '-';
+          const d = new Date(dateStr);
+          return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
       }));
 
