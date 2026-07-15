@@ -465,7 +465,7 @@ class _ProviderOrderDetailPageState extends State<ProviderOrderDetailPage> {
               ),
               child: Column(
                 children: [
-                  if (_order['additional_fee'] != null && (_order['additional_fee'] as num) > 0)
+                  if (_order['additional_fee'] != null && (double.tryParse(_order['additional_fee'].toString()) ?? 0) > 0)
                     _priceRow('Biaya Tambahan', _formatPrice(_order['additional_fee'])),
                   _priceRow('Total Bayaran', _formatPrice(_order['total_price']), isBold: true),
                 ],
