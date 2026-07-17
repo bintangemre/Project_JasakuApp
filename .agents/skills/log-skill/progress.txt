@@ -318,3 +318,46 @@ Sistem verifikasi identitas provider terdiri dari 4 prioritas yang diimplementas
   - Pesanan terbaru: dipertahankan dengan styling card lebih ringan + shadow
   - Hapus navigasi ke profile dari header (diganti notifikasi bell)
   - Gunakan `unreadNotifProvider` untuk badge notifikasi
+
+## 2026-07-15 — Fix Order Flow Bug, Admin Panel Updates, Customer Reviews Tab
+
+### Backend (`jasaku-backend/`)
+
+- **Fixed** `src/modules/auth/auth.service.ts:464` — `getMe()` field `profile_photo` → `avatar_url` untuk `profiles_customer` (schema punya `avatar_url`, bukan `profile_photo`). Fix auto-login customer yang sebelumnya throw error "Unknown field `profile_photo`" → 500 → auto-login gagal.
+
+- **Modified** `src/modules/admin/admin.service.ts:273` — `getAllOrders()` select payments tambah `payment_proof: true` agar admin panel bisa menampilkan bukti pembayaran customer.
+
+- **Modified** `public/admin/index.html` — Halaman "Konfirmasi Bayar":
+  - Rename kolom "Rekening Tujuan" → "Rekening Pengirim"
+  - Rename kolom "Metode" → "Metode Pembayaran"
+  - Tambah kolom "Bukti Bayar" — tombol "Lihat" buka modal gambar bukti pembayaran (pakai `proofModal` existing), atau "Belum diupload" jika kosong
+
+### Flutter App (`jasaku_app/`)
+
+- **Fixed** `lib/features/orders/presentation/providers/orders_provider.dart:43-44` — Order response path:
+  - Sebelum: `orderResponse.data['data']?['id']` → selalu `null` karena response format `{ data: { order: { id: "..." }, warning: null } }`
+  - Sesudah: `responseData?['order']?['id'] ?? responseData?['id']` → benar baca ID
+  - **Akibat bug lama**: Order berhasil dibuat di backend, tapi Flutter gagal baca ID → error "Gagal mendapatkan ID pesanan" → step `createPayment` di-skip → tidak ada payment record → admin tidak bisa konfirmasi → provider tidak lihat di "Permintaan"
+
+- **Modified** `lib/features/customer/presentation/screens/customer_provider_list.dart` — DetailProviderSheet (profil provider di customer):
+  - Tambah state: `_selectedTab`, `_reviews`, `_loadingReviews`, `_errorReviews`
+  - Tambah method `_fetchReviews()` — lazy load dari `GET /api/reviews/provider/{providerId}`
+  - Tambah method `_formatReviewDate()` — format tanggal review (15 Jul 2026)
+  - Tab header "Info" & "Ulasan" sekarang tappable — tab aktif: biru + underline, inactive: abu-abu
+  - Tab Info: tampilkan Tentang Mitra, Portofolio, Jadwal Mitra (sama seperti sebelumnya)
+  - Tab Ulasan: daftar review dengan avatar, nama customer, rating bintang (1-5), teks review, tanggal. Empty state: "Belum ada ulasan". Loading + error handling.
+
+### Database
+- Bersihkan semua order/test data (6 kali cleanup selama debugging)
+- Buat 5 akun customer test: budi@test.com, sari@test.com, andi@test.com, maya@test.com, rudi@test.com
+
+### Deploy
+- Push ke GitHub (`origin` + `teman`) — Render auto-deploy backend
+- Build APK customer release: `build\app\outputs\flutter-apk\app-customer-release.apk` (137.6MB)
+
+### Flow Order yang Diperbaiki
+1. Customer buat order → `pending_payment` → payment record dibuat
+2. Customer upload bukti bayar
+3. Admin konfirmasi bayar → status jadi `pending`
+4. Provider lihat di "Permintaan" → terima/tolak
+5. Provider kerja → accepted → on_the_way → arrived → in_progress → completed

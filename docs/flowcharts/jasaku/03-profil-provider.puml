@@ -1,0 +1,78 @@
+@startuml
+title Alur Profil Provider - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E8F5E9
+skinparam activityBorderColor #2E7D32
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E3F2FD| Profil Provider |
+
+start
+
+:Pilih Provider dari Daftar/Kari;
+:Ambil Data Profil Provider;
+note right
+  GET /api/services/services/:providerId
+  Response: profil lengkap provider
+end note
+
+:Ambil Data Review;
+note right
+  GET /api/reviews/provider/:providerId
+  Response: daftar review customer
+end note
+
+:Menampilkan Halaman Profil Provider;
+
+partition "Informasi Provider" {
+  :Tampilkan Foto Profil;
+  :Tampilkan Nama & Rating;
+  :Tampilkan Daftar Layanan;
+  :Tampilkan Portofolio/Kerjaan Sebelumnya;
+}
+
+partition "Review Customer" {
+  :Tampilkan Daftar Review;
+  :Tampilkan Rata-rata Rating;
+  :Tampilkan Jumlah Review;
+}
+
+partition "Jam Operasional" {
+  :Cek Jam Operasional;
+  note right
+    Jam: 08:00 - 16:00 WITA
+    Cek via OperatingHours utility
+  end note
+
+  if (Sesuai Jam Operasional?) then (Ya)
+    #C8E6C9:Menampilkan Banner Hijau
+    "Jam operasional aktif";
+  else (Tidak)
+    if (Mendekati Jam Tutup?) then (Ya)
+      #FFF9C4:Menampilkan Banner Kuning
+      "Perhatian: Waktu hampir habis";
+    else (Tidak)
+      #FFCDD2:Menampilkan Banner Merah
+      "Di luar jam operasional";
+    endif
+  endif
+}
+
+if (Ingin Melanjutkan?) then (Ya)
+  :Klik Tombol "Pesan Sekarang";
+  note right
+    Jika di luar jam operasional,
+    tombol disabled dengan tooltip
+    "Di luar jam operasional"
+  end note
+  :Navigasi ke Form Pemesanan;
+  stop
+else (Tidak)
+  :Kembali ke Daftar Provider;
+  stop
+endif
+
+@enduml

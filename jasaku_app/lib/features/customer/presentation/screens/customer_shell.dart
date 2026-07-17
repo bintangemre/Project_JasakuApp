@@ -57,9 +57,7 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
     final authState = ref.read(authProvider);
     if (authState.user != null) return;
     try {
-      final response = await ApiClient().dio.get(
-        '${ApiEndpoints.baseUrl}/api/auth/me',
-      );
+      final response = await ApiClient().dio.get('/api/auth/me');
       final body = response.data;
       if (body is Map<String, dynamic>) {
         final meData = body['data'] as Map<String, dynamic>?;
@@ -67,7 +65,17 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
           ref.read(authProvider.notifier).restoreSession(meData);
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[Auth] Session restore failed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sesi berakhir, silakan login kembali'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
   }
 
   void _onForegroundMessage(RemoteMessage msg) {
@@ -133,7 +141,7 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
       case 'EXTENSION_ACTIVATED':
       case 'EXTENSION_REJECTED':
         setState(() => _selectedIndex = 1);
-        ref.read(unreadNotifProvider.notifier).state = 0;
+        ref.read(unreadNotifProvider.notifier).reset();
         break;
     }
   }
@@ -143,7 +151,7 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
       _selectedIndex = index;
     });
     if (index == 1) {
-      ref.read(unreadNotifProvider.notifier).state = 0;
+      ref.read(unreadNotifProvider.notifier).reset();
       ref.invalidate(customerHomeOrdersProvider);
     }
   }

@@ -1,0 +1,222 @@
+@startuml ERD_Chen_Overview
+' ============================================================
+' ERD Klasik (Chen Notation) — OVERVIEW SEMUA DOMAIN
+' Kotak = Entitas (29 tabel), garis = relasi
+' ============================================================
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 9
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 40
+
+skinparam rectangle {
+  BorderColor #37474F
+  FontSize 10
+  FontStyle bold
+}
+
+' ============================================================
+' DOMAIN: Autentikasi (Biru)
+' ============================================================
+
+rectangle "**roles**" as ROLES #E3F2FD {
+  rectangle "id · name · description" as R_ATTR #BBDEFB
+}
+
+rectangle "**users**" as USERS #E3F2FD {
+  rectangle "id · role_id · email · phone\npassword_hash · google_id\nstatus · created_at · updated_at" as U_ATTR #BBDEFB
+}
+
+rectangle "**profiles_customer**" as PCUST #E3F2FD {
+  rectangle "id · user_id · full_name\nnickname · birth_date · gender\naddress · avatar_url" as PC_ATTR #BBDEFB
+}
+
+rectangle "**provider_profiles**" as PPROV #E3F2FD {
+  rectangle "id · user_id · full_name · phone\nis_verified · verification_status\nrating · total_jobs · is_active\ntask_available" as PP_ATTR #BBDEFB
+}
+
+rectangle "**provider_locations**" as PLOC #E3F2FD {
+  rectangle "id · provider_id · address\nlocation (GEOMETRY)" as PL_ATTR #BBDEFB
+}
+
+rectangle "**provider_documents**" as PDOC #E3F2FD {
+  rectangle "id · provider_id · type\nfile_url · description" as PD_ATTR #BBDEFB
+}
+
+rectangle "**provider_payout_methods**" as PPAY #E3F2FD {
+  rectangle "id · provider_id · type\naccount_number · account_name" as PPY_ATTR #BBDEFB
+}
+
+rectangle "**identity_verifications**" as IDVER #E3F2FD {
+  rectangle "id · provider_id · nik\nocr_full_name · face_match_score\nface_match_status · liveness_status\nocr_raw_result (JSONB)" as IV_ATTR #BBDEFB
+}
+
+rectangle "**user_devices**" as UDEV #E3F2FD {
+  rectangle "id · user_id · fcm_token\ndevice_type" as UD_ATTR #BBDEFB
+}
+
+' ============================================================
+' DOMAIN: Layanan (Hijau)
+' ============================================================
+
+rectangle "**categories**" as CATS #E8F5E9 {
+  rectangle "id · name · description\nicon_url · image_url\nis_active · display_order" as CAT_ATTR #C8E6C9
+}
+
+rectangle "**services**" as SVCS #E8F5E9 {
+  rectangle "id · category_id · name\ndescription · icon_url\nis_active · is_custom_task\ndisplay_order" as S_ATTR #C8E6C9
+}
+
+rectangle "**pricing_types**" as PTYPES #E8F5E9 {
+  rectangle "id · name · default_unit\ncategory_id" as PT_ATTR #C8E6C9
+}
+
+rectangle "**provider_services**" as PSVCS #E8F5E9 {
+  rectangle "id · provider_id · service_id\nis_active · min_price\ndescription" as PS_ATTR #C8E6C9
+}
+
+rectangle "**provider_service_prices**" as PSPR #E8F5E9 {
+  rectangle "id · provider_service_id\npricing_type_id · price" as PSP_ATTR #C8E6C9
+}
+
+rectangle "**provider_schedules**" as PSCH #E8F5E9 {
+  rectangle "id · provider_id\nday_of_week · start_time\nend_time · is_available" as PSC_ATTR #C8E6C9
+}
+
+' ============================================================
+' DOMAIN: Pesanan (Oranye)
+' ============================================================
+
+rectangle "**orders**" as ORDS #FFF3E0 {
+  rectangle "id · customer_id · provider_id · service_id\norder_number · status\nbase_price · service_price · final_price\nis_paid · estimated_duration_minutes\ndescription · work_proof_photo_url\ncompleted_at · deadline_at · cancelled_at\ncancellation_reason · completed_with_photos\nwork_proof_urls · proof_delivered_at\ncustomer_approved_at · is_disputed\ndispute_reason · created_at · updated_at" as O_ATTR #FFE0B2
+}
+
+rectangle "**order_items**" as OITEMS #FFF3E0 {
+  rectangle "id · order_id · pricing_type_id\nquantity · base_quantity\nunit_price · subtotal\nnotes · pricing_label_snapshot\ncreated_at" as OI_ATTR #FFE0B2
+}
+
+rectangle "**order_locations**" as OLOC #FFF3E0 {
+  rectangle "id · order_id\ncustomer_address_id · label\naddress · location (GEOMETRY)\ncreated_at" as OL_ATTR #FFE0B2
+}
+
+rectangle "**order_attachments**" as OATT #FFF3E0 {
+  rectangle "id · order_id · file_type\nfile_url · file_name\ndescription · created_at" as OA_ATTR #FFE0B2
+}
+
+rectangle "**order_extensions**" as OEXT #FFF3E0 {
+  rectangle "id · order_id\nold_deadline_at · new_deadline_at\nreason · requested_by\nstatus · responded_at\ncreated_at" as OX_ATTR #FFE0B2
+}
+
+rectangle "**customer_addresses**" as CADDR #FFF3E0 {
+  rectangle "id · user_id · label\naddress · location (GEOMETRY)\nis_active · is_preferred" as CA_ATTR #FFE0B2
+}
+
+' ============================================================
+' DOMAIN: Pembayaran (Ungu)
+' ============================================================
+
+rectangle "**payments**" as PAYMT #F3E5F5 {
+  rectangle "id · order_id · amount\nmethod · status · reference_id\npayment_url · midtrans_token\nmidtrans_redirect_url\nva_number · bank · card_type\nmasked_card · fraud_status\nexpiry_time · paid_at\nsettlement_time\ncreated_at · updated_at" as PY_ATTR #E1BEE7
+}
+
+rectangle "**admin_bank_accounts**" as ABA #F3E5F5 {
+  rectangle "id · bank_name · account_number\naccount_name · is_active\ncreated_at" as AB_ATTR #E1BEE7
+}
+
+rectangle "**admin_ewallet_accounts**" as AEW #F3E5F5 {
+  rectangle "id · ewallet_name\naccount_number · account_holder\nis_active · created_at" as AE_ATTR #E1BEE7
+}
+
+rectangle "**admin_qris_accounts**" as AQRI #F3E5F5 {
+  rectangle "id · provider_name\nmerchant_name · qris_image_url\nis_active · created_at" as AQ_ATTR #E1BEE7
+}
+
+' ============================================================
+' DOMAIN: Custom Task (Cyan)
+' ============================================================
+
+rectangle "**custom_tasks**" as CTASKS #E0F7FA {
+  rectangle "id · customer_id · service_id\ndescription · status\nproposed_price · negotiated_price\nfinal_price · budget_min · budget_max\nscheduled_date · scheduled_time\ncustomer_location_id\naddress_snapshot\ndeadline_at · completed_at\ncancelled_at · cancellation_reason\ncreated_at · updated_at" as CT_ATTR #B2EBF2
+}
+
+rectangle "**task_locations**" as TLOC #E0F7FA {
+  rectangle "id · task_id · label\naddress · location (GEOMETRY)\ncreated_at" as TL_ATTR #B2EBF2
+}
+
+rectangle "**task_providers**" as TPRV #E0F7FA {
+  rectangle "id · task_id · provider_id\nstatus · proposed_price\nnotes · responded_at\ncreated_at" as TP_ATTR #B2EBF2
+}
+
+' ============================================================
+' DOMAIN: Review, Laporan, Notifikasi (Kuning)
+' ============================================================
+
+rectangle "**reviews**" as REVS #FFF8E1 {
+  rectangle "id · order_id\ncustomer_id · provider_id\nrating (1-5) · comment\ncreated_at" as R_ATTR2 #FFECB3
+}
+
+rectangle "**reports**" as RPTS #FFF8E1 {
+  rectangle "id · order_id\nreporter_id · reported_id\nreason · status\ndescription · admin_notes\nresolution · resolved_by\nresolved_at · created_at" as RP_ATTR #FFECB3
+}
+
+rectangle "**notifications**" as NOTFS #FFF8E1 {
+  rectangle "id · user_id · title\nbody · type · data (JSONB)\nis_read · created_at" as N_ATTR #FFECB3
+}
+
+rectangle "**location_history**" as LOCHIST #FFF8E1 {
+  rectangle "id · user_id\nlocation (GEOMETRY)\naccuracy · recorded_at" as LH_ATTR #FFECB3
+}
+
+' ============================================================
+' RELASI — garis dengan label
+' ============================================================
+
+R_ATTR -[hidden]right-> U_ATTR
+ROLES -right-> USERS : 1:N
+
+U_ATTR -[hidden]down-> PC_ATTR
+USERS -down-> PCUST : 1:1
+USERS -down-> PPROV : 1:1
+USERS -down-> UDEV : 1:N
+
+PPROV -down-> PLOC : 1:1
+PPROV -down-> PDOC : 1:N
+PPROV -down-> PPAY : 1:N
+PPROV -down-> IDVER : 1:1
+
+CATS -right-> SVCS : 1:N
+SVCS -right-> PTYPES : 1:N
+
+PPROV -down-> PSVCS : 1:N
+PSVCS -down-> PSPR : 1:N
+PPROV -down-> PSCH : 1:N
+
+USERS -down-> ORDS : 1:N (customer)
+PPROV -down-> ORDS : 1:N (provider)
+SVCS -down-> ORDS : 1:N
+
+ORDS -down-> OITEMS : 1:N
+ORDS -down-> OLOC : 1:N
+ORDS -down-> OATT : 1:N
+ORDS -down-> OEXT : 1:N
+ORDS -down-> PAYMT : 1:1
+ORDS -down-> REVS : 1:1
+ORDS -down-> RPTS : 1:N
+
+USERS -down-> CADDR : 1:N
+
+CTASKS -down-> TLOC : 1:N
+CTASKS -down-> TPRV : 1:N
+USERS -down-> CTASKS : 1:N
+PPROV -down-> TPRV : 1:N
+
+USERS -down-> NOTFS : 1:N
+PPROV -down-> LOCHIST : 1:N
+
+title <b>ERD Klasik (Chen) — OVERVIEW 29 Tabel Jasaku</b>\nKotak = Entitas · Bulat/Isi = Atribut · Garis = Relasi\n\nDomain: Autentikasi (9) · Layanan (6) · Pesanan (6)\nPembayaran (4) · Custom Task (3) · Review/Laporan/Notif (4)
+
+footer Generated by PlantUML — Jasaku Database · 29 Tabel · PostgreSQL + PostGIS
+@enduml

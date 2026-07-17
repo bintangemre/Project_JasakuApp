@@ -1,5 +1,46 @@
 import { prisma } from '../../config/prisma';
+import { NotificationService } from '../notifications/notifications.service';
 export class AdminService {
+    // Cache for payment method labels
+    _paymentMethodCache = new Map();
+    async resolvePaymentMethodLabel(methodId) {
+        if (!methodId)
+            return '-';
+        if (this._paymentMethodCache.has(methodId))
+            return this._paymentMethodCache.get(methodId);
+        let label = methodId;
+        try {
+            if (methodId.startsWith('transfer_')) {
+                const uuid = methodId.replace('transfer_', '');
+                const account = await prisma.admin_bank_accounts.findUnique({ where: { id: uuid } });
+                if (account)
+                    label = `Transfer ${account.provider_name} - ${account.account_name}`;
+            }
+            else if (methodId.startsWith('ewallet_')) {
+                const uuid = methodId.replace('ewallet_', '');
+                const account = await prisma.admin_ewallet_accounts.findUnique({ where: { id: uuid } });
+                if (account)
+                    label = `${account.provider_name} - ${account.account_name}`;
+            }
+            else if (methodId.startsWith('qris_')) {
+                const uuid = methodId.replace('qris_', '');
+                const account = await prisma.admin_qris_accounts.findUnique({ where: { id: uuid } });
+                if (account)
+                    label = `QRIS ${account.provider_name}`;
+            }
+        }
+        catch (_) { }
+        this._paymentMethodCache.set(methodId, label);
+        return label;
+    }
+    async resolvePaymentMethods(methodIds) {
+        const unique = [...new Set(methodIds.filter(Boolean))];
+        const result = new Map();
+        for (const id of unique) {
+            result.set(id, await this.resolvePaymentMethodLabel(id));
+        }
+        return result;
+    }
     // Dashboard metrics
     async getDashboardMetrics() {
         const [totalUsers, totalProviders, totalCustomers, totalServices, totalOrders, pendingVerifications, totalCategories] = await Promise.all([
@@ -61,6 +102,7 @@ export class AdminService {
         const data = {
             is_verified: status === 'verified',
             verification_status: status,
+            is_active: status === 'verified',
         };
         if (status === 'rejected' && checklist && checklist.length > 0) {
             data.verification_notes = JSON.stringify({ checklist, notes: notes || '' });
@@ -71,10 +113,22 @@ export class AdminService {
         else if (status === 'verified') {
             data.verification_notes = null;
         }
-        return await prisma.provider_profiles.update({
+        const updated = await prisma.provider_profiles.update({
             where: { id: providerId },
             data,
         });
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { id: providerId },
+            select: { user_id: true }
+        });
+        if (profile) {
+            const title = status === 'verified' ? 'Akun Terverifikasi' : 'Akun Ditolak';
+            const body = status === 'verified'
+                ? 'Selamat! Akun Mitra Anda telah diverifikasi. Silakan mulai menerima pesanan.'
+                : 'Maaf, akun Mitra Anda ditolak. Silakan periksa detail di aplikasi.';
+            NotificationService.sendToUser(profile.user_id, title, body, { type: status === 'verified' ? 'PROVIDER_VERIFIED' : 'PROVIDER_REJECTED' }).catch(() => { });
+        }
+        return updated;
     }
     async unverifyProvider(providerId) {
         return await prisma.provider_profiles.update({
@@ -126,16 +180,20 @@ export class AdminService {
     }
     // Customer management
     async banUser(userId) {
-        return await prisma.users.update({
+        const result = await prisma.users.update({
             where: { id: userId },
             data: { status: 'banned' }
         });
+        NotificationService.sendToUser(userId, 'Akun Diblokir', 'Akun Anda telah diblokir oleh admin. Hubungi CS untuk informasi lebih lanjut.', { type: 'ACCOUNT_BANNED' }).catch(() => { });
+        return result;
     }
     async unbanUser(userId) {
-        return await prisma.users.update({
+        const result = await prisma.users.update({
             where: { id: userId },
             data: { status: 'active' }
         });
+        NotificationService.sendToUser(userId, 'Akun Diaktifkan', 'Akun Anda telah diaktifkan kembali. Anda bisa login sekarang.', { type: 'ACCOUNT_UNBANNED' }).catch(() => { });
+        return result;
     }
     async warnProvider(providerId) {
         // Gunakan field notes atau buat catatan di provider_profiles
@@ -157,12 +215,44 @@ export class AdminService {
         });
     }
     // CRUD Pricing Types
-    async createPricingType(categoryId, name, description, defaultUnit) {
+    async createPricingType(categoryId, name, defaultUnit) {
+        const category = await prisma.categories.findUnique({ where: { id: categoryId } });
+        if (!category)
+            throw new Error('Kategori tidak ditemukan');
         return await prisma.pricing_types.create({
-            data: { category_id: categoryId, name, description, default_unit: defaultUnit }
+            data: { category_id: categoryId, name, default_unit: defaultUnit }
+        });
+    }
+    async updatePricingType(id, data) {
+        const existing = await prisma.pricing_types.findUnique({ where: { id } });
+        if (!existing)
+            throw new Error('Tipe harga tidak ditemukan');
+        if (data.categoryId) {
+            const category = await prisma.categories.findUnique({ where: { id: data.categoryId } });
+            if (!category)
+                throw new Error('Kategori tidak ditemukan');
+        }
+        return await prisma.pricing_types.update({
+            where: { id },
+            data: {
+                ...(data.name !== undefined && { name: data.name }),
+                ...(data.defaultUnit !== undefined && { default_unit: data.defaultUnit }),
+                ...(data.categoryId !== undefined && { category_id: data.categoryId }),
+            }
         });
     }
     async deletePricingType(id) {
+        const existing = await prisma.pricing_types.findUnique({ where: { id } });
+        if (!existing)
+            throw new Error('Tipe harga tidak ditemukan');
+        const usedInServices = await prisma.provider_service_prices.count({ where: { pricing_type_id: id } });
+        if (usedInServices > 0) {
+            throw new Error('Tipe harga masih digunakan oleh layanan provider dan tidak dapat dihapus');
+        }
+        const usedInOrders = await prisma.order_items.count({ where: { pricing_type_id: id } });
+        if (usedInOrders > 0) {
+            throw new Error('Tipe harga masih digunakan oleh order dan tidak dapat dihapus');
+        }
         return await prisma.pricing_types.delete({ where: { id } });
     }
     // Orders pending payment (rekber)
@@ -189,13 +279,15 @@ export class AdminService {
             }
         });
     }
-    // All orders for admin monitoring
+    // All orders for admin monitoring (regular orders only, custom tasks have their own page)
     async getAllOrders() {
-        return await prisma.orders.findMany({
+        const orders = await prisma.orders.findMany({
+            where: { task_provider_id: null },
             orderBy: { created_at: 'desc' },
             select: {
                 id: true,
                 total_price: true,
+                platform_fee: true,
                 description: true,
                 work_date: true,
                 status: true,
@@ -207,10 +299,32 @@ export class AdminService {
                     select: { id: true, full_name: true }
                 },
                 payments: {
-                    select: { id: true, method: true, amount: true, status: true, created_at: true }
+                    select: { id: true, method: true, amount: true, status: true, created_at: true, payment_proof: true }
                 }
             }
         });
+        const providerIds = [...new Set(orders.map(o => o.provider_profiles?.id).filter(Boolean))];
+        let payoutMethods = [];
+        if (providerIds.length > 0) {
+            payoutMethods = await prisma.$queryRaw `
+                SELECT ppm.id, ppm.provider_id, ppm.type, ppm.provider_name, ppm.account_number, ppm.account_name
+                FROM provider_payout_methods ppm
+                WHERE ppm.provider_id = ANY(${providerIds}::uuid[])
+            `;
+        }
+        const payoutByProviderId = Object.fromEntries(payoutMethods.map(pm => [pm.provider_id, pm]));
+        const allMethodIds = orders.flatMap(o => o.payments?.map(p => p.method) || []);
+        const methodLabelMap = await this.resolvePaymentMethods(allMethodIds);
+        return orders.map(o => ({
+            ...o,
+            provider_payout: o.provider_profiles?.id
+                ? (payoutByProviderId[o.provider_profiles.id] ?? null)
+                : null,
+            payments: o.payments?.map(p => ({
+                ...p,
+                method_label: p.method ? (methodLabelMap.get(p.method) || p.method) : '-',
+            })),
+        }));
     }
     // Payment Accounts (Rekber Admin)
     async getPaymentAccounts() {
@@ -286,10 +400,13 @@ export class AdminService {
         });
     }
     async respondToReport(reportId, response, status) {
-        const report = await prisma.reports.findUnique({ where: { id: reportId } });
+        const report = await prisma.reports.findUnique({
+            where: { id: reportId },
+            include: { users: { select: { email: true } } }
+        });
         if (!report)
             throw new Error('Laporan tidak ditemukan');
-        return await prisma.reports.update({
+        const updated = await prisma.reports.update({
             where: { id: reportId },
             data: {
                 status,
@@ -297,6 +414,10 @@ export class AdminService {
                 resolved_at: new Date(),
             }
         });
+        // Kirim notifikasi ke pelapor
+        const statusLabel = status === 'resolved' ? 'terselesaikan' : 'ditutup';
+        NotificationService.sendToUser(report.reporter_id, `Laporan ${statusLabel}`, `Laporan "${report.subject}" telah ${statusLabel} oleh admin. Respon: ${response}`, { reportId, type: 'REPORT_RESPONDED' }).catch(() => { });
+        return updated;
     }
     async getPendingExtensions() {
         return await prisma.order_extensions.findMany({
@@ -316,5 +437,160 @@ export class AdminService {
                 }
             }
         });
+    }
+    async getAllExtensions() {
+        return await prisma.order_extensions.findMany({
+            orderBy: { created_at: 'desc' },
+            include: {
+                orders: {
+                    select: {
+                        id: true,
+                        total_price: true,
+                        description: true,
+                        work_date: true,
+                        platform_fee: true,
+                        additional_fee: true,
+                        provider_profiles: { select: { full_name: true } },
+                        profiles_customer: { select: { full_name: true } }
+                    }
+                }
+            }
+        });
+    }
+    async getPendingPaymentExtensions() {
+        return await prisma.order_extensions.findMany({
+            where: { status: 'pending_payment' },
+            orderBy: { created_at: 'desc' },
+            include: {
+                orders: {
+                    select: {
+                        id: true,
+                        total_price: true,
+                        description: true,
+                        work_date: true,
+                        platform_fee: true,
+                        additional_fee: true,
+                        provider_profiles: { select: { full_name: true } },
+                        profiles_customer: { select: { full_name: true } }
+                    }
+                }
+            }
+        });
+    }
+    // All completed orders (regular orders only) — shows both pending and confirmed payouts
+    async getCompletedOrdersPendingPayout() {
+        const orders = await prisma.orders.findMany({
+            where: {
+                status: 'completed',
+                task_provider_id: null, // regular orders only, not custom tasks
+            },
+            orderBy: [{ payout_confirmed: 'asc' }, { created_at: 'desc' }],
+            select: {
+                id: true,
+                total_price: true,
+                platform_fee: true,
+                work_date: true,
+                status: true,
+                payout_confirmed: true,
+                created_at: true,
+                profiles_customer: {
+                    select: { id: true, full_name: true, nickname: true }
+                },
+                provider_profiles: {
+                    select: { id: true, full_name: true }
+                },
+                payments: {
+                    select: { id: true, method: true, status: true }
+                }
+            }
+        });
+        const providerIds = [...new Set(orders.map(o => o.provider_profiles?.id).filter(Boolean))];
+        let payoutMethods = [];
+        if (providerIds.length > 0) {
+            payoutMethods = await prisma.$queryRaw `
+                SELECT ppm.id, ppm.provider_id, ppm.type, ppm.provider_name, ppm.account_number, ppm.account_name
+                FROM provider_payout_methods ppm
+                WHERE ppm.provider_id = ANY(${providerIds}::uuid[])
+            `;
+        }
+        const payoutByProviderId = Object.fromEntries(payoutMethods.map(pm => [pm.provider_id, pm]));
+        const allMethodIds = orders.flatMap(o => o.payments?.map(p => p.method) || []);
+        const methodLabelMap = await this.resolvePaymentMethods(allMethodIds);
+        return orders.map(o => ({
+            ...o,
+            provider_payout: o.provider_profiles?.id
+                ? (payoutByProviderId[o.provider_profiles.id] ?? null)
+                : null,
+            payments: o.payments?.map(p => ({
+                ...p,
+                method_label: p.method ? (methodLabelMap.get(p.method) || p.method) : '-',
+            })),
+        }));
+    }
+    async confirmOrderPayout(orderId) {
+        const order = await prisma.orders.findUnique({
+            where: { id: orderId },
+            select: { id: true, status: true, payout_confirmed: true, provider_id: true }
+        });
+        if (!order)
+            throw new Error('Order tidak ditemukan');
+        if (order.status !== 'completed')
+            throw new Error('Order belum selesai');
+        if (order.payout_confirmed)
+            throw new Error('Payout sudah dikonfirmasi sebelumnya');
+        const updated = await prisma.orders.update({
+            where: { id: orderId },
+            data: { payout_confirmed: true, payout_at: new Date() }
+        });
+        // Get provider user_id for notification
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { id: order.provider_id },
+            select: { user_id: true, full_name: true }
+        });
+        if (profile) {
+            NotificationService.sendToUser(profile.user_id, 'Pencairan Dana Berhasil', 'Dana untuk pesanan telah dikirim ke rekening Anda. Terima kasih atas kerja kerasnya!', { orderId, type: 'ORDER_PAYOUT_CONFIRMED' }).catch(() => { });
+        }
+        return updated;
+    }
+    async getNotificationCounts() {
+        const [pendingPayments, pendingExtensions, pendingTaskPayments, pendingTaskPayouts, pendingOrderPayouts, pendingProviders, openReports,] = await Promise.all([
+            // Regular orders pending payment confirmation
+            prisma.orders.count({
+                where: { status: 'pending_payment', task_provider_id: null }
+            }),
+            // Order extensions pending payment
+            prisma.order_extensions.count({ where: { status: 'pending_payment' } }),
+            // Custom task orders pending payment confirmation by admin
+            prisma.$queryRaw `
+                SELECT COUNT(*) as count FROM orders o
+                JOIN task_providers tp ON o.task_provider_id = tp.id
+                WHERE o.status = 'pending_payment'
+            `.then(r => Number(r[0]?.count || 0)),
+            // Custom task payouts pending release
+            prisma.task_providers.count({
+                where: {
+                    status: 'completed',
+                    payout_confirmed: false,
+                }
+            }),
+            // Regular orders completed, pending payout to provider
+            prisma.orders.count({
+                where: { status: 'completed', payout_confirmed: false, task_provider_id: null }
+            }),
+            // Provider verifications pending
+            prisma.provider_profiles.count({ where: { verification_status: 'pending' } }),
+            // Open reports
+            prisma.reports.count({ where: { status: 'open' } }),
+        ]);
+        return {
+            pendingPayments,
+            pendingExtensions,
+            pendingTaskPayments,
+            pendingTaskPayouts,
+            pendingOrderPayouts,
+            pendingProviders,
+            openReports,
+            total: pendingPayments + pendingExtensions + pendingTaskPayments + pendingOrderPayouts + pendingProviders + openReports,
+        };
     }
 }

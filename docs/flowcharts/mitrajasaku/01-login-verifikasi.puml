@@ -1,0 +1,157 @@
+@startuml login-verifikasi-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E8F5E9
+  BorderColor #388E3C
+  FontColor #1B5E20
+  ArrowColor #2E7D32
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #1B5E20
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Login & Verifikasi Mitra Jasaku**
+
+|Mitra|
+start
+:Buka aplikasi Mitra Jasaku;
+:Welcome Screen;
+
+if (Sudah punya akun?) then (Ya)
+  :Form Login;
+  note right
+    Input:
+    - Email
+    - Password
+  end note
+  :Klik "Masuk";
+  note right
+    **POST /api/auth/login**
+    Body: { email, password }
+    Response: { token, user }
+  end note
+  #FFCDD2:Validasi credential di server;
+
+  if (Login berhasil?) then (Ya)
+    :Simpan JWT Token
+    (flutter_secure_storage);
+    :Navigasi ke Dashboard;
+    stop
+  else (Tidak)
+    #EF9A9A:Tampilkan pesan error;
+    note right
+      "Email atau password
+      salah"
+    end note
+    :Kembali ke form login;
+    detach
+  endif
+else (Tidak)
+  :Pilih "Daftar Sebagai Mitra";
+  note right
+    **4-Step Registration Wizard**
+  end note
+
+  partition "Step 1: Data Diri" {
+    :Isi data diri;
+    note right
+      Input:
+      - Nama lengkap
+      - Email
+      - Password
+      - Nomor HP
+      - Alamat
+    end note
+  }
+
+  partition "Step 2: Dokumen" {
+    :Unggah dokumen;
+    note right
+      **POST /api/auth/register/provider**
+      (multipart/form-data)
+      
+      File yang diperlukan:
+      - Foto KTP
+      - Foto selfie dengan KTP
+      - Portofolio (opsional)
+      - Ijazah (opsional)
+    end note
+  }
+
+  partition "Step 3: Layanan" {
+    :Pilih kategori layanan;
+    note right
+      Mitra memilih:
+      - Kategori layanan
+      - Area layanan
+      - Harga estimasi
+    end note
+  }
+
+  partition "Step 4: Konfirmasi" {
+    :Review semua data;
+    :Klik "Kirim Pendaftaran";
+  end partition
+
+  :Mengirim data ke server;
+
+  #FFECB3:Status: **Pending Verifikasi**;
+  note right
+    Server akan memproses
+    verifikasi dokumen
+    oleh admin
+  end note
+
+  :Menunggu verifikasi;
+
+  while (Menunggu verifikasi?) is (Menunggu)
+    :Cek status verifikasi;
+    note right
+      **GET /api/auth/provider/verification-status**
+      Response: { status }
+      
+      Status:
+      - pending
+      - approved
+      - rejected
+    end note
+
+    if (Status verifikasi?) then (Disetujui)
+      #C8E6C9:Verifikasi berhasil!;
+      :Navigasi ke Dashboard;
+      stop
+    elseif (Ditolak) then
+      #EF9A9A:Verifikasi ditolak;
+      note right
+        **Alasan penolakan**
+        ditampilkan
+      end note
+      :Pilih "Kirim Ulang";
+      note right
+        **POST /api/auth/provider/resubmit-verification**
+        (multipart/form-data)
+        
+        Unggah ulang dokumen
+        yang diperlukan
+      end note
+      :Mengirim ulang;
+      :Status kembali ke
+      **Pending Verifikasi**;
+    else (Belum)
+      :Tunggu beberapa saat;
+    endif
+  endwhile
+
+endif
+
+stop
+
+@enduml

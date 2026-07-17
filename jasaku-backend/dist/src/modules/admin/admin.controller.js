@@ -1,5 +1,6 @@
 import { AdminService } from "./admin.service";
 import { successResponse, errorResponse } from "../../utils/response";
+import { uploadToStorage } from "../../services/storage.service";
 const getDashboardMetrics = async (req, res) => {
     try {
         const result = await new AdminService().getDashboardMetrics();
@@ -194,11 +195,22 @@ const unbanUser = async (req, res) => {
 // Pricing Types
 const createPricingType = async (req, res) => {
     try {
-        const { categoryId, name, description, defaultUnit } = req.body;
+        const { categoryId, name, defaultUnit } = req.body;
         if (!categoryId || !name)
             return errorResponse(res, "categoryId dan name wajib diisi", 400);
-        const result = await new AdminService().createPricingType(categoryId, name, description, defaultUnit);
+        const result = await new AdminService().createPricingType(categoryId, name, defaultUnit);
         return successResponse(res, result, "Tipe harga berhasil dibuat", 201);
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const updatePricingType = async (req, res) => {
+    try {
+        const id = String(req.params.id);
+        const { name, defaultUnit, categoryId } = req.body;
+        const result = await new AdminService().updatePricingType(id, { name, defaultUnit, categoryId });
+        return successResponse(res, result, "Tipe harga berhasil diupdate");
     }
     catch (err) {
         return errorResponse(res, err.message);
@@ -227,8 +239,11 @@ const getPaymentAccounts = async (req, res) => {
 const createPaymentAccount = async (req, res) => {
     try {
         const { type, account_name, account_number, provider_name, qris_image_url } = req.body;
-        if (!type || !account_name || !account_number || !provider_name) {
-            return errorResponse(res, "type, account_name, account_number, provider_name wajib diisi", 400);
+        if (!type || !provider_name) {
+            return errorResponse(res, "type dan provider_name wajib diisi", 400);
+        }
+        if (type !== 'qris' && (!account_name || !account_number)) {
+            return errorResponse(res, "account_name dan account_number wajib diisi untuk bank/e-wallet", 400);
         }
         if (!['bank_transfer', 'e_wallet', 'qris'].includes(type)) {
             return errorResponse(res, "type harus 'bank_transfer', 'e_wallet', atau 'qris'", 400);
@@ -267,7 +282,7 @@ const uploadQrisImage = async (req, res) => {
         if (!req.file) {
             return errorResponse(res, "File gambar QRIS wajib diupload", 400);
         }
-        const qrisImageUrl = `/uploads/${req.file.filename}`;
+        const qrisImageUrl = await uploadToStorage(req.file.buffer, 'admin/qris', req.file.originalname);
         await new AdminService().updatePaymentAccount(id, { qris_image_url: qrisImageUrl });
         return successResponse(res, { qris_image_url: qrisImageUrl }, "QRIS berhasil diupload");
     }
@@ -304,6 +319,24 @@ const getPendingExtensions = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
+const getAllExtensions = async (req, res) => {
+    try {
+        const result = await new AdminService().getAllExtensions();
+        return successResponse(res, result, "Daftar semua ekstensi berhasil diambil");
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const getPendingPaymentExtensions = async (req, res) => {
+    try {
+        const result = await new AdminService().getPendingPaymentExtensions();
+        return successResponse(res, result, "Daftar ekstensi menunggu pembayaran berhasil diambil");
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
 // Reports
 const getOpenReports = async (req, res) => {
     try {
@@ -323,6 +356,15 @@ const respondToReport = async (req, res) => {
         }
         const result = await new AdminService().respondToReport(reportId, response, status);
         return successResponse(res, result, 'Laporan berhasil ditindaklanjuti');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const getNotificationCounts = async (req, res) => {
+    try {
+        const result = await new AdminService().getNotificationCounts();
+        return successResponse(res, result, "Notification counts berhasil diambil");
     }
     catch (err) {
         return errorResponse(res, err.message);
@@ -388,4 +430,23 @@ const confirmTaskPayout = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
-export { getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail, getCategories, getServicesByCategory, getPricingTypesByCategory, createCategory, updateCategory, deleteCategory, createService, updateService, deleteService, getAllProviders, getAllCustomers, banUser, unbanUser, createPricingType, deletePricingType, getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount, uploadQrisImage, getPendingPaymentOrders, getAllOrders, getPendingExtensions, getPendingTaskPayments, getPendingTaskPaymentsByTask, getPendingTaskPayouts, confirmTaskPayment, confirmTaskPaymentByTask, confirmTaskPayout, getOpenReports, respondToReport };
+const getCompletedOrdersPendingPayout = async (req, res) => {
+    try {
+        const result = await new AdminService().getCompletedOrdersPendingPayout();
+        return successResponse(res, result, "Daftar order selesai menunggu pencairan");
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+const confirmOrderPayout = async (req, res) => {
+    try {
+        const orderId = String(req.params.orderId);
+        const result = await new AdminService().confirmOrderPayout(orderId);
+        return successResponse(res, result, "Pencairan dana dikonfirmasi");
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export { getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail, getCategories, getServicesByCategory, getPricingTypesByCategory, createCategory, updateCategory, deleteCategory, createService, updateService, deleteService, getAllProviders, getAllCustomers, banUser, unbanUser, createPricingType, updatePricingType, deletePricingType, getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount, uploadQrisImage, getPendingPaymentOrders, getAllOrders, getPendingExtensions, getAllExtensions, getPendingPaymentExtensions, getPendingTaskPayments, getPendingTaskPaymentsByTask, getPendingTaskPayouts, confirmTaskPayment, confirmTaskPaymentByTask, confirmTaskPayout, getOpenReports, respondToReport, getNotificationCounts, getCompletedOrdersPendingPayout, confirmOrderPayout };

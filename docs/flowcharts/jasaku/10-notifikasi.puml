@@ -1,0 +1,128 @@
+@startuml
+title Alur Notifikasi Push - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E8EAF6
+skinparam activityBorderColor #283593
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E3F2FD| Notifikasi |
+
+start
+
+partition "Inisialisasi FCM" {
+  :Buka Aplikasi;
+  :Request Izin Notifikasi;
+  note right
+    Firebase Cloud Messaging
+    Meminta izin dari user
+  end note
+
+  if (Izin Diberikan?) then (Ya)
+    :Dapatkan FCM Token;
+    note right
+      Token unik per device
+      untuk pengiriman push
+    end note
+
+    #E8EAF6:Kirim POST /api/notifications/devices/register;
+    note right
+      Body: {
+        token: fcm_token,
+        platform: "android",
+        role: "customer"
+      }
+    end note
+
+    if (Registrasi Berhasil?) then (Ya)
+      #C8E6C9:FCM Token Terdaftar;
+      :Siap Menerima Notifikasi;
+    else (Tidak)
+      #FFF9C4:Registrasi Gagal;
+      :Coba Lagi Nanti;
+    endif
+  else (Tidak)
+    #FFCDD2:Izin Ditolak;
+    :Tampilkan Info
+    "Aktifkan notifikasi di Pengaturan";
+    :Tidak Menerima Push;
+  endif
+}
+
+partition "Menerima Notifikasi" {
+  :Menunggu Notifikasi;
+
+  :FCM Menerima Push Notification;
+  note right
+    Contoh notifikasi:
+    - "Pesanan Anda sedang diproses"
+    - "Provider akan tiba dalam 10 menit"
+    - "Pesanan selesai, beri review!"
+    - "Pembayaran dikonfirmasi"
+  end note
+
+  if (App di foreground?) then (Ya)
+    :Tampilkan In-App Notification;
+    :Tampilkan Badge Counter;
+    note right
+      Badge counter pada
+      ikon notifikasi di header
+    end note
+  else (Tidak)
+    :Tampilkan Push Notification;
+    note right
+      System notification bar
+      dengan payload dari FCM
+    end note
+  endif
+}
+
+partition "Menangani Klik Notifikasi" {
+  :Klik Notifikasi;
+
+  :Parse Data Notifikasi;
+  note right
+    Payload berisi:
+    - type: order_update, payment, etc
+    - orderId: uuid
+    - message: teks
+  end note
+
+  :Navigasi ke Halaman Terkait;
+  note right
+    Berdasarkan type:
+    - order_update → Detail Pesanan
+    - payment → Halaman Pembayaran
+    - review → Form Review
+    - tracking → Halaman Tracking
+    - extension_request → Detail Pesanan
+  end note
+
+  if (Tipe Notifikasi?) then (Order Update)
+    :Buka Detail Pesanan;
+  elseif (Payment) then (Pembayaran)
+    :Buka Halaman Pembayaran;
+  elseif (Review) then (Review)
+    :Buka Form Review;
+  elseif (Tracking) then (Tracking)
+    :Buka Halaman Tracking;
+  else (Lainnya)
+    :Buka Beranda;
+  endif
+}
+
+partition "Kelola Notifikasi" {
+  :Lihat Daftar Riwayat Notifikasi;
+  note right
+    Semua notifikasi tersimpan
+    di halaman notifikasi
+  end note
+
+  :Tandai sebagai sudah dibaca;
+  :Badge Counter = 0;
+  stop
+endif
+
+@enduml

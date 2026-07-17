@@ -2,83 +2,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' as latlong;
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/image_url.dart';
 import '../../../../core/utils/operating_hours.dart';
+import '../../../../core/utils/date_utils.dart';
 import 'customer_orders.dart';
 import 'customer_provider_reviews_page.dart';
-
-/*class Providerlist extends StatelessWidget {
-  final String servicesId;
-  final String servicesName;
-
-  const Providerlist({
-    super.key,
-    required this.servicesId,
-    required this.servicesName,
-  });
-
-  // ini untuk ambil api list provider terdekat dari lokasi karena ini ambil lokasi provider. provider mengaktifkan lokasi agar data lokasi masuk begitu pula pada customer
-  /* Future<Providerlist> _fetchProviderList () async {
-    try {
-      final response = await ApiClient ().dio.get (
-        '${ApiEndpoints.getProviderByService}$servicesId',
-      );
-        final data = response.data['data'] as Map<String, dynamic>;
-        return Providerlist.fromJson(data);
-    } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? e.message);
-    }
-  }
-  */
-
-  // sementara untuk lihat tampilan nya
-  Future<List<ProviderModel>> _fetchProviderList() async {
-    try {
-      // 1. Fungsi dio.get langsung ditutup dengan kurung ) setelah URL selesai
-      final response = await ApiClient().dio.get(
-        '${ApiEndpoints.getProvidersByServiceWithoutDistance}$servicesId',
-      );
-
-      // 2. Proses membaca data dipisahkan di bawahnya
-      final data = response.data['data'] as List<dynamic>;
-
-      // 3. Mengembalikan dalam bentuk List data ProviderModel
-      return data
-          .map((item) => ProviderModel.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? e.message);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Daftar Tukang $servicesName'),
-      ),
-      body: const Center(
-        child: Text('Gunakan FutureBuilder di sini untuk menampilkan daftar tukang'),
-      ),
-    );
-  }
-}
-  class ProviderModel {
-    final String id;
-    final String name;
-
-    ProviderModel({required this.id, required this.name});
-
-  factory ProviderModel.fromJson(Map<String, dynamic> json) {
-    return ProviderModel(
-      id: json['id'] as String,
-      name: json['name'] as String, // sesuaikan dengan field database/backend kamu
-    );
-  }
-}
-*/
 
 // --- SCREEN UTAMA: DAFTAR MITRA DARI DATABASE (GAMBAR 1) ---
 class ProviderListScreen extends StatelessWidget {
@@ -119,6 +50,18 @@ class ProviderListScreen extends StatelessWidget {
       return '${meters.round()} m';
     }
     return '${(meters / 1000).toStringAsFixed(1)} km';
+  }
+
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+    final intVal = price is num ? price.toInt() : int.tryParse(price.toString()) ?? 0;
+    final str = intVal.toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) buf.write('.');
+      buf.write(str[i]);
+    }
+    return buf.toString();
   }
 
   Future<List<ProviderModel>> _fetchProviderList() async {
@@ -178,17 +121,9 @@ class ProviderListScreen extends StatelessWidget {
             userLatLng,
             providerLatLng,
           );
-          final distance = (provider.distance = _formatDistance(meters));
-          debugPrint("Jarak ke ${provider.name}: $distance");
+          provider.distance = _formatDistance(meters);
         }
       }
-
-      providers.sort((a, b) {
-        if (a.distance == null && b.distance == null) return 0;
-        if (a.distance == null) return 1;
-        if (b.distance == null) return -1;
-        return 0;
-      });
 
       providers.sort((a, b) {
         if (a.lat == null || a.lng == null) return 1;
@@ -202,14 +137,10 @@ class ProviderListScreen extends StatelessWidget {
 
       return providers;
     } on DioException catch (e) {
-      debugPrint("=== DIO ERROR ===");
-      debugPrint("URL: ${e.requestOptions.uri}");
-      debugPrint("Status: ${e.response?.statusCode}");
-      debugPrint("Data: ${e.response?.data}");
-      debugPrint("Message: ${e.message}");
+      debugPrint("[ProviderList] DioError: ${e.response?.statusCode} ${e.message}");
       throw Exception(e.response?.data['message'] ?? e.message);
     } catch (e) {
-      debugPrint("=== GENERAL ERROR: $e ===");
+      debugPrint("[ProviderList] Error: $e");
       throw Exception("Gagal memproses data dari server.");
     }
   }
@@ -217,7 +148,7 @@ class ProviderListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -235,9 +166,9 @@ class ProviderListScreen extends StatelessWidget {
                     'PlusJakartaSans', // Jika proyekmu memakai font custom
               ),
             ),
-            const Text(
-              "Bangunan & Konstruksi",
-              style: TextStyle(
+            Text(
+              servicesName,
+              style: const TextStyle(
                 color: Color(0xFF64748B),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -245,34 +176,7 @@ class ProviderListScreen extends StatelessWidget {
             ),
           ],
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
-            child: OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.tune_rounded,
-                size: 16,
-                color: Color(0xFF1E293B),
-              ),
-              label: const Text(
-                "Urutkan",
-                style: TextStyle(
-                  color: Color(0xFF1E293B),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-              ),
-            ),
-          ),
-        ],
+        actions: [],
       ),
       body: FutureBuilder<List<ProviderModel>>(
         future: _fetchProviderList(),
@@ -464,7 +368,7 @@ class ProviderListScreen extends StatelessWidget {
                           ), // Bintang Oranye Emas
                           const SizedBox(width: 4),
                           Text(
-                            "${provider.rating ?? '0.0'} ",
+                            "${provider.rating?.toStringAsFixed(1) ?? '0.0'} ",
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -520,7 +424,7 @@ class ProviderListScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Rp ${provider.basePrice ?? '0'}',
+                      'Rp ${_formatPrice(provider.basePrice)}',
                       style: const TextStyle(
                         color: Color(0xFF2563EB),
                         fontWeight: FontWeight.w800,
@@ -624,11 +528,9 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
 
   Future<void> _fetchStatus() async {
     try {
-      debugPrint('[DetailProviderSheet] Fetching status for: ${widget.provider.id}');
       final res = await ApiClient().dio.get(
         ApiEndpoints.providerStatus(widget.provider.id),
       );
-      debugPrint('[DetailProviderSheet] Status response: ${res.data}');
       final data = res.data['data'] as Map<String, dynamic>? ?? {};
       setState(() {
         _hasActiveOrder = data['hasActiveOrder'] == true;
@@ -641,15 +543,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
     }
   }
 
-  String _formatReviewDate(String iso) {
-    try {
-      final dt = DateTime.parse(iso);
-      const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-      return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
-    } catch (_) {
-      return iso;
-    }
-  }
+  String _formatReviewDate(String iso) => AppDateUtils.formatShort(iso);
 
   Widget _buildReviewItem(Map<String, dynamic> r) {
     final customer = r['users_reviews_customer_idTousers'] as Map<String, dynamic>?;
@@ -720,7 +614,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
       }).toList();
 
       if (!mounted) return;
-      Navigator.pop(context); // tutup loading
+      Navigator.of(context, rootNavigator: true).pop(); // tutup loading
 
       showDialog(
         context: context,
@@ -751,7 +645,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
       );
     } catch (_) {
       if (!mounted) return;
-      Navigator.pop(context); // tutup loading
+      Navigator.of(context, rootNavigator: true).pop(); // tutup loading
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Gagal memuat jadwal mitra')),
       );
@@ -990,36 +884,24 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                     ),
                     const SizedBox(height: 16),
                     // Atribut Kelebihan / Jaminan Layanan
-                    const Row(
-                      children: [
-                        Icon(
-                          Icons.bolt_rounded,
-                          size: 16,
-                          color: Color(0xFF10B981),
-                        ),
-                        Text(
-                          " Respons kilat < 10 mnt   ",
-                          style: TextStyle(
-                            color: Color(0xFF10B981),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Icon(
-                          Icons.verified_user,
-                          size: 16,
-                          color: Color(0xFF2563EB),
-                        ),
-                        Text(
-                          " Terverifikasi Asli",
-                          style: TextStyle(
+                    if (provider.isActive)
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.verified_user,
+                            size: 16,
                             color: Color(0xFF2563EB),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
                           ),
-                        ),
-                      ],
-                    ),
+                          Text(
+                            " Terverifikasi",
+                            style: TextStyle(
+                              color: Color(0xFF2563EB),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: 24),
                     // Navigasi Tab (Info, Ulasan)
                     Row(
@@ -1298,21 +1180,6 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                 child: SafeArea(
                   child: Row(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.chat_bubble_outline_rounded,
-                            color: Color(0xFF2563EB),
-                            size: 24,
-                          ),
-                          onPressed: () {},
-                        ),
-                      ),
-                      const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton(
                           onPressed: (_hasActiveOrder || !_serviceAvailable || !OperatingHours.isWithinOperatingHours())

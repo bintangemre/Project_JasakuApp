@@ -198,10 +198,21 @@ const unbanUser = async (req: AuthRequest, res: Response) => {
 // Pricing Types
 const createPricingType = async (req: AuthRequest, res: Response) => {
   try {
-    const { categoryId, name, description, defaultUnit } = req.body;
+    const { categoryId, name, defaultUnit } = req.body;
     if (!categoryId || !name) return errorResponse(res, "categoryId dan name wajib diisi", 400);
-    const result = await new AdminService().createPricingType(categoryId, name, description, defaultUnit);
+    const result = await new AdminService().createPricingType(categoryId, name, defaultUnit);
     return successResponse(res, result, "Tipe harga berhasil dibuat", 201);
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const updatePricingType = async (req: AuthRequest, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const { name, defaultUnit, categoryId } = req.body;
+    const result = await new AdminService().updatePricingType(id, { name, defaultUnit, categoryId });
+    return successResponse(res, result, "Tipe harga berhasil diupdate");
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
@@ -446,7 +457,7 @@ export {
   createCategory, updateCategory, deleteCategory,
   createService, updateService, deleteService,
   getAllProviders, getAllCustomers, banUser, unbanUser,
-  createPricingType, deletePricingType,
+  createPricingType, updatePricingType, deletePricingType,
   getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount,
   uploadQrisImage,
   getPendingPaymentOrders,

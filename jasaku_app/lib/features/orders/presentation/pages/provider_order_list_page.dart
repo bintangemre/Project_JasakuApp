@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../domain/models/order_model.dart';
 import '../providers/order_list_provider.dart';
+import '../../../provider/presentation/screens/provider_order_detail_page.dart';
 
 class ProviderOrderListPage extends ConsumerStatefulWidget {
   const ProviderOrderListPage({super.key});
@@ -127,8 +128,11 @@ class _ProviderOrderListPageState extends ConsumerState<ProviderOrderListPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Pesanan: ${order.id}')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ProviderOrderDetailPage(rawOrder: order.toJson()),
+            ),
           );
         },
         child: Padding(

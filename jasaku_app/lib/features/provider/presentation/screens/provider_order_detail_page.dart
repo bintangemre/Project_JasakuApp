@@ -6,6 +6,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/image_url.dart';
 import '../../../../core/utils/operating_hours.dart';
 import '../../../orders/domain/models/order_model.dart';
+import '../../../reports/presentation/pages/report_form_page.dart';
 
 class ProviderOrderDetailPage extends StatefulWidget {
   final Map<String, dynamic> rawOrder;
@@ -235,18 +236,20 @@ class _ProviderOrderDetailPageState extends State<ProviderOrderDetailPage> {
     final location = _parseLocation();
     final customerName = (_order['profiles_customer'] as Map<String, dynamic>?)?['full_name'] as String? ?? '-';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Orderan'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return PopScope(
+      canPop: !_updating,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Detail Orderan'),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -475,9 +478,32 @@ class _ProviderOrderDetailPageState extends State<ProviderOrderDetailPage> {
               const SizedBox(height: 16),
               _nextActionButton(),
             ],
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.flag_outlined, size: 18),
+                label: const Text('Laporkan Masalah'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ReportFormPage(orderId: _order['id'] as String?),
+                    ),
+                  );
+                },
+              ),
+            ),
             const SizedBox(height: 24),
           ],
         ),
+      ),
       ),
     );
   }

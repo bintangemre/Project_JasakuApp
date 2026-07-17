@@ -1,5 +1,6 @@
 import { CustomTasksService } from './custom-tasks.service';
 import { successResponse, errorResponse } from '../../utils/response';
+import { uploadToStorage } from '../../services/storage.service';
 const service = new CustomTasksService();
 export const createTask = async (req, res) => {
     try {
@@ -85,6 +86,34 @@ export const completeTask = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
+export const updateWorkStatus = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const taskId = String(req.params.taskId);
+        const { work_status } = req.body;
+        if (!work_status)
+            return errorResponse(res, 'work_status wajib diisi', 400);
+        const result = await service.updateWorkStatus(userId, taskId, work_status);
+        return successResponse(res, result, 'Status kerja diperbarui');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const getMyActiveTasks = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const result = await service.getMyActiveTasks(userId);
+        return successResponse(res, result, 'Daftar task aktif');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
 export const republishTask = async (req, res) => {
     try {
         const userId = req.user?.userId;
@@ -120,9 +149,34 @@ export const uploadPaymentProof = async (req, res) => {
         const file = req.file;
         if (!file)
             return errorResponse(res, 'Upload bukti pembayaran terlebih dahulu', 400);
-        const fileUrl = `/uploads/payment-proofs/${file.filename}`;
+        const fileUrl = await uploadToStorage(file.buffer, 'payment-proofs', file.originalname);
         const result = await service.uploadPaymentProof(taskId, userId, fileUrl);
         return successResponse(res, result, 'Bukti pembayaran berhasil diupload');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const deleteTask = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId)
+            return errorResponse(res, 'Anda harus login', 401);
+        const taskId = String(req.params.taskId);
+        const result = await service.deleteTask(userId, taskId);
+        return successResponse(res, result, 'Task berhasil dihapus');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};
+export const getTaskTracking = async (req, res) => {
+    try {
+        const taskId = String(req.params.taskId);
+        const result = await service.getTaskTracking(taskId);
+        if (!result)
+            return errorResponse(res, 'Task tidak ditemukan', 404);
+        return successResponse(res, result, 'Data tracking berhasil diambil');
     }
     catch (err) {
         return errorResponse(res, err.message);

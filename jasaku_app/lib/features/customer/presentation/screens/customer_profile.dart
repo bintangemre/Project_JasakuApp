@@ -382,6 +382,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
       child: OutlinedButton.icon(
         onPressed: () {
           ref.read(authProvider.notifier).logout();
+          ref.invalidate(customerProfileProvider);
           Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
         },
         icon: const Icon(Icons.logout_rounded, color: AppColors.error),

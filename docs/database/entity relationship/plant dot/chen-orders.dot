@@ -1,0 +1,198 @@
+// ============================================================
+// Klasik ERD (Chen Notation) — Domain Pesanan
+// Graphviz DOT Language
+// ============================================================
+
+graph chen_orders {
+    graph [
+        label="Klasik ERD — Domain Pesanan\n5 Tabel"
+        labelloc=t
+        fontname="Segoe UI Bold"
+        fontsize=16
+        bgcolor="white"
+        pad="0.5"
+        nodesep="0.8"
+        ranksep="0.8"
+        splines=true
+        overlap=false
+    ]
+
+    node [fontname="Segoe UI", fontsize=9]
+    edge [fontname="Segoe UI", fontsize=8]
+
+    // --- orders ---
+    subgraph cluster_ord {
+        label="orders"
+        labeljust=c
+        style=filled
+        fillcolor="#FFF3E0"
+        color="#E65100"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        ord_e [label="orders", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C"]
+        ord_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_cid [label="customer_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_ctid [label="custom_task_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_tpid [label="task_provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_status [label="status : VARCHAR(30)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_total [label="total_price : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_fee [label="platform_fee : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_add [label="additional_fee : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_work [label="work_date : DATE", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_type [label="assignment_type : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_payout [label="payout_confirmed : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_start [label="start_date : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ord_end [label="end_date : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+        ord_e -- ord_id [style=dashed, color="#FFCC80"]
+        ord_e -- ord_cid [style=dashed, color="#FFCC80"]
+        ord_e -- ord_pid [style=dashed, color="#FFCC80"]
+        ord_e -- ord_ctid [style=dashed, color="#FFCC80"]
+        ord_e -- ord_tpid [style=dashed, color="#FFCC80"]
+        ord_e -- ord_status [style=dashed, color="#FFCC80"]
+        ord_e -- ord_total [style=dashed, color="#FFCC80"]
+        ord_e -- ord_fee [style=dashed, color="#FFCC80"]
+        ord_e -- ord_add [style=dashed, color="#FFCC80"]
+        ord_e -- ord_desc [style=dashed, color="#FFCC80"]
+        ord_e -- ord_work [style=dashed, color="#FFCC80"]
+        ord_e -- ord_type [style=dashed, color="#FFCC80"]
+        ord_e -- ord_payout [style=dashed, color="#FFCC80"]
+        ord_e -- ord_created [style=dashed, color="#FFCC80"]
+        ord_e -- ord_start [style=dashed, color="#FFCC80"]
+        ord_e -- ord_end [style=dashed, color="#FFCC80"]
+    }
+
+    // --- order_items ---
+    subgraph cluster_oi {
+        label="order_items"
+        labeljust=c
+        style=filled
+        fillcolor="#FFF3E0"
+        color="#E65100"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        oi_e [label="order_items", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C"]
+        oi_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        oi_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        oi_sid [label="service_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        oi_ptid [label="pricing_type_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        oi_qty [label="quantity : INT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        oi_price [label="price : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        oi_sub [label="subtotal : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+        oi_e -- oi_id [style=dashed, color="#FFCC80"]
+        oi_e -- oi_oid [style=dashed, color="#FFCC80"]
+        oi_e -- oi_sid [style=dashed, color="#FFCC80"]
+        oi_e -- oi_ptid [style=dashed, color="#FFCC80"]
+        oi_e -- oi_qty [style=dashed, color="#FFCC80"]
+        oi_e -- oi_price [style=dashed, color="#FFCC80"]
+        oi_e -- oi_sub [style=dashed, color="#FFCC80"]
+    }
+
+    // --- order_locations ---
+    subgraph cluster_ol {
+        label="order_locations"
+        labeljust=c
+        style=filled
+        fillcolor="#FFF3E0"
+        color="#E65100"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        ol_e [label="order_locations", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C"]
+        ol_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ol_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ol_addr [label="address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ol_geo [label="location : GEOMETRY", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+        ol_e -- ol_id [style=dashed, color="#FFCC80"]
+        ol_e -- ol_oid [style=dashed, color="#FFCC80"]
+        ol_e -- ol_addr [style=dashed, color="#FFCC80"]
+        ol_e -- ol_geo [style=dashed, color="#FFCC80"]
+    }
+
+    // --- order_attachments ---
+    subgraph cluster_oa {
+        label="order_attachments"
+        labeljust=c
+        style=filled
+        fillcolor="#FFF3E0"
+        color="#E65100"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        oa_e [label="order_attachments", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C"]
+        oa_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        oa_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        oa_url [label="file_url : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        oa_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+        oa_e -- oa_id [style=dashed, color="#FFCC80"]
+        oa_e -- oa_oid [style=dashed, color="#FFCC80"]
+        oa_e -- oa_url [style=dashed, color="#FFCC80"]
+        oa_e -- oa_created [style=dashed, color="#FFCC80"]
+    }
+
+    // --- order_extensions ---
+    subgraph cluster_ox {
+        label="order_extensions"
+        labeljust=c
+        style=filled
+        fillcolor="#FFF3E0"
+        color="#E65100"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        ox_e [label="order_extensions", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C"]
+        ox_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ox_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ox_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ox_cust [label="customer_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ox_date [label="requested_date : DATE", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ox_cost [label="additional_cost : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ox_rate [label="platform_fee_rate : DECIMAL(3,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ox_count [label="extension_count : INT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ox_status [label="status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+        ox_note [label="response_note : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+        ox_e -- ox_id [style=dashed, color="#FFCC80"]
+        ox_e -- ox_oid [style=dashed, color="#FFCC80"]
+        ox_e -- ox_pid [style=dashed, color="#FFCC80"]
+        ox_e -- ox_cust [style=dashed, color="#FFCC80"]
+        ox_e -- ox_date [style=dashed, color="#FFCC80"]
+        ox_e -- ox_cost [style=dashed, color="#FFCC80"]
+        ox_e -- ox_rate [style=dashed, color="#FFCC80"]
+        ox_e -- ox_count [style=dashed, color="#FFCC80"]
+        ox_e -- ox_status [style=dashed, color="#FFCC80"]
+        ox_e -- ox_note [style=dashed, color="#FFCC80"]
+    }
+
+    // ============================================================
+    // RELASI
+    // ============================================================
+
+    // orders → order_items
+    r1 [label="1 : N\nMemuat", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    ord_e -- r1 [color="#E65100", penwidth=2]
+    r1 -- oi_e [color="#E65100", penwidth=2]
+
+    // orders → order_locations
+    r2 [label="1 : N\nDilokasi", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    ord_e -- r2 [color="#E65100", penwidth=2]
+    r2 -- ol_e [color="#E65100", penwidth=2]
+
+    // orders → order_attachments
+    r3 [label="1 : N\nMelampirkan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    ord_e -- r3 [color="#E65100", penwidth=2]
+    r3 -- oa_e [color="#E65100", penwidth=2]
+
+    // orders → order_extensions
+    r4 [label="1 : N\nMemperpanjang", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    ord_e -- r4 [color="#E65100", penwidth=2]
+    r4 -- ox_e [color="#E65100", penwidth=2]
+}

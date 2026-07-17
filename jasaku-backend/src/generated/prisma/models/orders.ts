@@ -54,6 +54,8 @@ export type OrdersMinAggregateOutputType = {
   start_date: Date | null
   end_date: Date | null
   assignment_type: string | null
+  payout_confirmed: boolean | null
+  payout_at: Date | null
 }
 
 export type OrdersMaxAggregateOutputType = {
@@ -72,6 +74,8 @@ export type OrdersMaxAggregateOutputType = {
   start_date: Date | null
   end_date: Date | null
   assignment_type: string | null
+  payout_confirmed: boolean | null
+  payout_at: Date | null
 }
 
 export type OrdersCountAggregateOutputType = {
@@ -90,6 +94,8 @@ export type OrdersCountAggregateOutputType = {
   start_date: number
   end_date: number
   assignment_type: number
+  payout_confirmed: number
+  payout_at: number
   _all: number
 }
 
@@ -122,6 +128,8 @@ export type OrdersMinAggregateInputType = {
   start_date?: true
   end_date?: true
   assignment_type?: true
+  payout_confirmed?: true
+  payout_at?: true
 }
 
 export type OrdersMaxAggregateInputType = {
@@ -140,6 +148,8 @@ export type OrdersMaxAggregateInputType = {
   start_date?: true
   end_date?: true
   assignment_type?: true
+  payout_confirmed?: true
+  payout_at?: true
 }
 
 export type OrdersCountAggregateInputType = {
@@ -158,6 +168,8 @@ export type OrdersCountAggregateInputType = {
   start_date?: true
   end_date?: true
   assignment_type?: true
+  payout_confirmed?: true
+  payout_at?: true
   _all?: true
 }
 
@@ -263,6 +275,8 @@ export type OrdersGroupByOutputType = {
   start_date: Date | null
   end_date: Date | null
   assignment_type: string | null
+  payout_confirmed: boolean
+  payout_at: Date | null
   _count: OrdersCountAggregateOutputType | null
   _avg: OrdersAvgAggregateOutputType | null
   _sum: OrdersSumAggregateOutputType | null
@@ -304,6 +318,8 @@ export type ordersWhereInput = {
   start_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   end_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   assignment_type?: Prisma.StringNullableFilter<"orders"> | string | null
+  payout_confirmed?: Prisma.BoolFilter<"orders"> | boolean
+  payout_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   order_attachments?: Prisma.Order_attachmentsListRelationFilter
   order_items?: Prisma.Order_itemsListRelationFilter
   order_locations?: Prisma.Order_locationsListRelationFilter
@@ -333,6 +349,8 @@ export type ordersOrderByWithRelationInput = {
   start_date?: Prisma.SortOrderInput | Prisma.SortOrder
   end_date?: Prisma.SortOrderInput | Prisma.SortOrder
   assignment_type?: Prisma.SortOrderInput | Prisma.SortOrder
+  payout_confirmed?: Prisma.SortOrder
+  payout_at?: Prisma.SortOrderInput | Prisma.SortOrder
   order_attachments?: Prisma.order_attachmentsOrderByRelationAggregateInput
   order_items?: Prisma.order_itemsOrderByRelationAggregateInput
   order_locations?: Prisma.order_locationsOrderByRelationAggregateInput
@@ -365,6 +383,8 @@ export type ordersWhereUniqueInput = Prisma.AtLeast<{
   start_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   end_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   assignment_type?: Prisma.StringNullableFilter<"orders"> | string | null
+  payout_confirmed?: Prisma.BoolFilter<"orders"> | boolean
+  payout_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   order_attachments?: Prisma.Order_attachmentsListRelationFilter
   order_items?: Prisma.Order_itemsListRelationFilter
   order_locations?: Prisma.Order_locationsListRelationFilter
@@ -394,6 +414,8 @@ export type ordersOrderByWithAggregationInput = {
   start_date?: Prisma.SortOrderInput | Prisma.SortOrder
   end_date?: Prisma.SortOrderInput | Prisma.SortOrder
   assignment_type?: Prisma.SortOrderInput | Prisma.SortOrder
+  payout_confirmed?: Prisma.SortOrder
+  payout_at?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ordersCountOrderByAggregateInput
   _avg?: Prisma.ordersAvgOrderByAggregateInput
   _max?: Prisma.ordersMaxOrderByAggregateInput
@@ -420,6 +442,8 @@ export type ordersScalarWhereWithAggregatesInput = {
   start_date?: Prisma.DateTimeNullableWithAggregatesFilter<"orders"> | Date | string | null
   end_date?: Prisma.DateTimeNullableWithAggregatesFilter<"orders"> | Date | string | null
   assignment_type?: Prisma.StringNullableWithAggregatesFilter<"orders"> | string | null
+  payout_confirmed?: Prisma.BoolWithAggregatesFilter<"orders"> | boolean
+  payout_at?: Prisma.DateTimeNullableWithAggregatesFilter<"orders"> | Date | string | null
 }
 
 export type ordersCreateInput = {
@@ -434,6 +458,8 @@ export type ordersCreateInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
@@ -463,6 +489,8 @@ export type ordersUncheckedCreateInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
@@ -484,6 +512,8 @@ export type ordersUpdateInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
@@ -513,6 +543,8 @@ export type ordersUncheckedUpdateInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -538,6 +570,8 @@ export type ordersCreateManyInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
 }
 
 export type ordersUpdateManyMutationInput = {
@@ -552,6 +586,8 @@ export type ordersUpdateManyMutationInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ordersUncheckedUpdateManyInput = {
@@ -570,6 +606,8 @@ export type ordersUncheckedUpdateManyInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type OrdersListRelationFilter = {
@@ -603,6 +641,8 @@ export type ordersCountOrderByAggregateInput = {
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
   assignment_type?: Prisma.SortOrder
+  payout_confirmed?: Prisma.SortOrder
+  payout_at?: Prisma.SortOrder
 }
 
 export type ordersAvgOrderByAggregateInput = {
@@ -627,6 +667,8 @@ export type ordersMaxOrderByAggregateInput = {
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
   assignment_type?: Prisma.SortOrder
+  payout_confirmed?: Prisma.SortOrder
+  payout_at?: Prisma.SortOrder
 }
 
 export type ordersMinOrderByAggregateInput = {
@@ -645,6 +687,8 @@ export type ordersMinOrderByAggregateInput = {
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
   assignment_type?: Prisma.SortOrder
+  payout_confirmed?: Prisma.SortOrder
+  payout_at?: Prisma.SortOrder
 }
 
 export type ordersSumOrderByAggregateInput = {
@@ -938,6 +982,8 @@ export type ordersCreateWithoutCustom_tasksInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
@@ -965,6 +1011,8 @@ export type ordersUncheckedCreateWithoutCustom_tasksInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1019,6 +1067,8 @@ export type ordersScalarWhereInput = {
   start_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   end_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   assignment_type?: Prisma.StringNullableFilter<"orders"> | string | null
+  payout_confirmed?: Prisma.BoolFilter<"orders"> | boolean
+  payout_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
 }
 
 export type ordersCreateWithoutTask_providerInput = {
@@ -1033,6 +1083,8 @@ export type ordersCreateWithoutTask_providerInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
@@ -1060,6 +1112,8 @@ export type ordersUncheckedCreateWithoutTask_providerInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1107,6 +1161,8 @@ export type ordersCreateWithoutOrder_attachmentsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
   profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
@@ -1135,6 +1191,8 @@ export type ordersUncheckedCreateWithoutOrder_attachmentsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1171,6 +1229,8 @@ export type ordersUpdateWithoutOrder_attachmentsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
   profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
@@ -1199,6 +1259,8 @@ export type ordersUncheckedUpdateWithoutOrder_attachmentsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -1219,6 +1281,8 @@ export type ordersCreateWithoutOrder_itemsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
   profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
@@ -1247,6 +1311,8 @@ export type ordersUncheckedCreateWithoutOrder_itemsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1283,6 +1349,8 @@ export type ordersUpdateWithoutOrder_itemsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
   profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
@@ -1311,6 +1379,8 @@ export type ordersUncheckedUpdateWithoutOrder_itemsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -1331,6 +1401,8 @@ export type ordersCreateWithoutOrder_locationsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   profiles_customer: Prisma.profiles_customerCreateNestedOneWithoutOrdersInput
@@ -1359,6 +1431,8 @@ export type ordersUncheckedCreateWithoutOrder_locationsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   payments?: Prisma.paymentsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1395,6 +1469,8 @@ export type ordersUpdateWithoutOrder_locationsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   profiles_customer?: Prisma.profiles_customerUpdateOneRequiredWithoutOrdersNestedInput
@@ -1423,6 +1499,8 @@ export type ordersUncheckedUpdateWithoutOrder_locationsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   payments?: Prisma.paymentsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -1443,6 +1521,8 @@ export type ordersCreateWithoutPaymentsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
@@ -1471,6 +1551,8 @@ export type ordersUncheckedCreateWithoutPaymentsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1507,6 +1589,8 @@ export type ordersUpdateWithoutPaymentsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
@@ -1535,6 +1619,8 @@ export type ordersUncheckedUpdateWithoutPaymentsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -1555,6 +1641,8 @@ export type ordersCreateWithoutProvider_schedulesInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
@@ -1583,6 +1671,8 @@ export type ordersUncheckedCreateWithoutProvider_schedulesInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1619,6 +1709,8 @@ export type ordersUpdateWithoutProvider_schedulesInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
@@ -1647,6 +1739,8 @@ export type ordersUncheckedUpdateWithoutProvider_schedulesInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -1667,6 +1761,8 @@ export type ordersCreateWithoutOrder_extensionsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
@@ -1695,6 +1791,8 @@ export type ordersUncheckedCreateWithoutOrder_extensionsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1731,6 +1829,8 @@ export type ordersUpdateWithoutOrder_extensionsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
@@ -1759,6 +1859,8 @@ export type ordersUncheckedUpdateWithoutOrder_extensionsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -1779,6 +1881,8 @@ export type ordersCreateWithoutProfiles_customerInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
@@ -1806,6 +1910,8 @@ export type ordersUncheckedCreateWithoutProfiles_customerInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1853,6 +1959,8 @@ export type ordersCreateWithoutProvider_profilesInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
@@ -1880,6 +1988,8 @@ export type ordersUncheckedCreateWithoutProvider_profilesInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1927,6 +2037,8 @@ export type ordersCreateWithoutReviewsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsCreateNestedManyWithoutOrdersInput
@@ -1955,6 +2067,8 @@ export type ordersUncheckedCreateWithoutReviewsInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedCreateNestedManyWithoutOrdersInput
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutOrdersInput
   order_locations?: Prisma.order_locationsUncheckedCreateNestedManyWithoutOrdersInput
@@ -1991,6 +2105,8 @@ export type ordersUpdateWithoutReviewsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
@@ -2019,6 +2135,8 @@ export type ordersUncheckedUpdateWithoutReviewsInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -2042,6 +2160,8 @@ export type ordersCreateManyCustom_tasksInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
 }
 
 export type ordersUpdateWithoutCustom_tasksInput = {
@@ -2056,6 +2176,8 @@ export type ordersUpdateWithoutCustom_tasksInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
@@ -2083,6 +2205,8 @@ export type ordersUncheckedUpdateWithoutCustom_tasksInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -2107,6 +2231,8 @@ export type ordersUncheckedUpdateManyWithoutCustom_tasksInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ordersCreateManyTask_providerInput = {
@@ -2124,6 +2250,8 @@ export type ordersCreateManyTask_providerInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
 }
 
 export type ordersUpdateWithoutTask_providerInput = {
@@ -2138,6 +2266,8 @@ export type ordersUpdateWithoutTask_providerInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
@@ -2165,6 +2295,8 @@ export type ordersUncheckedUpdateWithoutTask_providerInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -2189,6 +2321,8 @@ export type ordersUncheckedUpdateManyWithoutTask_providerInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ordersCreateManyProfiles_customerInput = {
@@ -2206,6 +2340,8 @@ export type ordersCreateManyProfiles_customerInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
 }
 
 export type ordersUpdateWithoutProfiles_customerInput = {
@@ -2220,6 +2356,8 @@ export type ordersUpdateWithoutProfiles_customerInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
@@ -2247,6 +2385,8 @@ export type ordersUncheckedUpdateWithoutProfiles_customerInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -2271,6 +2411,8 @@ export type ordersUncheckedUpdateManyWithoutProfiles_customerInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ordersCreateManyProvider_profilesInput = {
@@ -2288,6 +2430,8 @@ export type ordersCreateManyProvider_profilesInput = {
   start_date?: Date | string | null
   end_date?: Date | string | null
   assignment_type?: string | null
+  payout_confirmed?: boolean
+  payout_at?: Date | string | null
 }
 
 export type ordersUpdateWithoutProvider_profilesInput = {
@@ -2302,6 +2446,8 @@ export type ordersUpdateWithoutProvider_profilesInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUpdateManyWithoutOrdersNestedInput
@@ -2329,6 +2475,8 @@ export type ordersUncheckedUpdateWithoutProvider_profilesInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_attachments?: Prisma.order_attachmentsUncheckedUpdateManyWithoutOrdersNestedInput
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutOrdersNestedInput
   order_locations?: Prisma.order_locationsUncheckedUpdateManyWithoutOrdersNestedInput
@@ -2353,6 +2501,8 @@ export type ordersUncheckedUpdateManyWithoutProvider_profilesInput = {
   start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignment_type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payout_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -2447,6 +2597,8 @@ export type ordersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   start_date?: boolean
   end_date?: boolean
   assignment_type?: boolean
+  payout_confirmed?: boolean
+  payout_at?: boolean
   order_attachments?: boolean | Prisma.orders$order_attachmentsArgs<ExtArgs>
   order_items?: boolean | Prisma.orders$order_itemsArgs<ExtArgs>
   order_locations?: boolean | Prisma.orders$order_locationsArgs<ExtArgs>
@@ -2477,6 +2629,8 @@ export type ordersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   start_date?: boolean
   end_date?: boolean
   assignment_type?: boolean
+  payout_confirmed?: boolean
+  payout_at?: boolean
   profiles_customer?: boolean | Prisma.profiles_customerDefaultArgs<ExtArgs>
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
   custom_tasks?: boolean | Prisma.orders$custom_tasksArgs<ExtArgs>
@@ -2499,6 +2653,8 @@ export type ordersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   start_date?: boolean
   end_date?: boolean
   assignment_type?: boolean
+  payout_confirmed?: boolean
+  payout_at?: boolean
   profiles_customer?: boolean | Prisma.profiles_customerDefaultArgs<ExtArgs>
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
   custom_tasks?: boolean | Prisma.orders$custom_tasksArgs<ExtArgs>
@@ -2521,9 +2677,11 @@ export type ordersSelectScalar = {
   start_date?: boolean
   end_date?: boolean
   assignment_type?: boolean
+  payout_confirmed?: boolean
+  payout_at?: boolean
 }
 
-export type ordersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "provider_id" | "custom_task_id" | "task_provider_id" | "status" | "total_price" | "platform_fee" | "additional_fee" | "description" | "work_date" | "created_at" | "start_date" | "end_date" | "assignment_type", ExtArgs["result"]["orders"]>
+export type ordersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "provider_id" | "custom_task_id" | "task_provider_id" | "status" | "total_price" | "platform_fee" | "additional_fee" | "description" | "work_date" | "created_at" | "start_date" | "end_date" | "assignment_type" | "payout_confirmed" | "payout_at", ExtArgs["result"]["orders"]>
 export type ordersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order_attachments?: boolean | Prisma.orders$order_attachmentsArgs<ExtArgs>
   order_items?: boolean | Prisma.orders$order_itemsArgs<ExtArgs>
@@ -2582,6 +2740,8 @@ export type $ordersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     start_date: Date | null
     end_date: Date | null
     assignment_type: string | null
+    payout_confirmed: boolean
+    payout_at: Date | null
   }, ExtArgs["result"]["orders"]>
   composites: {}
 }
@@ -3031,6 +3191,8 @@ export interface ordersFieldRefs {
   readonly start_date: Prisma.FieldRef<"orders", 'DateTime'>
   readonly end_date: Prisma.FieldRef<"orders", 'DateTime'>
   readonly assignment_type: Prisma.FieldRef<"orders", 'String'>
+  readonly payout_confirmed: Prisma.FieldRef<"orders", 'Boolean'>
+  readonly payout_at: Prisma.FieldRef<"orders", 'DateTime'>
 }
     
 

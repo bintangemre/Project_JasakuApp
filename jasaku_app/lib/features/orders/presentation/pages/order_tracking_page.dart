@@ -47,17 +47,13 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
       final response = await _dio.get('${ApiEndpoints.getOrderTracking}${widget.orderId}/tracking');
       final rawData = response.data;
       final data = rawData['data'] as Map<String, dynamic>?;
-      debugPrint('[Tracking] Raw response: $rawData');
       if (data == null) {
-        debugPrint('[Tracking] data is null — full response: $rawData');
         if (mounted) setState(() => _isLoading = false);
         return;
       }
 
       final providerLoc = data['providerLocation'] as Map<String, dynamic>?;
       final orderLoc = data['orderLocation'] as Map<String, dynamic>?;
-      debugPrint('[Tracking] providerLocation: $providerLoc');
-      debugPrint('[Tracking] orderLocation: $orderLoc');
 
       setState(() {
         _providerPos = providerLoc != null && providerLoc['lat'] != null

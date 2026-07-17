@@ -42,12 +42,21 @@ Jasaku is a home-service marketplace with two packages in this monorepo.
 | Run with ORS | Add `--dart-define=ORS_API_KEY=YOUR_KEY` for route directions |
 
 **Maps & Routing**:
-- **Tile provider**: CartoDB Voyager (`light_all`) — gratis, no API key
+- **Tile provider**: OpenStreetMap (`tile.openstreetmap.org`) — gratis, no API key
 - **Route directions**: OpenRouteService (ORS) — gratis tier, butuh API key via `--dart-define=ORS_API_KEY=...`
 - **RoutingService** di `lib/services/routing_service.dart` — panggil ORS API, return `List<LatLng>`
 - **Provider location tracker** di `lib/features/location/presentation/providers/location_tracker_provider.dart` — kirim lokasi ke `PUT /api/locations/update` tiap 30 detik via `Geolocator.getPositionStream()`
 - **Provider dashboard** menampilkan map dengan: marker biru (provider live), marker merah (customer), polyline rute
 - **Order tracking page** menampilkan rute antara provider dan customer
+
+**Operating Hours (Jam Operasional)**:
+- **Fixed hours**: 08:00–16:00 WITA (UTC+8) untuk semua provider
+- **Order cutoff**: 15:59 WITA — order terakhir yang diterima
+- **Warning start**: 15:30 WITA — peringatan ke customer bahwa waktu mepet
+- **Utility files**:
+  - Backend: `src/utils/operating-hours.ts` — `isWithinOperatingHours()`, `canTransitionWorkflow(context?)`, `canOrderNow()`, `getTodayWitaDate()`, `isSameWitaDate()`
+  - Flutter: `lib/core/utils/operating_hours.dart` — `OperatingHours.isWithinOperatingHours()`, `OperatingHours.canOrderNow()`, `OperatingHours.isToday()`
+- **Enforced in**: order creation (backend), status transitions (backend), provider dashboard buttons (Flutter), customer order form warning (Flutter)
 
 **Test**: Single smoke test at `test/widget_test.dart` hitting the stale `main.dart`. Real tests not yet written.
 

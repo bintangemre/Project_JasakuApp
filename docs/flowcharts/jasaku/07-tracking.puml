@@ -1,0 +1,116 @@
+@startuml
+title Alur Tracking Pesanan - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E3F2FD
+skinparam activityBorderColor #1565C0
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E8F5E9| Tracking |
+
+start
+
+:Buka Halaman Tracking;
+:Pilih Pesanan yang Aktif;
+note right
+  Hanya untuk pesanan
+  dengan status in_progress
+end note
+
+partition "Inisialisasi Peta" {
+  :Load Peta Interaktif;
+  note right
+    Tile Provider: CartoDB Voyager
+    (light_all, gratis)
+  end note
+  :Ambil Lokasi Customer;
+  :Tambah Marker Merah (Customer);
+  note right
+    Marker merah = lokasi customer
+  end note
+}
+
+partition "Ambil Lokasi Provider" {
+  :Ambil Data Tracking;
+  note right
+    GET /api/orders/orders/:orderId/tracking
+    Response: provider location, status
+  end note
+  :Ambil Lokasi Provider Terkini;
+  :Tambah Marker Biru (Provider);
+  note right
+    Marker biru = lokasi mitra/provider
+    Data dari provider_location_tracker
+  end note
+}
+
+partition "Tampilkan Rute" {
+  :Hitung Rute dengan OpenRouteService;
+  note right
+    RoutingService
+    GET api.openrouteservice.org
+    /directions
+    Format: GeoJSON
+  end note
+  :Gambar Polyline di Peta;
+  note right
+    Polyline warna biru
+    menunjukkan rute terpendek
+    antara provider → customer
+  end note
+  :Tampilkan Jarak & Estimasi Waktu;
+}
+
+partition "Status Progress" {
+  :Tampilkan Status Pekerjaan;
+  note right
+    Status yang mungkin:
+    - Provider sedang menuju
+    - Sedang dikerjakan
+    - Mendekati lokasi
+  end note
+
+  if (Status Provider?) then (Menuju Lokasi)
+    #E3F2FD:Provider Sedang dalam Perjalanan;
+    :Polyline ditampilkan di peta;
+  elseif (Sedang Dikerjakan) then (Di Lokasi)
+    #C8E6C9:Provider Sudah di Lokasi;
+    :Polyline tidak ditampilkan;
+  else (Selesai)
+    #C8E6C9:Pekerjaan Selesai;
+    :Navigasi ke Review;
+    stop
+  endif
+}
+
+partition "Auto-Refresh" {
+  :Mulai Auto-Refresh;
+  note right
+    Refresh setiap 5 detik
+  end note
+
+  loop Selama Status Aktif
+    :Tunggu 5 Detik;
+    :Ambil Data Tracking Terbaru;
+    :Perbarui Lokasi Provider di Peta;
+    :Perbarui Polyline Rute;
+    :Perbarui Status Progress;
+
+    if (Status Berubah?) then (Ya)
+      :Tampilkan Notifikasi Perubahan;
+      if (Status = completed?) then (Ya)
+        :Hentikan Auto-Refresh;
+        :Navigasi ke Review;
+        stop
+      else (Tidak)
+        :Perbarui Tampilan;
+      endif
+    else (Tidak)
+      :Lanjutkan Refresh;
+    endif
+  end
+endif
+
+@enduml

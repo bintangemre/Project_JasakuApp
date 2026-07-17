@@ -1,7 +1,7 @@
 import { prisma } from "../../config/prisma";
 import { NotificationService } from "../notifications/notifications.service";
 import { LocationService } from "../locations/locations.service";
-import { canOrderNow, isSameWitaDate, canTransitionWorkflow, canCompleteWork, getTodayWitaDate } from "../../utils/operating-hours";
+import { canOrderNow, isSameWitaDate, canTransitionWorkflow, getTodayWitaDate } from "../../utils/operating-hours";
 // State machine: status transisi yang valid
 const VALID_TRANSITIONS = {
     pending_payment: ['pending', 'cancelled'], // admin konfirmasi atau customer cancel
@@ -50,8 +50,7 @@ export class OrdersService {
             throw new Error("Kuantitas pesanan harus lebih dari 0");
         }
         const parsedDate = new Date(data.workDate + 'T00:00:00');
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const today = getTodayWitaDate();
         if (isNaN(parsedDate.getTime()) || parsedDate < today) {
             throw new Error("Tanggal pekerjaan tidak valid atau tidak boleh di masa lalu");
         }
@@ -437,8 +436,7 @@ export class OrdersService {
         if (!profile)
             return [];
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
+        const todayStart = getTodayWitaDate();
         const expiredOrders = await prisma.orders.findMany({
             where: {
                 provider_id: profile.id,
@@ -592,7 +590,7 @@ export class OrdersService {
                     throw new Error(check.message);
             }
             if (status === 'completed') {
-                const check = canCompleteWork();
+                const check = canTransitionWorkflow('selesai');
                 if (!check.allowed)
                     throw new Error(check.message);
             }
@@ -664,8 +662,7 @@ export class OrdersService {
             whereClause.work_date = { gte: new Date(startDate) };
         }
         else {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const today = getTodayWitaDate();
             whereClause.work_date = { gte: today };
         }
         return await prisma.provider_schedules.findMany({
@@ -719,8 +716,7 @@ export class OrdersService {
             whereClause.work_date = { gte: new Date(startDate), lte: new Date(endDate) };
         }
         else {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const today = getTodayWitaDate();
             whereClause.work_date = { gte: today };
         }
         return await prisma.provider_schedules.findMany({
@@ -730,8 +726,7 @@ export class OrdersService {
         });
     }
     async getTodayOrders(userId) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const today = getTodayWitaDate();
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         const profile = await prisma.provider_profiles.findUnique({

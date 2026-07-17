@@ -6,7 +6,8 @@ import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class ReportFormPage extends ConsumerStatefulWidget {
-  const ReportFormPage({super.key});
+  final String? orderId;
+  const ReportFormPage({super.key, this.orderId});
 
   @override
   ConsumerState<ReportFormPage> createState() => _ReportFormPageState();
@@ -43,6 +44,7 @@ class _ReportFormPageState extends ConsumerState<ReportFormPage> {
         data: {
           'subject': _selectedCategory,
           'description': _descController.text.trim(),
+          if (widget.orderId != null) 'orderId': widget.orderId,
         },
       );
       if (mounted) {

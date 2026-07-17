@@ -1,0 +1,158 @@
+@startuml dashboard-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E0F2F1
+  BorderColor #00695C
+  FontColor #004D40
+  ArrowColor #00695C
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #004D40
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Dashboard Mitra Jasaku**
+
+|Dashboard|
+start
+:Memuat dashboard;
+note right
+  **Auto-refresh setiap 30 detik**
+end note
+
+partition "Ambil Data Profil" {
+  note right
+    **GET /api/provider/profile**
+    Response: {
+      id, name, email,
+      rating, total_jobs,
+      is_available,
+      is_custom_task_available
+    }
+  end note
+
+  note right
+    **GET /api/provider/counts**
+    Response: {
+      pending_requests,
+      today_orders,
+      active_orders
+    }
+  end note
+}
+
+:Menampilkan header profil;
+note right
+  Ditampilkan:
+  - Foto profil
+  - Nama mitra
+  - Rating bintang
+  - Total pekerjaan selesai
+end note
+
+:Memuat data pesanan aktif;
+
+if (Ada order aktif?) then (Ya)
+  #B3E5FC:Menampilkan card order aktif;
+
+  partition "Peta Real-time" {
+    note right
+      **Peta menampilkan:**
+      - Marker BIRU → Lokasi provider
+      - Marker MERAH → Lokasi customer
+      - Polyline → Rute perjalanan
+      
+      Data lokasi diambil dari:
+      - Provider location tracker
+      - Order location data
+    end note
+    :Menampilkan peta dengan marker dan polyline;
+  }
+
+  if (Status order?) then (pending)
+    #C8E6C9:Tombol: **"Terima"** / **"Tolak"**;
+  elseif (accepted) then
+    #C8E6C9:Tombol: **"Berangkat"**;
+  elseif (on_the_way) then
+    #C8E6C9:Tombol: **"Tiba"**;
+  elseif (arrived) then
+    #C8E6C9:Tombol: **"Mulai Kerja"**;
+  elseif (in_progress) then
+    #B3E5FC:Tombol: **"Selesaikan"**;
+    note right
+      **Kondisi khusus:**
+      Jika in_progress, tampilkan
+      tombol "Minta Perpanjangan"
+      untuk extend waktu
+    end note
+    :Tampilkan tombol
+    **"Minta Perpanjangan"**;
+  endif
+
+  :Cek jam operasional;
+
+  if (Dalam jam operasional?) then (Ya)
+    note right
+      **Jam Operasional:**
+      08:00 - 16:00 WITA (UTC+8)
+    end note
+    #C8E6C9:Tombol status aktif;
+  else (Tidak)
+    #EF9A9A:Tombol status dinonaktifkan;
+    note right
+      Label: **"Di luar jam operasional"**
+      
+      Sistem menolak transisi
+      status di luar jam operasional
+    end note
+  endif
+
+else (Tidak)
+  #E8EAF6:Tidak ada order aktif;
+endif
+
+partition "Custom Task Aktif" {
+  if (Ada custom task aktif?) then (Ya)
+    #B3E5FC:Menampilkan card custom task;
+    note right
+      Custom task yang diterima
+      dan sedang dikerjakan
+    end note
+  else (Tidak)
+    :Tidak ada custom task;
+  endif
+}
+
+partition "Shortcut Menu" {
+  :Menampilkan shortcut;
+  note right
+    Shortcut:
+    - Task Tersedia
+    - Riwayat Pesanan
+  end note
+}
+
+partition "Auto-Refresh" {
+  note right
+    **Interval: 30 detik**
+    
+    Melakukan refresh otomatis untuk:
+    - Update status order
+    - Update lokasi di peta
+    - Update jumlah permintaan masuk
+  end note
+  :Menunggu 30 detik;
+  :Refresh data;
+  -[hidden]right-> Refresh dimulai;
+end partition
+
+stop
+
+@enduml

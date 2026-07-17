@@ -1,0 +1,140 @@
+@startuml
+title Alur Custom Task - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E8F5E9
+skinparam activityBorderColor #2E7D32
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E3F2FD| Custom Task |
+
+start
+
+:Buka Halaman Custom Task;
+
+partition "Buat Task Baru" {
+  :Klik "Buat Task";
+
+  :Input Detail Task;
+  note right
+    - Judul task
+    - Deskripsi pekerjaan
+    - Budget (Rp)
+    - Jumlah orang dibutuhkan
+    - Lokasi pengerjaan
+    - Hari publish (jadwal)
+  end note
+
+  :Pilih Lokasi di Peta;
+  note right
+    Set titik koordinat
+    latitude & longitude
+  end note
+
+  :Review Detail Task;
+
+  if (Lengkap?) then (Ya)
+    :Klik "Publikasikan Task";
+
+    #E8EAF6:Kirim POST /api/custom-tasks/;
+    note right
+      Body: {
+        title, description,
+        budget, workerCount,
+        latitude, longitude,
+        scheduledDate
+      }
+    end note
+
+    if (Response 201?) then (Ya)
+      #C8E6C9:Task Berhasil Dipublikasikan;
+    else (Tidak)
+      #FFCDD2:Gagal Memublikasikan;
+      :Kembali ke Form;
+      stop
+    endif
+  else (Tidak)
+    #FFCDD2:Lengkapi Data;
+    :Kembali ke Form;
+  endif
+}
+
+partition "Distribusi ke Provider" {
+  :Task Disebar ke Provider;
+  note right
+    Provider dalam radius 20km
+    dari lokasi task mendapat
+    notifikasi task baru
+  end note
+
+  :Menunggu Provider Bid/Accept;
+  note right
+    Provider bisa:
+    - Lihat detail task
+    - Bid (ajukan harga)
+    - Accept (terima job)
+  end note
+}
+
+partition "Penerimaan Provider" {
+  :Tunggu Provider Merespons;
+
+  if (Ada Provider?) then (Ya)
+    :Tampilkan Daftar Provider;
+    note right
+      Daftar provider yang
+      sudah bid/accept task
+    end note
+
+    :Pilih Provider;
+    :Lihat Profil & Penawaran;
+    note right
+      - Profil provider
+      - Harga yang ditawarkan
+      - Rating & review
+    end note
+
+    if (Pilih Provider?) then (Ya)
+      :Konfirmasi Pilihan;
+      :Buat Order dari Task;
+      note right
+        Task → Order
+        Status task berubah
+        menjadi "matched"
+      end note
+    else (Tidak)
+      :Tunggu Provider Lain;
+      -> Tunggu Provider;
+    endif
+  else (Belum)
+    #FFF9C4:Belum Ada Provider;
+    :Perpanjang Waktu / Edit Task;
+    if (Edit?) then (Ya)
+      :Edit Detail Task;
+      :Simpan Perubahan;
+    else (Tidak)
+      :Batal Task;
+      stop
+    endif
+    -> Tunggu Provider;
+  endif
+}
+
+partition "Pengerjaan & Pembayaran" {
+  :Provider Mengerjakan Task;
+  :Task Selesai;
+  :Buka Halaman Pembayaran;
+  :Lakukan Pembayaran;
+  note right
+    Mengikuti alur pembayaran
+    yang sama dengan order biasa
+  end note
+
+  :Admin Konfirmasi Pembayaran;
+  :Task Selesai Secara Resmi;
+  stop
+endif
+
+@enduml

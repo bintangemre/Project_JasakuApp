@@ -1,0 +1,68 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow Dashboard Admin
+
+|#E8F5E9|Frontend|
+start
+:Admin berhasil login;
+:Navigasi ke Dashboard;
+
+|#FFF3E0|API|
+:GET /api/admin/dashboard;
+
+|#E3F2FD|Backend|
+:Query count paralel (Promise.all);
+note right
+  - totalUsers (users)
+  - totalProviders (provider_profiles)
+  - totalCustomers (profiles_customer)
+  - totalServices (services)
+  - totalOrders (orders)
+  - pendingVerifications (provider_profiles WHERE status=pending)
+  - totalCategories (categories)
+end note
+:Kirim data dashboard;
+
+|#FFF8E1|Dashboard|
+:Tampilkan stat cards;
+note right
+  4 kartu statistik utama:
+  1. Total Mitra (providers)
+  2. Total Pelanggan (customers)
+  3. Total Order
+  4. Menunggu Verifikasi
+end note
+
+|#E3F2FD|Backend|
+:GET /api/admin/notifications/counts;
+:Hitung semua antrian notifikasi;
+note right
+  - pendingPayments (order pending_payment)
+  - pendingExtensions (extension pending_payment)
+  - pendingTaskPayments (custom task pending)
+  - pendingTaskPayouts (task completed, payout belum)
+  - pendingOrderPayouts (order completed, payout belum)
+  - pendingProviders (provider pending verifikasi)
+  - openReports (laporan terbuka)
+end note
+
+|#FFF8E1|Dashboard|
+:Tampilkan badge notifikasi di sidebar;
+:Admin dapat navigasi ke menu lain;
+stop
+
+note right
+  **Endpoint:**
+  GET /api/admin/dashboard
+  GET /api/admin/notifications/counts
+end note
+
+@enduml

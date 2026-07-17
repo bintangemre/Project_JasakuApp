@@ -1,0 +1,163 @@
+@startuml notifikasi-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #FFF8E1
+  BorderColor #F57F17
+  FontColor #E65100
+  ArrowColor #F57F17
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #E65100
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Notifikasi Mitra Jasaku**
+
+|Notifikasi|
+start
+:Mitra membuka aplikasi;
+
+partition "Inisialisasi FCM" {
+  :Menginisialisasi Firebase Cloud Messaging;
+  note right
+    **FCM Token Registration**
+    
+    Token unik per device
+    Digunakan untuk mengirim
+    push notification
+  end note
+
+  :Mendapatkan FCM Token;
+  note right
+    **FirebaseMessaging.instance.getToken()**
+    
+    Token dikirim ke server
+    untuk registrasi
+  end note
+
+  :Mendaftarkan FCM Token ke server;
+  note right
+    **POST /api/notifications/register-token**
+    Body: {
+      token: string,
+      platform: "android" | "ios"
+    }
+  end note
+
+  :FCM Token berhasil didaftarkan;
+}
+
+partition "Menerima Notifikasi" {
+  :Menunggu notifikasi masuk;
+
+  while (Ada notifikasi?) is (Ya)
+    :Notifikasi diterima;
+    note right
+      Tipe notifikasi:
+      - Pesanan baru
+      - Status pesanan berubah
+      - Pembayaran dikonfirmasi
+      - Review dari customer
+      - Custom task baru
+      - Perpanjangan waktu
+      - Sistem maintenance
+    end note
+
+    :Menampilkan push notification;
+    note right
+      Push notification muncul
+      di notification bar device
+    end note
+
+    if (Mitra klik notifikasi?) then (Ya)
+      :Membuka notifikasi;
+      note right
+        **Navigasi ke halaman terkait**
+        
+        Berdasarkan tipe notifikasi:
+        - Pesanan baru → Permintaan Masuk
+        - Status berubah → Detail Order
+        - Pembayaran → Dashboard
+        - Review → Riwayat
+        - Custom task → Task Saya
+      end note
+
+      :Navigasi ke halaman terkait;
+
+      :Badge counter di-update;
+
+    else (Tidak)
+      :Notifikasi tetap di daftar;
+    endif
+
+  endwhile (Tidak ada notifikasi lagi)
+}
+
+partition "Badge Counter" {
+  :Menampilkan badge counter;
+  note right
+    **Badge Counter pada Bottom Navigation**
+    
+    Menampilkan jumlah notifikasi
+    yang belum dibaca pada:
+    - Tab Pesanan
+    - Tab Permintaan Masuk
+    - Tab Custom Task
+  end note
+
+  :Update badge counter;
+
+  if (Ada notifikasi baru?) then (Ya)
+    :Increment badge counter;
+    note right
+      Badge counter bertambah
+      untuk tab terkait
+    end note
+  else (Tidak)
+    :Badge counter tidak berubah;
+  endif
+}
+
+partition "Kelola Notifikasi" {
+  :Membuka halaman Notifikasi;
+  note right
+    **GET /api/notifications**
+    Response: {
+      notifications: [{
+        id, type, title, body,
+        data, is_read, created_at
+      }]
+    }
+  end note
+
+  :Menampilkan daftar notifikasi;
+
+  while (Ada notifikasi?) is (Ya)
+    :Pilih notifikasi;
+
+    if (Sudah dibaca?) then (Ya)
+      :Tampilkan detail notifikasi;
+    else (Tidak)
+      :Tandai sebagai sudah dibaca;
+      note right
+        **PATCH /api/notifications/:id/read**
+        
+        Badge counter dikurangi
+      end note
+
+      :Tampilkan detail notifikasi;
+    endif
+
+  endwhile (Semua sudah dibaca)
+}
+
+stop
+
+@enduml

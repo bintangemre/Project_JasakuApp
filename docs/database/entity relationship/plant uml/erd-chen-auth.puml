@@ -1,0 +1,165 @@
+@startuml ERD_Chen_Auth
+' ============================================================
+' ERD Klasik (Chen Notation) — Domain Autentikasi & Pengguna
+' Kotak = Entitas, Bulat = Atribut, Ketupat = Relasi
+' ============================================================
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 10
+skinparam shadowing false
+skinparam linetype ortho
+
+skinparam entity {
+  BackgroundColor #E8F4FD
+  BorderColor #2196F3
+  FontSize 13
+  FontStyle bold
+  FontColor #1565C0
+}
+
+skinparam note {
+  BackgroundColor #FFF9C4
+  BorderColor #FBC02D
+}
+
+skinparam rectangle {
+  BackgroundColor #F3E5F5
+  BorderColor #9C27B0
+  FontColor #6A1B9A
+}
+
+' ============================================================
+' ENTITAS
+' ============================================================
+
+rectangle "**roles**" as ROLES {
+  circle "id (INT, PK)" as R_ID
+  circle "name (VARCHAR 50)" as R_NAME
+  circle "description (TEXT)" as R_DESC
+  circle "created_at (TIMESTAMP)" as R_CAT
+}
+
+rectangle "**users**" as USERS {
+  circle "id (UUID, PK)" as U_ID
+  circle "role_id (INT, FK)" as U_RID
+  circle "email (VARCHAR 255, UQ)" as U_EMAIL
+  circle "phone (VARCHAR 20, UQ)" as U_PHONE
+  circle "password_hash (TEXT)" as U_PASS
+  circle "google_id (VARCHAR 255)" as U_GID
+  circle "status (VARCHAR 20)" as U_STATUS
+  circle "created_at (TIMESTAMP)" as U_CAT
+  circle "updated_at (TIMESTAMP)" as U_UAT
+}
+
+rectangle "**profiles_customer**" as PCUST {
+  circle "id (UUID, PK)" as PC_ID
+  circle "user_id (UUID, FK, UQ)" as PC_UID
+  circle "full_name (VARCHAR 150)" as PC_NAME
+  circle "nickname (VARCHAR 100)" as PC_NICK
+  circle "birth_date (DATE)" as PC_BDAY
+  circle "gender (VARCHAR 10)" as PC_GEN
+  circle "address (TEXT)" as PC_ADDR
+  circle "avatar_url (TEXT)" as PC_AVATAR
+}
+
+rectangle "**provider_profiles**" as PPROV {
+  circle "id (UUID, PK)" as PP_ID
+  circle "user_id (UUID, FK, UQ)" as PP_UID
+  circle "full_name (VARCHAR 100)" as PP_NAME
+  circle "phone (VARCHAR 20)" as PP_PHONE
+  circle "is_verified (BOOLEAN)" as PP_VERIF
+  circle "verification_status (VARCHAR 20)" as PP_VSTATUS
+  circle "rating (DECIMAL 2,1)" as PP_RATE
+  circle "total_jobs (INT)" as PP_JOBS
+  circle "is_active (BOOLEAN)" as PP_ACTIVE
+  circle "task_available (BOOLEAN)" as PP_TASK
+}
+
+rectangle "**provider_locations**" as PLOC {
+  circle "id (UUID, PK)" as PL_ID
+  circle "provider_id (UUID, FK, UQ)" as PL_PID
+  circle "address (TEXT)" as PL_ADDR
+  circle "location (GEOMETRY)" as PL_GEO
+}
+
+rectangle "**provider_documents**" as PDOC {
+  circle "id (UUID, PK)" as PD_ID
+  circle "provider_id (UUID, FK)" as PD_PID
+  circle "type (VARCHAR 30)" as PD_TYPE
+  circle "file_url (TEXT)" as PD_URL
+  circle "description (TEXT)" as PD_DESC
+}
+
+rectangle "**provider_payout_methods**" as PPAY {
+  circle "id (UUID, PK)" as PPY_ID
+  circle "provider_id (UUID, FK)" as PPY_PID
+  circle "type (VARCHAR 50)" as PPY_TYPE
+  circle "account_number (VARCHAR 100)" as PPY_ACCT
+  circle "account_name (VARCHAR 150)" as PPY_NAME
+}
+
+rectangle "**identity_verifications**" as IDVER {
+  circle "id (UUID, PK)" as IV_ID
+  circle "provider_id (UUID, FK, UQ)" as IV_PID
+  circle "nik (VARCHAR)" as IV_NIK
+  circle "ocr_full_name (VARCHAR)" as IV_NAME
+  circle "face_match_score (FLOAT)" as IV_FACE
+  circle "face_match_status (VARCHAR 20)" as IV_FSTATUS
+  circle "liveness_status (VARCHAR 20)" as IV_LSTATUS
+  circle "ocr_raw_result (JSONB)" as IV_JSON
+}
+
+rectangle "**user_devices**" as UDEV {
+  circle "id (UUID, PK)" as UD_ID
+  circle "user_id (UUID, FK)" as UD_UID
+  circle "fcm_token (TEXT, UQ)" as UD_TOKEN
+  circle "device_type (VARCHAR)" as UD_DTYPE
+}
+
+' ============================================================
+' RELASI (Ketupat)
+' ============================================================
+
+rectangle "roles\nmemiliki\nusers" as R1 #FFECB3
+rectangle "users\nmemiliki\nprofiles_customer" as R2 #FFECB3
+rectangle "users\nmemiliki\nprovider_profiles" as R3 #FFECB3
+rectangle "users\nmemiliki\nprovider_locations" as R4 #FFECB3
+rectangle "users\nmemiliki\nuser_devices" as R5 #FFECB3
+rectangle "provider_profiles\nmemiliki\nprovider_documents" as R6 #FFECB3
+rectangle "provider_profiles\nmemiliki\nprovider_payout_methods" as R7 #FFECB3
+rectangle "provider_profiles\nmemiliki\nidentity_verifications" as R8 #FFECB3
+
+' ============================================================
+' KONEKSI
+' ============================================================
+
+R_NAME -[hidden]right-> R_ID
+R_ID -down-> R1
+R1 -down-> U_RID
+
+U_ID -down-> R2
+R2 -down-> PC_UID
+
+U_ID -down-> R3
+R3 -down-> PP_UID
+
+U_ID -right-> R4
+R4 -right-> PL_PID
+
+U_ID -down-> R5
+R5 -down-> UD_UID
+
+PP_ID -down-> R6
+R6 -down-> PD_PID
+
+PP_ID -right-> R7
+R7 -right-> PPY_PID
+
+PP_ID -down-> R8
+R8 -down-> IV_PID
+
+title <b>ERD Klasik (Chen) — Domain Autentikasi & Pengguna</b>\nKotak = Entitas · Bulat = Atribut · Ketupat = Relasi\n\n9 Tabel · 8 Relasi
+
+footer Generated by PlantUML — Jasaku Database
+@enduml

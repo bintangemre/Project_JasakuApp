@@ -2,12 +2,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
 // 1. Pastikan mengimpor file tujuan navigasi kamu di sini
 import 'customer_provider_list.dart'; 
 
-class CustomerProvidersByCategory extends ConsumerWidget {
+class CustomerProvidersByCategory extends ConsumerStatefulWidget {
   final String categoryId;
   final String categoryName;
 
@@ -17,10 +18,23 @@ class CustomerProvidersByCategory extends ConsumerWidget {
     required this.categoryName,
   });
 
+  @override
+  ConsumerState<CustomerProvidersByCategory> createState() => _CustomerProvidersByCategoryState();
+}
+
+class _CustomerProvidersByCategoryState extends ConsumerState<CustomerProvidersByCategory> {
+  late final Future<CategoryWithServices> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _fetchCategoryServices();
+  }
+
   Future<CategoryWithServices> _fetchCategoryServices() async {
     try {
       final response = await ApiClient().dio.get(
-        '${ApiEndpoints.getCategoriesByid}$categoryId',
+        '${ApiEndpoints.getCategoriesByid}${widget.categoryId}',
       );
       final data = response.data['data'] as Map<String, dynamic>;
       return CategoryWithServices.fromJson(data);
@@ -30,11 +44,11 @@ class CustomerProvidersByCategory extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       body: FutureBuilder<CategoryWithServices>(
-        future: _fetchCategoryServices(),
+        future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -53,7 +67,7 @@ class CustomerProvidersByCategory extends ConsumerWidget {
 
           if (category == null || category.services.isEmpty) {
             return Center(
-              child: Text('Tidak ada layanan di kategori "$categoryName".', style: const TextStyle(color: Colors.grey)),
+              child: Text('Tidak ada layanan di kategori "${widget.categoryName}".', style: const TextStyle(color: Colors.grey)),
             );
           }
 
@@ -106,10 +120,11 @@ class CustomerProvidersByCategory extends ConsumerWidget {
                                 style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
-                                "Renovasi, konstruksi, dan perbaikan bangunan",
-                                style: TextStyle(color: Colors.white, fontSize: 13),
-                              ),
+                              if (category.description != null && category.description!.isNotEmpty)
+                                Text(
+                                  category.description!,
+                                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                                ),
                             ],
                           ),
                         ),
@@ -225,11 +240,13 @@ class CustomerProvidersByCategory extends ConsumerWidget {
 class CategoryWithServices {
   final String id;
   final String name;
+  final String? description;
   final List<CategoryService> services;
 
   CategoryWithServices({
     required this.id,
     required this.name,
+    this.description,
     required this.services,
   });
 
@@ -237,6 +254,7 @@ class CategoryWithServices {
     return CategoryWithServices(
       id: json['id'] as String,
       name: json['name'] as String,
+      description: json['description'] as String?,
       services: (json['services'] as List<dynamic>?)
               ?.map((item) => CategoryService.fromJson(item as Map<String, dynamic>))
               .toList() ?? [],

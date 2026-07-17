@@ -54,6 +54,11 @@ class ApiEndpoints {
   static final String adminBanUser = '$baseUrl/api/admin/users/'; // + {userId}/ban
   static final String adminCreateCategory = '$baseUrl/api/admin/categories';
   static final String adminCreateService = '$baseUrl/api/admin/services';
+  static final String adminCategories = '$baseUrl/api/admin/categories';
+  static String adminPricingTypes(String categoryId) => '$baseUrl/api/admin/categories/$categoryId/pricing-types';
+  static final String adminCreatePricingType = '$baseUrl/api/admin/pricing-types';
+  static String adminUpdatePricingType(String id) => '$baseUrl/api/admin/pricing-types/$id';
+  static String adminDeletePricingType(String id) => '$baseUrl/api/admin/pricing-types/$id';
 
   // Customer Profile
   static final String customerProfile = '$baseUrl/api/customer/profile';

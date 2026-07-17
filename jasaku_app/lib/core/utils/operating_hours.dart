@@ -1,31 +1,29 @@
 class OperatingHours {
-  static const int startHour = 0;
+  static const int startHour = 8;
   static const int startMinute = 0;
-  static const int endHour = 23;
-  static const int endMinute = 59;
-  static const int orderCutoffHour = 23;
+  static const int endHour = 16;
+  static const int endMinute = 0;
+  static const int orderCutoffHour = 15;
   static const int orderCutoffMinute = 59;
-  static const int warningStartHour = 23;
-  static const int warningStartMinute = 59;
+  static const int warningStartHour = 15;
+  static const int warningStartMinute = 30;
 
   static int _totalMinutes(int h, int m) => h * 60 + m;
 
-  static bool isWithinOperatingHours() {
-    final now = DateTime.now();
-    final total = _totalMinutes(now.hour, now.minute);
-    return total >= _totalMinutes(startHour, startMinute) &&
-           total < _totalMinutes(endHour, endMinute);
+  static DateTime _nowWita() {
+    final utc = DateTime.now().toUtc();
+    return utc.add(const Duration(hours: 8));
   }
 
-  static bool canCompleteWork() {
-    final now = DateTime.now();
+  static bool isWithinOperatingHours() {
+    final now = _nowWita();
     final total = _totalMinutes(now.hour, now.minute);
     return total >= _totalMinutes(startHour, startMinute) &&
            total < _totalMinutes(endHour, endMinute);
   }
 
   static ({bool allowed, String? warning}) canOrderNow() {
-    final now = DateTime.now();
+    final now = _nowWita();
     final total = _totalMinutes(now.hour, now.minute);
     final start = _totalMinutes(startHour, startMinute);
     final cutoff = _totalMinutes(orderCutoffHour, orderCutoffMinute);
@@ -47,7 +45,7 @@ class OperatingHours {
   }
 
   static bool isToday(DateTime date) {
-    final now = DateTime.now();
+    final now = _nowWita();
     return date.year == now.year && date.month == now.month && date.day == now.day;
   }
 }

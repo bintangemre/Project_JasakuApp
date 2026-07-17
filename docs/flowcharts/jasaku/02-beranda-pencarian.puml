@@ -1,0 +1,75 @@
+@startuml
+title Alur Beranda & Pencarian - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E8F5E9
+skinparam activityBorderColor #2E7D32
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E3F2FD| Beranda |
+
+start
+
+:Halaman Beranda Customer;
+:Ambil Data Kategori;
+note right
+  GET /api/services/categories
+  Response: daftar kategori layanan
+end note
+
+if (Aksi?) then (Pilih Kategori)
+  :Tampilkan Daftar Provider;
+  note right
+    GET /api/services/services/providers
+    Query: ?categoryId=xxx
+    Filter: aktif & terverifikasi
+  end note
+
+  if (Hasil ditemukan?) then (Ya)
+    :Tampilkan Daftar Provider
+    (foto, nama, rating, jarak);
+  else (Tidak)
+    #FFCDD2:Tampilkan Pesan
+    "Tidak ada provider\ntersedia";
+  endif
+
+elseif (Pencarian) then (Pencarian)
+  #E8EAF6:Pencarian Provider;
+  :Input Keyword Pencarian;
+  :Kirim GET /api/services/services/search;
+  note right
+    Query: ?q=keyword
+    Pencarian berdasarkan
+    nama/layanan provider
+  end note
+  :Tampilkan Hasil Pencarian;
+
+elseif (Pesan Langsung) then (Pesan)
+  :Pilih Provider dari Daftar;
+
+else (Jelajahi)
+  :Scroll Kategori;
+  :Lihat Promo/Rekomendasi;
+endif
+
+|#FFF3E0| Detail Provider |
+
+:Klik Provider dari Daftar;
+note right
+  Navigasi ke halaman
+  Detail Provider
+end note
+
+:Menampilkan Profil Provider;
+
+:Klik "Pesan Sekarang";
+note right
+  Navigasi ke halaman
+  Form Pemesanan
+end note
+
+stop
+
+@enduml

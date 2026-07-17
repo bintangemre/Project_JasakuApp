@@ -1,0 +1,104 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow Konfirmasi Pembayaran (Rekber)
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Konfirmasi Bayar";
+
+|#E3F2FD|Backend|
+partition "Auto-refresh 15 detik" {
+  :GET /api/admin/orders/all;
+  :Ambil semua order (non custom-task);
+  note right
+    Include:
+    - data customer & mitra
+    - data pembayaran & bukti bayar
+    - data payout mitra
+    - method label (resolve)
+  end note
+}
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar order;
+
+partition "Filter & pencarian" {
+  :Pilih filter status dropdown;
+  note right
+    Opsi filter:
+    - Semua status
+    - pending_payment
+    - pending
+    - in_progress
+    - completed
+    - cancelled
+  end note
+}
+
+partition "Lihat bukti bayar" {
+  :Klik "Lihat Bukti" pada order;
+  :Modal bukti bayar ditampilkan;
+  note right
+    Tampilkan:
+    - Gambar bukti transfer
+    - Metode pembayaran
+    - Jumlah yang dibayar
+  end note
+}
+
+|#E8F5E9|Frontend|
+:Klik tombol "Konfirmasi" pada order status pending_payment;
+
+|#E3F2FD|Backend|
+:PATCH /api/admin/orders/:orderId/confirm-payment;
+:Validasi order status = pending_payment;
+
+if (Valid berhasil?) then (Ya)
+  :Update status order → pending;
+  :Trigger notifikasi ke Mitra;
+  note right
+    **Notifikasi Mitra:**
+    Title: "Pembayaran Dikonfirmasi"
+    Type: NEW_ORDER
+    "Pembayaran untuk pesanan
+    telah dikonfirmasi admin."
+  end note
+
+  :Trigger notifikasi ke Customer;
+  note right
+    **Notifikasi Customer:**
+    Title: "Pembayaran Berhasil"
+    Type: PAYMENT_CONFIRMED
+    "Pembayaran Anda telah dikonfirmasi.
+    Mitra akan segera mengerjakan."
+  end note
+
+  |#E8F5E9|Frontend|
+  :Refresh daftar order;
+  :Order berpindah dari antrian pending_payment;
+  :Tampilkan toast "Konfirmasi berhasil";
+  stop
+else (Tidak)
+  |#E8F5E9|Frontend|
+  :Tampilkan pesan error;
+  stop
+endif
+
+note right
+  **Endpoint:**
+  GET /api/admin/orders/all
+  PATCH /api/admin/orders/:orderId/confirm-payment
+
+  **Status transition:**
+  pending_payment → pending
+end note
+
+@enduml

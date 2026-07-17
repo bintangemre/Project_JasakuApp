@@ -1,0 +1,119 @@
+@startuml
+title Alur Daftar Pesanan - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E8F5E9
+skinparam activityBorderColor #2E7D32
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E3F2FD| Daftar Pesanan |
+
+start
+
+:Halaman Daftar Pesanan;
+:Ambil Data Pesanan;
+note right
+  GET /api/orders/customer/orders
+  Header: Authorization: JWT
+end note
+
+if (Data tersedia?) then (Ya)
+  :Tampilkan Daftar Pesanan;
+else (Tidak)
+  #FFF9C4:Menampilkan Kosong
+  "Belum ada pesanan";
+  stop
+endif
+
+partition "Filter Pesanan" {
+  :Tampilkan Tab Filter;
+  note right
+    - Semua
+    - Aktif (pending, in_progress)
+    - Selesai (completed)
+  end note
+
+  if (Filter?) then (Semua)
+    :Tampilkan Semua Pesanan;
+  elseif (Aktif) then (Aktif)
+    :Filter: Aktif Saja;
+    note right
+      Status: pending_payment,
+      pending, in_progress
+    end note
+  else (Selesai)
+    :Filter: Selesai Saja;
+    note right
+      Status: completed
+    end note
+  endif
+}
+
+partition "Tampilkan Setiap Pesanan" {
+  loop Untuk Setiap Order
+    :Tampilkan Card Pesanan;
+    note right
+      - Judul Layanan
+      - Tanggal Pesanan
+      - Status Badge
+      - Nama Provider
+      - Total Harga
+    end note
+
+    :Warnai Status Badge;
+    note right
+      pending_payment: Kuning
+      pending: Oranye
+      in_progress: Biru
+      completed: Hijau
+      cancelled: Abu-abu
+    end note
+  end
+}
+
+partition "Detail Pesanan" {
+  :Klik Pesanan;
+  :Tampilkan Bottom Sheet / Halaman Detail;
+  note right
+    - Detail pesanan lengkap
+    - Timeline status
+    - Info provider
+    - Bukti bayar
+  end note
+
+  :Tampilkan Timeline Status;
+  note right
+    1. pending_payment ✓
+    2. pending (menunggu mitra)
+    3. in_progress (sedang dikerjakan)
+    4. completed (selesai)
+  end note
+
+  if (Ada Permintaan Ekstensi?) then (Ya)
+    :Tampilkan Permintaan Ekstensi;
+    note right
+      Provider minta ekstensi
+      waktu pengerjaan
+    end note
+    if (Keputusan?) then (Setujui)
+      :Setujui Ekstensi;
+      note right
+        POST /api/orders/:id/accept-extension
+      end note
+    else (Tolak)
+      :Tolak Ekstensi;
+      note right
+        POST /api/orders/:id/reject-extension
+      end note
+    endif
+  else (Tidak)
+    :Lihat Detail Lainnya;
+  endif
+}
+
+:Kembali ke Daftar Pesanan;
+stop
+
+@enduml

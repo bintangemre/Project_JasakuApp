@@ -1,0 +1,117 @@
+@startuml permintaan-masuk-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #FFF3E0
+  BorderColor #E65100
+  FontColor #BF360C
+  ArrowColor #E65100
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #BF360C
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Permintaan Masuk (Incoming Requests) Mitra Jasaku**
+
+|Permintaan Masuk|
+start
+:Buka halaman Permintaan Masuk;
+
+partition "Ambil Data Permintaan" {
+  note right
+    **GET /api/orders/provider/requests**
+    
+    Auto-cancel jika > 5 menit
+    Response: {
+      requests: [{
+        id, service, customer_name,
+        location, estimated_price,
+        created_at, status
+      }]
+    }
+  end note
+  :Memuat daftar permintaan;
+end partition
+
+:Menampilkan daftar permintaan pending;
+
+partition "Setiap Permintaan" {
+  :Untuk setiap permintaan;
+  note right
+    **Countdown Timer: 5 Menit**
+    
+    Timer dimulai dari created_at
+    Jika timeout → auto-cancel
+  end note
+
+  :Menampilkan countdown timer;
+
+  while (Masih ada waktu?) is (Ya)
+    :Menampilkan detail:
+    - Nama customer
+    - Layanan yang diminta
+    - Lokasi
+    - Estimasi harga;
+
+    if (Aksi mitra?) then (**Terima**)
+      :Klik **"Terima"**;
+      note right
+        **PATCH /api/orders/orders/:orderId/status**
+        Body: { status: "accepted" }
+        
+        Order masuk ke tab
+        **"Hari Ini"**
+      end note
+      #C8E6C9:Permintaan diterima;
+      :Order masuk daftar "Hari Ini";
+      stop
+
+    elseif (**Tolak**) then
+      :Klik **"Tolak"**;
+      note right
+        **PATCH /api/orders/orders/:orderId/status**
+        Body: { status: "rejected" }
+      end note
+      #EF9A9A:Permintaan ditolak;
+      stop
+
+    else (Menunggu)
+      :Timer berjalan;
+    endif
+
+  endwhile (Waktu habis)
+
+  #FFCDD2:**Timeout! Auto-cancel**;
+  note right
+    **Status otomatis: cancelled**
+    
+    Server melakukan auto-cancel
+    jika tidak ada aksi dalam
+    5 menit
+  end note
+
+}
+
+partition "Auto-Refresh" {
+  note right
+    **Interval: 30 detik**
+    
+    Sistem melakukan refresh
+    untuk mendapatkan permintaan
+    baru secara otomatis
+  end note
+  :Menunggu 30 detik;
+  :Refresh daftar permintaan;
+  -[hidden]right-> Refresh;
+end partition
+
+stop
+
+@enduml

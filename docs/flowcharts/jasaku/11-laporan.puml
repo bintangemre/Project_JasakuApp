@@ -1,0 +1,138 @@
+@startuml
+title Alur Laporan & Keluhan - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #FCE4EC
+skinparam activityBorderColor #C62828
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E3F2FD| Laporan |
+
+start
+
+:Halaman Laporan;
+
+partition "Buat Laporan Baru" {
+  :Klik "Buat Laporan";
+
+  :Input Subjek Laporan;
+  note right
+    Contoh:
+    - Provider tidak datang
+    - Pekerjaan tidak sesuai
+    - Masalah pembayaran
+    - Kode etik terlanggar
+  end note
+
+  :Input Deskripsi Lengkap;
+  note right
+    Jelaskan masalah secara
+    detail dan jelas
+  end note
+
+  :Upload Lampiran (Opsional);
+  note right
+    Bisa upload foto/bukti
+    pendukung laporan
+    Maks: 5 file
+  end note
+
+  :Review Laporan;
+
+  if (Lengkap?) then (Ya)
+    :Klik "Kirim Laporan";
+
+    #E8EAF6:Kirim POST /api/reports/;
+    note right
+      Body: {
+        subject, description,
+        attachments: [files]
+      }
+    end note
+
+    if (Response 201?) then (Ya)
+      #C8E6C9:Laporan Berhasil Dikirim;
+      :Nomor Referensi Ditampilkan;
+      :Status: pending_review;
+    else (Tidak)
+      #FFCDD2:Gagal Mengirim;
+      :Tampilkan Pesan Error;
+      :Kembali ke Form;
+      stop
+    endif
+  else (Tidak)
+    #FFCDD2:Lengkapi Laporan;
+    :Kembali ke Form;
+  endif
+}
+
+partition "Riwayat Laporan" {
+  :Lihat Riwayat Laporan;
+  note right
+    GET /api/reports/mine
+    Tampilkan semua laporan
+    yang pernah dibuat
+  end note
+
+  :Tampilkan Daftar Laporan;
+  note right
+    Setiap laporan menampilkan:
+    - Subjek
+    - Tanggal kirim
+    - Status (badge warna)
+    - Tanggapan admin
+  end note
+
+  :Warnai Status Badge;
+  note right
+    pending_review: Kuning
+    in_progress: Biru
+    resolved: Hijau
+    rejected: Abu-abu
+  end note
+
+  :Klik Laporan untuk Detail;
+}
+
+partition "Menunggu Tanggapan" {
+  :Menunggu Tanggapan Admin;
+  note right
+    Admin akan meninjau
+    dan merespons laporan
+  end note
+
+  :Polling Status Laporan;
+  note right
+    GET /api/reports/:reportId
+    Cek status berkala
+  end note
+
+  if (Status Berubah?) then (Ditanggapi)
+    #C8E6C9:Admin Merespons;
+    :Tampilkan Tanggapan Admin;
+    :Tampilkan Status Final;
+
+    if (Puas?) then (Ya)
+      :Tutup Laporan;
+      stop
+    else (Tidak)
+      :Kirim Banding/Klarifikasi;
+      note right
+        Kirim detail tambahan
+        untuk memperkuat laporan
+      end note
+      :Kembali ke Menunggu;
+      -> Polling Status;
+    endif
+
+  else (Belum)
+    :Terus Polling;
+    -> Polling Status;
+  endif
+endif
+
+stop
+
+@enduml

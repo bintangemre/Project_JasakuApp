@@ -8,16 +8,19 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/utils/image_url.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/utils/map_marker_utils.dart';
 
 import '../../../location/presentation/providers/location_tracker_provider.dart';
 import '../../../../services/routing_service.dart';
 import '../providers/provider_dashboard_provider.dart';
+import '../providers/provider_profile_provider.dart';
 import '../../../custom_tasks/presentation/pages/provider_available_tasks_page.dart';
 import '../../../custom_tasks/presentation/pages/provider_my_bids_page.dart';
 import '../../../custom_tasks/data/custom_tasks_repository.dart';
 import '../../../custom_tasks/data/models/custom_task_model.dart';
 import 'provider_full_map_page.dart';
 import 'provider_shell.dart';
+import '../../../../core/utils/operating_hours.dart';
 
 class ProviderHomePage extends ConsumerStatefulWidget {
   const ProviderHomePage({super.key});
@@ -38,12 +41,15 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
   LatLng? _lastProviderPos;
   bool _extensionLoading = false;
   String? _extensionStatusText;
+  bool _extensionIsActive = false;
   String? _lastCheckedOrderId;
+  bool _routeFetching = false;
 
   @override
   void initState() {
     super.initState();
     _routeTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      _customTaskRoutes.clear();
       final state = ref.read(dashboardProvider);
       final activeOrder = state.activeOrder;
       if (activeOrder == null) return;
@@ -99,7 +105,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(ApiClient.errorMessage(e)), backgroundColor: Colors.red),
         );
       }
     }
@@ -117,7 +123,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(ApiClient.errorMessage(e)), backgroundColor: Colors.red),
         );
       }
     }
@@ -224,21 +230,26 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
       }).toList();
       if (pending.isEmpty) {
         _extensionStatusText = null;
+        _extensionIsActive = false;
       } else {
         final ext = pending.first;
         final days = ext['extension_count'] as int? ?? 0;
         switch (ext['status'] as String? ?? '') {
           case 'pending_customer':
             _extensionStatusText = 'Menunggu respon customer ($days hari)';
+            _extensionIsActive = false;
             break;
           case 'pending_payment':
             _extensionStatusText = 'Menunggu pembayaran ($days hari)';
+            _extensionIsActive = false;
             break;
           case 'active':
             _extensionStatusText = 'Ekstensi $days hari aktif';
+            _extensionIsActive = true;
             break;
           default:
             _extensionStatusText = 'Perpanjangan diproses';
+            _extensionIsActive = false;
         }
       }
       if (mounted) setState(() {});
@@ -360,8 +371,12 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
         : null;
 
     final customerLoc = _customerLatLng;
-    if (customerLoc != null && providerLatLng != null && _routePoints.isEmpty) {
-      Future.microtask(() => _fetchRoute(providerLatLng, customerLoc));
+    if (customerLoc != null && providerLatLng != null && _routePoints.isEmpty && !_routeFetching) {
+      _routeFetching = true;
+      Future.microtask(() async {
+        await _fetchRoute(providerLatLng, customerLoc);
+        _routeFetching = false;
+      });
     }
 
     if (providerLatLng != null && _lastProviderPos != providerLatLng) {
@@ -377,6 +392,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
         ? "Rp ${priceFormat.format(monthlyEarnings)}"
         : "Rp 0";
     final perfDisplay = state.performance.toStringAsFixed(0);
+    final isVerified = ref.watch(profileProvider).isVerified;
 
     return SingleChildScrollView(
       child: Column(
@@ -435,7 +451,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                                     ),
                                   ),
                                   const SizedBox(width: 6),
-                                  const Icon(Icons.check_circle, color: Colors.white, size: 16),
+                                  if (isVerified) const Icon(Icons.check_circle, color: Colors.white, size: 16),
                                 ],
                               ),
                               const SizedBox(height: 2),
@@ -447,10 +463,6 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                               ),
                             ],
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 24),
-                          onPressed: () {},
                         ),
                       ],
                     ),
@@ -610,30 +622,49 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                           ),
                         ],
                         const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2563EB),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                        if (OperatingHours.isWithinOperatingHours())
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2563EB),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
                               ),
-                              elevation: 0,
+                              onPressed: activeOrderId.isNotEmpty
+                                  ? () => _updateStatus(activeOrderId, _nextStatus(activeStatus))
+                                  : null,
+                              child: Text(
+                                _nextStatusLabel(activeStatus),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
                             ),
-                            onPressed: activeOrderId.isNotEmpty
-                                ? () => _updateStatus(activeOrderId, _nextStatus(activeStatus))
-                                : null,
-                            child: Text(
-                              _nextStatusLabel(activeStatus),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                          )
+                        else
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'Di luar jam operasional',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w600,
                                 fontSize: 14,
                               ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                         ),
@@ -644,12 +675,12 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
-                                color: _extensionStatusText!.contains('aktif')
+                                color: _extensionIsActive
                                     ? Colors.green.shade50
                                     : Colors.orange.shade50,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: _extensionStatusText!.contains('aktif')
+                                  color: _extensionIsActive
                                       ? Colors.green.shade200
                                       : Colors.orange.shade200,
                                 ),
@@ -657,11 +688,11 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                               child: Row(
                                 children: [
                                   Icon(
-                                    _extensionStatusText!.contains('aktif')
+                                    _extensionIsActive
                                         ? Icons.check_circle
                                         : Icons.timer_outlined,
                                     size: 16,
-                                    color: _extensionStatusText!.contains('aktif')
+                                    color: _extensionIsActive
                                         ? Colors.green.shade700
                                         : Colors.orange.shade700,
                                   ),
@@ -672,7 +703,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
-                                        color: _extensionStatusText!.contains('aktif')
+                                        color: _extensionIsActive
                                             ? Colors.green.shade800
                                             : Colors.orange.shade800,
                                       ),
@@ -1247,7 +1278,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                     key: const ValueKey('dashboard-route-map'),
                     mapController: _mapController,
                     options: MapOptions(
-                      initialCenter: customerPos ?? providerPos ?? const LatLng(-6.2088, 106.8456),
+                      initialCenter: customerPos ?? providerPos ?? const LatLng(-3.4423, 114.8321),
                       initialZoom: 14.0,
                       interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                     ),
@@ -1317,20 +1348,5 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
     );
   }
 
-  Widget _providerMarkerIcon(String status) {
-    final isOnWay = status == 'accepted' || status == 'on_the_way';
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        color: isOnWay ? const Color(0xFF0288D1) : const Color(0xFF10B981),
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2.5),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
-      ),
-      child: isOnWay
-          ? const Icon(Icons.motorcycle, color: Colors.white, size: 22)
-          : const Icon(Icons.waving_hand, color: Colors.white, size: 22),
-    );
-  }
+  Widget _providerMarkerIcon(String status) => buildProviderMarkerIcon(status, size: 36);
 }

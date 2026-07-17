@@ -1,0 +1,96 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow Manajemen Laporan
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Laporan";
+
+|#E3F2FD|Backend|
+:GET /api/admin/reports/open;
+:Query reports WHERE status = 'open';
+:Include data reporter (users);
+note right
+  Data laporan:
+  - id, subject, description
+  - status (open)
+  - reporter_id → email
+  - created_at
+end note
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar laporan terbuka;
+
+partition "Tanggapi laporan" {
+  :Admin klik tombol "Tanggapi" pada laporan;
+  :Buka modal tanggapan;
+
+  :Input respon admin;
+  :Pilih tindakan;
+  note right
+    Dropdown tindakan:
+    - resolved (selesai)
+    - dismissed (ditutup)
+  end note
+
+  :Klik "Kirim Tanggapan";
+
+  |#E3F2FD|Backend|
+  :PATCH /api/admin/reports/:reportId/respond;
+  :Body: { response, status };
+  :Validasi: response & status wajib;
+
+  if (Valid?) then (Ya)
+    :Update laporan;
+    note right
+      UPDATE reports SET
+      status = :status
+      admin_response = :response
+      resolved_at = now()
+    end note
+
+    :Trigger notifikasi ke pelapor;
+    note right
+      **Notifikasi Pelapor:**
+      Title: "Laporan terselesaikan/ditutup"
+      Type: REPORT_RESPONDED
+      "Laporan "subject" telah
+      [terselesaikan/ditutup] oleh admin.
+      Respon: response"
+
+      Tipe label:
+      - resolved → "terselesaikan"
+      - dismissed → "ditutup"
+    end note
+
+    |#E8F5E9|Frontend|
+    :Refresh daftar laporan;
+    :Laporan menghilang dari daftar terbuka;
+    :Tampilkan toast "Laporan ditindaklanjuti";
+    stop
+  else (Tidak)
+    |#E8F5E9|Frontend|
+    :Tampilkan error validasi;
+    stop
+  endif
+endif
+
+note right
+  **Endpoint:**
+  GET    /api/admin/reports/open
+  PATCH  /api/admin/reports/:reportId/respond
+
+  **Body respond:**
+  { response: string,
+    status: "resolved" | "dismissed" }
+end note
+
+@enduml

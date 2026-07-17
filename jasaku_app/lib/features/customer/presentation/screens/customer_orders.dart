@@ -7,12 +7,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart'; 
 import 'package:image_picker/image_picker.dart'; // Impor Pengelola Kamera & Galeri
 
+import '../../../../core/constants/app_colors.dart';
 import '../../../orders/presentation/providers/orders_provider.dart';
 import '../../../orders/domain/models/order_payload_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 import '../../../payments/presentation/widgets/payment_method_picker.dart';
 import '../../../payments/presentation/screens/payment_instruction_screen.dart';
+import '../../../../core/utils/operating_hours.dart';
 
 class CustomerOrdersPage extends ConsumerStatefulWidget {
   final String providerId;
@@ -46,6 +48,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
   int _quantity = 1;
   final double _platformFee = 2000;
   bool _isFetchingGPS = false;
+  bool _gpsFailed = false;
 
   // 🟢 STATE UNTUK MENAMPUNG FILE FOTO YANG DIPILIH
   final List<File> _selectedImages = [];
@@ -76,23 +79,32 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
         permission = await Geolocator.requestPermission();
       }
 
+      if (!mounted) return;
       if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
         Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
         );
         
+        if (!mounted) return;
         setState(() {
           _selectedLocation = LatLng(position.latitude, position.longitude);
           _isFetchingGPS = false;
+          _gpsFailed = false;
         });
 
         _mapController.move(_selectedLocation, 15.0);
       } else {
-        setState(() => _isFetchingGPS = false);
+        setState(() {
+          _isFetchingGPS = false;
+          _gpsFailed = true;
+        });
       }
     } catch (e) {
-      setState(() => _isFetchingGPS = false);
-      debugPrint("Gagal mengambil GPS: $e");
+      if (!mounted) return;
+      setState(() {
+        _isFetchingGPS = false;
+        _gpsFailed = true;
+      });
     }
   }
 
@@ -151,7 +163,11 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
         });
       }
     } catch (e) {
-      debugPrint("Error mengambil gambar: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengambil gambar: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -162,21 +178,15 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
     });
   }
 
-  bool _showTimeWarning() {
+  ({bool allowed, String? warning}) _getTimeWarning() {
     final dateText = _dateController.text;
-    if (dateText.isEmpty) return false;
+    if (dateText.isEmpty) return (allowed: true, warning: null);
     try {
       final selectedDate = DateTime.parse(dateText);
-      final now = DateTime.now();
-      final isToday = selectedDate.year == now.year && selectedDate.month == now.month && selectedDate.day == now.day;
-      if (!isToday) return false;
-
-      final totalMinutes = now.hour * 60 + now.minute;
-      final warningStart = 15 * 60;
-      final cutoff = 16 * 60;
-      return totalMinutes >= warningStart && totalMinutes < cutoff;
+      if (!OperatingHours.isToday(selectedDate)) return (allowed: true, warning: null);
+      return OperatingHours.canOrderNow();
     } catch (_) {
-      return false;
+      return (allowed: true, warning: null);
     }
   }
 
@@ -201,7 +211,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
 
     ref.listen<OrderFormState>(orderFormProvider, (previous, next) {
       if (next.isSuccess) {
-        ref.read(unreadNotifProvider.notifier).state++;
+        ref.read(unreadNotifProvider.notifier).increment();
         if (next.orderId != null) {
           Navigator.pushReplacement(
             context,
@@ -224,7 +234,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
     final orderState = ref.watch(orderFormProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -331,6 +341,28 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                       ],
                     ),
                     const SizedBox(height: 8),
+                    if (_gpsFailed)
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF3C7),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFF59E0B)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706), size: 18),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'GPS tidak aktif. Ketuk peta untuk menetapkan lokasi secara manual.',
+                                style: TextStyle(color: Color(0xFF92400E), fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     Container(
                       height: 170,
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE2E8F0))),
@@ -490,7 +522,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                     ),
                     const SizedBox(height: 16),
                     // Warning waktu mepet
-                    if (_showTimeWarning())
+                    if (_getTimeWarning().warning != null)
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
@@ -499,15 +531,15 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: const Color(0xFFFFD6A8)),
                         ),
-                        child: const Row(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.access_time, size: 16, color: Color(0xFFE67E22)),
-                            SizedBox(width: 8),
+                            const Icon(Icons.access_time, size: 16, color: Color(0xFFE67E22)),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Jam operasional berakhir pukul 16:00 WITA. Pilih hari lain atau pesan 2 hari kerja. Jika tetap pesan, provider bisa minta extensi jika pekerjaan belum selesai.',
-                                style: TextStyle(fontSize: 12, color: Color(0xFF9C6B3E)),
+                                _getTimeWarning().warning!,
+                                style: const TextStyle(fontSize: 12, color: Color(0xFF9C6B3E)),
                               ),
                             ),
                           ],
@@ -563,9 +595,28 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: () {
+                    final customerId = ref.read(authProvider).user?.id;
+                    if (customerId == null || customerId.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Sesi berakhir, silakan login kembali'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    if (_gpsFailed && _selectedLocation.latitude == -3.4423 && _selectedLocation.longitude == 114.8321) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Tentukan lokasi dengan mengetuk peta'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
                     if (_formKey.currentState!.validate()) {
                       final payload = OrderPayloadModel(
-                        customerId: ref.read(authProvider).user?.id ?? '', 
+                        customerId: customerId,
                         providerId: widget.providerId,
                         serviceId: widget.serviceId,
                         pricingTypeId: widget.pricingTypeId,

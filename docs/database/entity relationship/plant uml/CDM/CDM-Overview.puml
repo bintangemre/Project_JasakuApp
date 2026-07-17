@@ -1,0 +1,231 @@
+@startuml CDM_Overview
+' ============================================================
+' CDM (Conceptual Data Model) — OVERVIEW 29 Tabel Jasaku
+' Kotak = Entitas, Ketupat = Relasi
+' Level Konseptual: Hanya nama entitas & relasi bisnis
+' ============================================================
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 11
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 60
+
+skinparam rectangle {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontSize 12
+  FontStyle bold
+  FontColor #0D47A1
+}
+
+skinparam diamond {
+  BackgroundColor #FFF9C4
+  BorderColor #F9A825
+  FontSize 9
+  FontStyle bold
+  FontColor #F57F17
+}
+
+' ============================================================
+' ENTITAS — Autentikasi
+' ============================================================
+
+rectangle "User" as USER
+rectangle "Role" as ROLE
+rectangle "Profile\nCustomer" as PCUST
+rectangle "Provider\nProfile" as PPROV
+rectangle "Provider\nLocation" as PLOC
+rectangle "Provider\nDocument" as PDOC
+rectangle "Provider\nPayout Method" as PPAY
+rectangle "Identity\nVerification" as IDVER
+rectangle "User\nDevice" as UDEV
+
+' ============================================================
+' ENTITAS — Layanan
+' ============================================================
+
+rectangle "Category" as CAT
+rectangle "Service" as SVC
+rectangle "Pricing\nType" as PT
+rectangle "Provider\nService" as PSVC
+rectangle "Provider\nService Price" as PSP
+rectangle "Provider\nSchedule" as PSCH
+
+' ============================================================
+' ENTITAS — Pesanan
+' ============================================================
+
+rectangle "Order" as ORD
+rectangle "Order\nItem" as OI
+rectangle "Order\nLocation" as OL
+rectangle "Order\nAttachment" as OA
+rectangle "Order\nExtension" as OEXT
+rectangle "Customer\nAddress" as CA
+
+' ============================================================
+' ENTITAS — Pembayaran
+' ============================================================
+
+rectangle "Payment" as PAY
+rectangle "Admin\nBank Account" as ABA
+rectangle "Admin\nE-Wallet" as AEW
+rectangle "Admin\nQRIS" as AQRI
+
+' ============================================================
+' ENTITAS — Custom Task
+' ============================================================
+
+rectangle "Custom\nTask" as CT
+rectangle "Task\nLocation" as TL
+rectangle "Task\nProvider" as TP
+
+' ============================================================
+' ENTITAS — Review & Laporan
+' ============================================================
+
+rectangle "Review" as REV
+rectangle "Report" as RPT
+rectangle "Notification" as NOTIF
+rectangle "Location\nHistory" as LH
+
+' ============================================================
+' RELASI — Ketupat
+' ============================================================
+
+diamond "has" as D1
+diamond "has" as D2
+diamond "has" as D3
+diamond "has" as D4
+diamond "has" as D5
+diamond "has" as D6
+diamond "has" as D7
+diamond "has" as D8
+diamond "has" as D9
+diamond "creates" as D10
+diamond "provides" as D11
+diamond "manages" as D12
+diamond "books" as D13
+diamond "contains" as D14
+diamond "located" as D15
+diamond "attaches" as D16
+diamond "extends" as D17
+diamond "processes" as D18
+diamond "submits" as D19
+diamond "accepts" as D20
+diamond "reviews" as D21
+diamond "reports" as D22
+diamond "receives" as D23
+diamond "tracks" as D24
+
+' ============================================================
+' KONEKSI — Autentikasi
+' ============================================================
+
+ROLE -down-> D1
+D1 -down-> USER
+
+USER -down-> D2
+D2 -down-> PCUST
+
+USER -down-> D3
+D3 -down-> PPROV
+
+USER -right-> D4
+D4 -right-> PLOC
+
+USER -down-> D5
+D5 -down-> UDEV
+
+PPROV -down-> D6
+D6 -down-> PDOC
+
+PPROV -right-> D7
+D7 -right-> PPAY
+
+PPROV -down-> D8
+D8 -down-> IDVER
+
+' ============================================================
+' KONEKSI — Layanan
+' ============================================================
+
+CAT -right-> D9
+D9 -right-> SVC
+
+SVC -right-> D12
+D12 -right-> PT
+
+PPROV -down-> D11
+D11 -down-> PSVC
+
+PSVC -down-> D14
+D14 -down-> PSP
+
+PPROV -down-> D13
+D13 -down-> PSCH
+
+' ============================================================
+' KONEKSI — Pesanan
+' ============================================================
+
+USER -down-> D10
+D10 -down-> ORD
+
+PPROV -down-> D19
+D19 -down-> ORD
+
+ORD -down-> D14
+D14 -down-> OI
+
+ORD -down-> D15
+D15 -down-> OL
+
+ORD -right-> D16
+D16 -right-> OA
+
+ORD -down-> D17
+D17 -down-> OEXT
+
+' ============================================================
+' KONEKSI — Pembayaran
+' ============================================================
+
+ORD -down-> D18
+D18 -down-> PAY
+
+' ============================================================
+' KONEKSI — Custom Task
+' ============================================================
+
+USER -down-> D20
+D20 -down-> CT
+
+CT -down-> D15
+D15 -down-> TL
+
+CT -right-> D21
+D21 -right-> TP
+
+' ============================================================
+' KONEKSI — Review & Laporan
+' ============================================================
+
+ORD -down-> D21
+D21 -down-> REV
+
+ORD -right-> D22
+D22 -down-> RPT
+
+USER -down-> D23
+D23 -down-> NOTIF
+
+PPROV -down-> D24
+D24 -down-> LH
+
+title <b>CDM — Conceptual Data Model Jasaku</b>\n29 Entitas · Level Konseptual (Tanpa Atribut)\nKotak = Entitas Bisnis · Ketupat = Hubungan
+
+footer Generated by PlantUML — Jasaku CDM
+@enduml

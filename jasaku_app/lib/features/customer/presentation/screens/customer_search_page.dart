@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../providers/customer_search_provider.dart';
 import 'customer_providers_by_category.dart';
 
@@ -25,7 +26,7 @@ class _CustomerSearchPageState extends ConsumerState<CustomerSearchPage> {
     final notifier = ref.read(customerSearchProvider.notifier);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,

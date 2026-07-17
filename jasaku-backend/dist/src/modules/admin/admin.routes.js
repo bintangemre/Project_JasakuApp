@@ -1,14 +1,15 @@
 import { Router } from 'express';
-import { getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail, getCategories, getServicesByCategory, getPricingTypesByCategory, createCategory, updateCategory, deleteCategory, createService, updateService, deleteService, getAllProviders, getAllCustomers, banUser, unbanUser, createPricingType, deletePricingType, getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount, uploadQrisImage, getPendingPaymentOrders, getAllOrders, getPendingExtensions, getOpenReports, respondToReport, getPendingTaskPayments, getPendingTaskPaymentsByTask, getPendingTaskPayouts, confirmTaskPayment, confirmTaskPaymentByTask, confirmTaskPayout, } from './admin.controller';
-import { confirmPaymentByAdmin, approveExtension } from '../orders/orders.controller';
+import { getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail, getCategories, getServicesByCategory, getPricingTypesByCategory, createCategory, updateCategory, deleteCategory, createService, updateService, deleteService, getAllProviders, getAllCustomers, banUser, unbanUser, createPricingType, updatePricingType, deletePricingType, getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount, uploadQrisImage, getPendingPaymentOrders, getAllOrders, getPendingExtensions, getAllExtensions, getPendingPaymentExtensions, getOpenReports, respondToReport, getPendingTaskPayments, getPendingTaskPaymentsByTask, getPendingTaskPayouts, confirmTaskPayment, confirmTaskPaymentByTask, confirmTaskPayout, getNotificationCounts, getCompletedOrdersPendingPayout, confirmOrderPayout, } from './admin.controller';
+import { confirmPaymentByAdmin, approveExtension, activateExtension } from '../orders/orders.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { isAdmin } from '../../middleware/role.middleware';
 import { validate } from '../../middleware/validate.middleware';
-import { createCategorySchema, createServiceSchema, verifyProviderSchema } from '../../middleware/schemas';
+import { createCategorySchema, createServiceSchema, createPricingTypeSchema, updatePricingTypeSchema, verifyProviderSchema } from '../../middleware/schemas';
 import { upload } from '../../middleware/upload.middleware';
 const router = Router();
-// Dashboard
+// Dashboard & Notifications
 router.get('/dashboard', authenticate, isAdmin, getDashboardMetrics);
+router.get('/notifications/counts', authenticate, isAdmin, getNotificationCounts);
 // Provider verification
 router.get('/providers/pending', authenticate, isAdmin, getPendingProviders);
 router.patch('/providers/:providerId/verify', authenticate, isAdmin, validate(verifyProviderSchema), verifyProvider);
@@ -31,7 +32,8 @@ router.put('/services/:id', authenticate, isAdmin, updateService);
 router.delete('/services/:id', authenticate, isAdmin, deleteService);
 // Pricing Types
 router.get('/categories/:id/pricing-types', authenticate, isAdmin, getPricingTypesByCategory);
-router.post('/pricing-types', authenticate, isAdmin, createPricingType);
+router.post('/pricing-types', authenticate, isAdmin, validate(createPricingTypeSchema), createPricingType);
+router.put('/pricing-types/:id', authenticate, isAdmin, validate(updatePricingTypeSchema), updatePricingType);
 router.delete('/pricing-types/:id', authenticate, isAdmin, deletePricingType);
 // Payment Accounts (Rekber Admin)
 router.get('/payment-accounts', authenticate, isAdmin, getPaymentAccounts);
@@ -43,9 +45,15 @@ router.post('/payment-accounts/:id/qris-upload', authenticate, isAdmin, upload.s
 router.get('/orders/pending-payment', authenticate, isAdmin, getPendingPaymentOrders);
 router.get('/orders/all', authenticate, isAdmin, getAllOrders);
 router.patch('/orders/:orderId/confirm-payment', authenticate, isAdmin, confirmPaymentByAdmin);
+// Payout Confirmation (Pencairan Dana) — regular orders
+router.get('/orders/pending-payout', authenticate, isAdmin, getCompletedOrdersPendingPayout);
+router.patch('/orders/:orderId/confirm-payout', authenticate, isAdmin, confirmOrderPayout);
 // Extensions
+router.get('/extensions/all', authenticate, isAdmin, getAllExtensions);
 router.get('/extensions/pending', authenticate, isAdmin, getPendingExtensions);
+router.get('/extensions/pending-payment', authenticate, isAdmin, getPendingPaymentExtensions);
 router.patch('/extensions/:extensionId/approve', authenticate, isAdmin, approveExtension);
+router.patch('/extensions/:extensionId/activate', authenticate, isAdmin, activateExtension);
 // Custom Tasks — Payment & Payout
 router.get('/tasks/pending-payment', authenticate, isAdmin, getPendingTaskPayments);
 router.get('/tasks/pending-payment-by-task', authenticate, isAdmin, getPendingTaskPaymentsByTask);

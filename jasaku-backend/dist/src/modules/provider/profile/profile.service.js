@@ -1,11 +1,42 @@
 import { prisma } from "../../../config/prisma";
+import { getTodayWitaDate } from "../../../utils/operating-hours";
 export class ProfileService {
+    async getProviderCounts(userId) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: userId },
+            select: { id: true },
+        });
+        if (!profile) {
+            return { pendingRequests: 0, todayOrders: 0, upcomingOrders: 0, availableTasks: 0, myAcceptedTasks: 0 };
+        }
+        const todayStart = getTodayWitaDate();
+        const tomorrowStart = new Date(todayStart);
+        tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+        const [pendingRequests, todayOrders, upcomingOrders, availableTasks, myAcceptedTasks,] = await Promise.all([
+            prisma.orders.count({
+                where: { provider_id: profile.id, status: 'pending', assignment_type: { not: 'custom_task' } },
+            }),
+            prisma.orders.count({
+                where: { provider_id: profile.id, work_date: { gte: todayStart, lt: tomorrowStart }, status: { notIn: ['cancelled', 'rejected'] } },
+            }),
+            prisma.orders.count({
+                where: { provider_id: profile.id, work_date: { gt: todayStart }, status: { notIn: ['cancelled', 'rejected'] } },
+            }),
+            prisma.custom_tasks.count({
+                where: { status: 'open' },
+            }),
+            prisma.task_providers.count({
+                where: { provider_id: profile.id, status: { in: ['accepted'] } },
+            }),
+        ]);
+        return { pendingRequests, todayOrders, upcomingOrders, availableTasks, myAcceptedTasks };
+    }
     async getFullProfile(userId) {
         const profile = await prisma.provider_profiles.findUnique({
             where: { user_id: userId },
         });
         const services = await prisma.provider_services.findMany({
-            where: { provider_id: userId },
+            where: { provider_id: profile?.id ?? '' },
             include: {
                 services: true,
                 provider_service_prices: {
@@ -23,6 +54,12 @@ export class ProfileService {
     }
     async completeOnboarding(userId, data) {
         return await prisma.$transaction(async (tx) => {
+            const profileId = await tx.provider_profiles.findUnique({
+                where: { user_id: userId },
+                select: { id: true },
+            });
+            if (!profileId)
+                throw new Error('Profil provider tidak ditemukan');
             if (data.profile_photo) {
                 await tx.provider_profiles.update({
                     where: { user_id: userId },
@@ -33,7 +70,7 @@ export class ProfileService {
                 const masterPricingTypes = await tx.pricing_types.findMany();
                 for (const svc of data.services) {
                     const existing = await tx.provider_services.findFirst({
-                        where: { provider_id: userId, service_id: svc.serviceId },
+                        where: { provider_id: profileId.id, service_id: svc.serviceId },
                     });
                     if (!existing)
                         continue;
@@ -59,18 +96,12 @@ export class ProfileService {
                 }
             }
             if (data.payoutMethod) {
-                const profile = await tx.provider_profiles.findUnique({
-                    where: { user_id: userId },
-                    select: { id: true },
+                await tx.provider_payout_methods.create({
+                    data: {
+                        provider_id: profileId.id,
+                        ...data.payoutMethod,
+                    },
                 });
-                if (profile) {
-                    await tx.provider_payout_methods.create({
-                        data: {
-                            provider_id: profile.id,
-                            ...data.payoutMethod,
-                        },
-                    });
-                }
             }
             await tx.provider_profiles.update({
                 where: { user_id: userId },

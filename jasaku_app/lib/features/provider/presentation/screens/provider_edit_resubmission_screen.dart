@@ -191,17 +191,17 @@ class _ProviderEditResubmissionScreenState
           ),
         ],
       ),
-    );
+    ).then((_) => ctrl.dispose());
   }
 
   Future<void> _handleServices() async {
-    await Navigator.push(
+    final changed = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => const ProviderServicesEditScreen(),
       ),
     );
-    setState(() => _fixedItems.add('services'));
+    if (changed == true) setState(() => _fixedItems.add('services'));
   }
 
   Future<void> _saveAndResubmit() async {

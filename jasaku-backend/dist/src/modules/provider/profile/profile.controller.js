@@ -1,9 +1,12 @@
 import { prisma } from "../../../config/prisma";
 import { successResponse, errorResponse } from "../../../utils/response";
 import { ProfileService } from "./profile.service";
+import { uploadToStorage } from "../../../services/storage.service";
 function normalizePath(p) {
     if (!p)
         return null;
+    if (p.startsWith('http://') || p.startsWith('https://'))
+        return p;
     return p.startsWith('/') ? p : `/${p}`;
 }
 function normalizePaths(profile) {
@@ -145,7 +148,10 @@ const completeOnboarding = async (req, res) => {
             return successResponse(res, null, "Profil sudah lengkap");
         }
         const files = req.files;
-        const profilePhoto = files?.['profile_photo']?.[0]?.path;
+        const profilePhotoFile = files?.['profile_photo']?.[0];
+        const profilePhoto = profilePhotoFile
+            ? await uploadToStorage(profilePhotoFile.buffer, 'provider/profile-photo', profilePhotoFile.originalname)
+            : undefined;
         let services = req.body.services;
         if (typeof services === 'string') {
             services = JSON.parse(services);
@@ -180,16 +186,26 @@ const updateProfile = async (req, res) => {
             return errorResponse(res, "Profil provider tidak ditemukan", 404);
         }
         const files = req.files;
-        const profilePhoto = files?.['profile_photo']?.[0]?.path;
-        const ktpPhoto = files?.['ktp_photo']?.[0]?.path;
-        const selfiePhoto = files?.['selfie_photo']?.[0]?.path;
-        const uploadedDocuments = files?.['documents']?.map((f) => f.path) || [];
+        const uploadFile = async (file, folder) => {
+            if (!file)
+                return undefined;
+            return uploadToStorage(file.buffer, folder, file.originalname);
+        };
+        const uploadMultiple = async (files, folder) => {
+            if (!files?.length)
+                return [];
+            return Promise.all(files.map(f => uploadToStorage(f.buffer, folder, f.originalname)));
+        };
+        const profilePhoto = await uploadFile(files?.['profile_photo']?.[0], 'provider/profile-photo');
+        const ktpPhoto = await uploadFile(files?.['ktp_photo']?.[0], 'provider/ktp');
+        const selfiePhoto = await uploadFile(files?.['selfie_photo']?.[0], 'provider/selfie');
+        const uploadedDocuments = await uploadMultiple(files?.['documents'] || [], 'provider/documents');
         const existingPortfolios = req.body.existing_portfolios
             ? (typeof req.body.existing_portfolios === 'string'
                 ? JSON.parse(req.body.existing_portfolios)
                 : req.body.existing_portfolios)
             : [];
-        const uploadedPortfolios = (files?.['portfolios']?.map((f) => f.path) || []);
+        const uploadedPortfolios = await uploadMultiple(files?.['portfolios'] || [], 'provider/portfolios');
         const portfolios = [...existingPortfolios, ...uploadedPortfolios];
         let birthDate;
         if (req.body.birth_date) {
@@ -259,4 +275,18 @@ const toggleTaskAvailability = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
-export { getProfile, toggleAvailability, toggleTaskAvailability, completeOnboarding, updateProfile };
+const getCounts = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) {
+            return errorResponse(res, "Anda harus login terlebih dahulu", 401);
+        }
+        const counts = await new ProfileService().getProviderCounts(userId);
+        return successResponse(res, counts, "Counts berhasil diambil");
+    }
+    catch (err) {
+        console.error("[getCounts]", err);
+        return errorResponse(res, err.message);
+    }
+};
+export { getProfile, toggleAvailability, toggleTaskAvailability, completeOnboarding, updateProfile, getCounts };

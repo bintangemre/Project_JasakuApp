@@ -4,6 +4,7 @@ import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/image_url.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../../core/utils/date_utils.dart';
 
 class ProviderReviewsPage extends ConsumerStatefulWidget {
   const ProviderReviewsPage({super.key});
@@ -176,7 +177,7 @@ class _ProviderReviewsPageState extends ConsumerState<ProviderReviewsPage> {
                                 if (createdAt != null) ...[
                                   const SizedBox(height: 4),
                                   Text(
-                                    _formatDate(createdAt),
+                                    AppDateUtils.formatShort(createdAt),
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: Colors.grey.shade400,
@@ -195,26 +196,4 @@ class _ProviderReviewsPageState extends ConsumerState<ProviderReviewsPage> {
     );
   }
 
-  String _formatDate(String iso) {
-    try {
-      final dt = DateTime.parse(iso);
-      final months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'Mei',
-        'Jun',
-        'Jul',
-        'Agu',
-        'Sep',
-        'Okt',
-        'Nov',
-        'Des',
-      ];
-      return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
-    } catch (_) {
-      return iso;
-    }
-  }
 }

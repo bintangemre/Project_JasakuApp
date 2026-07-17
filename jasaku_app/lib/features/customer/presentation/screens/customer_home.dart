@@ -22,31 +22,85 @@ final customerHomeOrdersProvider = FutureProvider.autoDispose<List<OrderModel>>(
       .toList();
 });
 
-class CustomerHome extends ConsumerWidget {
+class CustomerHome extends ConsumerStatefulWidget {
   const CustomerHome({super.key});
 
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'pending': return Colors.orange;
-      case 'accepted': return Colors.blue;
-      case 'on_the_way': return const Color(0xFF0288D1);
-      case 'arrived': return Colors.indigo;
-      case 'in_progress': return Colors.purple;
-      case 'completed': return Colors.green;
-      case 'rejected': return Colors.red;
-      case 'cancelled': return Colors.grey;
-      default: return Colors.grey;
-    }
+  @override
+  ConsumerState<CustomerHome> createState() => _CustomerHomeState();
+}
+
+class _CustomerHomeState extends ConsumerState<CustomerHome> {
+  late final Future<List<Map<String, dynamic>>> _categoriesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoriesFuture = _fetchCategories();
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchCategories() async {
+    final res = await ApiClient().dio.get(ApiEndpoints.getAllCategories);
+    final data = res.data['data'] as List<dynamic>? ?? [];
+    return data.map((c) {
+      final rawName = c['name'] as String? ?? '';
+      final name = rawName.trim();
+      IconData icon;
+      Color iconColor;
+      Color bgColor;
+      String? imagePath;
+      if (name.contains('listrik') || name.contains('Listrik') || name.contains('KELISTRIKAN')) {
+        icon = Icons.electric_bolt;
+        iconColor = const Color(0xFFFFB300);
+        bgColor = const Color(0xFFFEF3C7);
+        imagePath = 'assets/icons/icon_perbaikan_kelistrikan.png';
+      } else if (name.contains('Bangunan') || name.contains('bangunan')) {
+        icon = Icons.home_repair_service;
+        iconColor = const Color(0xFFFF6B00);
+        bgColor = const Color(0xFFFFEDD5);
+        imagePath = 'assets/icons/icon_perbaikan_bangunan.png';
+      } else if (name.contains('Kebersihan') || name.contains('kebersihan')) {
+        icon = Icons.cleaning_services;
+        iconColor = const Color(0xFF059669);
+        bgColor = const Color(0xFFD1FAE5);
+      } else if (name.contains('Pindahan') || name.contains('pindahan')) {
+        icon = Icons.local_shipping;
+        iconColor = const Color(0xFF2563EB);
+        bgColor = const Color(0xFFDBEAFE);
+      } else if (name.contains('Kayu') || name.contains('kayu')) {
+        icon = Icons.handyman;
+        iconColor = const Color(0xFF7C3AED);
+        bgColor = const Color(0xFFEDE9FE);
+      } else if (name.contains('AC') || name.contains('Elektronik') || name.contains('elektronik')) {
+        icon = Icons.ac_unit;
+        iconColor = const Color(0xFF0891B2);
+        bgColor = const Color(0xFFCFFAFE);
+      } else {
+        icon = Icons.build_circle;
+        iconColor = const Color(0xFF6B7280);
+        bgColor = const Color(0xFFF3F4F6);
+      }
+      return {
+        'id': c['id'] as String,
+        'name': name,
+        'icon': icon,
+        'iconColor': iconColor,
+        'bgColor': bgColor,
+        'imagePath': imagePath,
+      };
+    }).toList();
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final ordersAsync = ref.watch(customerHomeOrdersProvider);
     final userName =
         (authState.user?.displayName ?? 'Customer').split(' ').first;
     return RefreshIndicator(
-      onRefresh: () async => ref.invalidate(customerHomeOrdersProvider),
+      onRefresh: () async {
+        ref.invalidate(customerHomeOrdersProvider);
+        setState(() { _categoriesFuture = _fetchCategories(); });
+      },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
@@ -174,57 +228,7 @@ class CustomerHome extends ConsumerWidget {
 
   Widget _buildServiceGrid(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: ApiClient().dio.get(ApiEndpoints.getAllCategories).then((res) {
-        final data = res.data['data'] as List<dynamic>? ?? [];
-        return data.map((c) {
-          final rawName = c['name'] as String? ?? '';
-          final name = rawName.trim();
-          debugPrint('CATEGORY_NAME: "$rawName"');
-          IconData icon;
-          Color iconColor;
-          Color bgColor;
-          String? imagePath;
-          if (name.contains('listrik') || name.contains('Listrik') || name.contains('KELISTRIKAN')) {
-            icon = Icons.electric_bolt;
-            iconColor = const Color(0xFFFFB300);
-            bgColor = const Color(0xFFFEF3C7);
-            imagePath = 'assets/icons/icon_perbaikan_kelistrikan.png';
-          } else if (name.contains('Bangunan') || name.contains('bangunan')) {
-            icon = Icons.home_repair_service;
-            iconColor = const Color(0xFFFF6B00);
-            bgColor = const Color(0xFFFFEDD5);
-            imagePath = 'assets/icons/icon_perbaikan_bangunan.png';
-          } else if (name.contains('Kebersihan') || name.contains('kebersihan')) {
-            icon = Icons.cleaning_services;
-            iconColor = const Color(0xFF059669);
-            bgColor = const Color(0xFFD1FAE5);
-          } else if (name.contains('Pindahan') || name.contains('pindahan')) {
-            icon = Icons.local_shipping;
-            iconColor = const Color(0xFF2563EB);
-            bgColor = const Color(0xFFDBEAFE);
-          } else if (name.contains('Kayu') || name.contains('kayu')) {
-            icon = Icons.handyman;
-            iconColor = const Color(0xFF7C3AED);
-            bgColor = const Color(0xFFEDE9FE);
-          } else if (name.contains('AC') || name.contains('Elektronik') || name.contains('elektronik')) {
-            icon = Icons.ac_unit;
-            iconColor = const Color(0xFF0891B2);
-            bgColor = const Color(0xFFCFFAFE);
-          } else {
-            icon = Icons.build_circle;
-            iconColor = const Color(0xFF6B7280);
-            bgColor = const Color(0xFFF3F4F6);
-          }
-          return {
-            'id': c['id'] as String,
-            'name': name,
-            'icon': icon,
-            'iconColor': iconColor,
-            'bgColor': bgColor,
-            'imagePath': imagePath,
-          };
-        }).toList();
-      }),
+      future: _categoriesFuture,
       builder: (context, snapshot) {
         final cats = snapshot.data ?? [];
         if (cats.isEmpty) {
@@ -347,7 +351,7 @@ class CustomerHome extends ConsumerWidget {
               width: 260,
               color: const Color(0xFF1E40AF),
               title: 'Jasaku Mitra',
-              subtitle: 'Dapatkan layanan\nerbaikk dari kami',
+              subtitle: 'Dapatkan layanan\nterbaik dari kami',
             ),
             const SizedBox(width: 12),
             _PromoCard(
@@ -471,13 +475,13 @@ class CustomerHome extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _statusColor(order.status).withValues(alpha: 0.1),
+                    color: AppColors.statusColor(order.status).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     order.statusLabel,
                     style: TextStyle(
-                      color: _statusColor(order.status),
+                      color: AppColors.statusColor(order.status),
                       fontWeight: FontWeight.w500,
                       fontSize: 12,
                     ),
@@ -491,7 +495,7 @@ class CustomerHome extends ConsumerWidget {
                 const Icon(Icons.access_time, size: 16, color: Colors.grey),
                 const SizedBox(width: 4),
                 Text(order.formattedDate, style: const TextStyle(color: Colors.grey, fontSize: 13)),
-          const SizedBox(height: 80),
+                const Spacer(),
                 Text('Rp ${order.formattedPrice}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary)),
               ],
             ),

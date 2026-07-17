@@ -209,7 +209,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void _reRegisterFcmToken() async {
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
-      debugPrint('[FCM] Token obtained: ${fcmToken?.substring(0, 20)}...');
+      debugPrint('[FCM] Token obtained');
       if (fcmToken != null) {
         final dio = ApiClient().dio;
         final savedJwt = await StorageService.getToken();

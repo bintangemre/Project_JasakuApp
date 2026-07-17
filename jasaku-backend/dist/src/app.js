@@ -22,10 +22,10 @@ import swaggerSpec from "./config/swagger";
 dotenv.config();
 const app = express();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/health', (_req, res) => res.send('OK'));
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static('uploads'));
 app.use('/admin', express.static('public/admin', { index: 'index.html' }));
 app.get('/admin', (_req, res) => res.redirect('/admin/'));
 // Routes
@@ -43,6 +43,8 @@ app.use('/api/custom-tasks', customTasksRoutes);
 app.use('/api/customer', customerProfileRoutes);
 app.use('/api/provider', providerPayoutRoutes);
 app.use('/api/reports', reportsRoutes);
+// Static files — landing page & APK downloads
+app.use('/', express.static('public'));
 // Periodic cleanup: hard-delete cancelled/rejected orders older than 2 minutes
 const cleanupInterval = 60_000; // every 60s
 setInterval(async () => {
@@ -63,13 +65,6 @@ setInterval(async () => {
         // silent
     }
 }, cleanupInterval);
-const PORT = process.env.PORT || 3000;
-app.listen(Number(PORT), '0.0.0.0', () => {
-    console.log(`============= JASAKU BACKEND =============`);
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`🌐 Accessible locally via network IP on port ${PORT}`);
-    console.log(`==========================================`);
-});
 // Global error handler
 app.use((err, req, res, next) => {
     console.error('========== UNHANDLED ERROR ==========');
@@ -77,5 +72,12 @@ app.use((err, req, res, next) => {
     console.error(err.stack || err);
     console.error('=====================================');
     res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });
+});
+const PORT = process.env.PORT || 3000;
+app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`============= JASAKU BACKEND =============`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🌐 Accessible locally via network IP on port ${PORT}`);
+    console.log(`==========================================`);
 });
 export default app;

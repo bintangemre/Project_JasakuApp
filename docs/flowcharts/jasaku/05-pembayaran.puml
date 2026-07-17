@@ -1,0 +1,128 @@
+@startuml
+title Alur Pembayaran - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #FFF3E0
+skinparam activityBorderColor #E65100
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E3F2FD| Pembayaran |
+
+start
+
+:Halaman Instruksi Pembayaran;
+:Menampilkan Ringkasan Pesanan;
+
+partition "Pilih Metode Pembayaran" {
+  :Tampilkan Opsi Pembayaran;
+  note right
+    1. Bank Transfer
+    2. E-Wallet
+    3. QRIS
+  end note
+
+  if (Pilih Metode?) then (Bank Transfer)
+    :Tampilkan Informasi Rekening;
+    note right
+      - Nama Bank: [Admin Bank]
+      - Nomor Rekening: [xxx]
+      - Atas Nama: [Admin Jasaku]
+    end note
+
+  elseif (E-Wallet) then (E-Wallet)
+    :Tampilkan Informasi E-Wallet;
+    note right
+      - Platform: [GoPay/OVO/etc]
+      - Nomor: [xxx]
+      - Atas Nama: [Admin Jasaku]
+    end note
+
+  else (QRIS)
+    :Tampilkan Kode QRIS;
+    note right
+      Scan QR Code
+      untuk pembayaran
+    end note
+  endif
+}
+
+partition "Proses Pembayaran" {
+  :Buka Aplikasi Bank/E-Wallet;
+  :Transfer ke Rekening Admin;
+  note right
+    Transfer manual
+    sesuai jumlah tagihan
+  end note
+  :Pembayaran Terkirim;
+}
+
+partition "Upload Bukti Bayar" {
+  :Klik "Upload Bukti Bayar";
+  :Pilih Foto Bukti Transfer;
+  note right
+    Format: jpg, png
+    Screenshot/foto struk
+  end note
+  :Klik "Kirim";
+
+  #E8EAF6:Kirim POST /api/payments/upload-proof/:orderId;
+  note right
+    FormData: {
+      proof: file
+    }
+  end note
+
+  if (Upload Berhasil?) then (Ya)
+    #C8E6C9:Bukti Bayar Terkirim;
+  else (Tidak)
+    #FFCDD2:Gagal Upload;
+    :Coba Lagi;
+  endif
+}
+
+partition "Menunggu Konfirmasi" {
+  :Menunggu Konfirmasi Admin;
+  note right
+    Status: pending_payment
+    Admin akan memverifikasi
+    bukti pembayaran
+  end note
+
+  :Polling Status Pesanan;
+  note right
+    GET /api/orders/:orderId
+    Cek status berkala
+  end note
+
+  if (Status Berubah?) then (Dikonfirmasi)
+    #C8E6C9:Admin Mengkonfirmasi;
+    :Status: pending_payment → pending;
+    :Mitra Mendapat Notifikasi NEW_ORDER;
+    :Pesanan Diproses Mitra;
+    stop
+
+  else (Ditolak)
+    #FFCDD2:Admin Menolak;
+    :Tampilkan Alasan Penolakan;
+    :Pilih: Upload Ulang atau Hubungi Admin;
+    if (Upload Ulang?) then (Ya)
+      :Kembali ke Upload Bukti;
+      -> Upload Lagi;
+    else (Tidak)
+      :Navigasi ke Laporan;
+      stop
+    endif
+
+  else (Belum)
+    :Terus Polling;
+    note right
+      Auto-refresh
+      setiap 30 detik
+    end note
+    -> Cek Lagi;
+  endif
+endif
+
+@enduml

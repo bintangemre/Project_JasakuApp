@@ -352,36 +352,6 @@ export class AuthService {
     generateToken(userId, role) {
         return jwt.sign({ userId, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
     }
-    // ==========================================
-    // OTP Sederhana (in-memory, untuk development)
-    // ==========================================
-    otpStore = new Map();
-    async sendOtp(email, phone) {
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 menit
-        this.otpStore.set(email, { otp, email, phone, expiresAt });
-        // Untuk development, log OTP ke console
-        console.log(`[OTP] Email: ${email}, OTP: ${otp}, berlaku hingga: ${expiresAt}`);
-        return { message: 'OTP berhasil dikirim' };
-    }
-    async verifyOtp(email, phone, otp) {
-        const stored = this.otpStore.get(email);
-        if (!stored)
-            throw new Error('OTP tidak ditemukan. Kirim ulang OTP.');
-        if (new Date() > stored.expiresAt) {
-            this.otpStore.delete(email);
-            throw new Error('OTP sudah kadaluwarsa. Kirim ulang OTP.');
-        }
-        if (stored.otp !== otp)
-            throw new Error('OTP salah.');
-        // Tandai user sebagai terverifikasi
-        await prisma.users.updateMany({
-            where: { email },
-            data: { is_phone_verified: true, is_email_verified: true }
-        });
-        this.otpStore.delete(email);
-        return { message: 'Verifikasi berhasil' };
-    }
     async getProviderVerificationStatus(userId) {
         const profile = await prisma.provider_profiles.findUnique({
             where: { user_id: userId },
@@ -412,5 +382,32 @@ export class AuthService {
                 verification_notes: null,
             }
         });
+    }
+    async getMe(userId) {
+        const user = await prisma.users.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                roles: { select: { name: true } },
+                phone: true,
+                profiles_customer: {
+                    select: { full_name: true, avatar_url: true }
+                },
+                provider_profiles: {
+                    select: { full_name: true, profile_photo: true, verification_status: true, is_active: true, verification_notes: true, onboarding_completed: true }
+                }
+            }
+        });
+        if (!user)
+            throw new Error('User tidak ditemukan');
+        return {
+            id: user.id,
+            email: user.email,
+            role: user.roles.name,
+            phone: user.phone,
+            profiles_customer: user.profiles_customer,
+            provider_profiles: user.provider_profiles,
+        };
     }
 }

@@ -1,0 +1,447 @@
+@startuml LDM_Jasaku
+' ============================================================
+' Logical Data Model (LDM) — Jasaku Platform
+' Entities with key attributes, PK/FK, relationships & cardinalities
+' ============================================================
+
+skinparam linetype ortho
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 11
+skinparam shadowing false
+skinparam nodesep 40
+skinparam ranksep 60
+
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #4A6FA5
+  ArrowColor #4A6FA5
+  FontSize 11
+}
+
+skinparam package {
+  BackgroundColor<<domain>> #F0F4FF
+  BorderColor<<domain>> #4A6FA5
+  FontColor<<domain>> #2C3E50
+  FontSize<<domain>> 13
+}
+
+' ── DOMAIN: Authentication & Users ─────────────────────────
+package "Autentikasi & Pengguna" <<domain>> {
+
+  class roles {
+    * id : INT <<PK>>
+    --
+    name : VARCHAR(50) [UNIQUE]
+    description : TEXT
+  }
+
+  class users {
+    * id : UUID <<PK>>
+    --
+    role_id : INT <<FK>>
+    email : VARCHAR(255) [UNIQUE]
+    phone : VARCHAR(20) [UNIQUE]
+    password_hash : TEXT
+    google_id : VARCHAR(255)
+    is_phone_verified : BOOLEAN
+    is_email_verified : BOOLEAN
+    status : VARCHAR(20) [active]
+  }
+
+  class profiles_customer {
+    * id : UUID <<PK>>
+    --
+    user_id : UUID <<FK>> [UNIQUE]
+    full_name : VARCHAR(150)
+    nickname : VARCHAR(100)
+    birth_date : DATE
+    gender : VARCHAR(10)
+    address : TEXT
+    avatar_url : TEXT
+  }
+
+  class provider_profiles {
+    * id : UUID <<PK>>
+    --
+    user_id : UUID <<FK>> [UNIQUE]
+    full_name : VARCHAR(100)
+    nickname : VARCHAR(50)
+    gender : VARCHAR(10)
+    birth_date : DATE
+    phone : VARCHAR(20)
+    address : TEXT
+    domicile : VARCHAR(100)
+    profile_photo : TEXT
+    ktp_photo : TEXT
+    selfie_photo : TEXT
+    is_verified : BOOLEAN
+    verification_status : VARCHAR(20) [pending]
+    verification_notes : TEXT
+    is_active : BOOLEAN
+    onboarding_completed : BOOLEAN
+    custom_task_enabled : BOOLEAN
+    service_available : BOOLEAN
+    task_available : BOOLEAN
+    rating : DECIMAL(2,1)
+    total_jobs : INT
+    total_reviews : INT
+    portfolios : TEXT[]
+  }
+
+  class provider_locations {
+    * id : UUID <<PK>>
+    --
+    provider_id : UUID <<FK>> [UNIQUE]
+    address : TEXT
+    location : GEOMETRY(Point)
+  }
+
+  class provider_documents {
+    * id : UUID <<PK>>
+    --
+    provider_id : UUID <<FK>>
+    type : VARCHAR(30)
+    file_url : TEXT
+    category_id : UUID
+    description : TEXT
+  }
+
+  class provider_payout_methods {
+    * id : UUID <<PK>>
+    --
+    provider_id : UUID <<FK>>
+    type : VARCHAR(50)
+    provider_name : VARCHAR(100)
+    account_number : VARCHAR(100)
+    account_name : VARCHAR(150)
+  }
+
+  class identity_verifications {
+    * id : UUID <<PK>>
+    --
+    provider_id : UUID <<FK>> [UNIQUE]
+    nik : VARCHAR
+    ocr_full_name : VARCHAR
+    ocr_birth_place : VARCHAR
+    ocr_birth_date : VARCHAR
+    ocr_address : TEXT
+    ocr_gender : VARCHAR
+    ocr_blood_type : VARCHAR
+    ocr_religion : VARCHAR
+    ocr_raw_result : JSONB
+    face_match_score : FLOAT
+    face_match_status : VARCHAR(20) [pending]
+    liveness_data : JSONB
+    liveness_status : VARCHAR(20) [pending]
+    verified_at : TIMESTAMP
+  }
+
+  class user_devices {
+    * id : UUID <<PK>>
+    --
+    user_id : UUID <<FK>>
+    fcm_token : TEXT [UNIQUE]
+    device_type : VARCHAR
+    device_name : VARCHAR
+  }
+}
+
+' ── DOMAIN: Service Catalog ─────────────────────────────────
+package "Katalog Layanan" <<domain>> {
+
+  class categories {
+    * id : UUID <<PK>>
+    --
+    name : VARCHAR(100)
+    description : TEXT
+    icon_url : TEXT
+  }
+
+  class pricing_types {
+    * id : UUID <<PK>>
+    --
+    name : VARCHAR(50)
+    default_unit : VARCHAR
+    category_id : UUID <<FK>>
+  }
+
+  class services {
+    * id : UUID <<PK>>
+    --
+    category_id : UUID <<FK>>
+    name : VARCHAR(150)
+    description : TEXT
+  }
+
+  class provider_services {
+    * id : UUID <<PK>>
+    --
+    provider_id : UUID <<FK>>
+    service_id : UUID <<FK>>
+    description : TEXT
+  }
+
+  class provider_service_prices {
+    * id : UUID <<PK>>
+    --
+    provider_service_id : UUID <<FK>>
+    pricing_type_id : UUID <<FK>>
+    price : DECIMAL(12,2)
+    unit : VARCHAR
+  }
+}
+
+' ── DOMAIN: Orders ──────────────────────────────────────────
+package "Pesanan (Orders)" <<domain>> {
+
+  class orders {
+    * id : UUID <<PK>>
+    --
+    customer_id : UUID <<FK>>
+    provider_id : UUID <<FK>>
+    custom_task_id : UUID <<FK>> [nullable]
+    task_provider_id : UUID <<FK>> [nullable]
+    status : VARCHAR(30) [pending]
+    total_price : DECIMAL(12,2)
+    platform_fee : DECIMAL(12,2)
+    additional_fee : DECIMAL(12,2) [0]
+    description : TEXT
+    work_date : DATE
+    start_date : TIMESTAMP
+    end_date : TIMESTAMP
+    assignment_type : VARCHAR(20) [manual]
+    payout_confirmed : BOOLEAN [false]
+    payout_at : TIMESTAMP
+  }
+
+  class order_items {
+    * id : UUID <<PK>>
+    --
+    order_id : UUID <<FK>>
+    service_id : UUID <<FK>>
+    pricing_type_id : UUID <<FK>>
+    quantity : INT [1]
+    price : DECIMAL(12,2)
+    subtotal : DECIMAL(12,2)
+  }
+
+  class order_locations {
+    * id : UUID <<PK>>
+    --
+    order_id : UUID <<FK>>
+    address : TEXT
+    location : GEOMETRY(Point)
+  }
+
+  class order_attachments {
+    * id : UUID <<PK>>
+    --
+    order_id : UUID <<FK>>
+    file_url : TEXT
+  }
+
+  class order_extensions {
+    * id : UUID <<PK>>
+    --
+    order_id : UUID <<FK>>
+    provider_id : UUID <<FK>>
+    customer_id : UUID <<FK>>
+    requested_date : DATE
+    additional_cost : DECIMAL(12,2)
+    platform_fee_rate : DECIMAL(3,2)
+    extension_count : INT [1]
+    status : VARCHAR(20) [pending]
+    response_note : TEXT
+  }
+
+  class provider_schedules {
+    * id : UUID <<PK>>
+    --
+    provider_id : UUID <<FK>>
+    work_date : DATE
+    is_booked : BOOLEAN [false]
+    order_id : UUID <<FK>> [nullable]
+  }
+}
+
+' ── DOMAIN: Payments ────────────────────────────────────────
+package "Pembayaran" <<domain>> {
+
+  class payments {
+    * id : UUID <<PK>>
+    --
+    order_id : UUID <<FK>>
+    method : VARCHAR(50)
+    status : VARCHAR(30) [pending]
+    amount : DECIMAL(12,2)
+    paid_at : TIMESTAMP
+    payment_proof : TEXT
+  }
+
+  class admin_bank_accounts {
+    * id : UUID <<PK>>
+    --
+    provider_name : VARCHAR(100)
+    account_number : VARCHAR(100)
+    account_name : VARCHAR(150)
+    is_active : BOOLEAN [true]
+  }
+
+  class admin_ewallet_accounts {
+    * id : UUID <<PK>>
+    --
+    provider_name : VARCHAR(100)
+    account_number : VARCHAR(100)
+    account_name : VARCHAR(150)
+    is_active : BOOLEAN [true]
+  }
+
+  class admin_qris_accounts {
+    * id : UUID <<PK>>
+    --
+    provider_name : VARCHAR(100)
+    qris_image_url : TEXT
+    is_active : BOOLEAN [true]
+  }
+}
+
+' ── DOMAIN: Custom Tasks ────────────────────────────────────
+package "Custom Tasks (Tender)" <<domain>> {
+
+  class custom_tasks {
+    * id : UUID <<PK>>
+    --
+    customer_id : UUID <<FK>>
+    title : VARCHAR(150)
+    description : TEXT
+    budget_per_person : DECIMAL(12,0)
+    required_people : INT [1]
+    accepted_count : INT [0]
+    platform_fee_rate : DECIMAL(4,2) [5.00]
+    address : TEXT
+    location_detail : TEXT
+    publish_days : INT [1]
+    expires_at : TIMESTAMP
+    payment_proof : TEXT
+    payment_status : VARCHAR(30) [unpaid]
+    location : GEOMETRY(Point)
+    status : VARCHAR(30) [open]
+  }
+
+  class task_locations {
+    * id : UUID <<PK>>
+    --
+    task_id : UUID <<FK>>
+    label : VARCHAR(100)
+    address : TEXT
+    location : GEOMETRY(Point)
+    stop_order : INT [0]
+  }
+
+  class task_providers {
+    * id : UUID <<PK>>
+    --
+    task_id : UUID <<FK>>
+    provider_id : UUID <<FK>>
+    status : VARCHAR(20) [accepted]
+    work_status : VARCHAR(20) [nullable]
+    accepted_at : TIMESTAMP
+    completed_at : TIMESTAMP
+    payout_confirmed : BOOLEAN [false]
+    payout_at : TIMESTAMP
+  }
+}
+
+' ── DOMAIN: Reviews & Reports ───────────────────────────────
+package "Ulasan & Laporan" <<domain>> {
+
+  class reviews {
+    * id : UUID <<PK>>
+    --
+    order_id : UUID <<FK>> [UNIQUE]
+    customer_id : UUID <<FK>>
+    provider_id : UUID <<FK>>
+    rating : INT
+    review : TEXT
+  }
+
+  class reports {
+    * id : UUID <<PK>>
+    --
+    reporter_id : UUID <<FK>>
+    reporter_role : VARCHAR(20)
+    order_id : UUID <<FK>> [nullable]
+    subject : VARCHAR(200)
+    description : TEXT
+    attachments : TEXT[]
+    status : VARCHAR(20) [open]
+    admin_response : TEXT
+    resolved_at : TIMESTAMP
+  }
+}
+
+' ── RELATIONSHIPS ───────────────────────────────────────────
+
+roles "1" -- "0..*" users : "memiliki role >"
+users "1" -- "0..1" profiles_customer : "punya profil customer >"
+users "1" -- "0..1" provider_profiles : "punya profil mitra >"
+users "1" -- "0..1" provider_locations : "memiliki lokasi >"
+users "1" -- "0..*" user_devices : "terdaftar di >"
+users "1" -- "0..*" reports : "mengirim laporan >"
+users "1" -- "0..*" reviews : "menulis ulasan (customer) >"
+users "1" -- "0..*" reviews : "menerima ulasan (mitra) >"
+
+provider_profiles "1" -- "0..1" identity_verifications : "diverifikasi >"
+provider_profiles "1" -- "0..*" provider_documents : "mengunggah dokumen >"
+provider_profiles "1" -- "0..*" provider_payout_methods : "metode pencairan >"
+provider_profiles "1" -- "0..*" provider_services : "menawarkan layanan >"
+provider_profiles "1" -- "0..*" provider_schedules : "jadwal kerja >"
+provider_profiles "1" -- "0..*" task_providers : "menerima tugas >"
+provider_profiles "1" -- "0..*" orders : "mengerjakan pesanan >"
+
+profiles_customer "1" -- "0..*" orders : "memesan layanan >"
+
+categories "1" -- "0..*" pricing_types : "tipe harga >"
+categories "1" -- "0..*" services : "sub-layanan >"
+services "1" -- "0..*" provider_services : "ditawarkan mitra >"
+services "1" -- "0..*" order_items : "dipesan >"
+pricing_types "1" -- "0..*" provider_service_prices : "harga mitra >"
+
+provider_services "1" -- "0..*" provider_service_prices : "daftar harga >"
+provider_services "1" -- "0..*" order_items : "item pesanan >"
+
+orders "1" -- "1" payments : "pembayaran >"
+orders "1" -- "0..*" order_items : "item pesanan >"
+orders "1" -- "0..1" order_locations : "lokasi tujuan >"
+orders "1" -- "0..*" order_attachments : "lampiran >"
+orders "1" -- "0..*" order_extensions : "perpanjangan >"
+orders "1" -- "0..1" provider_schedules : "jadwal dipesan >"
+orders "1" -- "0..1" reviews : "ulasan >"
+orders "0..1" -- "0..1" custom_tasks : "dari custom task >"
+orders "0..1" -- "0..1" task_providers : "terkait task provider >"
+
+custom_tasks "1" -- "0..*" task_locations : "titik lokasi >"
+custom_tasks "1" -- "0..*" task_providers : "diterima mitra >"
+custom_tasks "1" -- "0..*" orders : "menghasilkan order >"
+
+task_providers "1" -- "0..*" orders : "dikerjakan >"
+
+payments "0..*" -- "0..1" admin_bank_accounts : "metode: bank >"
+payments "0..*" -- "0..1" admin_ewallet_accounts : "metode: e-wallet >"
+payments "0..*" -- "0..1" admin_qris_accounts : "metode: QRIS >"
+
+' ── UNIQUE CONSTRAINTS ─────────────────────────────────────
+note bottom of provider_schedules
+  UNIQUE(provider_id, work_date)
+end note
+
+note bottom of task_providers
+  UNIQUE(task_id, provider_id)
+end note
+
+' ── TITLE ──────────────────────────────────────────────────
+title <b>LDM — Jasaku Platform</b>\nLogical Data Model with Key Attributes\n\n29 Entitas · 33 Relasi
+
+footer Generated by PlantUML
+@enduml

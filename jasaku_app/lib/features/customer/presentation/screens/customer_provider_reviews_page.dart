@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/image_url.dart';
+import '../../../../core/utils/date_utils.dart';
 
 class CustomerProviderReviewsPage extends StatefulWidget {
   final String providerId;
@@ -52,23 +54,12 @@ class _CustomerProviderReviewsPageState
     }
   }
 
-  String _formatDate(String iso) {
-    try {
-      final dt = DateTime.parse(iso);
-      const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
-      ];
-      return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
-    } catch (_) {
-      return iso;
-    }
-  }
+  String _formatDate(String iso) => AppDateUtils.formatShort(iso);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Ulasan ${widget.providerName}'),
         backgroundColor: Colors.white,

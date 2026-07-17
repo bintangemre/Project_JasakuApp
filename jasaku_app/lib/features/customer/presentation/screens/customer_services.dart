@@ -1,16 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import 'customer_providers_by_category.dart';
 
-class CustomerServices extends ConsumerWidget {
+class CustomerServices extends ConsumerStatefulWidget {
   const CustomerServices({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CustomerServices> createState() => _CustomerServicesState();
+}
+
+class _CustomerServicesState extends ConsumerState<CustomerServices> {
+  late final Future<List<Map<String, dynamic>>> _categoriesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoriesFuture = ApiClient().dio.get(ApiEndpoints.getAllCategories).then((res) {
+      final data = res.data['data'] as List<dynamic>? ?? [];
+      return data.map((c) {
+        final rawName = c['name'] as String? ?? '';
+        final name = rawName.trim();
+        IconData icon;
+        Color iconColor;
+        Color bgColor;
+        String? imagePath;
+        if (name.contains('listrik') || name.contains('Listrik') || name.contains('KELISTRIKAN')) {
+          icon = Icons.electric_bolt;
+          iconColor = const Color(0xFFFFB300);
+          bgColor = const Color(0xFFFEF3C7);
+          imagePath = 'assets/icons/icon_perbaikan_kelistrikan.png';
+        } else if (name.contains('Bangunan') || name.contains('bangunan')) {
+          icon = Icons.home_repair_service;
+          iconColor = const Color(0xFFFF6B00);
+          bgColor = const Color(0xFFFFEDD5);
+          imagePath = 'assets/icons/icon_perbaikan_bangunan.png';
+        } else {
+          icon = Icons.category;
+          iconColor = Colors.grey;
+          bgColor = const Color(0xFFF1F5F9);
+        }
+        return {
+          'id': c['id'] as String,
+          'title': name,
+          'icon': icon,
+          'iconColor': iconColor,
+          'bgColor': bgColor,
+          'imagePath': imagePath,
+        };
+      }).toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -28,44 +75,23 @@ class CustomerServices extends ConsumerWidget {
         ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: ApiClient().dio.get(ApiEndpoints.getAllCategories).then((res) {
-          final data = res.data['data'] as List<dynamic>? ?? [];
-          return data.map((c) {
-            final rawName = c['name'] as String? ?? '';
-            final name = rawName.trim();
-            IconData icon;
-            Color iconColor;
-            Color bgColor;
-            String? imagePath;
-            if (name.contains('listrik') || name.contains('Listrik') || name.contains('KELISTRIKAN')) {
-              icon = Icons.electric_bolt;
-              iconColor = const Color(0xFFFFB300);
-              bgColor = const Color(0xFFFEF3C7);
-              imagePath = 'assets/icons/icon_perbaikan_kelistrikan.png';
-            } else if (name.contains('Bangunan') || name.contains('bangunan')) {
-              icon = Icons.home_repair_service;
-              iconColor = const Color(0xFFFF6B00);
-              bgColor = const Color(0xFFFFEDD5);
-              imagePath = 'assets/icons/icon_perbaikan_bangunan.png';
-            } else {
-              icon = Icons.category;
-              iconColor = Colors.grey;
-              bgColor = const Color(0xFFF1F5F9);
-            }
-            return {
-              'id': c['id'] as String,
-              'title': name,
-              'icon': icon,
-              'iconColor': iconColor,
-              'bgColor': bgColor,
-              'imagePath': imagePath,
-            };
-          }).toList();
-        }),
+        future: _categoriesFuture,
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
           final categories = snapshot.data ?? [];
           if (categories.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.category_outlined, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Belum ada kategori jasa', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                ],
+              ),
+            );
           }
           return ListView.separated(
             padding: const EdgeInsets.all(20),

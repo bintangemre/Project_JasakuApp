@@ -1,0 +1,126 @@
+@startuml lokasi-tracking-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E1F5FE
+  BorderColor #0277BD
+  FontColor #01579B
+  ArrowColor #0277BD
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #01579B
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Lokasi Tracking (Live Location) Mitra Jasaku**
+
+|Lokasi Tracking|
+start
+:Mitra membuka aplikasi;
+
+partition "Inisialisasi Location Tracker" {
+  :Mengaktifkan Location Tracker;
+  note right
+    Location tracker berjalan
+    di background service
+  end note
+
+  :Meminta izin lokasi;
+  note right
+    **Geolocator.requestPermission()**
+    Jika ditolak → tracking tidak aktif
+  end note
+
+  if (Izin lokasi?) then (Diberikan)
+    #C8E6C9:Lokasi tracker aktif;
+  else (Ditolak)
+    #EF9A9A:Lokasi tracker nonaktif;
+    note right
+      Mitra perlu mengaktifkan
+      izin lokasi secara manual
+      di pengaturan
+    end note
+    stop
+  endif
+}
+
+partition "Tracking Real-time" {
+  :Mengaktifkan posisi stream;
+  note right
+    **Geolocator.getPositionStream()**
+    
+    Konfigurasi:
+    - Accuracy: High
+    - Distance filter: 10m
+    - Interval update: 30 detik
+  end note
+
+  while (Tracker aktif?) is (Ya)
+    :Menerima posisi baru;
+    note right
+      Data yang dikirim:
+      - latitude
+      - longitude
+      - address (geocoded)
+      - timestamp
+    end note
+
+    :Mengirim lokasi ke server;
+    note right
+      **PUT /api/locations/update**
+      Body: {
+        latitude: number,
+        longitude: number,
+        address: string
+      }
+    end note
+
+    :Lokasi berhasil diupdate;
+
+    :Menunggu 30 detik;
+  endwhile (Tracker dinonaktifkan)
+
+  :Menghentikan location stream;
+}
+
+partition "Visualisasi di Peta" {
+  :Customer melihat peta;
+  note right
+    Peta menampilkan:
+    - Marker BIRU → Lokasi provider
+    - Polyline → Rute ke customer
+  end note
+
+  :Dashboard provider update peta;
+  note right
+    **Interval: 30 detik**
+    
+    Peta di-refresh untuk
+    menampilkan lokasi terbaru
+    dari semua provider aktif
+  end note
+
+  :Menampilkan lokasi terbaru;
+}
+
+partition "Integrasi dengan Dashboard" {
+  :Location tracker terintegrasi
+  dengan dashboard;
+  note right
+    - Lokasi provider ditampilkan
+      sebagai marker biru di peta
+    - Jika ada order aktif:
+      - Marker merah (customer)
+      - Polyline rute
+  end note
+}
+
+stop
+
+@enduml

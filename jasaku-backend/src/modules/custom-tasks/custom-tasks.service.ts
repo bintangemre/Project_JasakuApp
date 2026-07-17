@@ -119,7 +119,7 @@ export class CustomTasksService {
 
   async getAvailableTasks(lat?: number, lng?: number, radius?: number) {
     const now = new Date();
-    now.setHours(now.getHours() + 7);
+    now.setHours(now.getHours() + 8);
 
     if (lat && lng && radius) {
       const rows = await prisma.$queryRaw<any[]>`

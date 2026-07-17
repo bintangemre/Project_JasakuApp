@@ -1,0 +1,214 @@
+@startuml PDM_Overview
+' ============================================================
+' PDM (Physical Data Model) — OVERVIEW 29 Tabel Jasaku
+' Kotak = Tabel + Kolom + Tipe Fisik, Ketupat = FK Relations
+' PostgreSQL + PostGIS
+' ============================================================
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName "Consolas"
+skinparam defaultFontSize 8
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 25
+
+skinparam rectangle {
+  BorderColor #37474F
+  FontSize 9
+  FontStyle bold
+}
+
+skinparam diamond {
+  BackgroundColor #FFF9C4
+  BorderColor #F9A825
+  FontSize 7
+  FontStyle bold
+  FontColor #F57F17
+}
+
+' ============================================================
+' DOMAIN: Autentikasi (Biru)
+' ============================================================
+
+rectangle "**roles** #E3F2FD" as ROLES {
+  rectangle "id SERIAL PK\nname VARCHAR(50) UQ\n description TEXT\ncreated_at TIMESTAMP" as R_A
+}
+
+rectangle "**users** #E3F2FD" as USERS {
+  rectangle "id UUID PK\nerole_id INT FK→roles\nemail VARCHAR(255) UQ\nphone VARCHAR(20) UQ\npassword_hash TEXT\ngoogle_id VARCHAR(255)\nis_phone_verified BOOLEAN\nis_email_verified BOOLEAN\nstatus VARCHAR(20)\ncreated_at TIMESTAMP\nupdated_at TIMESTAMP" as U_A
+}
+
+rectangle "**profiles_customer** #E3F2FD" as PCUST {
+  rectangle "id UUID PK\nuser_id UUID FK→users UQ\nfull_name VARCHAR(150)\nnickname VARCHAR(100)\nbirth_date DATE\ngender VARCHAR(10)\naddress TEXT\navatar_url TEXT\ncreated_at TIMESTAMP\nupdated_at TIMESTAMP" as PC_A
+}
+
+rectangle "**provider_profiles** #E3F2FD" as PPROV {
+  rectangle "id UUID PK\nuser_id UUID FK→users UQ\nfull_name VARCHAR(100)\nnickname VARCHAR(50)\ngender VARCHAR(10)\nbirth_date DATE\nphone VARCHAR(20)\naddress TEXT\ndomicile VARCHAR(100)\nprofile_photo TEXT\nktp_photo TEXT\nselfie_photo TEXT\nis_verified BOOLEAN\nverification_status VARCHAR(20)\nverification_notes TEXT\nis_active BOOLEAN\nonboarding_completed BOOLEAN\ntask_available BOOLEAN\nservice_available BOOLEAN\ncustom_task_enabled BOOLEAN\nrating DECIMAL(2,1)\ntotal_jobs INT\ntotal_reviews INT\nportfolios TEXT[]\ncreated_at TIMESTAMP\nupdated_at TIMESTAMP" as PP_A
+}
+
+rectangle "**provider_locations** #E3F2FD" as PLOC {
+  rectangle "id UUID PK\nprovider_id UUID FK→users UQ\naddress TEXT\nlocation GEOMETRY\n\nGiST Index" as PL_A
+}
+
+rectangle "**provider_documents** #E3F2FD" as PDOC {
+  rectangle "id UUID PK\nprovider_id UUID FK→provider_profiles\ntype VARCHAR(30)\nfile_url TEXT\ncategory_id UUID\ndescription TEXT\ncreated_at TIMESTAMP\n\nIndex idx_pd_pid" as PD_A
+}
+
+rectangle "**provider_payout_methods** #E3F2FD" as PPAY {
+  rectangle "id UUID PK\nprovider_id UUID FK→users\ntype VARCHAR(50)\nprovider_name VARCHAR(100)\naccount_number VARCHAR(100)\naccount_name VARCHAR(150)\ncreated_at TIMESTAMP" as PPY_A
+}
+
+rectangle "**identity_verifications** #E3F2FD" as IDVER {
+  rectangle "id UUID PK\nprovider_id UUID FK→provider_profiles UQ\nnik TEXT\nocr_full_name TEXT\nocr_birth_place TEXT\nocr_birth_date TEXT\nocr_address TEXT\nocr_gender TEXT\nocr_blood_type TEXT\nocr_religion TEXT\nocr_raw_result JSONB\nface_match_score FLOAT\nface_match_status VARCHAR(20)\nliveness_data JSONB\nliveness_status VARCHAR(20)\ncreated_at TIMESTAMP\nverified_at TIMESTAMP\n\nIndex idx_iv_pid" as IV_A
+}
+
+rectangle "**user_devices** #E3F2FD" as UDEV {
+  rectangle "id UUID PK\nuser_id UUID FK→users\nfcm_token TEXT UQ\ndevice_type TEXT\ndevice_name TEXT\ncreated_at TIMESTAMPTZ\nupdated_at TIMESTAMPTZ\n\nIndex idx_ud_uid" as UD_A
+}
+
+' ============================================================
+' DOMAIN: Layanan (Hijau)
+' ============================================================
+
+rectangle "**categories** #E8F5E9" as CATS {
+  rectangle "id UUID PK\nname VARCHAR(100)\ndescription TEXT\nicon_url TEXT\ncreated_at TIMESTAMP" as CAT_A
+}
+
+rectangle "**services** #E8F5E9" as SVCS {
+  rectangle "id UUID PK\ncategory_id UUID FK→categories\nname VARCHAR(150)\ndescription TEXT\ncreated_at TIMESTAMP\n\nFK: fk_service_category" as S_A
+}
+
+rectangle "**pricing_types** #E8F5E9" as PTYPES {
+  rectangle "id UUID PK\nname VARCHAR(50)\ndescription TEXT\ndefault_unit TEXT\ncategory_id UUID FK→categories" as PT_A
+}
+
+rectangle "**provider_services** #E8F5E9" as PSVCS {
+  rectangle "id UUID PK\nprovider_id UUID FK→users\nservice_id UUID FK→services\ndescription TEXT\ncreated_at TIMESTAMP\n\nFK: service_id→services" as PS_A
+}
+
+rectangle "**provider_service_prices** #E8F5E9" as PSPR {
+  rectangle "id UUID PK\nprovider_service_id UUID FK→provider_services\npricing_type_id UUID FK→pricing_types\nprice DECIMAL(12,2)\nunit TEXT\ncreated_at TIMESTAMP\n\nFK: fk_price_type\nFK: fk_ps_price" as PSP_A
+}
+
+rectangle "**provider_schedules** #E8F5E9" as PSCH {
+  rectangle "id UUID PK\nprovider_id UUID FK→users\nwork_date DATE\nis_booked BOOLEAN\norder_id UUID FK→orders\ncreated_at TIMESTAMP\n\nUQ: [provider_id, work_date]\nIndex: [provider_id, work_date]" as PSC_A
+}
+
+' ============================================================
+' DOMAIN: Pesanan (Oranye)
+' ============================================================
+
+rectangle "**orders** #FFF3E0" as ORDS {
+  rectangle "id UUID PK\ncustomer_id UUID FK→profiles_customer\nprovider_id UUID FK→provider_profiles\ncustom_task_id UUID FK→custom_tasks\ntask_provider_id UUID FK→task_providers\nstatus VARCHAR(30)\ntotal_price DECIMAL(12,2)\nplatform_fee DECIMAL(12,2)\nadditional_fee DECIMAL(12,2)\ndescription TEXT\nwork_date DATE\nassignment_type VARCHAR(20)\npayout_confirmed BOOLEAN\npayout_at TIMESTAMP\ncreated_at TIMESTAMP\nstart_date TIMESTAMP\nend_date TIMESTAMP" as O_A
+}
+
+rectangle "**order_items** #FFF3E0" as OITEMS {
+  rectangle "id UUID PK\norder_id UUID FK→orders\nservice_id UUID FK→services\npricing_type_id UUID FK→pricing_types\nquantity INT\nprice DECIMAL(12,2)\nsubtotal DECIMAL(12,2)\n\nFK: fk_order\nFK: fk_service" as OI_A
+}
+
+rectangle "**order_locations** #FFF3E0" as OLOC {
+  rectangle "id UUID PK\norder_id UUID FK→orders\naddress TEXT\nlocation GEOMETRY\n\nFK: fk_order_location" as OL_A
+}
+
+rectangle "**order_attachments** #FFF3E0" as OATT {
+  rectangle "id UUID PK\norder_id UUID FK→orders\nfile_url TEXT\ncreated_at TIMESTAMP\n\nFK: fk_order_attachment" as OA_A
+}
+
+rectangle "**order_extensions** #FFF3E0" as OEXT {
+  rectangle "id UUID PK\norder_id UUID FK→orders\nprovider_id UUID\ncustomer_id UUID\nrequested_date DATE\nadditional_cost DECIMAL(12,2)\nplatform_fee_rate DECIMAL(3,2)\nextension_count INT\nstatus VARCHAR(20)\nresponse_note TEXT\ncreated_at TIMESTAMP\n\nIndex: idx_oe_oid" as OX_A
+}
+
+' ============================================================
+' DOMAIN: Pembayaran (Ungu)
+' ============================================================
+
+rectangle "**payments** #F3E5F5" as PAYMT {
+  rectangle "id UUID PK\norder_id UUID FK→orders UQ\nmethod VARCHAR(50)\nstatus VARCHAR(30)\namount DECIMAL(12,2)\npaid_at TIMESTAMP\ncreated_at TIMESTAMP\npayment_proof TEXT\n\nFK: fk_payment_order" as PY_A
+}
+
+rectangle "**admin_bank_accounts** #F3E5F5" as ABA {
+  rectangle "id UUID PK\nprovider_name VARCHAR(100)\naccount_number VARCHAR(100)\naccount_name VARCHAR(150)\nis_active BOOLEAN\ncreated_at TIMESTAMP\nupdated_at TIMESTAMP" as AB_A
+}
+
+rectangle "**admin_ewallet_accounts** #F3E5F5" as AEW {
+  rectangle "id UUID PK\nprovider_name VARCHAR(100)\naccount_number VARCHAR(100)\naccount_name VARCHAR(150)\nis_active BOOLEAN\ncreated_at TIMESTAMP\nupdated_at TIMESTAMP" as AE_A
+}
+
+rectangle "**admin_qris_accounts** #F3E5F5" as AQRI {
+  rectangle "id UUID PK\nprovider_name VARCHAR(100)\nqris_image_url TEXT\nis_active BOOLEAN\ncreated_at TIMESTAMP\nupdated_at TIMESTAMP" as AQ_A
+}
+
+' ============================================================
+' DOMAIN: Custom Task (Cyan)
+' ============================================================
+
+rectangle "**custom_tasks** #E0F7FA" as CTASKS {
+  rectangle "id UUID PK\ncustomer_id UUID FK→users\ntitle VARCHAR(150)\ndescription TEXT\nbudget_per_person DECIMAL(12,0)\nrequired_people INT\naccepted_count INT\nplatform_fee_rate DECIMAL(4,2)\naddress TEXT\nlocation_detail TEXT\npublish_days INT\nexpires_at TIMESTAMP\npayment_proof TEXT\npayment_status VARCHAR(30)\nlocation GEOMETRY\nstatus VARCHAR(30)\ncreated_at TIMESTAMP\nupdated_at TIMESTAMP" as CT_A
+}
+
+rectangle "**task_locations** #E0F7FA" as TLOC {
+  rectangle "id UUID PK\ntask_id UUID FK→custom_tasks\nlabel VARCHAR(100)\naddress TEXT\nlocation GEOMETRY\nstop_order INT\n\nIndex: idx_tl_tid\nFK: CASCADE delete" as TL_A
+}
+
+rectangle "**task_providers** #E0F7FA" as TPRV {
+  rectangle "id UUID PK\ntask_id UUID FK→custom_tasks\nprovider_id UUID FK→provider_profiles\nstatus VARCHAR(20)\nwork_status VARCHAR(20)\naccepted_at TIMESTAMP\ncompleted_at TIMESTAMP\npayout_confirmed BOOLEAN\npayout_at TIMESTAMP\n\nUQ: [task_id, provider_id]\nIndex: idx_tp_pid" as TP_A
+}
+
+' ============================================================
+' DOMAIN: Review & Laporan (Kuning)
+' ============================================================
+
+rectangle "**reviews** #FFF8E1" as REVS {
+  rectangle "id UUID PK\norder_id UUID FK→orders UQ\ncustomer_id UUID FK→users\nprovider_id UUID FK→users\nrating INT CHECK(1-5)\nreview TEXT\ncreated_at TIMESTAMP\nupdated_at TIMESTAMP\n\nFK: fk_review_customer\nFK: fk_review_order\nFK: fk_review_provider\nCHECK: rating>=1 AND rating<=5" as R_A
+}
+
+rectangle "**reports** #FFF8E1" as RPTS {
+  rectangle "id UUID PK\nreporter_id UUID FK→users\nreporter_role VARCHAR(20)\norder_id UUID\nsubject VARCHAR(200)\ndescription TEXT\nattachments TEXT[]\nstatus VARCHAR(20)\nadmin_response TEXT\ncreated_at TIMESTAMP\nupdated_at TIMESTAMP\nresolved_at TIMESTAMP\n\nIndex: idx_rpt_rid\nIndex: idx_rpt_status" as RP_A
+}
+
+' ============================================================
+' RELASI
+' ============================================================
+
+diamond "FK" as D1
+diamond "FK" as D2
+diamond "FK" as D3
+diamond "FK" as D4
+diamond "FK" as D5
+diamond "FK" as D6
+diamond "FK" as D7
+diamond "FK" as D8
+diamond "FK" as D9
+diamond "FK" as D10
+diamond "FK" as D11
+diamond "FK" as D12
+diamond "FK" as D13
+diamond "FK" as D14
+diamond "FK" as D15
+diamond "FK" as D16
+
+R_A -[hidden]right-> U_A
+ROLES -right-> USERS : D1
+
+U_A -[hidden]down-> PC_A
+USERS -down-> PCUST : D2
+USERS -down-> PPROV : D3
+USERS -down-> UDEV : D4
+
+PPROV -down-> PLOC : D5
+PPROV -down-> PDOC : D6
+PPROV -down-> IDVER : D7
+
+CATS -right-> SVCS : D8
+
+ORDS -down-> OITEMS : D9
+ORDS -down-> PAYMT : D10
+
+CTASKS -down-> TLOC : D11
+CTASKS -down-> TPRV : D12
+
+title <b>PDM — Physical Data Model Jasaku (Overview)</b>\n29 Tabel · PostgreSQL + PostGIS · Tipe Fisik + Constraints + Indexes
+
+footer Generated by PlantUML — Jasaku PDM · PostgreSQL 15
+@enduml

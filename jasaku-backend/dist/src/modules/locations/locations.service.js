@@ -20,8 +20,7 @@ export class LocationService {
             SELECT 
                 ST_Y(location::geometry) as lat,
                 ST_X(location::geometry) as lng,
-                address,
-                COALESCE(updated_at, created_at) as updated_at
+                address
             FROM provider_locations
             WHERE provider_id = ${providerUserId}::uuid
         `;

@@ -1,0 +1,54 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow Login Admin
+
+|#E8F5E9|Frontend|
+start
+:Admin membuka /admin/;
+
+|#FFF3E0|API|
+:Halaman Login ditampilkan;
+:Input Email & Password;
+:Klik "Masuk";
+
+|#E3F2FD|Backend|
+:POST /api/auth/login;
+:Verifikasi email & password via Auth Service;
+
+if (Autentikasi berhasil?) then (Ya)
+  :Generate JWT token;
+  :Kirim token & data user;
+
+  |#E8F5E9|Frontend|
+  :Simpan token di flutter_secure_storage;
+  :Simpan data user di localStorage;
+  :Navigasi ke halaman Dashboard;
+
+  |#FFF8E1|Dashboard|
+  :GET /api/admin/dashboard;
+  :GET /api/admin/notifications/counts;
+  :Tampilkan 4 stat cards + badge notifikasi;
+  stop
+else (Tidak)
+  |#E8F5E9|Frontend|
+  :Tampilkan pesan error "Email atau password salah";
+  :Tetap di halaman Login;
+  stop
+endif
+
+note right
+  **Endpoint:**
+  POST /api/auth/login
+  **Response:**
+  { token, user: { id, email, role } }
+end note
+
+@enduml

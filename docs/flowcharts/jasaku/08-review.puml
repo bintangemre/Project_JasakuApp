@@ -1,0 +1,99 @@
+@startuml
+title Alur Review & Penilaian - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #FFF3E0
+skinparam activityBorderColor #E65100
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E3F2FD| Review |
+
+start
+
+:Pesanan Selesai (Status: completed);
+:Buka Halaman Pesanan;
+
+if (Sudah Review?) then (Ya)
+  #C8E6C9:Menampilkan Review yang Sudah Ada;
+  :Tampilkan Bintang & Teks Review;
+  stop
+else (Tidak)
+  :Tampilkan Tombol "Beri Review";
+endif
+
+:Klik "Beri Review";
+
+partition "Form Review" {
+  :Buka Form Review;
+
+  :Pilih Rating Bintang;
+  note right
+    1 ⭐ - Sangat Buruk
+    2 ⭐⭐ - Buruk
+    3 ⭐⭐⭐ - Cukup
+    4 ⭐⭐⭐⭐ - Bagus
+    5 ⭐⭐⭐⭐⭐ - Sangat Bagus
+  end note
+
+  if (Rating Dipilih?) then (1-5 Bintang)
+    #C8E6C9:Rating Tersimpan;
+  else (Belum)
+    #FFCDD2:Harap Pilih Rating;
+    :Kembali ke Pilihan Rating;
+  endif
+
+  :Input Teks Review (Opsional);
+  note right
+    Bisa kosong atau
+    tulis pengalaman
+  end note
+
+  :Preview Review;
+}
+
+partition "Kirim Review" {
+  :Klik Tombol "Kirim Review";
+
+  #E8EAF6:Kirim POST /api/reviews;
+  note right
+    Body: {
+      orderId: uuid,
+      rating: 1-5,
+      comment: "optional text"
+    }
+  end note
+
+  if (Response 201?) then (Ya)
+    #C8E6C9:Review Berhasil Dikirim;
+
+    :Update Rating Provider di Database;
+    note right
+      Backend menghitung ulang
+      rata-rata rating provider
+      berdasarkan semua review
+    end note
+
+    :Tampilkan Konfirmasi;
+    note right
+      "Terima kasih atas
+      review Anda!"
+    end note
+
+    :Kembali ke Halaman Pesanan;
+    stop
+
+  else (Tidak)
+    #FFCDD2:Gagal Mengirim Review;
+    :Tampilkan Pesan Error;
+    if (Coba Lagi?) then (Ya)
+      :Kembali ke Form Review;
+    else (Tidak)
+      :Batal dan Kembali;
+      stop
+    endif
+  endif
+endif
+
+@enduml

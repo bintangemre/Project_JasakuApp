@@ -1,0 +1,98 @@
+@startuml
+title Alur Login & Pendaftaran - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E3F2FD
+skinparam activityBorderColor #1565C0
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E8F5E9| Otentikasi |
+
+start
+
+:Buka Aplikasi Jasaku;
+:Menampilkan Welcome Screen;
+
+if (Pilih Aksi?) then (Masuk)
+  :Menampilkan Form Login;
+
+  if (Metode Login?) then (Email & Password)
+    :Input Email & Password;
+    #FFCDD2:Validasi Input
+    note right: Email harus valid\nPassword tidak kosong
+    if (Valid?) then (Ya)
+      :Kirim POST /api/auth/login;
+      note right
+        Body: { email, password }
+      end note
+      if (Response 200?) then (Ya)
+        :Simpan JWT Token
+        note right: flutter_secure_storage\nKey: jwt_token
+        :Navigasi ke Beranda;
+        stop
+      else (Tidak)
+        #FFCDD2:Tampilkan Pesan Error;
+        :Kembali ke Form Login;
+        note right: "Email atau password\nsalah"
+      endif
+    else (Tidak)
+      :Tampilkan Validasi Error;
+      :Kembali ke Form Login;
+    endif
+
+  else (Google)
+    :Klik Tombol Google Login;
+    :OAuth Google Sign-In;
+    :Ambil ID Token dari Google;
+    :Kirim POST /api/auth/login/google;
+    note right
+      Body: { idToken }
+      Backend verifikasi token
+    end note
+    if (Response 200?) then (Ya)
+      :Simpan JWT Token;
+      :Navigasi ke Beranda;
+      stop
+    else (Tidak)
+      #FFCDD2:Tampilkan Pesan Error;
+      :Kembali ke Welcome Screen;
+    endif
+  endif
+
+else (Daftar)
+  :Menampilkan Form Pendaftaran;
+
+  :Input Data Diri;
+  note right
+    - Nama lengkap
+    - Email
+    - Password
+    - Nomor telepon
+  end note
+
+  #FFCDD2:Validasi Semua Field;
+  if (Semua Valid?) then (Ya)
+    :Kirim POST /api/auth/register/customer;
+    note right
+      Body: { name, email,
+      password, phone }
+    end note
+    if (Response 201?) then (Ya)
+      :Login Otomatis
+      (POST /api/auth/login);
+      :Simpan JWT Token;
+      :Navigasi ke Beranda;
+      stop
+    else (Tidak)
+      #FFCDD2:Tampilkan Pesan Error;
+      :Kembali ke Form Pendaftaran;
+    endif
+  else (Tidak)
+    :Tampilkan Validasi Error;
+    :Kembali ke Form Pendaftaran;
+  endif
+endif
+
+@enduml

@@ -1,0 +1,255 @@
+@startuml PDM_Auth
+' ============================================================
+' PDM — Domain Autentikasi & Pengguna
+' Kotak = Tabel + Kolom PostgreSQL, Ketupat = FK
+' ============================================================
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName "Consolas"
+skinparam defaultFontSize 9
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 40
+
+skinparam rectangle {
+  BorderColor #1565C0
+  FontSize 10
+  FontStyle bold
+}
+
+skinparam diamond {
+  BackgroundColor #FFF9C4
+  BorderColor #F9A825
+  FontSize 8
+  FontStyle bold
+  FontColor #F57F17
+}
+
+' ============================================================
+' TABEL
+' ============================================================
+
+rectangle "**roles** — Tabel Referensi Role" as ROLES #E3F2FD {
+  rectangle "
+| Kolum | Tipe | Constraint |
+|-------|------|------------|
+| id | SERIAL | **PK** Auto Increment |
+| name | VARCHAR(50) | **UNIQUE** NOT NULL |
+| description | TEXT | NULL |
+| created_at | TIMESTAMP(6) | DEFAULT now() |
+" as R_A #BBDEFB
+}
+
+rectangle "**users** — Tabel Pengguna Utama" as USERS #E3F2FD {
+  rectangle "
+| Kolum | Tipe | Constraint |
+|-------|------|------------|
+| id | UUID | **PK** DEFAULT uuid_generate_v4() |
+| role_id | INT | **FK** → roles.id, NOT NULL |
+| email | VARCHAR(255) | **UNIQUE** NULL |
+| phone | VARCHAR(20) | **UNIQUE** NULL |
+| password_hash | TEXT | NULL |
+| google_id | VARCHAR(255) | NULL |
+| is_phone_verified | BOOLEAN | DEFAULT false |
+| is_email_verified | BOOLEAN | DEFAULT false |
+| status | VARCHAR(20) | DEFAULT 'active' |
+| created_at | TIMESTAMP(6) | DEFAULT now() |
+| updated_at | TIMESTAMP(6) | DEFAULT now() |
+
+**Indexes:** idx_users_email, idx_users_google_id, idx_users_phone
+**RLS:** Enabled
+" as U_A #BBDEFB
+}
+
+rectangle "**profiles_customer** — Profil Customer" as PCUST #E3F2FD {
+  rectangle "
+| Kolum | Tipe | Constraint |
+|-------|------|------------|
+| id | UUID | **PK** DEFAULT uuid_generate_v4() |
+| user_id | UUID | **FK** → users.id, **UNIQUE**, ON DELETE CASCADE |
+| full_name | VARCHAR(150) | NOT NULL |
+| nickname | VARCHAR(100) | NULL |
+| birth_date | DATE | NULL |
+| gender | VARCHAR(10) | NULL |
+| address | TEXT | NULL |
+| avatar_url | TEXT | NULL |
+| created_at | TIMESTAMP(6) | DEFAULT now() |
+| updated_at | TIMESTAMP(6) | DEFAULT now() |
+
+**Indexes:** idx_profiles_user_id
+**RLS:** Enabled
+**FK Name:** fk_profile_user
+" as PC_A #BBDEFB
+}
+
+rectangle "**provider_profiles** — Profil Mitra/Provider" as PPROV #E3F2FD {
+  rectangle "
+| Kolum | Tipe | Constraint |
+|-------|------|------------|
+| id | UUID | **PK** DEFAULT uuid_generate_v4() |
+| user_id | UUID | **FK** → users.id, **UNIQUE**, ON DELETE CASCADE |
+| full_name | VARCHAR(100) | NOT NULL |
+| nickname | VARCHAR(50) | NULL |
+| gender | VARCHAR(10) | NULL |
+| birth_date | DATE | NULL |
+| phone | VARCHAR(20) | NULL |
+| address | TEXT | NULL |
+| domicile | VARCHAR(100) | NULL |
+| profile_photo | TEXT | NULL |
+| ktp_photo | TEXT | NULL |
+| selfie_photo | TEXT | NULL |
+| is_verified | BOOLEAN | DEFAULT false |
+| verification_status | VARCHAR(20) | DEFAULT 'pending' |
+| verification_notes | TEXT | NULL |
+| is_active | BOOLEAN | DEFAULT true |
+| onboarding_completed | BOOLEAN | DEFAULT false |
+| task_available | BOOLEAN | DEFAULT true |
+| service_available | BOOLEAN | DEFAULT true |
+| custom_task_enabled | BOOLEAN | DEFAULT false |
+| rating | DECIMAL(2,1) | DEFAULT 0 |
+| total_jobs | INT | DEFAULT 0 |
+| total_reviews | INT | DEFAULT 0 |
+| portfolios | TEXT[] | DEFAULT '{}' |
+| created_at | TIMESTAMP(6) | DEFAULT now() |
+| updated_at | TIMESTAMP(6) | DEFAULT now() |
+
+**FK Name:** fk_provider_user
+**RLS:** Enabled
+" as PP_A #BBDEFB
+}
+
+rectangle "**provider_locations** — Lokasi Provider (PostGIS)" as PLOC #E3F2FD {
+  rectangle "
+| Kolum | Tipe | Constraint |
+|-------|------|------------|
+| id | UUID | **PK** DEFAULT uuid_generate_v4() |
+| provider_id | UUID | **FK** → users.id, **UNIQUE** |
+| address | TEXT | NULL |
+| location | GEOMETRY | NULL |
+
+**Spatial Index:** provider_locations_geo_idx (GiST)
+**RLS:** Enabled
+**FK Name:** fk_provider
+" as PL_A #BBDEFB
+}
+
+rectangle "**provider_documents** — Dokumen Provider" as PDOC #E3F2FD {
+  rectangle "
+| Kolum | Tipe | Constraint |
+|-------|------|------------|
+| id | UUID | **PK** DEFAULT uuid_generate_v4() |
+| provider_id | UUID | **FK** → provider_profiles.id, ON DELETE CASCADE |
+| type | VARCHAR(30) | NOT NULL |
+| file_url | TEXT | NOT NULL |
+| category_id | UUID | NULL |
+| description | TEXT | NULL |
+| created_at | TIMESTAMP(6) | DEFAULT now() |
+
+**Indexes:** idx_provider_documents_provider_id
+**RLS:** Enabled
+" as PD_A #BBDEFB
+}
+
+rectangle "**provider_payout_methods** — Metode Pembayaran Provider" as PPAY #E3F2FD {
+  rectangle "
+| Kolum | Tipe | Constraint |
+|-------|------|------------|
+| id | UUID | **PK** DEFAULT uuid_generate_v4() |
+| provider_id | UUID | **FK** → users.id |
+| type | VARCHAR(50) | NULL |
+| provider_name | VARCHAR(100) | NULL |
+| account_number | VARCHAR(100) | NULL |
+| account_name | VARCHAR(150) | NULL |
+| created_at | TIMESTAMP(6) | DEFAULT now() |
+
+**RLS:** Enabled
+" as PPY_A #BBDEFB
+}
+
+rectangle "**identity_verifications** — Verifikasi Identitas (KTP + Wajah)" as IDVER #E3F2FD {
+  rectangle "
+| Kolum | Tipe | Constraint |
+|-------|------|------------|
+| id | UUID | **PK** DEFAULT uuid_generate_v4() |
+| provider_id | UUID | **FK** → provider_profiles.id, **UNIQUE**, ON DELETE CASCADE |
+| nik | TEXT | NULL |
+| ocr_full_name | TEXT | NULL |
+| ocr_birth_place | TEXT | NULL |
+| ocr_birth_date | TEXT | NULL |
+| ocr_address | TEXT | NULL |
+| ocr_gender | TEXT | NULL |
+| ocr_blood_type | TEXT | NULL |
+| ocr_religion | TEXT | NULL |
+| ocr_raw_result | JSONB | NULL |
+| face_match_score | FLOAT | NULL |
+| face_match_status | VARCHAR(20) | DEFAULT 'pending' |
+| liveness_data | JSONB | NULL |
+| liveness_status | VARCHAR(20) | DEFAULT 'pending' |
+| created_at | TIMESTAMP | DEFAULT now() |
+| verified_at | TIMESTAMP | NULL |
+
+**Indexes:** idx_identity_verifications_provider_id
+**RLS:** Enabled
+" as IV_A #BBDEFB
+}
+
+rectangle "**user_devices** — Token FCM Perangkat" as UDEV #E3F2FD {
+  rectangle "
+| Kolum | Tipe | Constraint |
+|-------|------|------------|
+| id | UUID | **PK** DEFAULT gen_random_uuid() |
+| user_id | UUID | **FK** → users.id, ON DELETE CASCADE |
+| fcm_token | TEXT | **UNIQUE** NOT NULL |
+| device_type | TEXT | NOT NULL |
+| device_name | TEXT | NULL |
+| created_at | TIMESTAMPTZ(6) | DEFAULT now() |
+| updated_at | TIMESTAMPTZ(6) | DEFAULT now() |
+
+**Indexes:** idx_user_devices_user_id
+**RLS:** Enabled
+" as UD_A #BBDEFB
+}
+
+' ============================================================
+' RELASI
+' ============================================================
+
+diamond "FK\nroles.id" as D1
+diamond "FK\nusers.id" as D2
+diamond "FK\nusers.id" as D3
+diamond "FK\nusers.id" as D4
+diamond "FK\nusers.id" as D5
+diamond "FK\nprovider_profiles.id" as D6
+diamond "FK\nusers.id" as D7
+diamond "FK\nprovider_profiles.id" as D8
+diamond "FK\nusers.id" as D9
+
+ROLES -right-> D1
+D1 -right-> USERS
+
+USERS -down-> D2
+D2 -down-> PCUST
+
+USERS -down-> D3
+D3 -down-> PPROV
+
+USERS -right-> D4
+D4 -right-> PLOC
+
+USERS -down-> D5
+D5 -down-> UDEV
+
+PPROV -down-> D6
+D6 -down-> PDOC
+
+PPROV -right-> D7
+D7 -right-> PPAY
+
+PPROV -down-> D8
+D8 -down-> IDVER
+
+title <b>PDM — Domain Autentikasi & Pengguna</b>\n9 Tabel · PostgreSQL Physical Schema + Constraints
+
+footer Generated by PlantUML — Jasaku PDM
+@enduml

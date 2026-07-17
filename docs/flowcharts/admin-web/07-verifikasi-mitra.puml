@@ -1,0 +1,133 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow Verifikasi Mitra (Provider)
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Verifikasi Mitra";
+
+|#E3F2FD|Backend|
+:GET /api/admin/providers?pending=true;
+note right
+  Query provider_profiles
+  WHERE verification_status = 'pending'
+end note
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar mitra menunggu verifikasi;
+
+partition "Lihat detail mitra" {
+  :Admin klik "Detail" pada mitra;
+
+  |#E3F2FD|Backend|
+  :GET /api/admin/providers/:providerId/detail;
+  :Ambil data lengkap provider;
+  note right
+    Include:
+    - Data diri (user: email, phone)
+    - Layanan & harga
+    - Dokumen (KTP, foto profil)
+    - Identity verification:
+      * OCR results
+      * Liveness check
+      * Face match score
+    - Status verifikasi
+  end note
+
+  |#FFF8E1|Halaman|
+  :Tampilkan halaman detail mitra;
+}
+
+partition "Keputusan admin" {
+  if (Setujui atau Tolak?) then (Setujui)
+
+    |#E8F5E9|Frontend|
+    :Admin klik tombol "Setujui";
+
+    |#E3F2FD|Backend|
+    :PATCH /api/admin/providers/:providerId/verify;
+    :Set status = 'verified';
+    :Set is_verified = true, is_active = true;
+    :Hapus verification_notes;
+
+    :Trigger notifikasi ke Mitra;
+    note right
+      **Notifikasi Mitra:**
+      Title: "Akun Terverifikasi"
+      Type: PROVIDER_VERIFIED
+      "Selamat! Akun Mitra Anda
+      telah diverifikasi. Silakan
+      mulai menerima pesanan."
+    end note
+
+    |#E8F5E9|Frontend|
+    :Mitra berpindah dari daftar pending;
+    :Tampilkan toast "Mitra disetujui";
+    stop
+
+  else (Tolak)
+
+    |#E8F5E9|Frontend|
+    :Admin klik tombol "Tolak";
+    :Buka modal checklist penolakan;
+
+    partition "Checklist penolakan (8 item)" {
+      note right
+        Contoh item checklist:
+        1. Foto KTP tidak jelas
+        2. Wajah tidak sesuai KTP
+        3. Liveness check gagal
+        4. Data diri tidak lengkap
+        5. Dokumen palsu/tidak valid
+        6. Foto profil tidak memadai
+        7. Informasi tidak konsisten
+        8. Pelanggaran kebijakan
+      end note
+      :Admin centang item yang gagal;
+      :Input catatan tambahan (opsional);
+      :Klik "Konfirmasi Penolakan";
+    }
+
+    |#E3F2FD|Backend|
+    :PATCH /api/admin/providers/:providerId/verify;
+    :Set status = 'rejected';
+    :Set is_verified = false, is_active = false;
+    :Simpan checklist + notes di verification_notes;
+
+    :Trigger notifikasi ke Mitra;
+    note right
+      **Notifikasi Mitra:**
+      Title: "Akun Ditolak"
+      Type: PROVIDER_REJECTED
+      "Maaf, akun Mitra Anda ditolak.
+      Silakan periksa detail di aplikasi."
+    end note
+
+    |#E8F5E9|Frontend|
+    :Mitra berpindah dari daftar pending;
+    :Tampilkan toast "Mitra ditolak";
+    stop
+  endif
+endif
+
+note right
+  **Endpoint:**
+  GET /api/admin/providers?pending=true
+  GET /api/admin/providers/:providerId/detail
+  PATCH /api/admin/providers/:providerId/verify
+
+  **Body request:**
+  { status: "verified" | "rejected",
+    notes?: string,
+    checklist?: [{ item, status, note }] }
+end note
+
+@enduml

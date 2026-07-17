@@ -13,7 +13,7 @@ class ApiClient {
     dio = Dio(
       BaseOptions(
         baseUrl: ApiEndpoints.baseUrl,
-        connectTimeout: const Duration(seconds: 60),
+        connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 30),
         headers: {'Content-Type': 'application/json'},
       ),
@@ -29,9 +29,19 @@ class ApiClient {
           return handler.next(options);
         },
         onError: (error, handler) async {
+          if (error.response?.statusCode == 401) {
+            await StorageService.deleteToken();
+          }
           return handler.next(error);
         },
       ),
     );
+  }
+
+  static String errorMessage(Object e) {
+    if (e is DioException && e.response?.data is Map) {
+      return e.response!.data['message']?.toString() ?? 'Terjadi kesalahan';
+    }
+    return 'Terjadi kesalahan';
   }
 }

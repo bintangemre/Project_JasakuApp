@@ -1,0 +1,134 @@
+// ============================================================
+// Klasik ERD (Chen Notation) — Domain Pembayaran
+// Graphviz DOT Language
+// ============================================================
+
+graph chen_payments {
+    graph [
+        label="Klasik ERD — Domain Pembayaran\n4 Tabel"
+        labelloc=t
+        fontname="Segoe UI Bold"
+        fontsize=16
+        bgcolor="white"
+        pad="0.5"
+        nodesep="0.8"
+        ranksep="0.8"
+        splines=true
+        overlap=false
+    ]
+
+    node [fontname="Segoe UI", fontsize=9]
+    edge [fontname="Segoe UI", fontsize=8]
+
+    // --- payments ---
+    subgraph cluster_pay {
+        label="payments"
+        labeljust=c
+        style=filled
+        fillcolor="#F3E5F5"
+        color="#6A1B9A"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        pay_e [label="payments", shape=box, style="filled,bold", fillcolor="#E1BEE7", color="#6A1B9A", fontcolor="#4A148C"]
+        pay_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        pay_oid [label="order_id : UUID, FK, UQ", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        pay_method [label="method : VARCHAR(50)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        pay_status [label="status : VARCHAR(30)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        pay_amount [label="amount : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        pay_paid [label="paid_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        pay_proof [label="payment_proof : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        pay_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+
+        pay_e -- pay_id [style=dashed, color="#CE93D8"]
+        pay_e -- pay_oid [style=dashed, color="#CE93D8"]
+        pay_e -- pay_method [style=dashed, color="#CE93D8"]
+        pay_e -- pay_status [style=dashed, color="#CE93D8"]
+        pay_e -- pay_amount [style=dashed, color="#CE93D8"]
+        pay_e -- pay_paid [style=dashed, color="#CE93D8"]
+        pay_e -- pay_proof [style=dashed, color="#CE93D8"]
+        pay_e -- pay_created [style=dashed, color="#CE93D8"]
+    }
+
+    // --- admin_bank_accounts ---
+    subgraph cluster_aba {
+        label="admin_bank_accounts"
+        labeljust=c
+        style=filled
+        fillcolor="#F3E5F5"
+        color="#6A1B9A"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        aba_e [label="admin_bank_accounts", shape=box, style="filled,bold", fillcolor="#E1BEE7", color="#6A1B9A", fontcolor="#4A148C"]
+        aba_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aba_name [label="provider_name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aba_acct [label="account_number : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aba_holder [label="account_name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aba_active [label="is_active : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aba_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+
+        aba_e -- aba_id [style=dashed, color="#CE93D8"]
+        aba_e -- aba_name [style=dashed, color="#CE93D8"]
+        aba_e -- aba_acct [style=dashed, color="#CE93D8"]
+        aba_e -- aba_holder [style=dashed, color="#CE93D8"]
+        aba_e -- aba_active [style=dashed, color="#CE93D8"]
+        aba_e -- aba_created [style=dashed, color="#CE93D8"]
+    }
+
+    // --- admin_ewallet_accounts ---
+    subgraph cluster_aew {
+        label="admin_ewallet_accounts"
+        labeljust=c
+        style=filled
+        fillcolor="#F3E5F5"
+        color="#6A1B9A"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        aew_e [label="admin_ewallet_accounts", shape=box, style="filled,bold", fillcolor="#E1BEE7", color="#6A1B9A", fontcolor="#4A148C"]
+        aew_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aew_name [label="provider_name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aew_acct [label="account_number : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aew_holder [label="account_name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aew_active [label="is_active : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aew_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+
+        aew_e -- aew_id [style=dashed, color="#CE93D8"]
+        aew_e -- aew_name [style=dashed, color="#CE93D8"]
+        aew_e -- aew_acct [style=dashed, color="#CE93D8"]
+        aew_e -- aew_holder [style=dashed, color="#CE93D8"]
+        aew_e -- aew_active [style=dashed, color="#CE93D8"]
+        aew_e -- aew_created [style=dashed, color="#CE93D8"]
+    }
+
+    // --- admin_qris_accounts ---
+    subgraph cluster_aqri {
+        label="admin_qris_accounts"
+        labeljust=c
+        style=filled
+        fillcolor="#F3E5F5"
+        color="#6A1B9A"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        aqri_e [label="admin_qris_accounts", shape=box, style="filled,bold", fillcolor="#E1BEE7", color="#6A1B9A", fontcolor="#4A148C"]
+        aqri_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aqri_name [label="provider_name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aqri_mname [label="merchant_name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aqri_img [label="qris_image_url : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aqri_active [label="is_active : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+        aqri_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+
+        aqri_e -- aqri_id [style=dashed, color="#CE93D8"]
+        aqri_e -- aqri_name [style=dashed, color="#CE93D8"]
+        aqri_e -- aqri_mname [style=dashed, color="#CE93D8"]
+        aqri_e -- aqri_img [style=dashed, color="#CE93D8"]
+        aqri_e -- aqri_active [style=dashed, color="#CE93D8"]
+        aqri_e -- aqri_created [style=dashed, color="#CE93D8"]
+    }
+
+    // Note: admin tables are independent reference tables (no FK relations)
+    // Only payments has a FK to orders
+    // The note is visual only in this diagram
+}

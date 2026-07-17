@@ -1,0 +1,89 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow Pencairan Dana
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Pencairan Dana";
+
+|#E3F2FD|Backend|
+:GET /api/admin/orders/pending-payout;
+:Query order WHERE status = completed
+  AND payout_confirmed = false
+  AND task_provider_id IS NULL;
+:Resolve data rekening mitra;
+note right
+  Ambil dari provider_payout_methods:
+  - type (bank_transfer/e_wallet)
+  - account_name
+  - account_number
+  - provider_name
+end note
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar order completed;
+
+partition "Informasi yang ditampilkan" {
+  note right
+    Per order:
+    - ID order
+    - Nama customer & mitra
+    - Total harga & platform fee
+    - Tanggal pengerjaan
+    - Rekening mitra (tujuan transfer)
+    - Status payout (belum/telah)
+  end note
+}
+
+partition "Proses pencairan" {
+  :Admin klik "Konfirmasi" pada order;
+
+  |#E3F2FD|Backend|
+  :PATCH /api/admin/orders/:orderId/confirm-payout;
+  :Validasi order completed & belum payout;
+
+  if (Valid?) then (Ya)
+    :Update payout_confirmed = true;
+    :Set payout_at = waktu sekarang;
+
+    :Trigger notifikasi ke Mitra;
+    note right
+      **Notifikasi Mitra:**
+      Title: "Pencairan Dana Berhasil"
+      Type: ORDER_PAYOUT_CONFIRMED
+      "Dana untuk pesanan telah
+      dikirim ke rekening Anda.
+      Terima kasih atas kerja kerasnya!"
+    end note
+
+    |#E8F5E9|Frontend|
+    :Refresh daftar pencairan;
+    :Tampilkan toast "Pencairan dikonfirmasi";
+    :Admin lakukan transfer manual ke rekening mitra;
+    stop
+  else (Tidak)
+    |#E8F5E9|Frontend|
+    :Tampilkan pesan error;
+    stop
+  endif
+endif
+
+note right
+  **Endpoint:**
+  GET /api/admin/orders/pending-payout
+  PATCH /api/admin/orders/:orderId/confirm-payout
+
+  **Catatan:**
+  Transfer dilakukan secara MANUAL
+  oleh admin setelah konfirmasi.
+end note
+
+@enduml

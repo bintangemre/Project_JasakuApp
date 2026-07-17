@@ -5,7 +5,7 @@ import {
   createCategory, updateCategory, deleteCategory,
   createService, updateService, deleteService,
   getAllProviders, getAllCustomers, banUser, unbanUser,
-  createPricingType, deletePricingType,
+  createPricingType, updatePricingType, deletePricingType,
   getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount,
   uploadQrisImage,
   getPendingPaymentOrders,
@@ -29,7 +29,7 @@ import { confirmPaymentByAdmin, approveExtension, activateExtension } from '../o
 import { authenticate } from '../../middleware/auth.middleware';
 import { isAdmin } from '../../middleware/role.middleware';
 import { validate } from '../../middleware/validate.middleware';
-import { createCategorySchema, createServiceSchema, verifyProviderSchema } from '../../middleware/schemas';
+import { createCategorySchema, createServiceSchema, createPricingTypeSchema, updatePricingTypeSchema, verifyProviderSchema } from '../../middleware/schemas';
 import { upload } from '../../middleware/upload.middleware';
 
 const router = Router();
@@ -64,7 +64,8 @@ router.delete('/services/:id', authenticate, isAdmin, deleteService);
 
 // Pricing Types
 router.get('/categories/:id/pricing-types', authenticate, isAdmin, getPricingTypesByCategory);
-router.post('/pricing-types', authenticate, isAdmin, createPricingType);
+router.post('/pricing-types', authenticate, isAdmin, validate(createPricingTypeSchema), createPricingType);
+router.put('/pricing-types/:id', authenticate, isAdmin, validate(updatePricingTypeSchema), updatePricingType);
 router.delete('/pricing-types/:id', authenticate, isAdmin, deletePricingType);
 
 // Payment Accounts (Rekber Admin)

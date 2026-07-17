@@ -1,0 +1,154 @@
+@startuml extend-waktu-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #FCE4EC
+  BorderColor #C62828
+  FontColor #B71C1C
+  ArrowColor #C62828
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #B71C1C
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Minta Perpanjangan Waktu (Extend) Mitra Jasaku**
+
+|Perpanjangan Waktu|
+start
+:Buka detail order
+status **in_progress**;
+
+:Klik tombol **"Minta Perpanjangan"**;
+
+partition "Input Perpanjangan" {
+  :Menampilkan form perpanjangan;
+  note right
+    Form perpanjangan:
+    - Jumlah hari tambahan
+    - Total durasi baru
+    
+    **Aturan:**
+    - Min: 1 hari tambahan
+    - Max: 3 hari tambahan
+    - Max total: 3 hari
+  end note
+
+  :Input jumlah hari tambahan;
+
+  if (Validasi hari?) then (Valid)
+    note right
+      **Fee: 2% per hari tambahan**
+      **Maksimal: 5% total**
+      
+      Contoh:
+      - +1 hari = 2% fee
+      - +2 hari = 4% fee
+      - +3 hari = 5% fee (max)
+    end note
+  else (Tidak Valid)
+    #EF9A9A:Error: Jumlah hari tidak valid;
+    note right
+      Pesan: "Jumlah hari harus
+      antara 1-3 hari"
+    end note
+    :Kembali ke form;
+    detach
+  endif
+}
+
+:Konfirmasi perpanjangan;
+
+:Kirim permintaan ke server;
+note right
+  **POST /api/orders/orders/:orderId/extend**
+  Body: {
+    additional_days: number,
+    reason: string
+  }
+  
+  Response: {
+    id, status,
+    new_end_date, fee
+  }
+end note
+
+#FFECB3:Status: **pending_customer**;
+note right
+  Permintaan dikirim ke customer
+  untuk persetujuan
+end note
+
+partition "Menunggu Respon Customer" {
+  while (Menunggu customer?) is (Menunggu)
+    :Cek status permintaan;
+
+    if (Customer respon?) then (**Setuju**)
+      #B3E5FC:Status: **pending_payment**;
+      note right
+        Customer menyetujui
+        perpanjangan waktu
+      end note
+
+      partition "Proses Pembayaran" {
+        :Customer melakukan pembayaran;
+        note right
+          **Fee perpanjangan:**
+          2% per hari tambahan
+          Maksimal 5%
+        end note
+
+        :Menunggu konfirmasi admin;
+        note right
+          **Status: pending_admin**
+        end note
+
+        if (Admin konfirmasi?) then (Ya)
+          #C8E6C9:Status: **active**;
+          note right
+            Order kembali aktif
+            dengan end_date baru
+          end note
+          :Order end_date diperpanjang;
+          :Notifikasi ke mitra;
+          stop
+        else (Tidak)
+          #EF9A9A:Admin menolak;
+          note right
+            Perpanjangan ditolak
+            oleh admin
+          end note
+          stop
+        endif
+      endif
+
+    elseif (**Tolak**) then
+      #EF9A9A:Status: **rejected**;
+      note right
+        Customer menolak
+        perpanjangan waktu
+      end note
+      stop
+
+    else (Belum)
+      :Menunggu;
+    endif
+
+  endwhile
+
+  #FFCDD2:**Timeout! Permintaan expired**;
+  note right
+    Jika customer tidak merespon
+    dalam waktu yang ditentukan,
+    permintaan otomatis expired
+  end note
+  stop
+}
+
+@enduml

@@ -1,4 +1,5 @@
 import { prisma } from "../../config/prisma";
+import { NotificationService } from "../notifications/notifications.service";
 export class ReviewsService {
     // mengirim review dan rating setelah layanan selesai
     async createReview(customerId, orderId, providerId, rating, review) {
@@ -24,12 +25,19 @@ export class ReviewsService {
                 total_reviews: agg._count
             }
         });
+        NotificationService.sendToUser(providerId, 'Review Baru', `Anda mendapat review ${rating} bintang dari customer.`, { type: 'NEW_REVIEW', orderId }).catch(() => { });
         return result;
     }
     // mendapatkan daftar review untuk provider tertentu
     async getProviderReviews(providerId) {
+        // Accept provider_profiles.id OR users.id
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { id: providerId },
+            select: { user_id: true }
+        });
+        const userId = profile?.user_id ?? providerId;
         return await prisma.reviews.findMany({
-            where: { provider_id: providerId },
+            where: { provider_id: userId },
             select: {
                 id: true,
                 rating: true,

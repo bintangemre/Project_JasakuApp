@@ -154,4 +154,24 @@ class OrderModel {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     return months[month - 1];
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'status': status,
+      'total_price': totalPrice,
+      'additional_fee': additionalFee,
+      'description': description,
+      'work_date': workDate?.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'profiles_customer': {'full_name': customerName},
+      'order_items': items,
+      'order_attachments': attachments.map((a) => {'id': a.id, 'file_url': a.fileUrl, 'created_at': a.createdAt?.toIso8601String()}).toList(),
+      'order_locations': [
+        if (address != null || lat != null || lng != null)
+          {'address': address, 'lat': lat?.toString(), 'lng': lng?.toString()},
+      ],
+    };
+  }
 }

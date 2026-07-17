@@ -1,0 +1,194 @@
+@startuml manajemen-pesanan-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E8F5E9
+  BorderColor #388E3C
+  FontColor #1B5E20
+  ArrowColor #2E7D32
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #1B5E20
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Manajemen Pesanan Mitra Jasaku**
+
+|Manajemen Pesanan|
+start
+:Buka halaman Manajemen Pesanan;
+
+partition "3 Tab Utama" {
+  :Menampilkan 3 tab;
+  note right
+    Tab:
+    1. Hari Ini
+    2. Akan Datang
+    3. Riwayat
+  end note
+}
+
+fork
+  :**Tab 1: Hari Ini**;
+  note right
+    **GET /api/orders/provider/today**
+    Response: {
+      orders: [{
+        id, status, service,
+        customer_name, work_date,
+        work_time, total_price,
+        location
+      }]
+    }
+  end note
+  :Memuat order hari ini;
+  :Filter status:
+  pending, accepted,
+  on_the_way, arrived;
+
+fork again
+  :**Tab 2: Akan Datang**;
+  note right
+    **GET /api/orders/provider/schedule**
+    Response: {
+      orders: [{
+        id, status, service,
+        customer_name, work_date,
+        work_time, total_price,
+        location
+      }]
+    }
+  end note
+  :Memuat order mendatang;
+  :Filter:
+  work_date > hari ini;
+
+fork again
+  :**Tab 3: Riwayat**;
+  note right
+    **GET /api/orders/provider/orders**
+    Query: status=completed,completed_with_review,cancelled
+    Response: {
+      orders: [{
+        id, status, service,
+        customer_name, work_date,
+        completed_date, total_price
+      }]
+    }
+  end note
+  :Memuat riwayat pesanan;
+  :Filter:
+  completed atau cancelled;
+
+end fork
+
+:Menampilkan daftar order;
+
+:Klik salah satu order;
+
+:Buka halaman Detail Order;
+note right
+  Detail order menampilkan:
+  - ID order
+  - Status saat ini
+  - Informasi customer
+  - Layanan yang dipesan
+  - Tanggal & waktu kerja
+  - Lokasi (dengan peta)
+  - Total harga
+  - Review (jika sudah selesai)
+end note
+
+if (Status order aktif?) then (Ya)
+  :Cek jam operasional;
+
+  if (Dalam jam operasional?) then (Ya)
+    note right
+      **isWithinOperatingHours()**
+      Jam: 08:00 - 16:00 WITA
+    end note
+
+    :Tampilkan tombol update status;
+
+    if (Status saat ini?) then (pending)
+      #C8E6C9:Tombol: **"Terima"** / **"Tolak"**;
+      :Klik tombol;
+      note right
+        **PATCH /api/orders/orders/:orderId/status**
+        Body: { status: "accepted" }
+        
+        atau
+        
+        Body: { status: "rejected" }
+      end note
+    elseif (accepted) then
+      #C8E6C9:Tombol: **"Berangkat"**;
+      :Klik tombol;
+      note right
+        **PATCH /api/orders/orders/:orderId/status**
+        Body: { status: "on_the_way" }
+      end note
+    elseif (on_the_way) then
+      #C8E6C9:Tombol: **"Tiba"**;
+      :Klik tombol;
+      note right
+        **PATCH /api/orders/orders/:orderId/status**
+        Body: { status: "arrived" }
+      end note
+    elseif (arrived) then
+      #C8E6C9:Tombol: **"Mulai Kerja"**;
+      :Klik tombol;
+      note right
+        **PATCH /api/orders/orders/:orderId/status**
+        Body: { status: "in_progress" }
+      end note
+    elseif (in_progress) then
+      #B3E5FC:Tombol: **"Selesaikan"**;
+      :Klik tombol;
+      note right
+        **PATCH /api/orders/orders/:orderId/status**
+        Body: { status: "completed" }
+      end note
+      :Tampilkan tombol
+      **"Minta Perpanjangan"**;
+    endif
+
+    :Mengupdate status ke server;
+
+    if (Update berhasil?) then (Ya)
+      #C8E6C9:Status berhasil diupdate;
+      :Refresh halaman;
+    else (Tidak)
+      #EF9A9A:Gagal mengupdate status;
+      note right
+        Tampilkan pesan error
+      end note
+    endif
+
+  else (Tidak)
+    #EF9A9A:Tombol status dinonaktifkan;
+    note right
+      Label: **"Di luar jam operasional"**
+      
+      Server menolak transisi status
+      di luar jam 08:00-16:00 WITA
+    end note
+  endif
+
+else (Tidak)
+  :Tampilkan detail order;
+  note right
+    Order selesai/dibatalkan
+    Tidak ada tombol update status
+  end note
+endif
+
+stop
+
+@enduml

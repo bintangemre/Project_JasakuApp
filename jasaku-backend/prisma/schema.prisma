@@ -117,15 +117,16 @@ model order_attachments {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model order_items {
-  id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  order_id        String   @db.Uuid
-  service_id      String   @db.Uuid
-  pricing_type_id String   @db.Uuid
-  quantity        Int?     @default(1)
-  price           Decimal? @db.Decimal(12, 2)
-  subtotal        Decimal? @db.Decimal(12, 2)
-  orders          orders   @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_order")
-  services        services @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_service")
+  id              String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  order_id        String         @db.Uuid
+  service_id      String         @db.Uuid
+  pricing_type_id String         @db.Uuid
+  quantity        Int?           @default(1)
+  price           Decimal?       @db.Decimal(12, 2)
+  subtotal        Decimal?       @db.Decimal(12, 2)
+  orders          orders         @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_order")
+  services        services       @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_service")
+  pricing_types   pricing_types  @relation(fields: [pricing_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_order_item_pricing_type")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -186,11 +187,11 @@ model payments {
 model pricing_types {
   id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                    String                    @db.VarChar(50)
-  description             String?
   default_unit            String?
   category_id             String?                   @db.Uuid
   categories              categories?               @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider_service_prices provider_service_prices[]
+  order_items             order_items[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

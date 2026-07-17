@@ -1,0 +1,152 @@
+@startuml metode-pencairan-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E0F7FA
+  BorderColor #00838F
+  FontColor #006064
+  ArrowColor #00838F
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #006064
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Metode Pencairan (Payout) Mitra Jasaku**
+
+|Metode Pencairan|
+start
+:Buka halaman Metode Pencairan;
+
+partition "Ambil Data Metode" {
+  note right
+    **GET /api/provider/payout-methods**
+    Response: {
+      methods: [{
+        id, type, bank_name,
+        account_number, account_name,
+        is_default
+      }]
+    }
+  end note
+  :Memuat daftar metode pencairan;
+end partition
+
+:Menampilkan daftar metode pencairan;
+note right
+  Ditampilkan:
+  - Tipe (Bank/E-Wallet)
+  - Nama bank/layanan
+  - Nomor rekening
+  - Nama pemilik rekening
+  - Status default
+end note
+
+partition "Kelola Metode" {
+  while (Aksi?) is (Pilih)
+
+    if (Tambah metode baru?) then (Ya)
+      :Klik **"Tambah Metode"**;
+      note right
+        Form tambah metode:
+        - Tipe: Bank / E-Wallet
+        - Nama bank/layanan
+        - Nomor rekening
+        - Nama pemilik rekening
+      end note
+
+      :Pilih tipe metode;
+
+      if (Tipe?) then (Bank)
+        :Input data bank;
+        note right
+          Pilihan bank:
+          - BCA
+          - Mandiri
+          - BRI
+          - BNI
+          - Bank lainnya
+        end note
+      else (E-Wallet)
+        :Input data e-wallet;
+        note right
+          Pilihan e-wallet:
+          - GoPay
+          - OVO
+          - Dana
+          - LinkAja
+        end note
+      endif
+
+      :Klik **"Simpan"**;
+      note right
+        **POST /api/provider/payout-methods**
+        Body: {
+          type: "bank" | "e-wallet",
+          bank_name: string,
+          account_number: string,
+          account_name: string
+        }
+      end note
+
+      :Menambah metode ke server;
+
+      if (Berhasil?) then (Ya)
+        #C8E6C9:Metode berhasil ditambahkan;
+      else (Tidak)
+        #EF9A9A:Gagal menambah metode;
+        note right
+          Tampilkan pesan error
+        end note
+      endif
+
+    elseif (Edit metode?) then
+      :Pilih metode untuk diedit;
+      :Ubah data metode;
+      :Klik **"Simpan"**;
+      note right
+        **PUT /api/provider/payout-methods/:id**
+        Body: {
+          bank_name, account_number,
+          account_name
+        }
+      end note
+
+      :Mengupdate metode;
+
+      if (Berhasil?) then (Ya)
+        #C8E6C9:Metode berhasil diupdate;
+      else (Tidak)
+        #EF9A9A:Gagal mengupdate metode;
+      endif
+
+    elseif (Hapus metode?) then
+      :Pilih metode untuk dihapus;
+      :Konfirmasi hapus;
+      note right
+        **DELETE /api/provider/payout-methods/:id**
+      end note
+
+      :Menghapus metode;
+
+      if (Berhasil?) then (Ya)
+        #C8E6C9:Metode berhasil dihapus;
+      else (Tidak)
+        #EF9A9A:Gagal menghapus metode;
+      endif
+
+    else (Selesai)
+      :Kembali ke Dashboard;
+      stop
+    endif
+
+  endwhile
+}
+
+@enduml

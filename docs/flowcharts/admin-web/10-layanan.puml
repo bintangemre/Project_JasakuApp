@@ -1,0 +1,99 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow CRUD Layanan
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Layanan";
+:Pilih kategori dari dropdown;
+
+|#E3F2FD|Backend|
+:GET /api/admin/categories;
+:GET /api/admin/categories/:id/services;
+note right
+  Query: services
+  WHERE category_id = :id
+  ORDER BY name ASC
+end note
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar layanan berdasarkan kategori;
+
+partition "Tambah layanan" {
+  :Admin klik tombol "Tambah Layanan";
+  :Buka modal form;
+  :Input nama layanan & deskripsi (opsional);
+
+  |#E3F2FD|Backend|
+  :POST /api/admin/services;
+  :Body: { categoryId, name, description };
+  :Validasi: categoryId & name wajib diisi;
+
+  if (Berhasil?) then (Ya)
+    :Kirim data layanan baru;
+    |#E8F5E9|Frontend|
+    :Refresh daftar layanan;
+    :Tampilkan toast "Layanan ditambahkan";
+  else (Tidak)
+    :Tampilkan error validasi;
+  endif
+}
+
+partition "Edit layanan" {
+  :Admin klik tombol "Edit" pada layanan;
+  :Buka modal form (pre-fill data);
+
+  |#E3F2FD|Backend|
+  :PUT /api/admin/services/:id;
+  :Body: { name, description };
+
+  if (Berhasil?) then (Ya)
+    :Kirim data layanan updated;
+    |#E8F5E9|Frontend|
+    :Refresh daftar layanan;
+    :Tampilkan toast "Layanan diupdate";
+  else (Tidak)
+    :Tampilkan error;
+  endif
+}
+
+partition "Hapus layanan" {
+  :Admin klik tombol "Hapus" pada layanan;
+  :Konfirmasi "Yakin ingin menghapus layanan ini?";
+
+  if (Konfirmasi?) then (Ya)
+    |#E3F2FD|Backend|
+    :DELETE /api/admin/services/:id;
+
+    |#E8F5E9|Frontend|
+    :Refresh daftar layanan;
+    :Tampilkan toast "Layanan dihapus";
+    stop
+  else (Tidak)
+    :Batal hapus;
+    stop
+  endif
+}
+
+note right
+  **Endpoint:**
+  GET    /api/admin/categories
+  GET    /api/admin/categories/:id/services
+  POST   /api/admin/services
+  PUT    /api/admin/services/:id
+  DELETE /api/admin/services/:id
+
+  **Validasi:**
+  - categoryId wajib diisi (saat create)
+  - name wajib diisi
+end note
+
+@enduml

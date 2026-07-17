@@ -10,7 +10,6 @@ class StorageService {
   static Future<void> saveToken(String token) async {
     try {
       await _storage.write(key: _tokenKey, value: token);
-      debugPrint('[StorageService] Token saved OK');
     } catch (e) {
       debugPrint('[StorageService] saveToken FAILED: $e');
     }
@@ -19,7 +18,6 @@ class StorageService {
   static Future<String?> getToken() async {
     try {
       final token = await _storage.read(key: _tokenKey);
-      debugPrint('[StorageService] getToken: ${token != null ? "found (${token.length} chars)" : "null"}');
       return token;
     } catch (e) {
       debugPrint('[StorageService] getToken FAILED: $e');
@@ -30,7 +28,6 @@ class StorageService {
   static Future<void> deleteToken() async {
     try {
       await _storage.delete(key: _tokenKey);
-      debugPrint('[StorageService] Token deleted');
     } catch (e) {
       debugPrint('[StorageService] deleteToken FAILED: $e');
     }
@@ -39,5 +36,22 @@ class StorageService {
   static Future<bool> hasToken() async {
     final token = await getToken();
     return token != null;
+  }
+
+  static Future<void> write(String key, String value) async {
+    try {
+      await _storage.write(key: key, value: value);
+    } catch (e) {
+      debugPrint('[StorageService] write($key) FAILED: $e');
+    }
+  }
+
+  static Future<String?> read(String key) async {
+    try {
+      return await _storage.read(key: key);
+    } catch (e) {
+      debugPrint('[StorageService] read($key) FAILED: $e');
+      return null;
+    }
   }
 }

@@ -1,0 +1,95 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow CRUD Tipe Harga
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Tipe Harga";
+:Pilih kategori dari dropdown;
+
+|#E3F2FD|Backend|
+:GET /api/admin/categories;
+:GET /api/admin/categories/:id/pricing-types;
+note right
+  Query: pricing_types
+  WHERE category_id = :id
+  ORDER BY name ASC
+end note
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar tipe harga berdasarkan kategori;
+
+partition "Tambah tipe harga" {
+  :Admin klik tombol "Tambah Tipe Harga";
+  :Buka modal form;
+  :Input nama, deskripsi (opsional), satuan default (opsional);
+
+  note right
+    Contoh tipe harga:
+    - Per Meter (default_unit: m)
+    - Per Jam (default_unit: jam)
+    - Per Unit (default_unit: unit)
+    - Per Kali (default_unit: kali)
+    - Borongan (tanpa unit)
+  end note
+
+  :Klik "Simpan";
+
+  |#E3F2FD|Backend|
+  :POST /api/admin/pricing-types;
+  :Body: { categoryId, name, description, defaultUnit };
+  :Validasi: categoryId & name wajib diisi;
+
+  if (Berhasil?) then (Ya)
+    :Kirim data tipe harga baru;
+    |#E8F5E9|Frontend|
+    :Refresh daftar tipe harga;
+    :Tampilkan toast "Tipe harga ditambahkan";
+  else (Tidak)
+    :Tampilkan error validasi;
+  endif
+}
+
+partition "Hapus tipe harga" {
+  :Admin klik tombol "Hapus" pada tipe harga;
+  :Konfirmasi "Yakin ingin menghapus tipe harga ini?";
+
+  if (Konfirmasi?) then (Ya)
+    |#E3F2FD|Backend|
+    :DELETE /api/admin/pricing-types/:id;
+
+    |#E8F5E9|Frontend|
+    :Refresh daftar tipe harga;
+    :Tampilkan toast "Tipe harga dihapus";
+    stop
+  else (Tidak)
+    :Batal hapus;
+    stop
+  endif
+}
+
+note right
+  **Endpoint:**
+  GET    /api/admin/categories
+  GET    /api/admin/categories/:id/pricing-types
+  POST   /api/admin/pricing-types
+  DELETE /api/admin/pricing-types/:id
+
+  **Validasi:**
+  - categoryId wajib diisi
+  - name wajib diisi
+
+  **Catatan:**
+  Tipe harga hanya bisa ditambah
+  dan dihapus (tidak ada edit).
+end note
+
+@enduml

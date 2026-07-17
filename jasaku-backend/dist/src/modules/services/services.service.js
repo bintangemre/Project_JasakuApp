@@ -47,6 +47,8 @@ export class CategoriesService {
             LEFT JOIN provider_service_prices psp ON psp.provider_service_id = ps.id
             WHERE ps.service_id = ${serviceId}::uuid
               AND r.name = 'provider'
+              AND pp.verification_status = 'verified'
+              AND pp.is_active = true
             GROUP BY u.id, pp.id, pl.id, ps.id
             HAVING ST_DistanceSphere(pl.location, ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)) <= ${radiusInMeters}
             ORDER BY distance_meters ASC
@@ -74,31 +76,25 @@ export class CategoriesService {
         if (providerServices.length === 0) {
             return [];
         }
-        const providerIds = providerServices.map((ps) => ps.provider_id);
-        const users = await prisma.users.findMany({
-            where: { id: { in: providerIds } },
-            include: {
-                provider_profiles: {
-                    select: {
-                        full_name: true,
-                        profile_photo: true,
-                        rating: true,
-                        total_jobs: true,
-                        total_reviews: true,
-                        portfolios: true,
-                        address: true,
-                        domicile: true,
-                        is_active: true,
-                    }
-                },
-                provider_locations: {
-                    select: {
-                        address: true,
-                    }
-                }
+        const profileIds = providerServices.map((ps) => ps.provider_id);
+        const profiles = await prisma.provider_profiles.findMany({
+            where: { id: { in: profileIds }, verification_status: 'verified' },
+            select: {
+                id: true,
+                user_id: true,
+                full_name: true,
+                profile_photo: true,
+                rating: true,
+                total_jobs: true,
+                total_reviews: true,
+                portfolios: true,
+                address: true,
+                domicile: true,
+                is_active: true,
             }
         });
-        const locations = providerIds.length > 0
+        const userIds = profiles.map(p => p.user_id);
+        const locations = userIds.length > 0
             ? await prisma.$queryRaw `
                 SELECT 
                     pl.provider_id,
@@ -106,28 +102,28 @@ export class CategoriesService {
                     ST_X(pl.location::geometry) as lng,
                     pl.address
                 FROM provider_locations pl
-                WHERE pl.provider_id = ANY(${providerIds}::uuid[])
+                WHERE pl.provider_id = ANY(${userIds}::uuid[])
               `
             : [];
-        const locationByProviderId = Object.fromEntries(locations.map((loc) => [loc.provider_id, { lat: loc.lat, lng: loc.lng, address: loc.address }]));
-        const userById = Object.fromEntries(users.map((user) => [user.id, user]));
+        const locationByUserId = Object.fromEntries(locations.map((loc) => [loc.provider_id, { lat: loc.lat, lng: loc.lng, address: loc.address }]));
+        const profileById = Object.fromEntries(profiles.map(p => [p.id, p]));
         return providerServices.map((service) => {
-            const user = userById[service.provider_id];
-            const loc = locationByProviderId[service.provider_id];
+            const profile = profileById[service.provider_id];
+            const loc = profile ? locationByUserId[profile.user_id] : null;
             return {
                 ...service,
-                provider_profiles: user
+                provider_profiles: profile
                     ? [
                         {
                             provider_id: service.provider_id,
-                            rating: user.provider_profiles?.rating ?? null,
-                            total_jobs: user.provider_profiles?.total_jobs ?? null,
-                            total_reviews: user.provider_profiles?.total_reviews ?? null,
-                            portfolios: user.provider_profiles?.portfolios ?? [],
-                            is_active: user.provider_profiles?.is_active ?? true,
+                            rating: profile.rating ?? null,
+                            total_jobs: profile.total_jobs ?? null,
+                            total_reviews: profile.total_reviews ?? null,
+                            portfolios: profile.portfolios ?? [],
+                            is_active: profile.is_active ?? true,
                             users: {
-                                full_name: user.provider_profiles?.full_name ?? null,
-                                profile_photo: user.provider_profiles?.profile_photo ?? null,
+                                full_name: profile.full_name ?? null,
+                                profile_photo: profile.profile_photo ?? null,
                             },
                             provider_locations: loc
                                 ? [
@@ -193,5 +189,31 @@ export class CategoriesService {
         if (!options)
             throw new Error('Opsi layanan provider tidak ditemukan');
         return options;
+    }
+    async searchServices(query) {
+        const [categories, services] = await Promise.all([
+            prisma.categories.findMany({
+                where: { name: { contains: query, mode: 'insensitive' } },
+                select: { id: true, name: true, icon_url: true }
+            }),
+            prisma.services.findMany({
+                where: {
+                    OR: [
+                        { name: { contains: query, mode: 'insensitive' } },
+                        { description: { contains: query, mode: 'insensitive' } },
+                        { categories: { name: { contains: query, mode: 'insensitive' } } }
+                    ]
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    category_id: true,
+                    categories: { select: { name: true } }
+                },
+                take: 20
+            })
+        ]);
+        return { categories, services };
     }
 }

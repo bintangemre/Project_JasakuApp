@@ -1,0 +1,134 @@
+@startuml
+title Alur Profil Saya - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E8F5E9
+skinparam activityBorderColor #2E7D32
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E3F2FD| Profil Saya |
+
+start
+
+:Halaman Profil Saya;
+:Ambil Data Profil;
+note right
+  GET /api/customer/profile
+  Header: Authorization: JWT
+end note
+
+partition "Tampilan Profil" {
+  :Tampilkan Foto Profil (Avatar);
+  :Tampilkan Nama Lengkap;
+  :Tampilkan Nickname;
+  :Tampilkan Informasi Lainnya;
+  note right
+    - Nomor Telepon
+    - Gender
+    - Tanggal Lahir
+    - Alamat
+    - Email
+  end note
+}
+
+partition "Edit Profil" {
+  :Klik Tombol "Edit";
+  :Buka Form Edit Profil;
+
+  :Input/Edit Data Diri;
+  note right
+    Field yang bisa diedit:
+    - Nama lengkap
+    - Nickname
+    - Nomor telepon
+    - Gender (L/P)
+    - Tanggal lahir
+    - Alamat
+    - Foto profil (upload)
+  end note
+
+  if (Ubah Foto Profil?) then (Ya)
+    :Pilih Foto dari Gallery;
+    :Crop Foto;
+    :Upload Foto Baru;
+    note right
+      Foto diupload ke server
+      URL tersimpan di profile
+    end note
+  else (Tidak)
+    :Lanjutkan;
+  endif
+
+  :Validasi Input;
+  note right
+    - Nama tidak kosong
+    - Nomor telepon valid
+    - Format email benar
+  end note
+
+  if (Valid?) then (Ya)
+    :Klik "Simpan";
+
+    #E8EAF6:Kirim PATCH /api/customer/profile;
+    note right
+      Body: {
+        name, nickname,
+        phone, gender,
+        dateOfBirth, address,
+        avatarUrl (jika berubah)
+      }
+    end note
+
+    if (Response 200?) then (Ya)
+      #C8E6C9:Profil Berhasil Diperbarui;
+      :Tampilkan Konfirmasi;
+      note right
+        "Profil berhasil disimpan"
+        Snack bar / toast
+      end note
+      :Kembali ke Tampilan Profil;
+      stop
+    else (Tidak)
+      #FFCDD2:Gagal Memperbarui;
+      :Tampilkan Pesan Error;
+      :Kembali ke Form Edit;
+    endif
+  else (Tidak)
+    #FFCDD2:Input Tidak Valid;
+    :Tampilkan Validasi Error;
+    :Kembali ke Form Edit;
+  endif
+}
+
+partition "Aksi Lain" {
+  if (Aksi?) then (Ubah Password)
+    :Buka Form Ubah Password;
+    :Input Password Lama;
+    :Input Password Baru;
+    :Konfirmasi Password Baru;
+    :Simpan Perubahan;
+    :Kembali ke Profil;
+    stop
+
+  elseif (Keluar) then (Logout)
+    :Konfirmasi Logout;
+    if (Yakin?) then (Ya)
+      :Hapus JWT Token
+      (flutter_secure_storage);
+      :Hapus Data Lokals;
+      :Navigasi ke Halaman Login;
+      stop
+    else (Tidak)
+      :Kembali ke Profil;
+      stop
+    endif
+
+  else (Kembali)
+    :Kembali ke Beranda;
+    stop
+  endif
+}
+
+@enduml

@@ -171,6 +171,7 @@ export const Task_providersScalarFieldEnum = {
     task_id: 'task_id',
     provider_id: 'provider_id',
     status: 'status',
+    work_status: 'work_status',
     accepted_at: 'accepted_at',
     completed_at: 'completed_at',
     payout_confirmed: 'payout_confirmed',
@@ -205,12 +206,15 @@ export const OrdersScalarFieldEnum = {
     status: 'status',
     total_price: 'total_price',
     platform_fee: 'platform_fee',
+    additional_fee: 'additional_fee',
     description: 'description',
     work_date: 'work_date',
     created_at: 'created_at',
     start_date: 'start_date',
     end_date: 'end_date',
-    assignment_type: 'assignment_type'
+    assignment_type: 'assignment_type',
+    payout_confirmed: 'payout_confirmed',
+    payout_at: 'payout_at'
 };
 export const PaymentsScalarFieldEnum = {
     id: 'id',
@@ -219,12 +223,12 @@ export const PaymentsScalarFieldEnum = {
     status: 'status',
     amount: 'amount',
     paid_at: 'paid_at',
-    created_at: 'created_at'
+    created_at: 'created_at',
+    payment_proof: 'payment_proof'
 };
 export const Pricing_typesScalarFieldEnum = {
     id: 'id',
     name: 'name',
-    description: 'description',
     default_unit: 'default_unit',
     category_id: 'category_id'
 };

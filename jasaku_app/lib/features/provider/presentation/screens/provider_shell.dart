@@ -13,7 +13,7 @@ import '../providers/provider_dashboard_provider.dart';
 import '../providers/provider_profile_provider.dart';
 import '../../../custom_tasks/presentation/pages/provider_my_bids_page.dart';
 import '../../../location/presentation/providers/location_tracker_provider.dart';
-import '../../../admin/presentation/screens/admin_pending_extensions_page.dart';
+import '../../../admin/presentation/screens/admin_hub_page.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/presentation/screens/provider_verification_pending_screen.dart';
 import '../../../notifications/data/services/fcm_manager.dart';
@@ -55,7 +55,7 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
         const ProviderRequestsPage(),
         const ProviderOrderManagementPage(),
         const ProviderProfilePage(),
-        if (isAdmin) const AdminPendingExtensionsPage(),
+        if (isAdmin) const AdminHubPage(),
       ];
 
   @override
@@ -72,17 +72,13 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
   Future<void> _reRegisterFcm() async {
     try {
       final token = await FirebaseMessaging.instance.getToken();
-      debugPrint('[FCM] ProviderShell re-register: token=${token != null ? '${token.substring(0, 20)}...' : 'NULL'}');
       if (token != null) {
         await _dio.post(ApiEndpoints.registerDevice, data: {
           'fcmToken': token,
           'deviceType': 'android',
         });
-        debugPrint('[FCM] ProviderShell device registered OK');
       }
-    } catch (e) {
-      debugPrint('[FCM] ProviderShell register FAILED: $e');
-    }
+    } catch (_) {}
   }
 
   @override
@@ -106,7 +102,9 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
           myAcceptedTasks: data['myAcceptedTasks'] ?? 0,
         );
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ProviderShell] _fetchCounts failed: $e');
+    }
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
@@ -185,7 +183,6 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
     final isAdmin = authState.user?.isAdmin ?? false;
     final unreadCount = ref.watch(unreadProviderProvider);
     final counts = ref.watch(providerCountsProvider);
-    debugPrint('[ProviderShell] user role: ${authState.user?.role} isAdmin: $isAdmin');
 
     final requestBadge = unreadCount > 0 ? unreadCount : counts.pendingRequests;
     final orderBadge = counts.todayOrders + counts.upcomingOrders;

@@ -1,0 +1,188 @@
+// ============================================================
+// Klasik ERD (Chen Notation) — Domain Layanan
+// Graphviz DOT Language
+// ============================================================
+
+graph chen_services {
+    graph [
+        label="Klasik ERD — Domain Layanan\n6 Tabel"
+        labelloc=t
+        fontname="Segoe UI Bold"
+        fontsize=16
+        bgcolor="white"
+        pad="0.5"
+        nodesep="0.8"
+        ranksep="0.8"
+        splines=true
+        overlap=false
+    ]
+
+    node [fontname="Segoe UI", fontsize=9]
+    edge [fontname="Segoe UI", fontsize=8]
+
+    // --- categories ---
+    subgraph cluster_cat {
+        label="categories"
+        labeljust=c
+        style=filled
+        fillcolor="#E8F5E9"
+        color="#2E7D32"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        cat_e [label="categories", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20"]
+        cat_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        cat_name [label="name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        cat_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        cat_icon [label="icon_url : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        cat_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+        cat_e -- cat_id [style=dashed, color="#A5D6A7"]
+        cat_e -- cat_name [style=dashed, color="#A5D6A7"]
+        cat_e -- cat_desc [style=dashed, color="#A5D6A7"]
+        cat_e -- cat_icon [style=dashed, color="#A5D6A7"]
+        cat_e -- cat_created [style=dashed, color="#A5D6A7"]
+    }
+
+    // --- services ---
+    subgraph cluster_svc {
+        label="services"
+        labeljust=c
+        style=filled
+        fillcolor="#E8F5E9"
+        color="#2E7D32"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        svc_e [label="services", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20"]
+        svc_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        svc_cid [label="category_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        svc_name [label="name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        svc_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        svc_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+        svc_e -- svc_id [style=dashed, color="#A5D6A7"]
+        svc_e -- svc_cid [style=dashed, color="#A5D6A7"]
+        svc_e -- svc_name [style=dashed, color="#A5D6A7"]
+        svc_e -- svc_desc [style=dashed, color="#A5D6A7"]
+        svc_e -- svc_created [style=dashed, color="#A5D6A7"]
+    }
+
+    // --- pricing_types ---
+    subgraph cluster_pt {
+        label="pricing_types"
+        labeljust=c
+        style=filled
+        fillcolor="#E8F5E9"
+        color="#2E7D32"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        pt_e [label="pricing_types", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20"]
+        pt_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        pt_name [label="name : VARCHAR(50)", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        pt_unit [label="default_unit : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        pt_cat [label="category_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+        pt_e -- pt_id [style=dashed, color="#A5D6A7"]
+        pt_e -- pt_name [style=dashed, color="#A5D6A7"]
+        pt_e -- pt_unit [style=dashed, color="#A5D6A7"]
+        pt_e -- pt_cat [style=dashed, color="#A5D6A7"]
+    }
+
+    // --- provider_services ---
+    subgraph cluster_psvc {
+        label="provider_services"
+        labeljust=c
+        style=filled
+        fillcolor="#E8F5E9"
+        color="#2E7D32"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        psvc_e [label="provider_services", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20"]
+        psvc_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psvc_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psvc_sid [label="service_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psvc_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psvc_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+        psvc_e -- psvc_id [style=dashed, color="#A5D6A7"]
+        psvc_e -- psvc_pid [style=dashed, color="#A5D6A7"]
+        psvc_e -- psvc_sid [style=dashed, color="#A5D6A7"]
+        psvc_e -- psvc_desc [style=dashed, color="#A5D6A7"]
+        psvc_e -- psvc_created [style=dashed, color="#A5D6A7"]
+    }
+
+    // --- provider_service_prices ---
+    subgraph cluster_psp {
+        label="provider_service_prices"
+        labeljust=c
+        style=filled
+        fillcolor="#E8F5E9"
+        color="#2E7D32"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        psp_e [label="provider_service_prices", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20"]
+        psp_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psp_psid [label="provider_service_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psp_ptid [label="pricing_type_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psp_price [label="price : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psp_unit [label="unit : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+        psp_e -- psp_id [style=dashed, color="#A5D6A7"]
+        psp_e -- psp_psid [style=dashed, color="#A5D6A7"]
+        psp_e -- psp_ptid [style=dashed, color="#A5D6A7"]
+        psp_e -- psp_price [style=dashed, color="#A5D6A7"]
+        psp_e -- psp_unit [style=dashed, color="#A5D6A7"]
+    }
+
+    // --- provider_schedules ---
+    subgraph cluster_psch {
+        label="provider_schedules"
+        labeljust=c
+        style=filled
+        fillcolor="#E8F5E9"
+        color="#2E7D32"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        psch_e [label="provider_schedules", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20"]
+        psch_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psch_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psch_date [label="work_date : DATE", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psch_booked [label="is_booked : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+        psch_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+        psch_e -- psch_id [style=dashed, color="#A5D6A7"]
+        psch_e -- psch_pid [style=dashed, color="#A5D6A7"]
+        psch_e -- psch_date [style=dashed, color="#A5D6A7"]
+        psch_e -- psch_booked [style=dashed, color="#A5D6A7"]
+        psch_e -- psch_oid [style=dashed, color="#A5D6A7"]
+    }
+
+    // ============================================================
+    // RELASI
+    // ============================================================
+
+    // categories → services
+    r1 [label="1 : N\nMempunyai", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    cat_e -- r1 [color="#2E7D32", penwidth=2]
+    r1 -- svc_e [color="#2E7D32", penwidth=2]
+
+    // services → pricing_types
+    r2 [label="1 : N\nDitentukan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    svc_e -- r2 [color="#2E7D32", penwidth=2]
+    r2 -- pt_e [color="#2E7D32", penwidth=2]
+
+    // provider_services → provider_service_prices
+    r3 [label="1 : N\nDihargai", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    psvc_e -- r3 [color="#2E7D32", penwidth=2]
+    r3 -- psp_e [color="#2E7D32", penwidth=2]
+
+    // provider_services → provider_schedules
+    r4 [label="1 : N\nDijadwalkan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    psvc_e -- r4 [color="#2E7D32", penwidth=2]
+    r4 -- psch_e [color="#2E7D32", penwidth=2]
+}

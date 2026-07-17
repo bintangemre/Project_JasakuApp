@@ -1,0 +1,96 @@
+@startuml riwayat-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #EDE7F6
+  BorderColor #512DA8
+  FontColor #311B92
+  ArrowColor #512DA8
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #311B92
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Riwayat Pesanan Mitra Jasaku**
+
+|Riwayat|
+start
+:Buka halaman Riwayat;
+
+partition "Ambil Data Riwayat" {
+  note right
+    **GET /api/orders/provider/orders**
+    Query: status=completed,completed_with_review,cancelled
+    
+    Response: {
+      orders: [{
+        id, status, service,
+        customer_name, work_date,
+        completed_date, total_price,
+        location, review
+      }]
+    }
+  end note
+  :Memuat daftar riwayat pesanan;
+end partition
+
+:Menampilkan daftar riwayat;
+
+partition "Setiap Item Riwayat" {
+  :Untuk setiap pesanan;
+  note right
+    Ditampilkan:
+    - Nama layanan
+    - Tanggal pengerjaan
+    - Status (selesai/dibatalkan)
+    - Total harga
+    - Mini peta lokasi
+  end note
+
+  :Menampilkan card dengan mini peta;
+  note right
+    **Mini Map**
+    Menampilkan marker lokasi
+    pengerjaan pesanan
+  end note
+}
+
+:Klik salah satu pesanan;
+
+:Buka halaman Detail Riwayat;
+note right
+  Detail menampilkan:
+  - ID pesanan
+  - Status akhir
+  - Informasi customer
+  - Layanan yang dikerjakan
+  - Tanggal & waktu kerja
+  - Tanggal selesai
+  - Total harga
+  - Review dari customer
+    (jika ada)
+end note
+
+if (Status = completed_with_review?) then (Ya)
+  :Menampilkan review customer;
+  note right
+    Review termasuk:
+    - Rating bintang
+    - Komentar dari customer
+  end note
+elseif (completed) then
+  :Tidak ada review;
+else (cancelled)
+  :Pesanan dibatalkan;
+endif
+
+stop
+
+@enduml

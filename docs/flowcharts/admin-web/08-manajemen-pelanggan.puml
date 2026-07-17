@@ -1,0 +1,97 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow Manajemen Pelanggan
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Pelanggan";
+
+|#E3F2FD|Backend|
+:GET /api/admin/customers;
+:Ambil semua customer (profiles_customer + users);
+note right
+  Include:
+  - full_name, nickname
+  - email, phone
+  - status (active/banned)
+  - created_at
+end note
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar pelanggan;
+
+partition "Filter & pencarian" {
+  :Cari pelanggan berdasarkan nama/email;
+  :Filter berdasarkan status (aktif/diblokir);
+}
+
+partition "Blokir pelanggan" {
+  :Admin klik tombol "Blokir" pada pelanggan aktif;
+  :Konfirmasi "Yakin ingin memblokir pelanggan ini?";
+
+  if (Konfirmasi?) then (Ya)
+    |#E3F2FD|Backend|
+    :PATCH /api/admin/customers/:userId/ban;
+    :Update user status → banned;
+
+    :Trigger notifikasi ke Pelanggan;
+    note right
+      **Notifikasi Pelanggan:**
+      Title: "Akun Diblokir"
+      Type: ACCOUNT_BANNED
+      "Akun Anda telah diblokir oleh admin.
+      Hubungi CS untuk informasi lebih lanjut."
+    end note
+
+    |#E8F5E9|Frontend|
+    :Refresh daftar pelanggan;
+    :Tampilkan toast "Pelanggan diblokir";
+  else (Tidak)
+    :Batal;
+  endif
+}
+
+partition "Aktifkan pelanggan" {
+  :Admin klik tombol "Aktifkan" pada pelanggan diblokir;
+  :Konfirmasi "Yakin ingin mengaktifkan pelanggan ini?";
+
+  if (Konfirmasi?) then (Ya)
+    |#E3F2FD|Backend|
+    :PATCH /api/admin/customers/:userId/unban;
+    :Update user status → active;
+
+    :Trigger notifikasi ke Pelanggan;
+    note right
+      **Notifikasi Pelanggan:**
+      Title: "Akun Diaktifkan"
+      Type: ACCOUNT_UNBANNED
+      "Akun Anda telah diaktifkan kembali.
+      Anda bisa login sekarang."
+    end note
+
+    |#E8F5E9|Frontend|
+    :Refresh daftar pelanggan;
+    :Tampilkan toast "Pelanggan diaktifkan";
+    stop
+  else (Tidak)
+    :Batal;
+    stop
+  endif
+endif
+
+note right
+  **Endpoint:**
+  GET /api/admin/customers
+  PATCH /api/admin/customers/:userId/ban
+  PATCH /api/admin/customers/:userId/unban
+end note
+
+@enduml

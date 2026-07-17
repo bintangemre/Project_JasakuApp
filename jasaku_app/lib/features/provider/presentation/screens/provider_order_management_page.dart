@@ -6,6 +6,7 @@ import '../../../../core/utils/operating_hours.dart';
 import 'provider_order_detail_page.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/utils/date_utils.dart';
 
 class ProviderOrderManagementPage extends ConsumerStatefulWidget {
   const ProviderOrderManagementPage({super.key});
@@ -45,7 +46,7 @@ class _ProviderOrderManagementPageState extends ConsumerState<ProviderOrderManag
     } catch (e) {
       setState(() => _loading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memuat: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memuat: ${ApiClient.errorMessage(e)}')));
       }
     }
   }
@@ -82,17 +83,6 @@ class _ProviderOrderManagementPageState extends ConsumerState<ProviderOrderManag
       case 'rejected': return 'Ditolak';
       case 'cancelled': return 'Dibatalkan';
       default: return status;
-    }
-  }
-
-  String _formatDate(String? dateStr) {
-    if (dateStr == null) return '-';
-    try {
-      final d = DateTime.parse(dateStr);
-      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
-      return '${d.day} ${months[d.month - 1]} ${d.year}';
-    } catch (_) {
-      return dateStr;
     }
   }
 
@@ -198,7 +188,7 @@ class _ProviderOrderManagementPageState extends ConsumerState<ProviderOrderManag
                       ),
                       const Spacer(),
                       Text(
-                        _formatDate(order['work_date'] as String?),
+                        AppDateUtils.formatShort(order['work_date'] as String?),
                         style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                     ],

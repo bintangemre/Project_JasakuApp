@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
 import 'provider_order_detail_page.dart';
+import '../../../../core/utils/date_utils.dart';
 
 class ProviderRequestsPage extends ConsumerStatefulWidget {
   const ProviderRequestsPage({super.key});
@@ -19,17 +20,22 @@ class _ProviderRequestsPageState extends ConsumerState<ProviderRequestsPage> {
   bool _isLoading = true;
   String? _error;
   Timer? _refreshTimer;
+  Timer? _tickTimer;
 
   @override
   void initState() {
     super.initState();
     _fetchRequests();
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) => _fetchRequests());
+    _tickTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _tickTimer?.cancel();
     super.dispose();
   }
 
@@ -64,7 +70,7 @@ class _ProviderRequestsPageState extends ConsumerState<ProviderRequestsPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(ApiClient.errorMessage(e)), backgroundColor: Colors.red),
         );
       }
     }
@@ -82,7 +88,7 @@ class _ProviderRequestsPageState extends ConsumerState<ProviderRequestsPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(ApiClient.errorMessage(e)), backgroundColor: Colors.red),
         );
       }
     }
@@ -100,17 +106,6 @@ class _ProviderRequestsPageState extends ConsumerState<ProviderRequestsPage> {
     final n = (price is num) ? price.toDouble() : double.tryParse(price.toString()) ?? 0;
     final formatted = n.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.');
     return 'Rp $formatted';
-  }
-
-  String _formatDate(String? dateStr) {
-    if (dateStr == null) return '-';
-    try {
-      final d = DateTime.parse(dateStr);
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
-      return '${d.day} ${months[d.month - 1]} ${d.year}';
-    } catch (_) {
-      return dateStr;
-    }
   }
 
   @override
@@ -296,7 +291,7 @@ class _ProviderRequestsPageState extends ConsumerState<ProviderRequestsPage> {
                 children: [
                   Text(_formatPrice(totalPrice),
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00A651))),
-                  Text(_formatDate(workDate), style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text(AppDateUtils.formatShort(workDate), style: const TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
               ),
               const SizedBox(height: 16),
@@ -311,7 +306,7 @@ class _ProviderRequestsPageState extends ConsumerState<ProviderRequestsPage> {
                           side: const BorderSide(color: Colors.red),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
-                        onPressed: () => _confirmReject(order['id'] as String),
+                        onPressed: remaining <= Duration.zero ? null : () => _confirmReject(order['id'] as String),
                         child: const Text('Tolak', style: TextStyle(fontWeight: FontWeight.w600)),
                       ),
                     ),
@@ -327,7 +322,7 @@ class _ProviderRequestsPageState extends ConsumerState<ProviderRequestsPage> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           elevation: 0,
                         ),
-                        onPressed: () => _handleAccept(order['id'] as String),
+                        onPressed: remaining <= Duration.zero ? null : () => _handleAccept(order['id'] as String),
                         child: const Text('Terima', style: TextStyle(fontWeight: FontWeight.w600)),
                       ),
                     ),

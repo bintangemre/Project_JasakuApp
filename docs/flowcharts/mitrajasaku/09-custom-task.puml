@@ -1,0 +1,164 @@
+@startuml custom-task-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #F3E5F5
+  BorderColor #7B1FA2
+  FontColor #4A148C
+  ArrowColor #7B1FA2
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #4A148C
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Custom Task Mitra Jasaku**
+
+|Custom Task|
+start
+:Buka halaman Custom Task;
+
+partition "Task Tersedia" {
+  note right
+    **GET /api/custom-tasks/available**
+    Query: lat, lng (lokasi mitra)
+    
+    Response: {
+      tasks: [{
+        id, title, description,
+        customer_name, location,
+        distance, estimated_price,
+        deadline, created_at
+      }]
+    }
+  end note
+  :Memuat daftar task tersedia;
+  :Menampilkan task dengan jarak;
+
+  while (Ada task?) is (Ya)
+    :Pilih task untuk dilihat;
+
+    :Buka detail task;
+    note right
+      Detail task:
+      - Judul task
+      - Deskripsi
+      - Lokasi customer
+      - Jarak dari mitra
+      - Estimasi harga
+      - Deadline
+    end note
+
+    if (Ambil task?) then (Ya)
+      :Klik **"Ambil Task"**;
+      note right
+        **POST /api/custom-tasks/:taskId/accept**
+        
+        Task akan masuk ke
+        daftar "Task Saya"
+      end note
+
+      :Mengirim permintaan ke server;
+
+      if (Berhasil?) then (Ya)
+        #C8E6C9:Task berhasil diambil;
+        :Task masuk daftar "Task Saya";
+      else (Tidak)
+        #EF9A9A:Gagal mengambil task;
+        note right
+          Alasan:
+          - Task sudah diambil mitra lain
+          - Mitra tidak tersedia
+        end note
+      endif
+
+    else (Lewati)
+      :Skip task ini;
+    endif
+
+  endwhile (Tidak ada task lagi)
+}
+
+partition "Task Saya" {
+  :Buka tab "Task Saya";
+  note right
+    **GET /api/custom-tasks/my-accepted**
+    Response: {
+      tasks: [{
+        id, title, description,
+        customer_name, location,
+        status, work_status,
+        deadline
+      }]
+    }
+  end note
+  :Memuat daftar task yang diterima;
+
+  while (Ada task?) is (Ya)
+    :Pilih task;
+
+    :Buka detail task;
+
+    if (Status task?) then (accepted)
+      :Mulai mengerjakan;
+      note right
+        Update work status
+      end note
+      :Klik **"Mulai Kerja"**;
+      note right
+        **PATCH /api/custom-tasks/:taskId/work-status**
+        Body: { work_status: "in_progress" }
+      end note
+      #B3E5FC:Status: **in_progress**;
+
+    elseif (in_progress) then
+      :Kerjakan task;
+
+      :Selesaikan task;
+      note right
+        **PATCH /api/custom-tasks/:taskId/complete**
+        
+        Tandai task selesai
+      end note
+
+      :Klik **"Selesai"**;
+      #C8E6C9:Status: **completed**;
+      note right
+        Task selesai dan
+        menunggu review
+        dari customer
+      end note
+
+    endif
+
+  endwhile (Tidak ada task lagi)
+}
+
+partition "Update Work Status" {
+  :Update status pekerjaan;
+  note right
+    **PATCH /api/custom-tasks/:taskId/work-status**
+    Body: {
+      work_status: "not_started" |
+      "in_progress" | "completed"
+    }
+  end note
+
+  :Mengupdate status ke server;
+
+  if (Berhasil?) then (Ya)
+    #C8E6C9:Status berhasil diupdate;
+  else (Tidak)
+    #EF9A9A:Gagal mengupdate status;
+  endif
+}
+
+stop
+
+@enduml

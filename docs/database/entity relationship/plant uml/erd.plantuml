@@ -1,0 +1,432 @@
+@startuml ERD_Jasaku
+' ============================================================
+' Entity Relationship Diagram (ERD) — Jasaku Platform
+' Crow's Foot notation · Logical view with PK/FK badges
+' ============================================================
+
+skinparam linetype ortho
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 11
+skinparam shadowing false
+skinparam nodesep 30
+skinparam ranksep 50
+
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #4A6FA5
+  ArrowColor #4A6FA5
+  FontSize 11
+  HeaderBackgroundColor #4A6FA5
+  HeaderFontColor #FFFFFF
+}
+
+skinparam package {
+  BackgroundColor<<domain>> #F0F4FF
+  BorderColor<<domain>> #4A6FA5
+  FontColor<<domain>> #2C3E50
+  FontSize<<domain>> 13
+  FontStyle<<domain>> bold
+}
+
+' ═══════════════════════════════════════════════════════════
+' CORE: Users & Auth
+' ═══════════════════════════════════════════════════════════
+
+package "Autentikasi & Pengguna" <<domain>> {
+
+  class "roles" as ROLES {
+    --
+    <<PK>> id : INT
+    name : VARCHAR(50)
+    description : TEXT
+  }
+
+  class "users" as USERS {
+    --
+    <<PK>> id : UUID
+    <<FK>> role_id : INT
+    email : VARCHAR(255)
+    phone : VARCHAR(20)
+    password_hash : TEXT
+    google_id : VARCHAR(255)
+    status : VARCHAR(20)
+  }
+
+  class "profiles_customer" as PCUST {
+    --
+    <<PK>> id : UUID
+    <<FK>> user_id : UUID
+    full_name : VARCHAR(150)
+    nickname : VARCHAR(100)
+    gender : VARCHAR(10)
+    address : TEXT
+    avatar_url : TEXT
+  }
+
+  class "provider_profiles" as PPROV {
+    --
+    <<PK>> id : UUID
+    <<FK>> user_id : UUID
+    full_name : VARCHAR(100)
+    phone : VARCHAR(20)
+    is_verified : BOOLEAN
+    verification_status : VARCHAR(20)
+    rating : DECIMAL(2,1)
+    total_jobs : INT
+    total_reviews : INT
+  }
+
+  class "provider_locations" as PLOC {
+    --
+    <<PK>> id : UUID
+    <<FK>> provider_id : UUID
+    address : TEXT
+    location : GEOMETRY
+  }
+
+  class "provider_documents" as PDOC {
+    --
+    <<PK>> id : UUID
+    <<FK>> provider_id : UUID
+    type : VARCHAR(30)
+    file_url : TEXT
+  }
+
+  class "provider_payout_methods" as PPAYOUT {
+    --
+    <<PK>> id : UUID
+    <<FK>> provider_id : UUID
+    type : VARCHAR(50)
+    account_number : VARCHAR(100)
+    account_name : VARCHAR(150)
+  }
+
+  class "identity_verifications" as IDVERIF {
+    --
+    <<PK>> id : UUID
+    <<FK>> provider_id : UUID
+    nik : VARCHAR
+    face_match_status : VARCHAR(20)
+    liveness_status : VARCHAR(20)
+  }
+
+  class "user_devices" as UDEV {
+    --
+    <<PK>> id : UUID
+    <<FK>> user_id : UUID
+    fcm_token : TEXT
+    device_type : VARCHAR
+  }
+}
+
+' ═══════════════════════════════════════════════════════════
+' CORE: Services
+' ═══════════════════════════════════════════════════════════
+
+package "Katalog Layanan" <<domain>> {
+
+  class "categories" as CAT {
+    --
+    <<PK>> id : UUID
+    name : VARCHAR(100)
+    icon_url : TEXT
+  }
+
+  class "pricing_types" as PTYPES {
+    --
+    <<PK>> id : UUID
+    name : VARCHAR(50)
+    default_unit : VARCHAR
+    <<FK>> category_id : UUID
+  }
+
+  class "services" as SERV {
+    --
+    <<PK>> id : UUID
+    <<FK>> category_id : UUID
+    name : VARCHAR(150)
+    description : TEXT
+  }
+
+  class "provider_services" as PSERV {
+    --
+    <<PK>> id : UUID
+    <<FK>> provider_id : UUID
+    <<FK>> service_id : UUID
+    description : TEXT
+  }
+
+  class "provider_service_prices" as PSPRICE {
+    --
+    <<PK>> id : UUID
+    <<FK>> provider_service_id : UUID
+    <<FK>> pricing_type_id : UUID
+    price : DECIMAL(12,2)
+    unit : VARCHAR
+  }
+}
+
+' ═══════════════════════════════════════════════════════════
+' CORE: Orders
+' ═══════════════════════════════════════════════════════════
+
+package "Pesanan (Orders)" <<domain>> {
+
+  class "orders" as ORD {
+    --
+    <<PK>> id : UUID
+    <<FK>> customer_id : UUID
+    <<FK>> provider_id : UUID
+    <<FK>> custom_task_id : UUID?
+    <<FK>> task_provider_id : UUID?
+    status : VARCHAR(30)
+    total_price : DECIMAL(12,2)
+    platform_fee : DECIMAL(12,2)
+    additional_fee : DECIMAL(12,2)
+    work_date : DATE
+    assignment_type : VARCHAR(20)
+    payout_confirmed : BOOLEAN
+  }
+
+  class "order_items" as OITEMS {
+    --
+    <<PK>> id : UUID
+    <<FK>> order_id : UUID
+    <<FK>> service_id : UUID
+    <<FK>> pricing_type_id : UUID
+    quantity : INT
+    price : DECIMAL(12,2)
+    subtotal : DECIMAL(12,2)
+  }
+
+  class "order_locations" as OLOC {
+    --
+    <<PK>> id : UUID
+    <<FK>> order_id : UUID
+    address : TEXT
+    location : GEOMETRY
+  }
+
+  class "order_attachments" as OATTACH {
+    --
+    <<PK>> id : UUID
+    <<FK>> order_id : UUID
+    file_url : TEXT
+  }
+
+  class "order_extensions" as OEXT {
+    --
+    <<PK>> id : UUID
+    <<FK>> order_id : UUID
+    <<FK>> provider_id : UUID
+    <<FK>> customer_id : UUID
+    requested_date : DATE
+    additional_cost : DECIMAL(12,2)
+    status : VARCHAR(20)
+  }
+
+  class "provider_schedules" as PSCHED {
+    --
+    <<PK>> id : UUID
+    <<FK>> provider_id : UUID
+    work_date : DATE
+    is_booked : BOOLEAN
+    <<FK>> order_id : UUID?
+  }
+}
+
+' ═══════════════════════════════════════════════════════════
+' CORE: Payments
+' ═══════════════════════════════════════════════════════════
+
+package "Pembayaran" <<domain>> {
+
+  class "payments" as PAY {
+    --
+    <<PK>> id : UUID
+    <<FK>> order_id : UUID
+    method : VARCHAR(50)
+    status : VARCHAR(30)
+    amount : DECIMAL(12,2)
+    paid_at : TIMESTAMP
+    payment_proof : TEXT
+  }
+
+  class "admin_bank_accounts" as ABANK {
+    --
+    <<PK>> id : UUID
+    provider_name : VARCHAR(100)
+    account_number : VARCHAR(100)
+    account_name : VARCHAR(150)
+  }
+
+  class "admin_ewallet_accounts" as AEWALLET {
+    --
+    <<PK>> id : UUID
+    provider_name : VARCHAR(100)
+    account_number : VARCHAR(100)
+    account_name : VARCHAR(150)
+  }
+
+  class "admin_qris_accounts" as AQRIS {
+    --
+    <<PK>> id : UUID
+    provider_name : VARCHAR(100)
+    qris_image_url : TEXT
+  }
+}
+
+' ═══════════════════════════════════════════════════════════
+' CORE: Custom Tasks
+' ═══════════════════════════════════════════════════════════
+
+package "Custom Tasks (Tender)" <<domain>> {
+
+  class "custom_tasks" as CTSK {
+    --
+    <<PK>> id : UUID
+    <<FK>> customer_id : UUID
+    title : VARCHAR(150)
+    budget_per_person : DECIMAL(12,0)
+    required_people : INT
+    accepted_count : INT
+    platform_fee_rate : DECIMAL(4,2)
+    payment_status : VARCHAR(30)
+    location : GEOMETRY
+    status : VARCHAR(30)
+  }
+
+  class "task_locations" as TLOC {
+    --
+    <<PK>> id : UUID
+    <<FK>> task_id : UUID
+    label : VARCHAR(100)
+    address : TEXT
+    location : GEOMETRY
+    stop_order : INT
+  }
+
+  class "task_providers" as TPROV {
+    --
+    <<PK>> id : UUID
+    <<FK>> task_id : UUID
+    <<FK>> provider_id : UUID
+    status : VARCHAR(20)
+    work_status : VARCHAR(20)
+    accepted_at : TIMESTAMP
+    completed_at : TIMESTAMP
+    payout_confirmed : BOOLEAN
+  }
+}
+
+' ═══════════════════════════════════════════════════════════
+' CORE: Reviews & Reports
+' ═══════════════════════════════════════════════════════════
+
+package "Ulasan & Laporan" <<domain>> {
+
+  class "reviews" as REV {
+    --
+    <<PK>> id : UUID
+    <<FK>> order_id : UUID
+    <<FK>> customer_id : UUID
+    <<FK>> provider_id : UUID
+    rating : INT
+    review : TEXT
+  }
+
+  class "reports" as REP {
+    --
+    <<PK>> id : UUID
+    <<FK>> reporter_id : UUID
+    reporter_role : VARCHAR(20)
+    <<FK>> order_id : UUID?
+    subject : VARCHAR(200)
+    description : TEXT
+    status : VARCHAR(20)
+    admin_response : TEXT
+  }
+}
+
+' ═══════════════════════════════════════════════════════════
+' RELATIONSHIPS (Crow's Foot)
+' ═══════════════════════════════════════════════════════════
+
+' Users domain
+ROLES "1" -- "0..*" USERS
+USERS "1" -- "0..1" PCUST
+USERS "1" -- "0..1" PPROV
+USERS "1" -- "0..1" PLOC
+USERS "1" -- "0..*" UDEV
+USERS "1" -- "0..*" REP
+USERS "1" -- "0..*" REV : <<customer>>
+USERS "1" -- "0..*" REV : <<provider>>
+
+' Provider domain
+PPROV "1" -- "0..1" IDVERIF
+PPROV "1" -- "0..*" PDOC
+PPROV "1" -- "0..*" PPAYOUT
+PPROV "1" -- "0..*" PSERV
+PPROV "1" -- "0..*" PSCHED
+PPROV "1" -- "0..*" TPROV
+PPROV "1" -- "0..*" ORD
+
+' Customer domain
+PCUST "1" -- "0..*" ORD
+
+' Services domain
+CAT "1" -- "0..*" PTYPES
+CAT "1" -- "0..*" SERV
+SERV "1" -- "0..*" PSERV
+SERV "1" -- "0..*" OITEMS
+PTYPES "1" -- "0..*" PSPRICE
+PSERV "1" -- "0..*" PSPRICE
+PSERV "1" -- "0..*" OITEMS
+
+' Orders domain
+ORD "1" -- "1" PAY
+ORD "1" -- "0..*" OITEMS
+ORD "1" -- "0..1" OLOC
+ORD "1" -- "0..*" OATTACH
+ORD "1" -- "0..*" OEXT
+ORD "1" -- "0..1" PSCHED
+ORD "1" -- "0..1" REV
+ORD "0..*" -- "0..1" CTSK
+ORD "0..*" -- "0..1" TPROV
+
+' Custom Tasks domain
+CTSK "1" -- "0..*" TLOC
+CTSK "1" -- "0..*" TPROV
+CTSK "1" -- "0..*" ORD
+
+' Payments domain
+PAY "0..*" -- "0..1" ABANK
+PAY "0..*" -- "0..1" AEWALLET
+PAY "0..*" -- "0..1" AQRIS
+
+' ── CONSTRAINTS ────────────────────────────────────────────
+note bottom of PSCHED
+  UNIQUE(provider_id, work_date)
+end note
+
+note bottom of TPROV
+  UNIQUE(task_id, provider_id)
+end note
+
+note bottom of ORD
+  customer_id -> profiles_customer.id
+  provider_id -> provider_profiles.id
+  (NOT users.id)
+end note
+
+note bottom of REV
+  customer_id -> users.id
+  provider_id -> users.id
+end note
+
+' ── TITLE ──────────────────────────────────────────────────
+title <b>ERD — Jasaku Platform</b>\nEntity Relationship Diagram · Crow's Foot Notation\n\n31 Tables · 32 Foreign Keys\nPostgreSQL 15 + PostGIS · Supabase
+
+footer Generated by PlantUML
+@enduml

@@ -63,4 +63,25 @@ export class PaymentsService {
             where: { order_id: orderId }
         });
     }
+    async uploadPaymentProof(orderId, fileUrl) {
+        let payment = await prisma.payments.findFirst({
+            where: { order_id: orderId }
+        });
+        if (!payment) {
+            payment = await prisma.payments.create({
+                data: {
+                    order_id: orderId,
+                    status: 'pending',
+                    payment_proof: fileUrl,
+                }
+            });
+        }
+        else {
+            payment = await prisma.payments.update({
+                where: { id: payment.id },
+                data: { payment_proof: fileUrl }
+            });
+        }
+        return payment;
+    }
 }

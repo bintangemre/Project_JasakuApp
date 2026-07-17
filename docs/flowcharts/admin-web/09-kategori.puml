@@ -1,0 +1,101 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow CRUD Kategori
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Kategori";
+
+|#E3F2FD|Backend|
+:GET /api/admin/categories;
+note right
+  Query: categories
+  ORDER BY name ASC
+end note
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar kategori;
+
+partition "Tambah kategori" {
+  :Admin klik tombol "Tambah Kategori";
+  :Buka modal form;
+  :Input nama, deskripsi, icon URL (opsional);
+
+  |#E3F2FD|Backend|
+  :POST /api/admin/categories;
+  :Validasi: nama wajib diisi;
+
+  if (Berhasil?) then (Ya)
+    :Kirim data kategori baru;
+    |#E8F5E9|Frontend|
+    :Refresh daftar kategori;
+    :Tampilkan toast "Kategori ditambahkan";
+  else (Tidak)
+    :Tampilkan error validasi;
+  endif
+}
+
+partition "Edit kategori" {
+  :Admin klik tombol "Edit" pada kategori;
+  :Buka modal form (pre-fill data);
+
+  |#E3F2FD|Backend|
+  :PUT /api/admin/categories/:id;
+
+  if (Berhasil?) then (Ya)
+    :Kirim data kategori updated;
+    |#E8F5E9|Frontend|
+    :Refresh daftar kategori;
+    :Tampilkan toast "Kategori diupdate";
+  else (Tidak)
+    :Tampilkan error;
+  endif
+}
+
+partition "Hapus kategori" {
+  :Admin klik tombol "Hapus" pada kategori;
+  :Konfirmasi "Yakin ingin menghapus kategori ini?";
+
+  if (Konfirmasi?) then (Ya)
+    |#E3F2FD|Backend|
+    :DELETE /api/admin/categories/:id;
+    :Cek apakah kategori punya layanan aktif;
+
+    if (Ada layanan?) then (Ya)
+      :Tolak hapus;
+      |#E8F5E9|Frontend|
+      :Tampilkan error "Hapus layanan terlebih dahulu";
+    else (Tidak)
+      :Hapus kategori dari database;
+      |#E8F5E9|Frontend|
+      :Refresh daftar kategori;
+      :Tampilkan toast "Kategori dihapus";
+      stop
+    endif
+  else (Tidak)
+    :Batal hapus;
+    stop
+  endif
+}
+
+note right
+  **Endpoint:**
+  GET    /api/admin/categories
+  POST   /api/admin/categories
+  PUT    /api/admin/categories/:id
+  DELETE /api/admin/categories/:id
+
+  **Validasi:**
+  - Nama wajib diisi
+  - Tidak bisa hapus jika ada layanan aktif
+end note
+
+@enduml

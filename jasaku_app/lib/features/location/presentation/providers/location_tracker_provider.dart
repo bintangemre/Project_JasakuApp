@@ -25,22 +25,22 @@ class LocationTrackerNotifier extends StateNotifier<LocationTrackerState> {
 
     final permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-      debugPrint('[LocationTracker] Permission denied');
       return;
-    }
-
-    try {
-      final pos = await Geolocator.getCurrentPosition();
-      state = LocationTrackerState(currentPosition: pos, isTracking: true);
-      _sendLocation();
-    } catch (e) {
-      debugPrint('[LocationTracker] Initial position error: $e');
     }
 
     final locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 10,
     );
+
+    try {
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      state = LocationTrackerState(currentPosition: pos, isTracking: true);
+      _sendLocation();
+    } catch (e) {
+      debugPrint('[LocationTracker] Initial position error: $e');
+      return;
+    }
 
     _subscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
       (position) {

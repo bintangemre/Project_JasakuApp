@@ -244,7 +244,9 @@ export const OrdersScalarFieldEnum = {
   created_at: 'created_at',
   start_date: 'start_date',
   end_date: 'end_date',
-  assignment_type: 'assignment_type'
+  assignment_type: 'assignment_type',
+  payout_confirmed: 'payout_confirmed',
+  payout_at: 'payout_at'
 } as const
 
 export type OrdersScalarFieldEnum = (typeof OrdersScalarFieldEnum)[keyof typeof OrdersScalarFieldEnum]
@@ -267,7 +269,6 @@ export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typ
 export const Pricing_typesScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  description: 'description',
   default_unit: 'default_unit',
   category_id: 'category_id'
 } as const

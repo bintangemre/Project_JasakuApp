@@ -1,0 +1,135 @@
+@startuml
+title Alur Pemesanan Layanan - Jasaku Customer
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E3F2FD
+skinparam activityBorderColor #1565C0
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam partitionBackgroundColor #F5F5F5
+skinparam arrowColor #455A64
+
+|#E8F5E9| Form Pemesanan |
+
+start
+
+:Buka Form Pemesanan;
+:Memuat Data Provider & Layanan;
+
+partition "Pilih Tanggal" {
+  :Buka Date Picker;
+  :Pilih Tanggal Pemesanan;
+
+  if (Tanggal_valid?) then (Ya)
+    #C8E6C9:Validasi Lulus;
+  else (Tidak)
+    #FFCDD2:Validasi Gagal
+    "Tidak boleh di masa lalu";
+    stop
+  endif
+
+  :Cek Apakah Hari Ini?;
+
+  if (Hari ini?) then (Ya)
+    :Cek Jam Operasional WITA;
+    note right
+      Utilitas: OperatingHours
+      Waktu: 08:00 - 16:00 WITA
+    end note
+
+    if (Waktu_sekarang?) then (08:00 - 15:29)
+      #C8E6C9:Boleh Pesan;
+    elseif (15:30 - 15:59) then (Mepet)
+      #FFF9C4:Peringatan: Waktu Mepet
+      "Pesanan akan diproses\ndi akhir waktu operasional";
+      :Pilih "Tetap Pesan" atau "Ganti Tanggal";
+      if (Tetap Pesan?) then (Ya)
+        :Lanjutkan;
+      else (Tidak)
+        :Buka Date Picker Lagi;
+        stop
+      endif
+    else (>= 16:00)
+      #FFCDD2:Blokir Pesanan
+      "Di luar jam operasional\nPesanan tidak dapat dibuat";
+      stop
+    endif
+  else (Bukan hari ini)
+    :Lanjutkan;
+  endif
+}
+
+partition "Informasi Lokasi" {
+  :Input Alamat Lengkap;
+  :Klik "Pilih di Peta";
+  note right
+    Buka peta interaktif
+    Klik untuk set lokasi
+    Ambil: latitude & longitude
+  end note
+  :Konfirmasi Lokasi di Peta;
+  note right
+    Tersimpan:
+    - address (teks)
+    - latitude
+    - longitude
+  end note
+}
+
+partition "Detail Pesanan" {
+  :Input Jumlah (Quantity);
+  :Input Deskripsi Pekerjaan;
+  note right
+    Deskripsi detail tentang
+    pekerjaan yang diinginkan
+  end note
+
+  :Upload Foto Pendukung;
+  note right
+    Maksimal 5 foto
+    Format: jpg, png
+  end note
+  loop Upload per foto
+    :Pilih Foto;
+    :Upload ke Server;
+  end
+}
+
+partition "Pembayaran" {
+  :Pilih Metode Pembayaran;
+  note right
+    Opsi:
+    - Bank Transfer
+    - E-Wallet
+    - QRIS
+  end note
+}
+
+:Review Ringkasan Pesanan;
+
+:Klik Tombol "Buat Pesanan";
+
+#E8EAF6:Kirim POST /api/orders/orders;
+note right
+  Body: {
+    serviceId, providerId,
+    scheduledDate, address,
+    latitude, longitude,
+    quantity, description,
+    photoUrls,
+    paymentMethod
+  }
+end note
+
+if (Response 201?) then (Ya)
+  #C8E6C9:Pesanan Berhasil Dibuat;
+  :Status Awal: pending_payment;
+  :Navigasi ke Halaman Instruksi Pembayaran;
+  stop
+else (Tidak)
+  #FFCDD2:Gagal Membuat Pesanan;
+  :Tampilkan Pesan Error;
+  :Kembali ke Form Pemesanan;
+  stop
+endif
+
+@enduml

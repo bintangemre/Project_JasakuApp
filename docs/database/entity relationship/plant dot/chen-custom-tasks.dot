@@ -1,0 +1,144 @@
+// ============================================================
+// Klasik ERD (Chen Notation) — Domain Custom Task
+// Graphviz DOT Language
+// ============================================================
+
+graph chen_custom_tasks {
+    graph [
+        label="Klasik ERD — Domain Custom Task\n3 Tabel"
+        labelloc=t
+        fontname="Segoe UI Bold"
+        fontsize=16
+        bgcolor="white"
+        pad="0.5"
+        nodesep="0.8"
+        ranksep="0.8"
+        splines=true
+        overlap=false
+    ]
+
+    node [fontname="Segoe UI", fontsize=9]
+    edge [fontname="Segoe UI", fontsize=8]
+
+    // --- custom_tasks ---
+    subgraph cluster_ct {
+        label="custom_tasks"
+        labeljust=c
+        style=filled
+        fillcolor="#E0F7FA"
+        color="#00838F"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        ct_e [label="custom_tasks", shape=box, style="filled,bold", fillcolor="#B2EBF2", color="#00838F", fontcolor="#006064"]
+        ct_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_cid [label="customer_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_title [label="title : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_budget [label="budget_per_person : DECIMAL(12,0)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_people [label="required_people : INT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_accepted [label="accepted_count : INT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_fee [label="platform_fee_rate : DECIMAL(4,2)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_addr [label="address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_detail [label="location_detail : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_days [label="publish_days : INT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_expires [label="expires_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_proof [label="payment_proof : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_pstat [label="payment_status : VARCHAR(30)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_geo [label="location : GEOMETRY", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_status [label="status : VARCHAR(30)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        ct_updated [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+
+        ct_e -- ct_id [style=dashed, color="#80DEEA"]
+        ct_e -- ct_cid [style=dashed, color="#80DEEA"]
+        ct_e -- ct_title [style=dashed, color="#80DEEA"]
+        ct_e -- ct_desc [style=dashed, color="#80DEEA"]
+        ct_e -- ct_budget [style=dashed, color="#80DEEA"]
+        ct_e -- ct_people [style=dashed, color="#80DEEA"]
+        ct_e -- ct_accepted [style=dashed, color="#80DEEA"]
+        ct_e -- ct_fee [style=dashed, color="#80DEEA"]
+        ct_e -- ct_addr [style=dashed, color="#80DEEA"]
+        ct_e -- ct_detail [style=dashed, color="#80DEEA"]
+        ct_e -- ct_days [style=dashed, color="#80DEEA"]
+        ct_e -- ct_expires [style=dashed, color="#80DEEA"]
+        ct_e -- ct_proof [style=dashed, color="#80DEEA"]
+        ct_e -- ct_pstat [style=dashed, color="#80DEEA"]
+        ct_e -- ct_geo [style=dashed, color="#80DEEA"]
+        ct_e -- ct_status [style=dashed, color="#80DEEA"]
+        ct_e -- ct_created [style=dashed, color="#80DEEA"]
+        ct_e -- ct_updated [style=dashed, color="#80DEEA"]
+    }
+
+    // --- task_locations ---
+    subgraph cluster_tl {
+        label="task_locations"
+        labeljust=c
+        style=filled
+        fillcolor="#E0F7FA"
+        color="#00838F"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        tl_e [label="task_locations", shape=box, style="filled,bold", fillcolor="#B2EBF2", color="#00838F", fontcolor="#006064"]
+        tl_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tl_tid [label="task_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tl_label [label="label : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tl_addr [label="address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tl_geo [label="location : GEOMETRY", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tl_order [label="stop_order : INT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+
+        tl_e -- tl_id [style=dashed, color="#80DEEA"]
+        tl_e -- tl_tid [style=dashed, color="#80DEEA"]
+        tl_e -- tl_label [style=dashed, color="#80DEEA"]
+        tl_e -- tl_addr [style=dashed, color="#80DEEA"]
+        tl_e -- tl_geo [style=dashed, color="#80DEEA"]
+        tl_e -- tl_order [style=dashed, color="#80DEEA"]
+    }
+
+    // --- task_providers ---
+    subgraph cluster_tp {
+        label="task_providers"
+        labeljust=c
+        style=filled
+        fillcolor="#E0F7FA"
+        color="#00838F"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        tp_e [label="task_providers", shape=box, style="filled,bold", fillcolor="#B2EBF2", color="#00838F", fontcolor="#006064"]
+        tp_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tp_tid [label="task_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tp_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tp_status [label="status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tp_work [label="work_status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tp_accepted [label="accepted_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tp_completed [label="completed_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tp_payout [label="payout_confirmed : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+        tp_payout_at [label="payout_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+
+        tp_e -- tp_id [style=dashed, color="#80DEEA"]
+        tp_e -- tp_tid [style=dashed, color="#80DEEA"]
+        tp_e -- tp_pid [style=dashed, color="#80DEEA"]
+        tp_e -- tp_status [style=dashed, color="#80DEEA"]
+        tp_e -- tp_work [style=dashed, color="#80DEEA"]
+        tp_e -- tp_accepted [style=dashed, color="#80DEEA"]
+        tp_e -- tp_completed [style=dashed, color="#80DEEA"]
+        tp_e -- tp_payout [style=dashed, color="#80DEEA"]
+        tp_e -- tp_payout_at [style=dashed, color="#80DEEA"]
+    }
+
+    // ============================================================
+    // RELASI
+    // ============================================================
+
+    // custom_tasks → task_locations
+    r1 [label="1 : N\nDilokasi", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    ct_e -- r1 [color="#00838F", penwidth=2]
+    r1 -- tl_e [color="#00838F", penwidth=2]
+
+    // custom_tasks → task_providers
+    r2 [label="1 : N\nDiterima", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=9]
+    ct_e -- r2 [color="#00838F", penwidth=2]
+    r2 -- tp_e [color="#00838F", penwidth=2]
+}

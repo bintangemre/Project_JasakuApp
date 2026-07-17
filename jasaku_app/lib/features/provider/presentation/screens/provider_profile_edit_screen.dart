@@ -243,9 +243,11 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
                           radius: 50,
                           backgroundImage: _profilePhotoPath != null
                               ? FileImage(File(_profilePhotoPath!))
-                              : null,
+                              : ref.read(profileProvider).profilePhoto != null
+                                  ? NetworkImage(imageUrl(ref.read(profileProvider).profilePhoto))
+                                  : null,
                           backgroundColor: const Color(0xFFE8F5E9),
-                          child: _profilePhotoPath == null
+                          child: _profilePhotoPath == null && ref.read(profileProvider).profilePhoto == null
                               ? const Icon(Icons.person,
                                   size: 50, color: Color(0xFF00A651))
                               : null,

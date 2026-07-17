@@ -1,0 +1,175 @@
+@startuml profil-layanan-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E8EAF6
+  BorderColor #3949AB
+  FontColor #1A237E
+  ArrowColor #3949AB
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #1A237E
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Profil & Layanan Mitra Jasaku**
+
+|Profil & Layanan|
+start
+:Buka halaman Profil;
+
+partition "Ambil Data Profil" {
+  note right
+    **GET /api/provider/profile**
+    Response: {
+      id, name, email, phone,
+      address, photo, rating,
+      total_jobs, is_available,
+      is_custom_task_available,
+      services: [{
+        id, name, category,
+        price, is_active
+      }]
+    }
+  end note
+  :Memuat data profil;
+end partition
+
+:Menampilkan profil;
+note right
+  Ditampilkan:
+  - Foto profil
+  - Nama mitra
+  - Rating bintang
+  - Total pekerjaan selesai
+  - Status ketersediaan
+  - Daftar layanan
+end note
+
+partition "Edit Profil" {
+  :Klik **"Edit Profil"**;
+  note right
+    Form edit profil:
+    - Nama
+    - Email
+    - Nomor HP
+    - Alamat
+    - Foto profil
+  end note
+
+  :Ubah data profil;
+  :Klik **"Simpan"**;
+  note right
+    **PATCH /api/provider/profile**
+    Body: {
+      name, email, phone,
+      address, photo
+    }
+  end note
+
+  :Mengupdate profil;
+
+  if (Update berhasil?) then (Ya)
+    #C8E6C9:Profil berhasil diupdate;
+  else (Tidak)
+    #EF9A9A:Gagal mengupdate profil;
+    note right
+      Tampilkan pesan error
+    end note
+  endif
+}
+
+partition "Kelola Layanan" {
+  :Klik **"Kelola Layanan"**;
+  note right
+    Menampilkan daftar layanan
+    yang ditawarkan mitra
+  end note
+
+  :Menampilkan daftar layanan;
+
+  while (Ada layanan?) is (Ya)
+    :Pilih layanan untuk diedit;
+
+    :Ubah informasi layanan;
+    note right
+      Yang bisa diubah:
+      - Nama layanan
+      - Deskripsi
+      - Harga
+      - Status aktif/nonaktif
+    end note
+
+    :Klik **"Simpan"**;
+    note right
+      **PUT /api/provider/services/update-service**
+      Body: {
+        service_id, name,
+        description, price,
+        is_active
+      }
+    end note
+
+    :Mengupdate layanan;
+
+  endwhile (Tidak ada lagi)
+}
+
+partition "Toggle Ketersediaan" {
+  :Toggle **Status Ketersediaan**;
+  note right
+    Switch on/off untuk
+    menandakan mitra
+    tersedia atau tidak
+  end note
+
+  if (Status baru?) then (Aktif)
+    note right
+      **POST /api/provider/profile/availability**
+      Body: { is_available: true }
+    end note
+    #C8E6C9:Mitra **aktif** menerima pesanan;
+  else (Nonaktif)
+    note right
+      **POST /api/provider/profile/availability**
+      Body: { is_available: false }
+    end note
+    #EF9A9A:Mitra **nonaktif**;
+    note right
+      Tidak menerima pesanan baru
+    end note
+  endif
+}
+
+partition "Toggle Custom Task" {
+  :Toggle **Status Custom Task**;
+  note right
+    Switch on/off untuk
+    menerima custom task
+    dari customer
+  end note
+
+  if (Status baru?) then (Aktif)
+    note right
+      **POST /api/provider/profile/task-availability**
+      Body: { is_custom_task_available: true }
+    end note
+    #C8E6C9:Mitra menerima custom task;
+  else (Nonaktif)
+    note right
+      **POST /api/provider/profile/task-availability**
+      Body: { is_custom_task_available: false }
+    end note
+    #EF9A9A:Mitra tidak menerima custom task;
+  endif
+}
+
+stop
+
+@enduml

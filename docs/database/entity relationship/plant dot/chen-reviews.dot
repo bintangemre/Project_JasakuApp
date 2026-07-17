@@ -1,0 +1,93 @@
+// ============================================================
+// Klasik ERD (Chen Notation) — Domain Review & Laporan
+// Graphviz DOT Language
+// ============================================================
+
+graph chen_reviews {
+    graph [
+        label="Klasik ERD — Domain Review & Laporan\n2 Tabel Aktif"
+        labelloc=t
+        fontname="Segoe UI Bold"
+        fontsize=16
+        bgcolor="white"
+        pad="0.5"
+        nodesep="0.8"
+        ranksep="0.8"
+        splines=true
+        overlap=false
+    ]
+
+    node [fontname="Segoe UI", fontsize=9]
+    edge [fontname="Segoe UI", fontsize=8]
+
+    // --- reviews ---
+    subgraph cluster_rev {
+        label="reviews"
+        labeljust=c
+        style=filled
+        fillcolor="#FFF8E1"
+        color="#FF6F00"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        rev_e [label="reviews", shape=box, style="filled,bold", fillcolor="#FFECB3", color="#FF6F00", fontcolor="#E65100"]
+        rev_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rev_oid [label="order_id : UUID, FK, UQ", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rev_cid [label="customer_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rev_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rev_rating [label="rating : INT (1-5)", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rev_comment [label="review : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rev_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rev_updated [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+
+        rev_e -- rev_id [style=dashed, color="#FFE082"]
+        rev_e -- rev_oid [style=dashed, color="#FFE082"]
+        rev_e -- rev_cid [style=dashed, color="#FFE082"]
+        rev_e -- rev_pid [style=dashed, color="#FFE082"]
+        rev_e -- rev_rating [style=dashed, color="#FFE082"]
+        rev_e -- rev_comment [style=dashed, color="#FFE082"]
+        rev_e -- rev_created [style=dashed, color="#FFE082"]
+        rev_e -- rev_updated [style=dashed, color="#FFE082"]
+    }
+
+    // --- reports ---
+    subgraph cluster_rpt {
+        label="reports"
+        labeljust=c
+        style=filled
+        fillcolor="#FFF8E1"
+        color="#FF6F00"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        rpt_e [label="reports", shape=box, style="filled,bold", fillcolor="#FFECB3", color="#FF6F00", fontcolor="#E65100"]
+        rpt_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_rid [label="reporter_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_role [label="reporter_role : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_oid [label="order_id : UUID", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_subject [label="subject : VARCHAR(200)", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_attach [label="attachments : TEXT[]", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_status [label="status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_admin [label="admin_response : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_updated [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+        rpt_resolved [label="resolved_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+
+        rpt_e -- rpt_id [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_rid [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_role [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_oid [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_subject [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_desc [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_attach [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_status [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_admin [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_created [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_updated [style=dashed, color="#FFE082"]
+        rpt_e -- rpt_resolved [style=dashed, color="#FFE082"]
+    }
+
+    // Note: notifications → FCM langsung (tidak ada tabel)
+    // Note: location_history → Geolocator stream (tidak ada tabel)
+}

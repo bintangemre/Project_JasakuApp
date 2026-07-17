@@ -1,0 +1,123 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow CRUD Pembayaran Rekber
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Pembayaran Rekber";
+
+|#E3F2FD|Backend|
+:GET /api/admin/payment-accounts;
+note right
+  Ambil dari 3 tabel sekaligus:
+  - admin_bank_accounts
+  - admin_ewallet_accounts
+  - admin_qris_accounts
+  Gabungkan jadi satu list
+end note
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar rekening admin;
+
+partition "Tambah rekening" {
+  :Admin klik tombol "Tambah Rekening";
+  :Buka modal form;
+
+  :Pilih tipe rekening;
+  note right
+    Dropdown tipe:
+    - bank_transfer
+    - e_wallet
+    - qris
+  end note
+
+  if (Tipe = bank_transfer atau e_wallet?) then (Ya)
+    :Input nama bank/ewallet, nama akun, nomor rekening;
+  else (Tipe = QRIS)
+    :Input nama provider/brand;
+    :Upload gambar QRIS;
+  endif
+
+  :Klik "Simpan";
+
+  |#E3F2FD|Backend|
+  :POST /api/admin/payment-accounts;
+  :Validasi: type & provider_name wajib;
+  :Jika bank/ewallet: account_name & account_number wajib;
+
+  if (Berhasil?) then (Ya)
+    :Simpan ke tabel yang sesuai tipe;
+
+    if (Tipe = QRIS?) then (Ya)
+      :POST /api/admin/payment-accounts/:id/qris-upload;
+      :Upload gambar QRIS ke storage;
+      :Update qris_image_url;
+    else (Tidak)
+    endif
+
+    |#E8F5E9|Frontend|
+    :Refresh daftar rekening;
+    :Tampilkan toast "Rekening ditambahkan";
+  else (Tidak)
+    :Tampilkan error validasi;
+  endif
+}
+
+partition "Edit rekening" {
+  :Admin klik tombol "Edit" pada rekening;
+  :Buka modal form (pre-fill data);
+
+  |#E3F2FD|Backend|
+  :PUT /api/admin/payment-accounts/:id;
+
+  if (QRIS & upload baru?) then (Ya)
+    :POST /api/admin/payment-accounts/:id/qris-upload;
+    :Upload gambar baru ke storage;
+  endif
+
+  |#E8F5E9|Frontend|
+  :Refresh daftar rekening;
+  :Tampilkan toast "Rekening diupdate";
+}
+
+partition "Hapus rekening" {
+  :Admin klik tombol "Hapus" pada rekening;
+  :Konfirmasi "Yakin ingin menghapus rekening ini?";
+
+  if (Konfirmasi?) then (Ya)
+    |#E3F2FD|Backend|
+    :DELETE /api/admin/payment-accounts/:id;
+
+    |#E8F5E9|Frontend|
+    :Refresh daftar rekening;
+    :Tampilkan toast "Rekening dihapus";
+    stop
+  else (Tidak)
+    :Batal hapus;
+    stop
+  endif
+}
+
+note right
+  **Endpoint:**
+  GET    /api/admin/payment-accounts
+  POST   /api/admin/payment-accounts
+  PUT    /api/admin/payment-accounts/:id
+  DELETE /api/admin/payment-accounts/:id
+  POST   /api/admin/payment-accounts/:id/qris-upload
+
+  **Tipe rekening:**
+  - bank_transfer (BRI, BCA, dll)
+  - e_wallet (GoPay, OVO, Dana, dll)
+  - qris (Universal QRIS)
+end note
+
+@enduml

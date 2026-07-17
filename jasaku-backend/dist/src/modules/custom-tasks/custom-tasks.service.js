@@ -1,6 +1,15 @@
 import { prisma } from '../../config/prisma';
 import { NotificationService } from '../notifications/notifications.service';
+import { LocationService } from '../locations/locations.service';
 export class CustomTasksService {
+    normalizeLocations(rows) {
+        return rows.map(row => ({
+            ...row,
+            task_locations: typeof row.task_locations === 'string'
+                ? JSON.parse(row.task_locations)
+                : (row.task_locations ?? [])
+        }));
+    }
     async createTask(userId, payload) {
         const { title, description, budget_per_person, required_people, address, location_detail, publish_days, lat, lng, locations } = payload;
         const publishDays = publish_days || 1;
@@ -48,7 +57,7 @@ export class CustomTasksService {
             }
             return task;
         });
-        // Notifikasi ke provider yang task_available
+        // Notifikasi ke provider yang task_available — fire & forget, jangan blocking response
         try {
             const nearProviders = await prisma.$queryRaw `
         SELECT u.id as user_id
@@ -65,18 +74,16 @@ export class CustomTasksService {
               )
         LIMIT 50
       `;
-            for (const p of nearProviders) {
-                await NotificationService.sendToUser(p.user_id, 'Task Baru!', `Ada task "${title}" baru, rebutan! Budget Rp ${Number(budget_per_person).toLocaleString('id-ID')}/orang`, { taskId: task.id, type: 'NEW_CUSTOM_TASK' });
-            }
+            Promise.allSettled(nearProviders.map(p => NotificationService.sendToUser(p.user_id, 'Task Baru!', `Ada task "${title}" baru, rebutan! Budget Rp ${Number(budget_per_person).toLocaleString('id-ID')}/orang`, { taskId: task.id, type: 'NEW_CUSTOM_TASK' })));
         }
         catch (_) { }
         return task;
     }
     async getAvailableTasks(lat, lng, radius) {
         const now = new Date();
-        now.setHours(now.getHours() + 7);
+        now.setHours(now.getHours() + 8);
         if (lat && lng && radius) {
-            return await prisma.$queryRaw `
+            const rows = await prisma.$queryRaw `
         SELECT
           ct.id, ct.title, ct.description,
           ct.budget_per_person, ct.required_people, ct.accepted_count,
@@ -88,7 +95,17 @@ export class CustomTasksService {
           ST_DistanceSphere(
             ct.location,
             ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)
-          ) as distance_meters
+          ) as distance_meters,
+          COALESCE(
+            (SELECT json_agg(json_build_object(
+              'id', tl.id, 'label', tl.label, 'address', tl.address,
+              'lat', ST_Y(tl.location::geometry),
+              'lng', ST_X(tl.location::geometry),
+              'stop_order', tl.stop_order
+            ) ORDER BY tl.stop_order)
+            FROM task_locations tl WHERE tl.task_id = ct.id),
+            '[]'::json
+          ) as task_locations
         FROM custom_tasks ct
         JOIN users u ON ct.customer_id = u.id
         JOIN profiles_customer pc ON u.id = pc.user_id
@@ -104,8 +121,9 @@ export class CustomTasksService {
         ORDER BY distance_meters ASC
         LIMIT 50
       `;
+            return this.normalizeLocations(rows);
         }
-        return await prisma.$queryRaw `
+        const rows = await prisma.$queryRaw `
       SELECT
         ct.id, ct.title, ct.description,
         ct.budget_per_person, ct.required_people, ct.accepted_count,
@@ -114,7 +132,17 @@ export class CustomTasksService {
         pc.full_name as customer_name,
         ST_Y(ct.location::geometry) as lat,
         ST_X(ct.location::geometry) as lng,
-        NULL as distance_meters
+        NULL as distance_meters,
+        COALESCE(
+          (SELECT json_agg(json_build_object(
+            'id', tl.id, 'label', tl.label, 'address', tl.address,
+            'lat', ST_Y(tl.location::geometry),
+            'lng', ST_X(tl.location::geometry),
+            'stop_order', tl.stop_order
+          ) ORDER BY tl.stop_order)
+          FROM task_locations tl WHERE tl.task_id = ct.id),
+          '[]'::json
+        ) as task_locations
       FROM custom_tasks ct
       JOIN users u ON ct.customer_id = u.id
       JOIN profiles_customer pc ON u.id = pc.user_id
@@ -124,9 +152,10 @@ export class CustomTasksService {
       ORDER BY ct.created_at DESC
       LIMIT 50
     `;
+        return this.normalizeLocations(rows);
     }
     async getMyTasks(customerId) {
-        return await prisma.$queryRaw `
+        const rows = await prisma.$queryRaw `
       SELECT
         ct.id, ct.title, ct.description,
         ct.budget_per_person, ct.required_people, ct.accepted_count,
@@ -137,12 +166,23 @@ export class CustomTasksService {
         ST_Y(ct.location::geometry) as lat,
         ST_X(ct.location::geometry) as lng,
         (SELECT COUNT(*)::int FROM task_providers tp WHERE tp.task_id = ct.id AND tp.status = 'completed') as completed_count,
-        (SELECT COUNT(*)::int FROM task_providers tp WHERE tp.task_id = ct.id) as total_providers
+        (SELECT COUNT(*)::int FROM task_providers tp WHERE tp.task_id = ct.id) as total_providers,
+        COALESCE(
+          (SELECT json_agg(json_build_object(
+            'id', tl.id, 'label', tl.label, 'address', tl.address,
+            'lat', ST_Y(tl.location::geometry),
+            'lng', ST_X(tl.location::geometry),
+            'stop_order', tl.stop_order
+          ) ORDER BY tl.stop_order)
+          FROM task_locations tl WHERE tl.task_id = ct.id),
+          '[]'::json
+        ) as task_locations
       FROM custom_tasks ct
       WHERE ct.customer_id = ${customerId}::uuid
       ORDER BY ct.created_at DESC
       LIMIT 50
     `;
+        return this.normalizeLocations(rows);
     }
     async getMyAcceptedTasks(providerUserId) {
         const profile = await prisma.provider_profiles.findUnique({
@@ -151,17 +191,29 @@ export class CustomTasksService {
         });
         if (!profile)
             return [];
-        return await prisma.$queryRaw `
+        const rows = await prisma.$queryRaw `
       SELECT
         ct.id as task_id, ct.title, ct.description,
         ct.budget_per_person, ct.required_people, ct.accepted_count,
         ct.address, ct.status as task_status, ct.created_at,
+        ct.payment_status,
         tp.id as tp_id, tp.status as tp_status, tp.accepted_at, tp.completed_at,
+        tp.work_status,
         tp.payout_confirmed,
         pc.full_name as customer_name,
         ST_Y(ct.location::geometry) as lat,
         ST_X(ct.location::geometry) as lng,
-        o.id as order_id, o.status as order_status, o.total_price, o.platform_fee
+        o.id as order_id, o.status as order_status, o.total_price, o.platform_fee,
+        COALESCE(
+          (SELECT json_agg(json_build_object(
+            'id', tl.id, 'label', tl.label, 'address', tl.address,
+            'lat', ST_Y(tl.location::geometry),
+            'lng', ST_X(tl.location::geometry),
+            'stop_order', tl.stop_order
+          ) ORDER BY tl.stop_order)
+          FROM task_locations tl WHERE tl.task_id = ct.id),
+          '[]'::json
+        ) as task_locations
       FROM task_providers tp
       JOIN custom_tasks ct ON tp.task_id = ct.id
       JOIN users u ON ct.customer_id = u.id
@@ -171,6 +223,51 @@ export class CustomTasksService {
       ORDER BY tp.accepted_at DESC
       LIMIT 50
     `;
+        return this.normalizeLocations(rows);
+    }
+    async getMyActiveTasks(providerUserId) {
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: providerUserId },
+            select: { id: true }
+        });
+        if (!profile)
+            return [];
+        const rows = await prisma.$queryRaw `
+      SELECT
+        ct.id as task_id, ct.title, ct.description,
+        ct.budget_per_person, ct.required_people, ct.accepted_count,
+        ct.address, ct.location_detail,
+        ct.status as task_status, ct.created_at,
+        ct.payment_status,
+        tp.id as tp_id, tp.status as tp_status, tp.accepted_at, tp.completed_at,
+        tp.work_status,
+        tp.payout_confirmed,
+        pc.full_name as customer_name,
+        ST_Y(ct.location::geometry) as lat,
+        ST_X(ct.location::geometry) as lng,
+        o.id as order_id, o.status as order_status, o.total_price, o.platform_fee,
+        COALESCE(
+          (SELECT json_agg(json_build_object(
+            'id', tl.id, 'label', tl.label, 'address', tl.address,
+            'lat', ST_Y(tl.location::geometry),
+            'lng', ST_X(tl.location::geometry),
+            'stop_order', tl.stop_order
+          ) ORDER BY tl.stop_order)
+          FROM task_locations tl WHERE tl.task_id = ct.id),
+          '[]'::json
+        ) as task_locations
+      FROM task_providers tp
+      JOIN custom_tasks ct ON tp.task_id = ct.id
+      JOIN users u ON ct.customer_id = u.id
+      JOIN profiles_customer pc ON u.id = pc.user_id
+      LEFT JOIN orders o ON o.task_provider_id = tp.id
+      WHERE tp.provider_id = ${profile.id}::uuid
+        AND ct.payment_status = 'paid'
+        AND (tp.work_status IS NULL OR tp.work_status != 'completed')
+      ORDER BY tp.accepted_at DESC
+      LIMIT 20
+    `;
+        return this.normalizeLocations(rows);
     }
     async getTaskDetail(taskId) {
         const task = await prisma.custom_tasks.findUnique({
@@ -250,6 +347,9 @@ export class CustomTasksService {
         });
         if (existing)
             throw new Error('Anda sudah menerima task ini');
+        // Hitung accepted_count baru
+        const newAcceptedCount = task.accepted_count + 1;
+        const isNowFull = newAcceptedCount >= task.required_people;
         // Atomic increment + insert
         const result = await prisma.$transaction(async (tx) => {
             const updated = await tx.custom_tasks.updateMany({
@@ -264,6 +364,13 @@ export class CustomTasksService {
             });
             if (updated.count === 0)
                 throw new Error('Task sudah penuh atau tidak tersedia');
+            // Hanya set in_progress jika task sudah penuh (single atau multi)
+            if (isNowFull) {
+                await tx.custom_tasks.update({
+                    where: { id: taskId },
+                    data: { status: 'in_progress' }
+                });
+            }
             const budgetPerPerson = Number(task.budget_per_person) || 0;
             const feeRate = Number(task.platform_fee_rate) || 5;
             const totalPrice = budgetPerPerson;
@@ -290,7 +397,6 @@ export class CustomTasksService {
                     task_provider_id: tp.id,
                 }
             });
-            // Update task_providers dengan order_id
             await tx.payments.create({
                 data: {
                     order_id: order.id,
@@ -301,25 +407,114 @@ export class CustomTasksService {
             });
             return { tp, order };
         });
-        // Notifikasi customer
-        try {
-            await NotificationService.sendToUser(task.customer_id, 'Task Diterima Provider!', `Provider "${profile.full_name}" telah menerima task "${task.title}". Pembayaran menunggu konfirmasi.`, { taskId, orderId: result.order.id, providerName: profile.full_name, type: 'TASK_ACCEPTED' });
-        }
-        catch (_) { }
-        // Jika sudah penuh, notifikasi semua provider lain
-        if (task.required_people > 1 && task.accepted_count + 1 >= task.required_people) {
-            try {
-                const otherProviders = await prisma.task_providers.findMany({
-                    where: { task_id: taskId },
-                    select: { provider_profiles: { select: { user_id: true } } }
-                });
-                for (const p of otherProviders) {
-                    await NotificationService.sendToUser(p.provider_profiles.user_id, 'Task Penuh!', `Task "${task.title}" sudah mencapai ${task.required_people} provider. Segera mulai!`, { taskId, type: 'TASK_FULL' });
-                }
-            }
-            catch (_) { }
+        // Notifikasi customer — fire & forget
+        NotificationService.sendToUser(task.customer_id, 'Task Diterima Provider!', isNowFull
+            ? `Semua provider telah menerima task "${task.title}". Lakukan pembayaran untuk memulai.`
+            : `Provider "${profile.full_name}" telah menerima task "${task.title}". Menunggu provider lain.`, { taskId, orderId: result.order.id, providerName: profile.full_name, type: 'CUSTOM_TASK_ACCEPTED' }).catch(() => { });
+        // Jika sudah penuh, notifikasi semua provider lain — parallel, fire & forget
+        if (isNowFull) {
+            prisma.task_providers.findMany({
+                where: { task_id: taskId },
+                select: { provider_profiles: { select: { user_id: true } } }
+            }).then(otherProviders => {
+                Promise.allSettled(otherProviders.map(p => NotificationService.sendToUser(p.provider_profiles.user_id, 'Task Siap Dibayar!', `Task "${task.title}" sudah penuh! Customer akan segera melakukan pembayaran.`, { taskId, type: 'CUSTOM_TASK_FULL' })));
+            }).catch(() => { });
         }
         return result.order;
+    }
+    async updateWorkStatus(providerUserId, taskId, workStatus) {
+        const VALID_TRANSITIONS = {
+            'on_the_way': ['arrived'],
+            'arrived': ['in_progress'],
+            'in_progress': ['completed'],
+        };
+        if (!['on_the_way', 'arrived', 'in_progress', 'completed'].includes(workStatus)) {
+            throw new Error('Status kerja tidak valid');
+        }
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { user_id: providerUserId },
+            select: { id: true }
+        });
+        if (!profile)
+            throw new Error('Profil provider tidak ditemukan');
+        const tp = await prisma.task_providers.findUnique({
+            where: { task_id_provider_id: { task_id: taskId, provider_id: profile.id } },
+            include: {
+                custom_tasks: { select: { title: true, customer_id: true, required_people: true, payment_status: true } }
+            }
+        });
+        if (!tp)
+            throw new Error('Anda tidak terdaftar di task ini');
+        if (tp.custom_tasks.payment_status !== 'paid')
+            throw new Error('Pembayaran belum dikonfirmasi admin');
+        if (tp.status === 'completed')
+            throw new Error('Task ini sudah Anda selesaikan');
+        if (workStatus === 'on_the_way') {
+            // First transition — check current work_status is null
+            if (tp.work_status != null)
+                throw new Error('Anda sudah memulai perjalanan');
+        }
+        else {
+            // Subsequent transitions — validate against current work_status
+            const allowedNext = VALID_TRANSITIONS[tp.work_status ?? ''];
+            if (!allowedNext?.includes(workStatus)) {
+                throw new Error(`Tidak bisa transisi dari ${tp.work_status ?? 'menunggu'} ke ${workStatus}`);
+            }
+        }
+        await prisma.$transaction([
+            prisma.task_providers.update({
+                where: { id: tp.id },
+                data: { work_status: workStatus }
+            }),
+            prisma.orders.updateMany({
+                where: { task_provider_id: tp.id },
+                data: { status: workStatus }
+            }),
+        ]);
+        // Jika completed, update status juga
+        if (workStatus === 'completed') {
+            await prisma.task_providers.update({
+                where: { id: tp.id },
+                data: { status: 'completed', completed_at: new Date() }
+            });
+            await prisma.provider_profiles.update({
+                where: { id: profile.id },
+                data: { total_jobs: { increment: 1 } }
+            });
+            const completedCount = await prisma.task_providers.count({
+                where: { task_id: taskId, status: 'completed' }
+            });
+            if (completedCount >= (tp.custom_tasks.required_people ?? 1)) {
+                await prisma.custom_tasks.update({
+                    where: { id: taskId },
+                    data: { status: 'completed' }
+                });
+            }
+        }
+        // Notifikasi customer — fire & forget
+        const notifMap = {
+            on_the_way: {
+                title: 'Provider Menuju Lokasi',
+                body: `Provider sedang dalam perjalanan menuju "${tp.custom_tasks.title}".`,
+            },
+            arrived: {
+                title: 'Provider Tiba di Lokasi',
+                body: `Provider telah tiba di lokasi untuk "${tp.custom_tasks.title}".`,
+            },
+            in_progress: {
+                title: 'Task Sedang Dikerjakan',
+                body: `Provider sedang mengerjakan "${tp.custom_tasks.title}".`,
+            },
+            completed: {
+                title: 'Task Selesai!',
+                body: `Provider telah menyelesaikan task "${tp.custom_tasks.title}". Admin akan memproses payout.`,
+            },
+        };
+        const notif = notifMap[workStatus];
+        if (notif) {
+            NotificationService.sendToUser(tp.custom_tasks.customer_id, notif.title, notif.body, { taskId, tpId: tp.id, workStatus, type: 'CUSTOM_TASK_WORK_STATUS' }).catch(() => { });
+        }
+        return { message: `Status kerja diubah ke ${workStatus}` };
     }
     async completeTask(providerUserId, taskId) {
         const profile = await prisma.provider_profiles.findUnique({
@@ -331,25 +526,41 @@ export class CustomTasksService {
         const tp = await prisma.task_providers.findUnique({
             where: { task_id_provider_id: { task_id: taskId, provider_id: profile.id } },
             include: {
-                custom_tasks: { select: { title: true, customer_id: true } }
+                custom_tasks: { select: { title: true, customer_id: true, required_people: true } }
             }
         });
         if (!tp)
             throw new Error('Anda tidak terdaftar di task ini');
         if (tp.status === 'completed')
             throw new Error('Task ini sudah Anda selesaikan');
-        await prisma.task_providers.update({
-            where: { id: tp.id },
-            data: { status: 'completed', completed_at: new Date() }
-        });
+        await prisma.$transaction([
+            prisma.task_providers.update({
+                where: { id: tp.id },
+                data: { status: 'completed', work_status: 'completed', completed_at: new Date() }
+            }),
+            prisma.orders.updateMany({
+                where: { task_provider_id: tp.id },
+                data: { status: 'completed' }
+            }),
+        ]);
         // Update provider stats
         await prisma.provider_profiles.update({
             where: { id: profile.id },
             data: { total_jobs: { increment: 1 } }
         });
+        // Jika semua provider selesai, set custom_tasks.status = 'completed'
+        const completedCount = await prisma.task_providers.count({
+            where: { task_id: taskId, status: 'completed' }
+        });
+        if (completedCount >= (tp.custom_tasks.required_people ?? 1)) {
+            await prisma.custom_tasks.update({
+                where: { id: taskId },
+                data: { status: 'completed' }
+            });
+        }
         // Notifikasi customer
         try {
-            await NotificationService.sendToUser(tp.custom_tasks.customer_id, 'Task Selesai!', `Provider telah menyelesaikan task "${tp.custom_tasks.title}". Admin akan memproses pembayaran.`, { taskId, tpId: tp.id, type: 'TASK_COMPLETED' });
+            await NotificationService.sendToUser(tp.custom_tasks.customer_id, 'Task Selesai!', `Provider telah menyelesaikan task "${tp.custom_tasks.title}". Admin akan memproses pembayaran.`, { taskId, tpId: tp.id, type: 'CUSTOM_TASK_COMPLETED' });
         }
         catch (_) { }
         return { message: 'Task ditandai selesai. Menunggu konfirmasi pembayaran dari admin.' };
@@ -381,10 +592,37 @@ export class CustomTasksService {
             data: { expires_at: newExpiresAt }
         });
         try {
-            await NotificationService.sendToUser(customerId, 'Task Dipublikasi Ulang!', `Task "${task.title}" telah dipublikasi ulang dan tersedia untuk provider.`, { taskId, type: 'TASK_REPUBLISHED' });
+            await NotificationService.sendToUser(customerId, 'Task Dipublikasi Ulang!', `Task "${task.title}" telah dipublikasi ulang dan tersedia untuk provider.`, { taskId, type: 'CUSTOM_TASK_REPUBLISHED' });
         }
         catch (_) { }
         return { message: 'Task berhasil dipublikasi ulang', expires_at: newExpiresAt };
+    }
+    async deleteTask(customerId, taskId) {
+        const task = await prisma.custom_tasks.findUnique({
+            where: { id: taskId },
+            select: { id: true, customer_id: true, status: true, title: true }
+        });
+        if (!task)
+            throw new Error('Task tidak ditemukan');
+        if (task.customer_id !== customerId)
+            throw new Error('Anda tidak berhak menghapus task ini');
+        if (task.status !== 'completed' && task.status !== 'fulfilled') {
+            throw new Error('Hanya task yang sudah selesai yang bisa dihapus');
+        }
+        await prisma.$transaction(async (tx) => {
+            const orders = await tx.orders.findMany({
+                where: { task_provider: { task_id: taskId } },
+                select: { id: true }
+            });
+            const orderIds = orders.map(o => o.id);
+            if (orderIds.length > 0) {
+                await tx.payments.deleteMany({ where: { order_id: { in: orderIds } } });
+                await tx.orders.deleteMany({ where: { id: { in: orderIds } } });
+            }
+            await tx.task_providers.deleteMany({ where: { task_id: taskId } });
+            await tx.custom_tasks.delete({ where: { id: taskId } });
+        });
+        return { message: 'Task berhasil dihapus' };
     }
     async cancelTask(customerId, taskId) {
         const task = await prisma.custom_tasks.findUnique({
@@ -414,7 +652,8 @@ export class CustomTasksService {
             where: { id: tpId },
             include: {
                 custom_tasks: { select: { title: true, customer_id: true } },
-                orders: { where: { status: 'pending_payment' }, take: 1 }
+                orders: { where: { status: 'pending_payment' }, take: 1 },
+                provider_profiles: { select: { full_name: true, user_id: true } },
             }
         });
         if (!tp)
@@ -432,8 +671,17 @@ export class CustomTasksService {
             where: { order_id: order.id },
             data: { status: 'paid', paid_at: new Date() }
         });
+        // Update custom_tasks.payment_status dan status
+        await prisma.custom_tasks.update({
+            where: { id: tp.task_id },
+            data: { payment_status: 'paid', status: 'active' }
+        });
         try {
-            await NotificationService.sendToUser(tp.custom_tasks.customer_id, 'Pembayaran Dikonfirmasi!', `Pembayaran task "${tp.custom_tasks.title}" telah dikonfirmasi. Provider siap bekerja!`, { tpId, type: 'TASK_PAYMENT_CONFIRMED' });
+            await NotificationService.sendToUser(tp.custom_tasks.customer_id, 'Pembayaran Dikonfirmasi!', `Pembayaran task "${tp.custom_tasks.title}" telah dikonfirmasi. Provider siap bekerja!`, { tpId, type: 'CUSTOM_TASK_PAYMENT_CONFIRMED' });
+        }
+        catch (_) { }
+        try {
+            await NotificationService.sendToUser(tp.provider_profiles.user_id, 'Pembayaran Dikonfirmasi!', `Pembayaran untuk task "${tp.custom_tasks.title}" telah dikonfirmasi admin. Anda dapat mulai mengerjakan task!`, { tpId, type: 'CUSTOM_TASK_PAYMENT_CONFIRMED' });
         }
         catch (_) { }
         return { message: 'Pembayaran dikonfirmasi. Provider dapat mulai mengerjakan task.' };
@@ -448,8 +696,6 @@ export class CustomTasksService {
         });
         if (!tp)
             throw new Error('Task provider tidak ditemukan');
-        if (tp.status !== 'completed')
-            throw new Error('Task belum selesai');
         if (tp.payout_confirmed)
             throw new Error('Pembayaran sudah dikonfirmasi sebelumnya');
         await prisma.task_providers.update({
@@ -468,7 +714,7 @@ export class CustomTasksService {
             });
         }
         try {
-            await NotificationService.sendToUser(tp.provider_profiles.user_id, 'Pembayaran Dikirim!', `Pembayaran untuk task "${tp.custom_tasks.title}" sudah dikirim ke rekening Anda.`, { tpId, type: 'TASK_PAYOUT_CONFIRMED' });
+            await NotificationService.sendToUser(tp.provider_profiles.user_id, 'Pembayaran Dikirim!', `Pembayaran untuk task "${tp.custom_tasks.title}" sudah dikirim ke rekening Anda.`, { tpId, type: 'CUSTOM_TASK_PAYOUT_CONFIRMED' });
         }
         catch (_) { }
         return { message: `Pembayaran untuk ${tp.provider_profiles.full_name} telah dikonfirmasi.` };
@@ -562,7 +808,8 @@ export class CustomTasksService {
         const tps = await prisma.task_providers.findMany({
             where: { task_id: taskId },
             include: {
-                orders: { where: { status: 'pending_payment' }, take: 1 }
+                orders: { where: { status: 'pending_payment' }, take: 1 },
+                provider_profiles: { select: { user_id: true } }
             }
         });
         if (tps.length === 0)
@@ -583,13 +830,11 @@ export class CustomTasksService {
         }
         await prisma.custom_tasks.update({
             where: { id: taskId },
-            data: { payment_status: 'paid' }
+            data: { payment_status: 'paid', status: 'active' }
         });
-        try {
-            await NotificationService.sendToUser(tps[0].provider_id, // notif ke provider pertama
-            'Pembayaran Dikonfirmasi!', `Pembayaran task "${task.title}" telah dikonfirmasi. Provider siap bekerja!`, { taskId, type: 'TASK_PAYMENT_CONFIRMED' });
-        }
-        catch (_) { }
+        // Notifikasi semua provider — fire & forget
+        const providerUserIds = tps.map(tp => tp.provider_profiles?.user_id).filter(Boolean);
+        Promise.allSettled(providerUserIds.map(uid => NotificationService.sendToUser(uid, 'Pembayaran Dikonfirmasi!', `Pembayaran task "${task.title}" telah dikonfirmasi. Kamu bisa mulai bekerja!`, { taskId, type: 'CUSTOM_TASK_PAYMENT_CONFIRMED' })));
         return { message: 'Pembayaran untuk seluruh provider dikonfirmasi. Provider dapat mulai bekerja.' };
     }
     async getPendingPaymentTasksByTask() {
@@ -629,7 +874,8 @@ export class CustomTasksService {
       JOIN profiles_customer pc ON u.id = pc.user_id
       JOIN orders o ON o.task_provider_id = tp.id
       LEFT JOIN provider_payout_methods ppm ON pp.id = ppm.provider_id
-      WHERE o.status = 'pending_payment'
+      WHERE o.status IN ('pending_payment', 'accepted')
+        AND ct.payment_status IN ('unpaid', 'proof_uploaded', 'paid')
       ORDER BY tp.accepted_at DESC
     `;
     }
@@ -653,9 +899,61 @@ export class CustomTasksService {
       JOIN orders o ON o.task_provider_id = tp.id
       LEFT JOIN provider_payout_methods ppm ON pp.id = ppm.provider_id
       WHERE tp.status = 'completed'
-        AND tp.payout_confirmed = false
-        AND o.status = 'accepted'
-      ORDER BY tp.completed_at ASC
+        AND o.status = 'completed'
+      ORDER BY tp.payout_confirmed ASC, tp.completed_at ASC
     `;
+    }
+    async getTaskTracking(taskId) {
+        const task = await prisma.custom_tasks.findUnique({
+            where: { id: taskId },
+            select: {
+                id: true,
+                title: true,
+                status: true,
+                address: true,
+            }
+        });
+        if (!task)
+            return null;
+        const location = await prisma.$queryRaw `
+      SELECT ST_Y(location::geometry) as lat, ST_X(location::geometry) as lng
+      FROM custom_tasks WHERE id = ${taskId}::uuid
+    `;
+        const acceptedProvider = await prisma.task_providers.findFirst({
+            where: { task_id: taskId, status: 'accepted' },
+            select: {
+                provider_profiles: {
+                    select: { user_id: true, full_name: true }
+                },
+                orders: {
+                    select: { id: true, status: true }
+                }
+            }
+        });
+        let providerLocation = null;
+        let providerName = null;
+        let orderId = null;
+        if (acceptedProvider?.provider_profiles) {
+            providerName = acceptedProvider.provider_profiles.full_name;
+            const locService = new LocationService();
+            providerLocation = await locService.getProviderLocation(acceptedProvider.provider_profiles.user_id);
+        }
+        if (acceptedProvider?.orders && acceptedProvider.orders.length > 0) {
+            orderId = acceptedProvider.orders[0].id;
+        }
+        const customerLocation = location.length > 0
+            ? { lat: location[0].lat, lng: location[0].lng, address: task.address }
+            : null;
+        return {
+            taskId: task.id,
+            title: task.title,
+            status: task.status,
+            providerName,
+            orderId,
+            providerLocation: providerLocation
+                ? { lat: providerLocation.lat, lng: providerLocation.lng, address: providerLocation.address }
+                : null,
+            customerLocation,
+        };
     }
 }

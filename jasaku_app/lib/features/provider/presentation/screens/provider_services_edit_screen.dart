@@ -49,10 +49,12 @@ class _ProviderServicesEditScreenState
       ]);
 
       final services = (servicesRes.data['data'] as List?)
-              ?.cast<Map<String, dynamic>>() ??
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
           [];
       final pricingTypes = (pricingRes.data['data'] as List?)
-              ?.cast<Map<String, dynamic>>() ??
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
           [];
 
       for (final svc in services) {
@@ -94,7 +96,7 @@ class _ProviderServicesEditScreenState
       if (mounted) {
         setState(() => _loading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memuat data: $e')),
+          SnackBar(content: Text('Gagal memuat data: ${ApiClient.errorMessage(e)}')),
         );
       }
     }
@@ -110,9 +112,7 @@ class _ProviderServicesEditScreenState
   Future<void> _saveAll() async {
     setState(() => _saving = true);
 
-    int updated = 0;
-    int failed = 0;
-
+    final futures = <Future>[];
     for (final svc in _services) {
       final svcId = svc['id'] as String;
       final serviceId = svc['service_id'] as String;
@@ -132,20 +132,19 @@ class _ProviderServicesEditScreenState
           })
           .toList();
 
-      try {
-        await _dio.put(
-          ApiEndpoints.updateProviderService,
-          data: {
-            'serviceId': serviceId,
-            'description': _descControllers[svcId]?.text.trim() ?? '',
-            'prices': prices,
-          },
-        );
-        updated++;
-      } catch (e) {
-        failed++;
-      }
+      futures.add(_dio.put(
+        ApiEndpoints.updateProviderService,
+        data: {
+          'serviceId': serviceId,
+          'description': _descControllers[svcId]?.text.trim() ?? '',
+          'prices': prices,
+        },
+      ).then((_) => true).catchError((_) => false));
     }
+
+    final results = await Future.wait(futures);
+    final updated = results.where((r) => r == true).length;
+    final failed = results.where((r) => r == false).length;
 
     if (!mounted) return;
 
@@ -156,7 +155,7 @@ class _ProviderServicesEditScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Semua layanan berhasil diperbarui')),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

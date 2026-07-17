@@ -1,0 +1,170 @@
+@startuml laporan-mitra
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #FFEBEE
+  BorderColor #D32F2F
+  FontColor #B71C1C
+  ArrowColor #D32F2F
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F9A825
+  StartColor #B71C1C
+  EndColor #C62828
+}
+skinparam note {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+
+title **Flowchart: Laporan (Report) Mitra Jasaku**
+
+|Laporan|
+start
+:Buka halaman Laporan;
+
+partition "Buat Laporan Baru" {
+  :Klik **"Buat Laporan"**;
+  note right
+    Form buat laporan:
+    - Subjek
+    - Deskripsi
+    - Lampiran (opsional)
+  end note
+
+  :Mengisi form laporan;
+
+  :Input **Subjek**;
+  note right
+    Subjek laporan:
+    - Masalah teknis
+    - Keluhan customer
+    - Sistem pembayaran
+    - Isu keamanan
+    - Saran perbaikan
+  end note
+
+  :Input **Deskripsi**;
+  note right
+    Deskripsi detail:
+    - Jelaskan masalah
+    - Kronologi kejadian
+    - Bukti pendukung
+  end note
+
+  if (Ada lampiran?) then (Ya)
+    :Unggah lampiran;
+    note right
+      Lampiran berupa:
+      - Screenshot
+      - Foto
+      - Dokumen pendukung
+    end note
+  else (Tidak)
+    :Lanjut tanpa lampiran;
+  endif
+
+  :Konfirmasi laporan;
+
+  :Kirim laporan;
+  note right
+    **POST /api/reports/**
+    Body: {
+      subject: string,
+      description: string,
+      attachments: File[]
+    }
+    
+    Response: {
+      id, status,
+      created_at
+    }
+  end note
+
+  :Mengirim laporan ke server;
+
+  if (Berhasil dikirim?) then (Ya)
+    #C8E6C9:Laporan berhasil dikirim;
+    note right
+      Laporan masuk ke daftar
+      riwayat laporan
+    end note
+  else (Tidak)
+    #EF9A9A:Gagal mengirim laporan;
+    note right
+      Tampilkan pesan error
+      dan opsi retry
+    end note
+    :Periksa koneksi internet;
+    if (Koneksi tersedia?) then (Ya)
+      :Coba kirim ulang;
+    else (Tidak)
+      #FFCDD2:Simpan laporan sebagai draft;
+      note right
+        Laporan disimpan lokal
+        dan akan dikirim
+        saat koneksi tersedia
+      end note
+    endif
+  endif
+}
+
+partition "Riwayat Laporan" {
+  :Klik **"Riwayat Laporan"`;
+  note right
+    **GET /api/reports/mine**
+    Response: {
+      reports: [{
+        id, subject, description,
+        status, admin_response,
+        created_at, updated_at
+      }]
+    }
+  end note
+
+  :Memuat riwayat laporan;
+  :Menampilkan daftar laporan;
+
+  while (Ada laporan?) is (Ya)
+    :Pilih laporan;
+
+    :Buka detail laporan;
+    note right
+      Detail laporan:
+      - Subjek
+      - Deskripsi
+      - Status
+      - Tanggapan admin
+      - Tanggal dibuat
+      - Tanggal diperbarui
+    end note
+
+    if (Ada tanggapan admin?) then (Ya)
+      :Menampilkan tanggapan admin;
+      note right
+        **Admin Response**
+        Berisi jawaban atau
+        tindak lanjut dari admin
+      end note
+    else (Tidak)
+      :Menunggu tanggapan admin;
+    endif
+
+  endwhile (Semua laporan sudah dilihat)
+}
+
+partition "Status Laporan" {
+  :Status laporan;
+  note right
+    Status laporan:
+    - **pending**: Menunggu review
+    - **in_progress**: Sedang ditangani
+    - **resolved**: Masalah teratasi
+    - **closed**: Laporan ditutup
+  end note
+}
+
+stop
+
+@enduml

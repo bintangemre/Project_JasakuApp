@@ -66,6 +66,18 @@ export const createCategorySchema = z.object({
     iconUrl: z.string().optional(),
 });
 
+export const createPricingTypeSchema = z.object({
+    categoryId: z.string().uuid('categoryId tidak valid'),
+    name: z.string().min(1, 'Nama tipe harga wajib diisi').max(50, 'Nama maksimal 50 karakter'),
+    defaultUnit: z.string().optional(),
+});
+
+export const updatePricingTypeSchema = z.object({
+    name: z.string().min(1, 'Nama tipe harga wajib diisi').max(50, 'Nama maksimal 50 karakter').optional(),
+    defaultUnit: z.string().optional(),
+    categoryId: z.string().uuid('categoryId tidak valid').optional(),
+});
+
 export const createServiceSchema = z.object({
     categoryId: z.string().uuid('categoryId tidak valid'),
     name: z.string().min(1, 'Nama layanan wajib diisi'),

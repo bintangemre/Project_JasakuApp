@@ -1,0 +1,77 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow Custom Task (Dwiflow)
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Custom Task";
+:Halaman Custom Task dengan 2 tab ditampilkan;
+
+|#E3F2FD|Backend|
+partition "Tab 1: Menunggu Bayar" {
+  :GET /api/admin/tasks/pending-payment;
+  :Ambil task provider WHERE status = pending
+    dengan order pending_payment;
+  :Tampilkan daftar task menunggu konfirmasi bayar;
+
+  |#E8F5E9|Frontend|
+  :Admin klik "Konfirmasi Bayar" pada task;
+
+  |#E3F2FD|Backend|
+  :PATCH /api/admin/tasks/:tpId/confirm-payment;
+  :Update status order → pending;
+  :Trigger notifikasi ke Mitra & Customer;
+
+  |#E8F5E9|Frontend|
+  :Task berpindah dari tab "Menunggu Bayar";
+  :Tampilkan toast "Konfirmasi berhasil";
+}
+
+|#FFF3E0|Switch Tab|
+:Admin beralih ke Tab "Pencairan Dana";
+
+|#E3F2FD|Backend|
+partition "Tab 2: Pencairan Dana" {
+  :GET /api/admin/tasks/pending-payout;
+  :Ambil task provider WHERE status = completed
+    AND payout_confirmed = false;
+  :Tampilkan daftar task menunggu pencairan;
+
+  |#E8F5E9|Frontend|
+  :Admin klik "Release Dana" pada task;
+
+  |#E3F2FD|Backend|
+  :PATCH /api/admin/tasks/:tpId/confirm-payout;
+  :Update payout_confirmed = true;
+  :Trigger notifikasi ORDER_PAYOUT_CONFIRMED ke Mitra;
+
+  |#E8F5E9|Frontend|
+  :Task berpindah dari tab "Pencairan Dana";
+  :Admin lakukan transfer manual;
+  stop
+}
+
+note right
+  **Endpoint Tab Menunggu Bayar:**
+  GET /api/admin/tasks/pending-payment
+  PATCH /api/admin/tasks/:tpId/confirm-payment
+
+  **Endpoint Tab Pencairan Dana:**
+  GET /api/admin/tasks/pending-payout
+  PATCH /api/admin/tasks/:tpId/confirm-payout
+
+  **Status transition bayar:**
+  pending_payment → pending
+  **Status transition payout:**
+  completed + payout_confirmed=false → confirmed
+end note
+
+@enduml

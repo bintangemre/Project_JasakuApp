@@ -1,0 +1,1094 @@
+// ============================================================
+// KLASIK ERD (CHEN NOTATION) — JASAKU DATABASE
+// Graphviz DOT Language — Code-to-Diagram
+// shape=box (Entitas), shape=ellipse (Atribut), shape=diamond (Relasi)
+// 29 Tabel · PostgreSQL + PostGIS
+// ============================================================
+
+graph chen_jasaku {
+    graph [
+        label="Klasik ERD (Chen Notation) — Jasaku Database\n29 Tabel · PostgreSQL + PostGIS · 6 Domain"
+        labelloc=t
+        fontname="Segoe UI Bold"
+        fontsize=20
+        bgcolor="white"
+        pad="0.8"
+        nodesep="0.4"
+        ranksep="0.7"
+        splines=true
+        overlap=false
+        compound=true
+    ]
+
+    node [fontname="Consolas", fontsize=8]
+    edge [fontname="Segoe UI", fontsize=7]
+
+    // Legend
+    subgraph cluster_legend {
+        label="LEGENDA"
+        labeljust=l
+        style=filled
+        fillcolor="#F5F5F5"
+        color="#BDBDBD"
+        fontname="Segoe UI Bold"
+        fontsize=10
+
+        leg_box [label="Entitas\n(Tabel)", shape=box, style="filled,bold", fillcolor="#E0E0E0", color="#616161"]
+        leg_ell [label="Atribut\n(Kolom)", shape=ellipse, style="filled,dashed", fillcolor="#F5F5F5", color="#9E9E9E"]
+        leg_dia [label="Relasi\n(Relationship)", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825"]
+
+        leg_box -- leg_ell [style=invis]
+        leg_ell -- leg_dia [style=invis]
+    }
+
+    // ╔═══════════════════════════════════════════════════════════╗
+    // ║  DOMAIN: AUTENTIKASI & PENGGUNA (Biru)                  ║
+    // ╚═══════════════════════════════════════════════════════════╝
+
+    subgraph cluster_auth {
+        label="DOMAIN: Autentikasi & Pengguna"
+        style=filled
+        fillcolor="#E3F2FD22"
+        color="#1565C0"
+        fontname="Segoe UI Bold"
+        fontsize=12
+
+        // --- roles ---
+        subgraph cluster_roles {
+            label="roles"
+            labeljust=c
+            style=filled
+            fillcolor="#E3F2FD"
+            color="#1565C0"
+            fontsize=9
+
+            roles_e [label="roles", shape=box, style="filled,bold", fillcolor="#BBDEFB", color="#1565C0", fontcolor="#0D47A1", fontsize=10]
+            roles_id [label="id : INT, PK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            roles_name [label="name : VARCHAR(50), UQ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            roles_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            roles_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+
+            roles_e -- roles_id [style=dashed, color="#90CAF9"]
+            roles_e -- roles_name [style=dashed, color="#90CAF9"]
+            roles_e -- roles_desc [style=dashed, color="#90CAF9"]
+            roles_e -- roles_created [style=dashed, color="#90CAF9"]
+        }
+
+        // --- users ---
+        subgraph cluster_users {
+            label="users"
+            labeljust=c
+            style=filled
+            fillcolor="#E3F2FD"
+            color="#1565C0"
+            fontsize=9
+
+            users_e [label="users", shape=box, style="filled,bold", fillcolor="#BBDEFB", color="#1565C0", fontcolor="#0D47A1", fontsize=10]
+            users_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_rid [label="role_id : INT, FK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_email [label="email : VARCHAR(255), UQ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_phone [label="phone : VARCHAR(20), UQ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_pass [label="password_hash : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_google [label="google_id : VARCHAR(255)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_pver [label="is_phone_verified : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_ever [label="is_email_verified : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_stat [label="status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_cat [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            users_uat [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+
+            users_e -- users_id [style=dashed, color="#90CAF9"]
+            users_e -- users_rid [style=dashed, color="#90CAF9"]
+            users_e -- users_email [style=dashed, color="#90CAF9"]
+            users_e -- users_phone [style=dashed, color="#90CAF9"]
+            users_e -- users_pass [style=dashed, color="#90CAF9"]
+            users_e -- users_google [style=dashed, color="#90CAF9"]
+            users_e -- users_pver [style=dashed, color="#90CAF9"]
+            users_e -- users_ever [style=dashed, color="#90CAF9"]
+            users_e -- users_stat [style=dashed, color="#90CAF9"]
+            users_e -- users_cat [style=dashed, color="#90CAF9"]
+            users_e -- users_uat [style=dashed, color="#90CAF9"]
+        }
+
+        // --- profiles_customer ---
+        subgraph cluster_pc {
+            label="profiles_customer"
+            labeljust=c
+            style=filled
+            fillcolor="#E3F2FD"
+            color="#1565C0"
+            fontsize=9
+
+            pc_e [label="profiles_customer", shape=box, style="filled,bold", fillcolor="#BBDEFB", color="#1565C0", fontcolor="#0D47A1", fontsize=10]
+            pc_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pc_uid [label="user_id : UUID, FK, UQ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pc_name [label="full_name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pc_nick [label="nickname : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pc_bday [label="birth_date : DATE", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pc_gen [label="gender : VARCHAR(10)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pc_addr [label="address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pc_av [label="avatar_url : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pc_cat [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pc_uat [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+
+            pc_e -- pc_id [style=dashed, color="#90CAF9"]
+            pc_e -- pc_uid [style=dashed, color="#90CAF9"]
+            pc_e -- pc_name [style=dashed, color="#90CAF9"]
+            pc_e -- pc_nick [style=dashed, color="#90CAF9"]
+            pc_e -- pc_bday [style=dashed, color="#90CAF9"]
+            pc_e -- pc_gen [style=dashed, color="#90CAF9"]
+            pc_e -- pc_addr [style=dashed, color="#90CAF9"]
+            pc_e -- pc_av [style=dashed, color="#90CAF9"]
+            pc_e -- pc_cat [style=dashed, color="#90CAF9"]
+            pc_e -- pc_uat [style=dashed, color="#90CAF9"]
+        }
+
+        // --- provider_profiles ---
+        subgraph cluster_pp {
+            label="provider_profiles"
+            labeljust=c
+            style=filled
+            fillcolor="#E3F2FD"
+            color="#1565C0"
+            fontsize=9
+
+            pp_e [label="provider_profiles", shape=box, style="filled,bold", fillcolor="#BBDEFB", color="#1565C0", fontcolor="#0D47A1", fontsize=10]
+            pp_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_uid [label="user_id : UUID, FK, UQ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_name [label="full_name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_nick [label="nickname : VARCHAR(50)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_gen [label="gender : VARCHAR(10)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_bday [label="birth_date : DATE", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_phone [label="phone : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_addr [label="address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_dom [label="domicile : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_pp [label="profile_photo : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_ktp [label="ktp_photo : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_selfie [label="selfie_photo : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_ver [label="is_verified : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_vst [label="verification_status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_vn [label="verification_notes : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_act [label="is_active : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_onb [label="onboarding_completed : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_ta [label="task_available : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_sa [label="service_available : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_ct [label="custom_task_enabled : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_rat [label="rating : DECIMAL(2,1)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_j [label="total_jobs : INT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_tr [label="total_reviews : INT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_pf [label="portfolios : TEXT[]", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_cat [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pp_uat [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+
+            pp_e -- pp_id [style=dashed, color="#90CAF9"]
+            pp_e -- pp_uid [style=dashed, color="#90CAF9"]
+            pp_e -- pp_name [style=dashed, color="#90CAF9"]
+            pp_e -- pp_nick [style=dashed, color="#90CAF9"]
+            pp_e -- pp_gen [style=dashed, color="#90CAF9"]
+            pp_e -- pp_bday [style=dashed, color="#90CAF9"]
+            pp_e -- pp_phone [style=dashed, color="#90CAF9"]
+            pp_e -- pp_addr [style=dashed, color="#90CAF9"]
+            pp_e -- pp_dom [style=dashed, color="#90CAF9"]
+            pp_e -- pp_pp [style=dashed, color="#90CAF9"]
+            pp_e -- pp_ktp [style=dashed, color="#90CAF9"]
+            pp_e -- pp_selfie [style=dashed, color="#90CAF9"]
+            pp_e -- pp_ver [style=dashed, color="#90CAF9"]
+            pp_e -- pp_vst [style=dashed, color="#90CAF9"]
+            pp_e -- pp_vn [style=dashed, color="#90CAF9"]
+            pp_e -- pp_act [style=dashed, color="#90CAF9"]
+            pp_e -- pp_onb [style=dashed, color="#90CAF9"]
+            pp_e -- pp_ta [style=dashed, color="#90CAF9"]
+            pp_e -- pp_sa [style=dashed, color="#90CAF9"]
+            pp_e -- pp_ct [style=dashed, color="#90CAF9"]
+            pp_e -- pp_rat [style=dashed, color="#90CAF9"]
+            pp_e -- pp_j [style=dashed, color="#90CAF9"]
+            pp_e -- pp_tr [style=dashed, color="#90CAF9"]
+            pp_e -- pp_pf [style=dashed, color="#90CAF9"]
+            pp_e -- pp_cat [style=dashed, color="#90CAF9"]
+            pp_e -- pp_uat [style=dashed, color="#90CAF9"]
+        }
+
+        // --- provider_locations ---
+        subgraph cluster_pl {
+            label="provider_locations"
+            labeljust=c
+            style=filled
+            fillcolor="#E3F2FD"
+            color="#1565C0"
+            fontsize=9
+
+            pl_e [label="provider_locations", shape=box, style="filled,bold", fillcolor="#BBDEFB", color="#1565C0", fontcolor="#0D47A1", fontsize=10]
+            pl_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pl_pid [label="provider_id : UUID, FK, UQ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pl_addr [label="address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pl_geo [label="location : GEOMETRY", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+
+            pl_e -- pl_id [style=dashed, color="#90CAF9"]
+            pl_e -- pl_pid [style=dashed, color="#90CAF9"]
+            pl_e -- pl_addr [style=dashed, color="#90CAF9"]
+            pl_e -- pl_geo [style=dashed, color="#90CAF9"]
+        }
+
+        // --- provider_documents ---
+        subgraph cluster_pdoc {
+            label="provider_documents"
+            labeljust=c
+            style=filled
+            fillcolor="#E3F2FD"
+            color="#1565C0"
+            fontsize=9
+
+            pd_e [label="provider_documents", shape=box, style="filled,bold", fillcolor="#BBDEFB", color="#1565C0", fontcolor="#0D47A1", fontsize=10]
+            pd_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pd_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pd_type [label="type : VARCHAR(30)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pd_url [label="file_url : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pd_cat [label="category_id : UUID", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pd_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            pd_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+
+            pd_e -- pd_id [style=dashed, color="#90CAF9"]
+            pd_e -- pd_pid [style=dashed, color="#90CAF9"]
+            pd_e -- pd_type [style=dashed, color="#90CAF9"]
+            pd_e -- pd_url [style=dashed, color="#90CAF9"]
+            pd_e -- pd_cat [style=dashed, color="#90CAF9"]
+            pd_e -- pd_desc [style=dashed, color="#90CAF9"]
+            pd_e -- pd_created [style=dashed, color="#90CAF9"]
+        }
+
+        // --- provider_payout_methods ---
+        subgraph cluster_ppay {
+            label="provider_payout_methods"
+            labeljust=c
+            style=filled
+            fillcolor="#E3F2FD"
+            color="#1565C0"
+            fontsize=9
+
+            ppy_e [label="provider_payout_methods", shape=box, style="filled,bold", fillcolor="#BBDEFB", color="#1565C0", fontcolor="#0D47A1", fontsize=10]
+            ppy_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ppy_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ppy_type [label="type : VARCHAR(50)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ppy_pn [label="provider_name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ppy_an [label="account_number : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ppy_aname [label="account_name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ppy_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+
+            ppy_e -- ppy_id [style=dashed, color="#90CAF9"]
+            ppy_e -- ppy_pid [style=dashed, color="#90CAF9"]
+            ppy_e -- ppy_type [style=dashed, color="#90CAF9"]
+            ppy_e -- ppy_pn [style=dashed, color="#90CAF9"]
+            ppy_e -- ppy_an [style=dashed, color="#90CAF9"]
+            ppy_e -- ppy_aname [style=dashed, color="#90CAF9"]
+            ppy_e -- ppy_created [style=dashed, color="#90CAF9"]
+        }
+
+        // --- identity_verifications ---
+        subgraph cluster_iv {
+            label="identity_verifications"
+            labeljust=c
+            style=filled
+            fillcolor="#E3F2FD"
+            color="#1565C0"
+            fontsize=9
+
+            iv_e [label="identity_verifications", shape=box, style="filled,bold", fillcolor="#BBDEFB", color="#1565C0", fontcolor="#0D47A1", fontsize=10]
+            iv_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_pid [label="provider_id : UUID, FK, UQ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_nik [label="nik : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_on [label="ocr_full_name : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_op [label="ocr_birth_place : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_od [label="ocr_birth_date : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_oa [label="ocr_address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_og [label="ocr_gender : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_ob [label="ocr_blood_type : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_or [label="ocr_religion : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_oj [label="ocr_raw_result : JSONB", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_fs [label="face_match_score : FLOAT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_fst [label="face_match_status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_ld [label="liveness_data : JSONB", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_lst [label="liveness_status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            iv_verified [label="verified_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+
+            iv_e -- iv_id [style=dashed, color="#90CAF9"]
+            iv_e -- iv_pid [style=dashed, color="#90CAF9"]
+            iv_e -- iv_nik [style=dashed, color="#90CAF9"]
+            iv_e -- iv_on [style=dashed, color="#90CAF9"]
+            iv_e -- iv_op [style=dashed, color="#90CAF9"]
+            iv_e -- iv_od [style=dashed, color="#90CAF9"]
+            iv_e -- iv_oa [style=dashed, color="#90CAF9"]
+            iv_e -- iv_og [style=dashed, color="#90CAF9"]
+            iv_e -- iv_ob [style=dashed, color="#90CAF9"]
+            iv_e -- iv_or [style=dashed, color="#90CAF9"]
+            iv_e -- iv_oj [style=dashed, color="#90CAF9"]
+            iv_e -- iv_fs [style=dashed, color="#90CAF9"]
+            iv_e -- iv_fst [style=dashed, color="#90CAF9"]
+            iv_e -- iv_ld [style=dashed, color="#90CAF9"]
+            iv_e -- iv_lst [style=dashed, color="#90CAF9"]
+            iv_e -- iv_created [style=dashed, color="#90CAF9"]
+            iv_e -- iv_verified [style=dashed, color="#90CAF9"]
+        }
+
+        // --- user_devices ---
+        subgraph cluster_ud {
+            label="user_devices"
+            labeljust=c
+            style=filled
+            fillcolor="#E3F2FD"
+            color="#1565C0"
+            fontsize=9
+
+            ud_e [label="user_devices", shape=box, style="filled,bold", fillcolor="#BBDEFB", color="#1565C0", fontcolor="#0D47A1", fontsize=10]
+            ud_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ud_uid [label="user_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ud_token [label="fcm_token : TEXT, UQ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ud_type [label="device_type : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ud_name [label="device_name : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ud_created [label="created_at : TIMESTAMPTZ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+            ud_updated [label="updated_at : TIMESTAMPTZ", shape=ellipse, style="filled,dashed", fillcolor="#E3F2FD", color="#90CAF9"]
+
+            ud_e -- ud_id [style=dashed, color="#90CAF9"]
+            ud_e -- ud_uid [style=dashed, color="#90CAF9"]
+            ud_e -- ud_token [style=dashed, color="#90CAF9"]
+            ud_e -- ud_type [style=dashed, color="#90CAF9"]
+            ud_e -- ud_name [style=dashed, color="#90CAF9"]
+            ud_e -- ud_created [style=dashed, color="#90CAF9"]
+            ud_e -- ud_updated [style=dashed, color="#90CAF9"]
+        }
+    }
+
+    // ╔═══════════════════════════════════════════════════════════╗
+    // ║  DOMAIN: LAYANAN (Hijau)                                 ║
+    // ╚═══════════════════════════════════════════════════════════╝
+
+    subgraph cluster_svc_domain {
+        label="DOMAIN: Layanan"
+        style=filled
+        fillcolor="#E8F5E922"
+        color="#2E7D32"
+        fontname="Segoe UI Bold"
+        fontsize=12
+
+        subgraph cluster_cat {
+            label="categories"
+            labeljust=c
+            style=filled
+            fillcolor="#E8F5E9"
+            color="#2E7D32"
+            fontsize=9
+
+            cat_e [label="categories", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20", fontsize=10]
+            cat_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            cat_name [label="name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            cat_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            cat_icon [label="icon_url : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            cat_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+            cat_e -- cat_id [style=dashed, color="#A5D6A7"]
+            cat_e -- cat_name [style=dashed, color="#A5D6A7"]
+            cat_e -- cat_desc [style=dashed, color="#A5D6A7"]
+            cat_e -- cat_icon [style=dashed, color="#A5D6A7"]
+            cat_e -- cat_created [style=dashed, color="#A5D6A7"]
+        }
+
+        subgraph cluster_svc {
+            label="services"
+            labeljust=c
+            style=filled
+            fillcolor="#E8F5E9"
+            color="#2E7D32"
+            fontsize=9
+
+            svc_e [label="services", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20", fontsize=10]
+            svc_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            svc_cid [label="category_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            svc_name [label="name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            svc_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            svc_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+            svc_e -- svc_id [style=dashed, color="#A5D6A7"]
+            svc_e -- svc_cid [style=dashed, color="#A5D6A7"]
+            svc_e -- svc_name [style=dashed, color="#A5D6A7"]
+            svc_e -- svc_desc [style=dashed, color="#A5D6A7"]
+            svc_e -- svc_created [style=dashed, color="#A5D6A7"]
+        }
+
+        subgraph cluster_pt {
+            label="pricing_types"
+            labeljust=c
+            style=filled
+            fillcolor="#E8F5E9"
+            color="#2E7D32"
+            fontsize=9
+
+            pt_e [label="pricing_types", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20", fontsize=10]
+            pt_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            pt_name [label="name : VARCHAR(50)", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            pt_unit [label="default_unit : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            pt_cat [label="category_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+            pt_e -- pt_id [style=dashed, color="#A5D6A7"]
+            pt_e -- pt_name [style=dashed, color="#A5D6A7"]
+            pt_e -- pt_unit [style=dashed, color="#A5D6A7"]
+            pt_e -- pt_cat [style=dashed, color="#A5D6A7"]
+        }
+
+        subgraph cluster_psvc {
+            label="provider_services"
+            labeljust=c
+            style=filled
+            fillcolor="#E8F5E9"
+            color="#2E7D32"
+            fontsize=9
+
+            psvc_e [label="provider_services", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20", fontsize=10]
+            psvc_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psvc_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psvc_sid [label="service_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psvc_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psvc_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+            psvc_e -- psvc_id [style=dashed, color="#A5D6A7"]
+            psvc_e -- psvc_pid [style=dashed, color="#A5D6A7"]
+            psvc_e -- psvc_sid [style=dashed, color="#A5D6A7"]
+            psvc_e -- psvc_desc [style=dashed, color="#A5D6A7"]
+            psvc_e -- psvc_created [style=dashed, color="#A5D6A7"]
+        }
+
+        subgraph cluster_psp {
+            label="provider_service_prices"
+            labeljust=c
+            style=filled
+            fillcolor="#E8F5E9"
+            color="#2E7D32"
+            fontsize=9
+
+            psp_e [label="provider_service_prices", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20", fontsize=10]
+            psp_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psp_psid [label="provider_service_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psp_ptid [label="pricing_type_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psp_price [label="price : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psp_unit [label="unit : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psp_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+            psp_e -- psp_id [style=dashed, color="#A5D6A7"]
+            psp_e -- psp_psid [style=dashed, color="#A5D6A7"]
+            psp_e -- psp_ptid [style=dashed, color="#A5D6A7"]
+            psp_e -- psp_price [style=dashed, color="#A5D6A7"]
+            psp_e -- psp_unit [style=dashed, color="#A5D6A7"]
+            psp_e -- psp_created [style=dashed, color="#A5D6A7"]
+        }
+
+        subgraph cluster_psch {
+            label="provider_schedules"
+            labeljust=c
+            style=filled
+            fillcolor="#E8F5E9"
+            color="#2E7D32"
+            fontsize=9
+
+            psch_e [label="provider_schedules", shape=box, style="filled,bold", fillcolor="#C8E6C9", color="#2E7D32", fontcolor="#1B5E20", fontsize=10]
+            psch_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psch_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psch_date [label="work_date : DATE", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psch_booked [label="is_booked : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psch_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+            psch_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E8F5E9", color="#A5D6A7"]
+
+            psch_e -- psch_id [style=dashed, color="#A5D6A7"]
+            psch_e -- psch_pid [style=dashed, color="#A5D6A7"]
+            psch_e -- psch_date [style=dashed, color="#A5D6A7"]
+            psch_e -- psch_booked [style=dashed, color="#A5D6A7"]
+            psch_e -- psch_oid [style=dashed, color="#A5D6A7"]
+            psch_e -- psch_created [style=dashed, color="#A5D6A7"]
+        }
+    }
+
+    // ╔═══════════════════════════════════════════════════════════╗
+    // ║  DOMAIN: PESANAN (Oranye)                                ║
+    // ╚═══════════════════════════════════════════════════════════╝
+
+    subgraph cluster_ord_domain {
+        label="DOMAIN: Pesanan"
+        style=filled
+        fillcolor="#FFF3E022"
+        color="#E65100"
+        fontname="Segoe UI Bold"
+        fontsize=12
+
+        subgraph cluster_ord {
+            label="orders"
+            labeljust=c
+            style=filled
+            fillcolor="#FFF3E0"
+            color="#E65100"
+            fontsize=9
+
+            ord_e [label="orders", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C", fontsize=10]
+            ord_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_cid [label="customer_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_ctid [label="custom_task_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_tpid [label="task_provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_stat [label="status : VARCHAR(30)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_total [label="total_price : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_fee [label="platform_fee : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_add [label="additional_fee : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_work [label="work_date : DATE", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_type [label="assignment_type : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_payout [label="payout_confirmed : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_payout_at [label="payout_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_start [label="start_date : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ord_end [label="end_date : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+            ord_e -- ord_id [style=dashed, color="#FFCC80"]
+            ord_e -- ord_cid [style=dashed, color="#FFCC80"]
+            ord_e -- ord_pid [style=dashed, color="#FFCC80"]
+            ord_e -- ord_ctid [style=dashed, color="#FFCC80"]
+            ord_e -- ord_tpid [style=dashed, color="#FFCC80"]
+            ord_e -- ord_stat [style=dashed, color="#FFCC80"]
+            ord_e -- ord_total [style=dashed, color="#FFCC80"]
+            ord_e -- ord_fee [style=dashed, color="#FFCC80"]
+            ord_e -- ord_add [style=dashed, color="#FFCC80"]
+            ord_e -- ord_desc [style=dashed, color="#FFCC80"]
+            ord_e -- ord_work [style=dashed, color="#FFCC80"]
+            ord_e -- ord_type [style=dashed, color="#FFCC80"]
+            ord_e -- ord_payout [style=dashed, color="#FFCC80"]
+            ord_e -- ord_payout_at [style=dashed, color="#FFCC80"]
+            ord_e -- ord_created [style=dashed, color="#FFCC80"]
+            ord_e -- ord_start [style=dashed, color="#FFCC80"]
+            ord_e -- ord_end [style=dashed, color="#FFCC80"]
+        }
+
+        subgraph cluster_oi {
+            label="order_items"
+            labeljust=c
+            style=filled
+            fillcolor="#FFF3E0"
+            color="#E65100"
+            fontsize=9
+
+            oi_e [label="order_items", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C", fontsize=10]
+            oi_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            oi_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            oi_sid [label="service_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            oi_ptid [label="pricing_type_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            oi_qty [label="quantity : INT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            oi_price [label="price : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            oi_sub [label="subtotal : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+            oi_e -- oi_id [style=dashed, color="#FFCC80"]
+            oi_e -- oi_oid [style=dashed, color="#FFCC80"]
+            oi_e -- oi_sid [style=dashed, color="#FFCC80"]
+            oi_e -- oi_ptid [style=dashed, color="#FFCC80"]
+            oi_e -- oi_qty [style=dashed, color="#FFCC80"]
+            oi_e -- oi_price [style=dashed, color="#FFCC80"]
+            oi_e -- oi_sub [style=dashed, color="#FFCC80"]
+        }
+
+        subgraph cluster_ol {
+            label="order_locations"
+            labeljust=c
+            style=filled
+            fillcolor="#FFF3E0"
+            color="#E65100"
+            fontsize=9
+
+            ol_e [label="order_locations", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C", fontsize=10]
+            ol_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ol_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ol_addr [label="address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ol_geo [label="location : GEOMETRY", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+            ol_e -- ol_id [style=dashed, color="#FFCC80"]
+            ol_e -- ol_oid [style=dashed, color="#FFCC80"]
+            ol_e -- ol_addr [style=dashed, color="#FFCC80"]
+            ol_e -- ol_geo [style=dashed, color="#FFCC80"]
+        }
+
+        subgraph cluster_oa {
+            label="order_attachments"
+            labeljust=c
+            style=filled
+            fillcolor="#FFF3E0"
+            color="#E65100"
+            fontsize=9
+
+            oa_e [label="order_attachments", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C", fontsize=10]
+            oa_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            oa_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            oa_url [label="file_url : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            oa_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+            oa_e -- oa_id [style=dashed, color="#FFCC80"]
+            oa_e -- oa_oid [style=dashed, color="#FFCC80"]
+            oa_e -- oa_url [style=dashed, color="#FFCC80"]
+            oa_e -- oa_created [style=dashed, color="#FFCC80"]
+        }
+
+        subgraph cluster_ox {
+            label="order_extensions"
+            labeljust=c
+            style=filled
+            fillcolor="#FFF3E0"
+            color="#E65100"
+            fontsize=9
+
+            ox_e [label="order_extensions", shape=box, style="filled,bold", fillcolor="#FFE0B2", color="#E65100", fontcolor="#BF360C", fontsize=10]
+            ox_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_oid [label="order_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_cust [label="customer_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_date [label="requested_date : DATE", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_cost [label="additional_cost : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_rate [label="platform_fee_rate : DECIMAL(3,2)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_cnt [label="extension_count : INT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_stat [label="status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_note [label="response_note : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+            ox_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF3E0", color="#FFCC80"]
+
+            ox_e -- ox_id [style=dashed, color="#FFCC80"]
+            ox_e -- ox_oid [style=dashed, color="#FFCC80"]
+            ox_e -- ox_pid [style=dashed, color="#FFCC80"]
+            ox_e -- ox_cust [style=dashed, color="#FFCC80"]
+            ox_e -- ox_date [style=dashed, color="#FFCC80"]
+            ox_e -- ox_cost [style=dashed, color="#FFCC80"]
+            ox_e -- ox_rate [style=dashed, color="#FFCC80"]
+            ox_e -- ox_cnt [style=dashed, color="#FFCC80"]
+            ox_e -- ox_stat [style=dashed, color="#FFCC80"]
+            ox_e -- ox_note [style=dashed, color="#FFCC80"]
+            ox_e -- ox_created [style=dashed, color="#FFCC80"]
+        }
+    }
+
+    // ╔═══════════════════════════════════════════════════════════╗
+    // ║  DOMAIN: PEMBAYARAN (Ungu)                               ║
+    // ╚═══════════════════════════════════════════════════════════╝
+
+    subgraph cluster_pay_domain {
+        label="DOMAIN: Pembayaran"
+        style=filled
+        fillcolor="#F3E5F522"
+        color="#6A1B9A"
+        fontname="Segoe UI Bold"
+        fontsize=12
+
+        subgraph cluster_pay {
+            label="payments"
+            labeljust=c
+            style=filled
+            fillcolor="#F3E5F5"
+            color="#6A1B9A"
+            fontsize=9
+
+            pay_e [label="payments", shape=box, style="filled,bold", fillcolor="#E1BEE7", color="#6A1B9A", fontcolor="#4A148C", fontsize=10]
+            pay_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            pay_oid [label="order_id : UUID, FK, UQ", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            pay_method [label="method : VARCHAR(50)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            pay_stat [label="status : VARCHAR(30)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            pay_amt [label="amount : DECIMAL(12,2)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            pay_paid [label="paid_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            pay_proof [label="payment_proof : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            pay_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+
+            pay_e -- pay_id [style=dashed, color="#CE93D8"]
+            pay_e -- pay_oid [style=dashed, color="#CE93D8"]
+            pay_e -- pay_method [style=dashed, color="#CE93D8"]
+            pay_e -- pay_stat [style=dashed, color="#CE93D8"]
+            pay_e -- pay_amt [style=dashed, color="#CE93D8"]
+            pay_e -- pay_paid [style=dashed, color="#CE93D8"]
+            pay_e -- pay_proof [style=dashed, color="#CE93D8"]
+            pay_e -- pay_created [style=dashed, color="#CE93D8"]
+        }
+
+        subgraph cluster_aba {
+            label="admin_bank_accounts"
+            labeljust=c
+            style=filled
+            fillcolor="#F3E5F5"
+            color="#6A1B9A"
+            fontsize=9
+
+            aba_e [label="admin_bank_accounts", shape=box, style="filled,bold", fillcolor="#E1BEE7", color="#6A1B9A", fontcolor="#4A148C", fontsize=10]
+            aba_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aba_pn [label="provider_name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aba_an [label="account_number : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aba_h [label="account_name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aba_act [label="is_active : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aba_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aba_updated [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+
+            aba_e -- aba_id [style=dashed, color="#CE93D8"]
+            aba_e -- aba_pn [style=dashed, color="#CE93D8"]
+            aba_e -- aba_an [style=dashed, color="#CE93D8"]
+            aba_e -- aba_h [style=dashed, color="#CE93D8"]
+            aba_e -- aba_act [style=dashed, color="#CE93D8"]
+            aba_e -- aba_created [style=dashed, color="#CE93D8"]
+            aba_e -- aba_updated [style=dashed, color="#CE93D8"]
+        }
+
+        subgraph cluster_aew {
+            label="admin_ewallet_accounts"
+            labeljust=c
+            style=filled
+            fillcolor="#F3E5F5"
+            color="#6A1B9A"
+            fontsize=9
+
+            aew_e [label="admin_ewallet_accounts", shape=box, style="filled,bold", fillcolor="#E1BEE7", color="#6A1B9A", fontcolor="#4A148C", fontsize=10]
+            aew_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aew_pn [label="provider_name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aew_an [label="account_number : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aew_h [label="account_name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aew_act [label="is_active : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aew_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aew_updated [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+
+            aew_e -- aew_id [style=dashed, color="#CE93D8"]
+            aew_e -- aew_pn [style=dashed, color="#CE93D8"]
+            aew_e -- aew_an [style=dashed, color="#CE93D8"]
+            aew_e -- aew_h [style=dashed, color="#CE93D8"]
+            aew_e -- aew_act [style=dashed, color="#CE93D8"]
+            aew_e -- aew_created [style=dashed, color="#CE93D8"]
+            aew_e -- aew_updated [style=dashed, color="#CE93D8"]
+        }
+
+        subgraph cluster_aqri {
+            label="admin_qris_accounts"
+            labeljust=c
+            style=filled
+            fillcolor="#F3E5F5"
+            color="#6A1B9A"
+            fontsize=9
+
+            aqri_e [label="admin_qris_accounts", shape=box, style="filled,bold", fillcolor="#E1BEE7", color="#6A1B9A", fontcolor="#4A148C", fontsize=10]
+            aqri_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aqri_pn [label="provider_name : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aqri_mn [label="merchant_name : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aqri_img [label="qris_image_url : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aqri_act [label="is_active : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aqri_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+            aqri_updated [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#F3E5F5", color="#CE93D8"]
+
+            aqri_e -- aqri_id [style=dashed, color="#CE93D8"]
+            aqri_e -- aqri_pn [style=dashed, color="#CE93D8"]
+            aqri_e -- aqri_mn [style=dashed, color="#CE93D8"]
+            aqri_e -- aqri_img [style=dashed, color="#CE93D8"]
+            aqri_e -- aqri_act [style=dashed, color="#CE93D8"]
+            aqri_e -- aqri_created [style=dashed, color="#CE93D8"]
+            aqri_e -- aqri_updated [style=dashed, color="#CE93D8"]
+        }
+    }
+
+    // ╔═══════════════════════════════════════════════════════════╗
+    // ║  DOMAIN: CUSTOM TASK (Cyan)                              ║
+    // ╚═══════════════════════════════════════════════════════════╝
+
+    subgraph cluster_ct_domain {
+        label="DOMAIN: Custom Task"
+        style=filled
+        fillcolor="#E0F7FA22"
+        color="#00838F"
+        fontname="Segoe UI Bold"
+        fontsize=12
+
+        subgraph cluster_ct {
+            label="custom_tasks"
+            labeljust=c
+            style=filled
+            fillcolor="#E0F7FA"
+            color="#00838F"
+            fontsize=9
+
+            ct_e [label="custom_tasks", shape=box, style="filled,bold", fillcolor="#B2EBF2", color="#00838F", fontcolor="#006064", fontsize=10]
+            ct_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_cid [label="customer_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_title [label="title : VARCHAR(150)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_budget [label="budget_per_person : DECIMAL(12,0)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_people [label="required_people : INT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_accepted [label="accepted_count : INT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_fee [label="platform_fee_rate : DECIMAL(4,2)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_addr [label="address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_detail [label="location_detail : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_days [label="publish_days : INT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_expires [label="expires_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_proof [label="payment_proof : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_pstat [label="payment_status : VARCHAR(30)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_geo [label="location : GEOMETRY", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_stat [label="status : VARCHAR(30)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            ct_updated [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+
+            ct_e -- ct_id [style=dashed, color="#80DEEA"]
+            ct_e -- ct_cid [style=dashed, color="#80DEEA"]
+            ct_e -- ct_title [style=dashed, color="#80DEEA"]
+            ct_e -- ct_desc [style=dashed, color="#80DEEA"]
+            ct_e -- ct_budget [style=dashed, color="#80DEEA"]
+            ct_e -- ct_people [style=dashed, color="#80DEEA"]
+            ct_e -- ct_accepted [style=dashed, color="#80DEEA"]
+            ct_e -- ct_fee [style=dashed, color="#80DEEA"]
+            ct_e -- ct_addr [style=dashed, color="#80DEEA"]
+            ct_e -- ct_detail [style=dashed, color="#80DEEA"]
+            ct_e -- ct_days [style=dashed, color="#80DEEA"]
+            ct_e -- ct_expires [style=dashed, color="#80DEEA"]
+            ct_e -- ct_proof [style=dashed, color="#80DEEA"]
+            ct_e -- ct_pstat [style=dashed, color="#80DEEA"]
+            ct_e -- ct_geo [style=dashed, color="#80DEEA"]
+            ct_e -- ct_stat [style=dashed, color="#80DEEA"]
+            ct_e -- ct_created [style=dashed, color="#80DEEA"]
+            ct_e -- ct_updated [style=dashed, color="#80DEEA"]
+        }
+
+        subgraph cluster_tl {
+            label="task_locations"
+            labeljust=c
+            style=filled
+            fillcolor="#E0F7FA"
+            color="#00838F"
+            fontsize=9
+
+            tl_e [label="task_locations", shape=box, style="filled,bold", fillcolor="#B2EBF2", color="#00838F", fontcolor="#006064", fontsize=10]
+            tl_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tl_tid [label="task_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tl_label [label="label : VARCHAR(100)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tl_addr [label="address : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tl_geo [label="location : GEOMETRY", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tl_order [label="stop_order : INT", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+
+            tl_e -- tl_id [style=dashed, color="#80DEEA"]
+            tl_e -- tl_tid [style=dashed, color="#80DEEA"]
+            tl_e -- tl_label [style=dashed, color="#80DEEA"]
+            tl_e -- tl_addr [style=dashed, color="#80DEEA"]
+            tl_e -- tl_geo [style=dashed, color="#80DEEA"]
+            tl_e -- tl_order [style=dashed, color="#80DEEA"]
+        }
+
+        subgraph cluster_tp {
+            label="task_providers"
+            labeljust=c
+            style=filled
+            fillcolor="#E0F7FA"
+            color="#00838F"
+            fontsize=9
+
+            tp_e [label="task_providers", shape=box, style="filled,bold", fillcolor="#B2EBF2", color="#00838F", fontcolor="#006064", fontsize=10]
+            tp_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tp_tid [label="task_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tp_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tp_stat [label="status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tp_work [label="work_status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tp_accepted [label="accepted_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tp_completed [label="completed_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tp_payout [label="payout_confirmed : BOOLEAN", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+            tp_payout_at [label="payout_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#E0F7FA", color="#80DEEA"]
+
+            tp_e -- tp_id [style=dashed, color="#80DEEA"]
+            tp_e -- tp_tid [style=dashed, color="#80DEEA"]
+            tp_e -- tp_pid [style=dashed, color="#80DEEA"]
+            tp_e -- tp_stat [style=dashed, color="#80DEEA"]
+            tp_e -- tp_work [style=dashed, color="#80DEEA"]
+            tp_e -- tp_accepted [style=dashed, color="#80DEEA"]
+            tp_e -- tp_completed [style=dashed, color="#80DEEA"]
+            tp_e -- tp_payout [style=dashed, color="#80DEEA"]
+            tp_e -- tp_payout_at [style=dashed, color="#80DEEA"]
+        }
+    }
+
+    // ╔═══════════════════════════════════════════════════════════╗
+    // ║  DOMAIN: REVIEW & LAPORAN (Kuning)                       ║
+    // ╚═══════════════════════════════════════════════════════════╝
+
+    subgraph cluster_rev_domain {
+        label="DOMAIN: Review & Laporan"
+        style=filled
+        fillcolor="#FFF8E122"
+        color="#FF6F00"
+        fontname="Segoe UI Bold"
+        fontsize=12
+
+        subgraph cluster_rev {
+            label="reviews"
+            labeljust=c
+            style=filled
+            fillcolor="#FFF8E1"
+            color="#FF6F00"
+            fontsize=9
+
+            rev_e [label="reviews", shape=box, style="filled,bold", fillcolor="#FFECB3", color="#FF6F00", fontcolor="#E65100", fontsize=10]
+            rev_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rev_oid [label="order_id : UUID, FK, UQ", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rev_cid [label="customer_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rev_pid [label="provider_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rev_rating [label="rating : INT (1-5)", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rev_comment [label="review : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rev_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rev_updated [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+
+            rev_e -- rev_id [style=dashed, color="#FFE082"]
+            rev_e -- rev_oid [style=dashed, color="#FFE082"]
+            rev_e -- rev_cid [style=dashed, color="#FFE082"]
+            rev_e -- rev_pid [style=dashed, color="#FFE082"]
+            rev_e -- rev_rating [style=dashed, color="#FFE082"]
+            rev_e -- rev_comment [style=dashed, color="#FFE082"]
+            rev_e -- rev_created [style=dashed, color="#FFE082"]
+            rev_e -- rev_updated [style=dashed, color="#FFE082"]
+        }
+
+        subgraph cluster_rpt {
+            label="reports"
+            labeljust=c
+            style=filled
+            fillcolor="#FFF8E1"
+            color="#FF6F00"
+            fontsize=9
+
+            rpt_e [label="reports", shape=box, style="filled,bold", fillcolor="#FFECB3", color="#FF6F00", fontcolor="#E65100", fontsize=10]
+            rpt_id [label="id : UUID, PK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_rid [label="reporter_id : UUID, FK", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_role [label="reporter_role : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_oid [label="order_id : UUID", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_subj [label="subject : VARCHAR(200)", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_desc [label="description : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_attach [label="attachments : TEXT[]", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_stat [label="status : VARCHAR(20)", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_admin [label="admin_response : TEXT", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_created [label="created_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_updated [label="updated_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+            rpt_resolved [label="resolved_at : TIMESTAMP", shape=ellipse, style="filled,dashed", fillcolor="#FFF8E1", color="#FFE082"]
+
+            rpt_e -- rpt_id [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_rid [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_role [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_oid [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_subj [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_desc [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_attach [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_stat [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_admin [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_created [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_updated [style=dashed, color="#FFE082"]
+            rpt_e -- rpt_resolved [style=dashed, color="#FFE082"]
+        }
+    }
+
+    // ╔═══════════════════════════════════════════════════════════╗
+    // ║  RELASI (Diamond / Belah Ketupat)                        ║
+    // ╚═══════════════════════════════════════════════════════════╝
+
+    // --- Domain Autentikasi ---
+    r_auth1 [label="1:N\nMemiliki", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_auth2 [label="1:1\nMempunyai", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_auth3 [label="1:1\nMenjadi", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_auth4 [label="1:1\nBeralamat", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_auth5 [label="1:N\nMemiliki", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_auth6 [label="1:N\nMengunggah", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_auth7 [label="1:N\nMencairkan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_auth8 [label="1:1\nTerverifikasi", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+
+    roles_e -- r_auth1 [color="#1565C0", penwidth=2]
+    r_auth1 -- users_e [color="#1565C0", penwidth=2]
+
+    users_e -- r_auth2 [color="#1565C0", penwidth=2]
+    r_auth2 -- pc_e [color="#1565C0", penwidth=2]
+
+    users_e -- r_auth3 [color="#1565C0", penwidth=2]
+    r_auth3 -- pp_e [color="#1565C0", penwidth=2]
+
+    users_e -- r_auth4 [color="#1565C0", penwidth=2]
+    r_auth4 -- pl_e [color="#1565C0", penwidth=2]
+
+    users_e -- r_auth5 [color="#1565C0", penwidth=2]
+    r_auth5 -- ud_e [color="#1565C0", penwidth=2]
+
+    pp_e -- r_auth6 [color="#1565C0", penwidth=2]
+    r_auth6 -- pd_e [color="#1565C0", penwidth=2]
+
+    pp_e -- r_auth7 [color="#1565C0", penwidth=2]
+    r_auth7 -- ppy_e [color="#1565C0", penwidth=2]
+
+    pp_e -- r_auth8 [color="#1565C0", penwidth=2]
+    r_auth8 -- iv_e [color="#1565C0", penwidth=2]
+
+    // --- Domain Layanan ---
+    r_svc1 [label="1:N\nMempunyai", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_svc2 [label="1:N\nDitentukan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_svc3 [label="1:N\nMenyediakan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_svc4 [label="1:N\nDihargai", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_svc5 [label="1:N\nDijadwalkan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+
+    cat_e -- r_svc1 [color="#2E7D32", penwidth=2]
+    r_svc1 -- svc_e [color="#2E7D32", penwidth=2]
+
+    svc_e -- r_svc2 [color="#2E7D32", penwidth=2]
+    r_svc2 -- pt_e [color="#2E7D32", penwidth=2]
+
+    pp_e -- r_svc3 [color="#2E7D32", penwidth=2]
+    r_svc3 -- psvc_e [color="#2E7D32", penwidth=2]
+
+    psvc_e -- r_svc4 [color="#2E7D32", penwidth=2]
+    r_svc4 -- psp_e [color="#2E7D32", penwidth=2]
+
+    psvc_e -- r_svc5 [color="#2E7D32", penwidth=2]
+    r_svc5 -- psch_e [color="#2E7D32", penwidth=2]
+
+    // --- Domain Pesanan ---
+    r_ord1 [label="1:N\nMembuat", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_ord2 [label="1:N\nMengerjakan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_ord3 [label="1:N\nMemuat", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_ord4 [label="1:N\nDilokasi", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_ord5 [label="1:N\nMelampirkan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_ord6 [label="1:N\nMemperpanjang", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_ord7 [label="1:1\nDibayar", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_ord8 [label="N:1\nMenggunakan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+
+    pc_e -- r_ord1 [color="#E65100", penwidth=2]
+    r_ord1 -- ord_e [color="#E65100", penwidth=2]
+
+    pp_e -- r_ord2 [color="#E65100", penwidth=2]
+    r_ord2 -- ord_e [color="#E65100", penwidth=2]
+
+    ord_e -- r_ord3 [color="#E65100", penwidth=2]
+    r_ord3 -- oi_e [color="#E65100", penwidth=2]
+
+    ord_e -- r_ord4 [color="#E65100", penwidth=2]
+    r_ord4 -- ol_e [color="#E65100", penwidth=2]
+
+    ord_e -- r_ord5 [color="#E65100", penwidth=2]
+    r_ord5 -- oa_e [color="#E65100", penwidth=2]
+
+    ord_e -- r_ord6 [color="#E65100", penwidth=2]
+    r_ord6 -- ox_e [color="#E65100", penwidth=2]
+
+    ord_e -- r_ord7 [color="#6A1B9A", penwidth=2]
+    r_ord7 -- pay_e [color="#6A1B9A", penwidth=2]
+
+    oi_e -- r_ord8 [color="#2E7D32", penwidth=2]
+    r_ord8 -- pt_e [color="#2E7D32", penwidth=2]
+
+    // --- Domain Custom Task ---
+    r_ct1 [label="1:N\nMembuat", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_ct2 [label="1:N\nDilokasi", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_ct3 [label="1:N\nDiterima", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+
+    users_e -- r_ct1 [color="#00838F", penwidth=2]
+    r_ct1 -- ct_e [color="#00838F", penwidth=2]
+
+    ct_e -- r_ct2 [color="#00838F", penwidth=2]
+    r_ct2 -- tl_e [color="#00838F", penwidth=2]
+
+    ct_e -- r_ct3 [color="#00838F", penwidth=2]
+    r_ct3 -- tp_e [color="#00838F", penwidth=2]
+
+    // --- Domain Review ---
+    r_rev1 [label="1:1\nDirenview", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+    r_rev2 [label="1:N\nMelaporkan", shape=diamond, style=filled, fillcolor="#FFF9C4", color="#F9A825", fontcolor="#F57F17", fontsize=8]
+
+    ord_e -- r_rev1 [color="#FF6F00", penwidth=2]
+    r_rev1 -- rev_e [color="#FF6F00", penwidth=2]
+
+    users_e -- r_rev2 [color="#FF6F00", penwidth=2]
+    r_rev2 -- rpt_e [color="#FF6F00", penwidth=2]
+}

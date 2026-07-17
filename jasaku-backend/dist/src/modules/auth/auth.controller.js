@@ -1,5 +1,6 @@
 import { AuthService } from "./auth.service";
 import { successResponse, errorResponse } from "../../utils/response";
+import { uploadToStorage } from "../../services/storage.service";
 const registerCustomer = async (req, res) => {
     try {
         const { email, password, role, name, phone, gender, birthDate } = req.body;
@@ -22,13 +23,23 @@ const registerProvider = async (req, res) => {
         if (certificates) {
             parsedCertificates = typeof certificates === 'string' ? JSON.parse(certificates) : certificates;
         }
-        const profile_photo = req.files?.['profile_photo']?.[0]?.path || req.body.profile_photo;
-        const ktp_photo = req.files?.['ktp_photo']?.[0]?.path || req.body.ktp_photo;
-        const selfie_photo = req.files?.['selfie_photo']?.[0]?.path || req.body.selfie_photo;
-        const portfolios = req.files?.['portfolios']?.map((file) => file.path) || [];
+        const uploadFile = async (file, folder) => {
+            if (!file)
+                return null;
+            return uploadToStorage(file.buffer, folder, file.originalname);
+        };
+        const uploadMultiple = async (files, folder) => {
+            if (!files?.length)
+                return [];
+            return Promise.all(files.map(f => uploadToStorage(f.buffer, folder, f.originalname)));
+        };
+        const profile_photo = await uploadFile(req.files?.['profile_photo']?.[0], 'provider/profile-photo') || req.body.profile_photo;
+        const ktp_photo = await uploadFile(req.files?.['ktp_photo']?.[0], 'provider/ktp') || req.body.ktp_photo;
+        const selfie_photo = await uploadFile(req.files?.['selfie_photo']?.[0], 'provider/selfie') || req.body.selfie_photo;
+        const portfolios = await uploadMultiple(req.files?.['portfolios'] || [], 'provider/portfolios');
         // Ijazah & Sertifikat
-        const ijazah_photo = req.files?.['ijazah_photo']?.[0]?.path || null;
-        const certificateFiles = req.files?.['certificate_files']?.map((file) => file.path) || [];
+        const ijazah_photo = await uploadFile(req.files?.['ijazah_photo']?.[0], 'provider/documents') || null;
+        const certificateFiles = await uploadMultiple(req.files?.['certificate_files'] || [], 'provider/documents');
         const authService = new AuthService();
         let parsedLiveness = null;
         if (liveness_data) {
@@ -74,34 +85,6 @@ const loginWithGoogle = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
-const sendOtp = async (req, res) => {
-    try {
-        const { email, phone } = req.body;
-        if (!email || !phone) {
-            return errorResponse(res, 'Email dan nomor HP harus diisi', 400);
-        }
-        const authService = new AuthService();
-        const result = await authService.sendOtp(email, phone);
-        return successResponse(res, result, 'OTP berhasil dikirim');
-    }
-    catch (err) {
-        return errorResponse(res, err.message);
-    }
-};
-const verifyOtp = async (req, res) => {
-    try {
-        const { email, phone, otp } = req.body;
-        if (!email || !phone || !otp) {
-            return errorResponse(res, 'Email, nomor HP, dan OTP harus diisi', 400);
-        }
-        const authService = new AuthService();
-        const result = await authService.verifyOtp(email, phone, otp);
-        return successResponse(res, result, 'Verifikasi OTP berhasil');
-    }
-    catch (err) {
-        return errorResponse(res, err.message);
-    }
-};
 const getVerificationStatus = async (req, res) => {
     try {
         const authService = new AuthService();
@@ -122,4 +105,14 @@ const resubmitVerification = async (req, res) => {
         return errorResponse(res, err.message);
     }
 };
-export { registerCustomer, registerProvider, registerAdmin, login, loginWithGoogle, sendOtp, verifyOtp, getVerificationStatus, resubmitVerification };
+export { registerCustomer, registerProvider, registerAdmin, login, loginWithGoogle, getVerificationStatus, resubmitVerification, getMe };
+const getMe = async (req, res) => {
+    try {
+        const authService = new AuthService();
+        const result = await authService.getMe(req.user.userId);
+        return successResponse(res, result, 'Data user berhasil diambil');
+    }
+    catch (err) {
+        return errorResponse(res, err.message);
+    }
+};

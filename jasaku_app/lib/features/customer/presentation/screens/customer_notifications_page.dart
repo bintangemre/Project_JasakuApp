@@ -386,7 +386,9 @@ class _CustomerNotificationsPageState extends ConsumerState<CustomerNotification
           final feeAplikasi = _parseNum(ext['additional_cost']);
           final totalPrice = _parseNum(order['total_price']);
           final platformFee = _parseNum(order['platform_fee']);
-          final hargaProvider = (totalPrice - platformFee) * days;
+          final originalDays = _parseInt(order['original_days'] ?? 1);
+          final perDayRate = originalDays > 0 ? (totalPrice - platformFee) / originalDays : (totalPrice - platformFee);
+          final hargaProvider = perDayRate * days;
           final total = hargaProvider + feeAplikasi;
           final extId = ext['id'] as String;
           final isProcessing = _processingExtId == extId;

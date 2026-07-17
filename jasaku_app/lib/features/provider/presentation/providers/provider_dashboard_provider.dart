@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/provider_dashboard_repository.dart';
-import 'package:intl/intl.dart';
 import '../../../custom_tasks/data/models/custom_task_model.dart';
 
 class DashboardState {
@@ -74,7 +73,7 @@ class DashboardState {
 
   Map<String, dynamic>? get activeOrder {
     try {
-      final now = DateTime.now();
+      final now = DateTime.now().toUtc().add(const Duration(hours: 8));
       return orders.firstWhere(
         (o) {
           if (o['assignment_type'] == 'custom_task') return false;
@@ -83,9 +82,10 @@ class DashboardState {
           final workDateStr = o['work_date'] as String? ?? '';
           try {
             final workDate = DateTime.parse(workDateStr);
-            return workDate.year == now.year &&
-                   workDate.month == now.month &&
-                   workDate.day == now.day;
+            final workDateWita = workDate.isUtc ? workDate.add(const Duration(hours: 8)) : workDate;
+            return workDateWita.year == now.year &&
+                   workDateWita.month == now.month &&
+                   workDateWita.day == now.day;
           } catch (_) {
             return false;
           }
@@ -106,19 +106,19 @@ class DashboardState {
 
   double get monthlyEarnings {
     final now = DateTime.now();
-    final formatter = DateFormat('yyyy-MM');
-    final thisMonth = formatter.format(now);
     double total = 0;
     for (final order in orders) {
       if (order['status'] == 'completed') {
         final createdAt = order['created_at'] as String?;
-        if (createdAt != null && createdAt.length >= 7) {
-          final orderMonth = createdAt.substring(0, 7);
-          if (orderMonth == thisMonth) {
-            final price = _parsePriceDouble(order['total_price']);
-          final fee = _parsePriceDouble(order['platform_fee']);
-          total += (price - fee);
-          }
+        if (createdAt != null) {
+          try {
+            final dt = DateTime.parse(createdAt);
+            if (dt.year == now.year && dt.month == now.month) {
+              final price = _parsePriceDouble(order['total_price']);
+              final fee = _parsePriceDouble(order['platform_fee']);
+              total += (price - fee);
+            }
+          } catch (_) {}
         }
       }
     }
@@ -133,7 +133,7 @@ class DashboardState {
   }
 
   double get performance {
-    if (totalJobs == 0) return 0;
+    if (totalJobs == 0 || orders.isEmpty) return 0;
     final completed = orders.where((o) => o['status'] == 'completed').length;
     return (completed / orders.length) * 100;
   }

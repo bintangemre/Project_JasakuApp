@@ -1,0 +1,87 @@
+@startuml
+skinparam activityBackgroundColor #FEFECE
+skinparam activityBorderColor #A80036
+skinparam activityDiamondBackgroundColor #FEFECE
+skinparam activityDiamondBorderColor #A80036
+skinparam activityStartColor #A80036
+skinparam activityEndColor #A80036
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+title Flow Konfirmasi Ekstensi
+
+|#E8F5E9|Frontend|
+start
+:Admin klik menu "Konfirmasi Ekstensi";
+
+|#E3F2FD|Backend|
+:GET /api/admin/extensions/pending-payment;
+:Query order_extensions WHERE status = pending_payment;
+:Include data order terkait;
+
+|#FFF8E1|Halaman|
+:Tampilkan daftar ekstensi menunggu pembayaran;
+
+partition "Informasi ekstensi" {
+  note right
+    Per ekstensi:
+    - ID extension
+    - Data order asal
+    - Nama customer & mitra
+    - Biaya tambahan (additional_fee)
+    - Status: pending_payment
+  end note
+}
+
+partition "Proses aktivasi" {
+  :Admin klik "Aktifkan" pada ekstensi;
+
+  |#E3F2FD|Backend|
+  :PATCH /api/admin/extensions/:extensionId/activate;
+  :Validasi status = pending_payment;
+
+  if (Valid?) then (Ya)
+    :Update status extension → active;
+    :Perpanjang end_date order terkait;
+    note right
+      end_date diperpanjang
+      sesuai durasi ekstensi
+    end note
+
+    :Trigger notifikasi ke Mitra;
+    note right
+      **Notifikasi Mitra:**
+      Type: EXTENSION_ACTIVATED
+      "Ekstensi pesanan telah
+      diaktifkan oleh admin."
+    end note
+
+    :Trigger notifikasi ke Customer;
+    note right
+      **Notifikasi Customer:**
+      Type: EXTENSION_ACTIVATED
+      "Ekstensi pesanan Anda
+      telah diaktifkan."
+    end note
+
+    |#E8F5E9|Frontend|
+    :Refresh daftar ekstensi;
+    :Tampilkan toast "Ekstensi diaktifkan";
+    stop
+  else (Tidak)
+    |#E8F5E9|Frontend|
+    :Tampilkan pesan error;
+    stop
+  endif
+endif
+
+note right
+  **Endpoint:**
+  GET /api/admin/extensions/pending-payment
+  PATCH /api/admin/extensions/:extensionId/activate
+
+  **Status transition:**
+  pending_payment → active
+end note
+
+@enduml
