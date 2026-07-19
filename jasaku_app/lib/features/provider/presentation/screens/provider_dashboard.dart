@@ -43,6 +43,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
   String? _extensionStatusText;
   bool _extensionIsActive = false;
   String? _lastCheckedOrderId;
+  DateTime? _lastExtensionCheckTime;
   bool _routeFetching = false;
 
   @override
@@ -219,8 +220,15 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
   }
 
   Future<void> _checkExtensionStatus(String orderId) async {
-    if (orderId.isEmpty || orderId == _lastCheckedOrderId) return;
+    if (orderId.isEmpty) return;
+    final now = DateTime.now();
+    if (orderId == _lastCheckedOrderId &&
+        _lastExtensionCheckTime != null &&
+        now.difference(_lastExtensionCheckTime!).inSeconds < 25) {
+      return;
+    }
     _lastCheckedOrderId = orderId;
+    _lastExtensionCheckTime = now;
     try {
       final res = await _dio.get(ApiEndpoints.orderExtensions(orderId));
       final exts = (res.data?['data'] as List?) ?? [];

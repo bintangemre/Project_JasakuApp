@@ -74,6 +74,7 @@ class DashboardState {
   Map<String, dynamic>? get activeOrder {
     try {
       final now = DateTime.now().toUtc().add(const Duration(hours: 8));
+      final today = DateTime(now.year, now.month, now.day);
       return orders.firstWhere(
         (o) {
           if (o['assignment_type'] == 'custom_task') return false;
@@ -83,9 +84,16 @@ class DashboardState {
           try {
             final workDate = DateTime.parse(workDateStr);
             final workDateWita = workDate.isUtc ? workDate.add(const Duration(hours: 8)) : workDate;
-            return workDateWita.year == now.year &&
-                   workDateWita.month == now.month &&
-                   workDateWita.day == now.day;
+            final workDay = DateTime(workDateWita.year, workDateWita.month, workDateWita.day);
+            if (today == workDay) return true;
+            final endDateStr = o['end_date'] as String? ?? '';
+            if (endDateStr.isNotEmpty) {
+              final endDate = DateTime.parse(endDateStr);
+              final endDateWita = endDate.isUtc ? endDate.add(const Duration(hours: 8)) : endDate;
+              final endDay = DateTime(endDateWita.year, endDateWita.month, endDateWita.day);
+              return today.isAfter(workDay) && !today.isAfter(endDay);
+            }
+            return false;
           } catch (_) {
             return false;
           }

@@ -81,6 +81,7 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
   void _onForegroundMessage(RemoteMessage msg) {
     final type = msg.data['type'] ?? '';
     if (type == 'EXTENSION_REQUEST') {
+      ref.read(unreadNotifProvider.notifier).increment();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
