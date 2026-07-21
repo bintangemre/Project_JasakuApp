@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
@@ -35,13 +36,17 @@ class OrderFormNotifier extends StateNotifier<OrderFormState> {
         ...payload.toJson(),
         'paymentMethod': paymentMethod,
       });
+      log('[ORDER] Response status: ${orderResponse.statusCode}');
+      log('[ORDER] Response data: ${orderResponse.data}');
       if (orderResponse.statusCode != 200 && orderResponse.statusCode != 201) {
         state = OrderFormState(isLoading: false, errorMessage: "Gagal membuat pesanan");
         return;
       }
 
       final responseData = orderResponse.data['data'];
+      log('[ORDER] responseData: $responseData');
       final orderId = (responseData?['order']?['id'] ?? responseData?['id']) as String?;
+      log('[ORDER] Extracted orderId: $orderId');
       if (orderId == null) {
         state = OrderFormState(isLoading: false, errorMessage: "Gagal mendapatkan ID pesanan");
         return;

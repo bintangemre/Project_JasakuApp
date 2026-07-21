@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:image_picker/image_picker.dart'; // Impor Pengelola Kamera & Galeri
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/network/upload_service.dart';
 import '../../../orders/presentation/providers/orders_provider.dart';
 import '../../../orders/domain/models/order_payload_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -49,6 +50,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
   final double _platformFee = 2000;
   bool _isFetchingGPS = false;
   bool _gpsFailed = false;
+  bool _isSubmitting = false;
 
   // 🟢 STATE UNTUK MENAMPUNG FILE FOTO YANG DIPILIH
   final List<File> _selectedImages = [];
@@ -594,7 +596,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  onPressed: () {
+                  onPressed: _isSubmitting ? null : () async {
                     final customerId = ref.read(authProvider).user?.id;
                     if (customerId == null || customerId.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -615,29 +617,46 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                       return;
                     }
                     if (_formKey.currentState!.validate()) {
-                      final payload = OrderPayloadModel(
-                        customerId: customerId,
-                        providerId: widget.providerId,
-                        serviceId: widget.serviceId,
-                        pricingTypeId: widget.pricingTypeId,
-                        quantity: _quantity,
-                        description: _descController.text,
-                        workDate: _dateController.text,
-                        address: _addressController.text,
-                        lat: _selectedLocation.latitude,
-                        lng: _selectedLocation.longitude,
-                        // Kirim path list foto lokal ke model kirim payload
-                        attachments: _selectedImages.map((e) => e.path).toList(),
-                      );
+                      setState(() => _isSubmitting = true);
+                      try {
+                        List<String> attachmentUrls = [];
+                        if (_selectedImages.isNotEmpty) {
+                          attachmentUrls = await UploadService.uploadFiles(_selectedImages);
+                        }
 
-                      ref.read(orderFormProvider.notifier).submitNewOrder(
-                        payload: payload,
-                        paymentMethod: _selectedPaymentMethod,
-                        paymentAmount: grandTotal,
-                      );
+                        final payload = OrderPayloadModel(
+                          customerId: customerId,
+                          providerId: widget.providerId,
+                          serviceId: widget.serviceId,
+                          pricingTypeId: widget.pricingTypeId,
+                          quantity: _quantity,
+                          description: _descController.text,
+                          workDate: _dateController.text,
+                          address: _addressController.text,
+                          lat: _selectedLocation.latitude,
+                          lng: _selectedLocation.longitude,
+                          attachments: attachmentUrls,
+                        );
+
+                        ref.read(orderFormProvider.notifier).submitNewOrder(
+                          payload: payload,
+                          paymentMethod: _selectedPaymentMethod,
+                          paymentAmount: grandTotal,
+                        );
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Gagal upload gambar: $e'), backgroundColor: Colors.red),
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => _isSubmitting = false);
+                      }
                     }
                   },
-                  child: const Text("Konfirmasi Pesanan", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: _isSubmitting
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Text("Konfirmasi Pesanan", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               )
             ],

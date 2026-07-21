@@ -17,6 +17,7 @@ import customerProfileRoutes from './modules/customer/profile/profile.routes';
 import providerPayoutRoutes from './modules/provider/payout/payout.routes';
 import customTasksRoutes from './modules/custom-tasks/custom-tasks.routes';
 import reportsRoutes from './modules/reports/reports.routes';
+import uploadRoutes from './modules/upload/upload.routes';
 import dotenv from 'dotenv';
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
@@ -51,6 +52,7 @@ app.use('/api/custom-tasks', customTasksRoutes);
 app.use('/api/customer', customerProfileRoutes);
 app.use('/api/provider', providerPayoutRoutes);
 app.use('/api/reports', reportsRoutes);
+app.use('/api', uploadRoutes);
 
 // Static files — landing page & APK downloads
 app.use('/', express.static('public'));

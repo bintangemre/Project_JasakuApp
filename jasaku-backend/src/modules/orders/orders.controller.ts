@@ -21,6 +21,7 @@ const createOrder = async (req: any, res: Response) => {
             lng,
             attachments: attachments || [],
         });
+        console.log('[CREATE ORDER] Response order:', JSON.stringify({ orderId: order.id, status: order.status, work_date: order.work_date }));
         return successResponse(res, { order, warning: warning || null }, 'Order berhasil dibuat', 201);
     }
     catch (err: any) {
