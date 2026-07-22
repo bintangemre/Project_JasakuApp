@@ -83,7 +83,11 @@ async registerProvider(
   ocr_gender?: string,
   ocr_blood_type?: string,
   ocr_religion?: string,
-  liveness_data?: any
+  liveness_data?: any,
+  province?: string,
+  city?: string,
+  district?: string,
+  village?: string
 ) {
   // Normalisasi: empty string → null
   const normalizedPhone = phone?.trim() || null;
@@ -129,6 +133,10 @@ async registerProvider(
         phone: normalizedPhone,
         address: address,
         domicile: domicile,
+        province: province || null,
+        city: city || null,
+        district: district || null,
+        village: village || null,
         profile_photo: profile_photo || null,
         ktp_photo: ktp_photo || null,
         selfie_photo: selfie_photo || null,

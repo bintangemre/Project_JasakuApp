@@ -48,6 +48,10 @@ export type Provider_profilesMinAggregateOutputType = {
   phone: string | null
   address: string | null
   domicile: string | null
+  province: string | null
+  city: string | null
+  district: string | null
+  village: string | null
   profile_photo: string | null
   ktp_photo: string | null
   selfie_photo: string | null
@@ -76,6 +80,10 @@ export type Provider_profilesMaxAggregateOutputType = {
   phone: string | null
   address: string | null
   domicile: string | null
+  province: string | null
+  city: string | null
+  district: string | null
+  village: string | null
   profile_photo: string | null
   ktp_photo: string | null
   selfie_photo: string | null
@@ -104,6 +112,10 @@ export type Provider_profilesCountAggregateOutputType = {
   phone: number
   address: number
   domicile: number
+  province: number
+  city: number
+  district: number
+  village: number
   profile_photo: number
   ktp_photo: number
   selfie_photo: number
@@ -147,6 +159,10 @@ export type Provider_profilesMinAggregateInputType = {
   phone?: true
   address?: true
   domicile?: true
+  province?: true
+  city?: true
+  district?: true
+  village?: true
   profile_photo?: true
   ktp_photo?: true
   selfie_photo?: true
@@ -175,6 +191,10 @@ export type Provider_profilesMaxAggregateInputType = {
   phone?: true
   address?: true
   domicile?: true
+  province?: true
+  city?: true
+  district?: true
+  village?: true
   profile_photo?: true
   ktp_photo?: true
   selfie_photo?: true
@@ -203,6 +223,10 @@ export type Provider_profilesCountAggregateInputType = {
   phone?: true
   address?: true
   domicile?: true
+  province?: true
+  city?: true
+  district?: true
+  village?: true
   profile_photo?: true
   ktp_photo?: true
   selfie_photo?: true
@@ -319,6 +343,10 @@ export type Provider_profilesGroupByOutputType = {
   phone: string | null
   address: string | null
   domicile: string | null
+  province: string | null
+  city: string | null
+  district: string | null
+  village: string | null
   profile_photo: string | null
   ktp_photo: string | null
   selfie_photo: string | null
@@ -371,6 +399,10 @@ export type provider_profilesWhereInput = {
   phone?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   address?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   domicile?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  province?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  city?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  district?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  village?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   profile_photo?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   ktp_photo?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   selfie_photo?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
@@ -406,6 +438,10 @@ export type provider_profilesOrderByWithRelationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   domicile?: Prisma.SortOrderInput | Prisma.SortOrder
+  province?: Prisma.SortOrderInput | Prisma.SortOrder
+  city?: Prisma.SortOrderInput | Prisma.SortOrder
+  district?: Prisma.SortOrderInput | Prisma.SortOrder
+  village?: Prisma.SortOrderInput | Prisma.SortOrder
   profile_photo?: Prisma.SortOrderInput | Prisma.SortOrder
   ktp_photo?: Prisma.SortOrderInput | Prisma.SortOrder
   selfie_photo?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -444,6 +480,10 @@ export type provider_profilesWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   address?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   domicile?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  province?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  city?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  district?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
+  village?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   profile_photo?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   ktp_photo?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
   selfie_photo?: Prisma.StringNullableFilter<"provider_profiles"> | string | null
@@ -479,6 +519,10 @@ export type provider_profilesOrderByWithAggregationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   domicile?: Prisma.SortOrderInput | Prisma.SortOrder
+  province?: Prisma.SortOrderInput | Prisma.SortOrder
+  city?: Prisma.SortOrderInput | Prisma.SortOrder
+  district?: Prisma.SortOrderInput | Prisma.SortOrder
+  village?: Prisma.SortOrderInput | Prisma.SortOrder
   profile_photo?: Prisma.SortOrderInput | Prisma.SortOrder
   ktp_photo?: Prisma.SortOrderInput | Prisma.SortOrder
   selfie_photo?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -516,6 +560,10 @@ export type provider_profilesScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
   address?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
   domicile?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
+  province?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
+  city?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
+  district?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
+  village?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
   profile_photo?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
   ktp_photo?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
   selfie_photo?: Prisma.StringNullableWithAggregatesFilter<"provider_profiles"> | string | null
@@ -544,6 +592,10 @@ export type provider_profilesCreateInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -579,6 +631,10 @@ export type provider_profilesUncheckedCreateInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -612,6 +668,10 @@ export type provider_profilesUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -647,6 +707,10 @@ export type provider_profilesUncheckedUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -681,6 +745,10 @@ export type provider_profilesCreateManyInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -709,6 +777,10 @@ export type provider_profilesUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -738,6 +810,10 @@ export type provider_profilesUncheckedUpdateManyInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -777,6 +853,10 @@ export type provider_profilesCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   address?: Prisma.SortOrder
   domicile?: Prisma.SortOrder
+  province?: Prisma.SortOrder
+  city?: Prisma.SortOrder
+  district?: Prisma.SortOrder
+  village?: Prisma.SortOrder
   profile_photo?: Prisma.SortOrder
   ktp_photo?: Prisma.SortOrder
   selfie_photo?: Prisma.SortOrder
@@ -812,6 +892,10 @@ export type provider_profilesMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   address?: Prisma.SortOrder
   domicile?: Prisma.SortOrder
+  province?: Prisma.SortOrder
+  city?: Prisma.SortOrder
+  district?: Prisma.SortOrder
+  village?: Prisma.SortOrder
   profile_photo?: Prisma.SortOrder
   ktp_photo?: Prisma.SortOrder
   selfie_photo?: Prisma.SortOrder
@@ -840,6 +924,10 @@ export type provider_profilesMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   address?: Prisma.SortOrder
   domicile?: Prisma.SortOrder
+  province?: Prisma.SortOrder
+  city?: Prisma.SortOrder
+  district?: Prisma.SortOrder
+  village?: Prisma.SortOrder
   profile_photo?: Prisma.SortOrder
   ktp_photo?: Prisma.SortOrder
   selfie_photo?: Prisma.SortOrder
@@ -984,6 +1072,10 @@ export type provider_profilesCreateWithoutTask_providersInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1018,6 +1110,10 @@ export type provider_profilesUncheckedCreateWithoutTask_providersInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1066,6 +1162,10 @@ export type provider_profilesUpdateWithoutTask_providersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1100,6 +1200,10 @@ export type provider_profilesUncheckedUpdateWithoutTask_providersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1132,6 +1236,10 @@ export type provider_profilesCreateWithoutOrdersInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1166,6 +1274,10 @@ export type provider_profilesUncheckedCreateWithoutOrdersInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1214,6 +1326,10 @@ export type provider_profilesUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1248,6 +1364,10 @@ export type provider_profilesUncheckedUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1280,6 +1400,10 @@ export type provider_profilesCreateWithoutProvider_documentsInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1314,6 +1438,10 @@ export type provider_profilesUncheckedCreateWithoutProvider_documentsInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1362,6 +1490,10 @@ export type provider_profilesUpdateWithoutProvider_documentsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1396,6 +1528,10 @@ export type provider_profilesUncheckedUpdateWithoutProvider_documentsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1428,6 +1564,10 @@ export type provider_profilesCreateWithoutProvider_schedulesInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1462,6 +1602,10 @@ export type provider_profilesUncheckedCreateWithoutProvider_schedulesInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1510,6 +1654,10 @@ export type provider_profilesUpdateWithoutProvider_schedulesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1544,6 +1692,10 @@ export type provider_profilesUncheckedUpdateWithoutProvider_schedulesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1576,6 +1728,10 @@ export type provider_profilesCreateWithoutUsersInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1609,6 +1765,10 @@ export type provider_profilesUncheckedCreateWithoutUsersInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1658,6 +1818,10 @@ export type provider_profilesUpdateWithoutUsersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1691,6 +1855,10 @@ export type provider_profilesUncheckedUpdateWithoutUsersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1724,6 +1892,10 @@ export type provider_profilesCreateWithoutIdentity_verificationsInput = {
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1758,6 +1930,10 @@ export type provider_profilesUncheckedCreateWithoutIdentity_verificationsInput =
   phone?: string | null
   address?: string | null
   domicile?: string | null
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  village?: string | null
   profile_photo?: string | null
   ktp_photo?: string | null
   selfie_photo?: string | null
@@ -1806,6 +1982,10 @@ export type provider_profilesUpdateWithoutIdentity_verificationsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1840,6 +2020,10 @@ export type provider_profilesUncheckedUpdateWithoutIdentity_verificationsInput =
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   domicile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  village?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profile_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ktp_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   selfie_photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1931,6 +2115,10 @@ export type provider_profilesSelect<ExtArgs extends runtime.Types.Extensions.Int
   phone?: boolean
   address?: boolean
   domicile?: boolean
+  province?: boolean
+  city?: boolean
+  district?: boolean
+  village?: boolean
   profile_photo?: boolean
   ktp_photo?: boolean
   selfie_photo?: boolean
@@ -1967,6 +2155,10 @@ export type provider_profilesSelectCreateManyAndReturn<ExtArgs extends runtime.T
   phone?: boolean
   address?: boolean
   domicile?: boolean
+  province?: boolean
+  city?: boolean
+  district?: boolean
+  village?: boolean
   profile_photo?: boolean
   ktp_photo?: boolean
   selfie_photo?: boolean
@@ -1997,6 +2189,10 @@ export type provider_profilesSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   phone?: boolean
   address?: boolean
   domicile?: boolean
+  province?: boolean
+  city?: boolean
+  district?: boolean
+  village?: boolean
   profile_photo?: boolean
   ktp_photo?: boolean
   selfie_photo?: boolean
@@ -2027,6 +2223,10 @@ export type provider_profilesSelectScalar = {
   phone?: boolean
   address?: boolean
   domicile?: boolean
+  province?: boolean
+  city?: boolean
+  district?: boolean
+  village?: boolean
   profile_photo?: boolean
   ktp_photo?: boolean
   selfie_photo?: boolean
@@ -2046,7 +2246,7 @@ export type provider_profilesSelectScalar = {
   portfolios?: boolean
 }
 
-export type provider_profilesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "gender" | "birth_date" | "phone" | "address" | "domicile" | "profile_photo" | "ktp_photo" | "selfie_photo" | "is_verified" | "verification_status" | "verification_notes" | "is_active" | "onboarding_completed" | "custom_task_enabled" | "service_available" | "task_available" | "rating" | "total_jobs" | "created_at" | "updated_at" | "total_reviews" | "portfolios", ExtArgs["result"]["provider_profiles"]>
+export type provider_profilesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "full_name" | "nickname" | "gender" | "birth_date" | "phone" | "address" | "domicile" | "province" | "city" | "district" | "village" | "profile_photo" | "ktp_photo" | "selfie_photo" | "is_verified" | "verification_status" | "verification_notes" | "is_active" | "onboarding_completed" | "custom_task_enabled" | "service_available" | "task_available" | "rating" | "total_jobs" | "created_at" | "updated_at" | "total_reviews" | "portfolios", ExtArgs["result"]["provider_profiles"]>
 export type provider_profilesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Prisma.provider_profiles$ordersArgs<ExtArgs>
   task_providers?: boolean | Prisma.provider_profiles$task_providersArgs<ExtArgs>
@@ -2083,6 +2283,10 @@ export type $provider_profilesPayload<ExtArgs extends runtime.Types.Extensions.I
     phone: string | null
     address: string | null
     domicile: string | null
+    province: string | null
+    city: string | null
+    district: string | null
+    village: string | null
     profile_photo: string | null
     ktp_photo: string | null
     selfie_photo: string | null
@@ -2538,6 +2742,10 @@ export interface provider_profilesFieldRefs {
   readonly phone: Prisma.FieldRef<"provider_profiles", 'String'>
   readonly address: Prisma.FieldRef<"provider_profiles", 'String'>
   readonly domicile: Prisma.FieldRef<"provider_profiles", 'String'>
+  readonly province: Prisma.FieldRef<"provider_profiles", 'String'>
+  readonly city: Prisma.FieldRef<"provider_profiles", 'String'>
+  readonly district: Prisma.FieldRef<"provider_profiles", 'String'>
+  readonly village: Prisma.FieldRef<"provider_profiles", 'String'>
   readonly profile_photo: Prisma.FieldRef<"provider_profiles", 'String'>
   readonly ktp_photo: Prisma.FieldRef<"provider_profiles", 'String'>
   readonly selfie_photo: Prisma.FieldRef<"provider_profiles", 'String'>

@@ -52,6 +52,10 @@ Future<Map<String, dynamic>> registerProvider({
   required String gender,
   required String address,
   required String domicile,
+  String? province,
+  String? city,
+  String? district,
+  String? village,
   String? profilePhotoPath,
   String? ktpPhotoPath,
   String? selfiePhotoPath,
@@ -82,6 +86,11 @@ Future<Map<String, dynamic>> registerProvider({
       'domicile': domicile,
       'services': jsonEncode(selectedServices),
     };
+
+    if (province != null && province.isNotEmpty) formDataMap['province'] = province;
+    if (city != null && city.isNotEmpty) formDataMap['city'] = city;
+    if (district != null && district.isNotEmpty) formDataMap['district'] = district;
+    if (village != null && village.isNotEmpty) formDataMap['village'] = village;
 
     if (ocrNik != null) formDataMap['ocr_nik'] = ocrNik;
     if (ocrFullName != null) formDataMap['ocr_full_name'] = ocrFullName;

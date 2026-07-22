@@ -11,6 +11,10 @@ class RegisterState {
   String gender = '';
   String address = '';
   String domicile = '';
+  String province = '';
+  String city = '';
+  String district = '';
+  String village = '';
   String? profilePhotoPath;
   String? ktpPhotoPath;
   String? selfiePhotoPath;

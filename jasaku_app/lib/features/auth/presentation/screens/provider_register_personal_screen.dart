@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../data/address_service.dart';
 import '../providers/register_state.dart';
 import 'provider_register_document_screen.dart';
 
@@ -26,6 +27,19 @@ class _ProviderRegisterPersonalScreenState
   late TextEditingController _domicileCtrl;
   String _gender = 'Laki-laki';
 
+  List<AddressItem> _provinces = [];
+  List<AddressItem> _cities = [];
+  List<AddressItem> _districts = [];
+  List<AddressItem> _villages = [];
+  AddressItem? _selectedProvince;
+  AddressItem? _selectedCity;
+  AddressItem? _selectedDistrict;
+  AddressItem? _selectedVillage;
+  bool _loadingProvinces = true;
+  bool _loadingCities = false;
+  bool _loadingDistricts = false;
+  bool _loadingVillages = false;
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +54,7 @@ class _ProviderRegisterPersonalScreenState
     _addressCtrl = TextEditingController(text: s.address);
     _domicileCtrl = TextEditingController(text: s.domicile);
     if (s.gender.isNotEmpty) _gender = s.gender;
+    _loadProvinces();
   }
 
   @override
@@ -69,6 +84,56 @@ class _ProviderRegisterPersonalScreenState
     }
   }
 
+  Future<void> _loadProvinces() async {
+    try {
+      _provinces = await AddressService.getProvinces();
+      final saved = widget.state.province;
+      if (saved.isNotEmpty) {
+        _selectedProvince = _provinces.where((p) => p.name == saved).firstOrNull;
+        if (_selectedProvince != null) _loadCities(_selectedProvince!.code);
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _loadingProvinces = false);
+  }
+
+  Future<void> _loadCities(String provinceCode) async {
+    if (mounted) setState(() { _loadingCities = true; _cities = []; _districts = []; _villages = []; _selectedCity = null; _selectedDistrict = null; _selectedVillage = null; });
+    try {
+      _cities = await AddressService.getCities(provinceCode);
+      final saved = widget.state.city;
+      if (saved.isNotEmpty) {
+        _selectedCity = _cities.where((c) => c.name == saved).firstOrNull;
+        if (_selectedCity != null) _loadDistricts(_selectedCity!.code);
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _loadingCities = false);
+  }
+
+  Future<void> _loadDistricts(String regencyCode) async {
+    if (mounted) setState(() { _loadingDistricts = true; _districts = []; _villages = []; _selectedDistrict = null; _selectedVillage = null; });
+    try {
+      _districts = await AddressService.getDistricts(regencyCode);
+      final saved = widget.state.district;
+      if (saved.isNotEmpty) {
+        _selectedDistrict = _districts.where((d) => d.name == saved).firstOrNull;
+        if (_selectedDistrict != null) _loadVillages(_selectedDistrict!.code);
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _loadingDistricts = false);
+  }
+
+  Future<void> _loadVillages(String districtCode) async {
+    if (mounted) setState(() { _loadingVillages = true; _villages = []; _selectedVillage = null; });
+    try {
+      _villages = await AddressService.getVillages(districtCode);
+      final saved = widget.state.village;
+      if (saved.isNotEmpty) {
+        _selectedVillage = _villages.where((v) => v.name == saved).firstOrNull;
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _loadingVillages = false);
+  }
+
   void _next() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -81,6 +146,10 @@ class _ProviderRegisterPersonalScreenState
     widget.state.gender = _gender;
     widget.state.address = _addressCtrl.text.trim();
     widget.state.domicile = _domicileCtrl.text.trim();
+    widget.state.province = _selectedProvince?.name ?? '';
+    widget.state.city = _selectedCity?.name ?? '';
+    widget.state.district = _selectedDistrict?.name ?? '';
+    widget.state.village = _selectedVillage?.name ?? '';
 
     Navigator.push(
       context,
@@ -177,7 +246,69 @@ class _ProviderRegisterPersonalScreenState
                   decoration: _inputDecoration(),
                 ),
                 _buildField('Alamat', _addressCtrl, true),
-                _buildField('Domisili', _domicileCtrl, true),
+                _buildField('Domisili (Kota/Kabupaten)', _domicileCtrl, true),
+                const SizedBox(height: 8),
+                Text('Provinsi',
+                    style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
+                const SizedBox(height: 6),
+                _loadingProvinces
+                    ? const LinearProgressIndicator(minHeight: 2)
+                    : DropdownButtonFormField<AddressItem>(
+                        value: _selectedProvince,
+                        isExpanded: true,
+                        decoration: _inputDecoration(hint: 'Pilih provinsi'),
+                        items: _provinces.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
+                        onChanged: (v) {
+                          setState(() => _selectedProvince = v);
+                          if (v != null) _loadCities(v.code);
+                        },
+                        validator: (v) => v == null ? 'Provinsi wajib dipilih' : null,
+                      ),
+                const SizedBox(height: 16),
+                Text('Kota / Kabupaten',
+                    style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
+                const SizedBox(height: 6),
+                _loadingCities
+                    ? const LinearProgressIndicator(minHeight: 2)
+                    : DropdownButtonFormField<AddressItem>(
+                        value: _selectedCity,
+                        isExpanded: true,
+                        decoration: _inputDecoration(hint: _selectedProvince == null ? 'Pilih provinsi terlebih dahulu' : 'Pilih kota/kabupaten'),
+                        items: _cities.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
+                        onChanged: _selectedProvince == null ? null : (v) {
+                          setState(() => _selectedCity = v);
+                          if (v != null) _loadDistricts(v.code);
+                        },
+                      ),
+                const SizedBox(height: 16),
+                Text('Kecamatan',
+                    style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
+                const SizedBox(height: 6),
+                _loadingDistricts
+                    ? const LinearProgressIndicator(minHeight: 2)
+                    : DropdownButtonFormField<AddressItem>(
+                        value: _selectedDistrict,
+                        isExpanded: true,
+                        decoration: _inputDecoration(hint: _selectedCity == null ? 'Pilih kota/kabupaten terlebih dahulu' : 'Pilih kecamatan'),
+                        items: _districts.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
+                        onChanged: _selectedCity == null ? null : (v) {
+                          setState(() => _selectedDistrict = v);
+                          if (v != null) _loadVillages(v.code);
+                        },
+                      ),
+                const SizedBox(height: 16),
+                Text('Kelurahan / Desa',
+                    style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
+                const SizedBox(height: 6),
+                _loadingVillages
+                    ? const LinearProgressIndicator(minHeight: 2)
+                    : DropdownButtonFormField<AddressItem>(
+                        value: _selectedVillage,
+                        isExpanded: true,
+                        decoration: _inputDecoration(hint: _selectedDistrict == null ? 'Pilih kecamatan terlebih dahulu' : 'Pilih kelurahan/desa'),
+                        items: _villages.map((v) => DropdownMenuItem(value: v, child: Text(v.name))).toList(),
+                        onChanged: _selectedDistrict == null ? null : (v) => setState(() => _selectedVillage = v),
+                      ),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,

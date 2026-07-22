@@ -426,6 +426,10 @@ model provider_profiles {
   phone               String?   @db.VarChar(20)
   address             String?
   domicile            String?   @db.VarChar(100)
+  province            String?   @db.VarChar(100)
+  city                String?   @db.VarChar(100)
+  district            String?   @db.VarChar(100)
+  village             String?   @db.VarChar(100)
   profile_photo       String?
   ktp_photo           String?
   selfie_photo        String?
