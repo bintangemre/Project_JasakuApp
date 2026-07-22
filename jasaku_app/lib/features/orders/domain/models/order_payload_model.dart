@@ -2,7 +2,9 @@ class OrderPayloadModel {
   final String customerId;
   final String providerId;
   final String serviceId;
-  final String pricingTypeId;
+  final String pricingUnitId;
+  final String? contractTypeId;
+  final bool withMaterial;
   final int quantity;
   final String description;
   final String workDate;
@@ -15,7 +17,9 @@ class OrderPayloadModel {
     required this.customerId,
     required this.providerId,
     required this.serviceId,
-    required this.pricingTypeId,
+    required this.pricingUnitId,
+    this.contractTypeId,
+    this.withMaterial = false,
     required this.quantity,
     required this.description,
     required this.workDate,
@@ -29,7 +33,9 @@ class OrderPayloadModel {
     "customerId": customerId,
     "providerId": providerId,
     "serviceId": serviceId,
-    "pricingTypeId": pricingTypeId,
+    "pricingUnitId": pricingUnitId,
+    "contractTypeId": contractTypeId,
+    "withMaterial": withMaterial,
     "quantity": quantity,
     "description": description,
     "workDate": workDate,

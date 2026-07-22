@@ -5,14 +5,16 @@ import { successResponse, errorResponse } from "../../utils/response";
 
 const createOrder = async (req: any, res: Response) => {
     try {        
-        const { providerId, serviceId, pricingTypeId, quantity, description, workDate, address, lat, lng, attachments } = req.body;
+        const { providerId, serviceId, pricingUnitId, contractTypeId, withMaterial, quantity, description, workDate, address, lat, lng, attachments } = req.body;
         const customerId = req.user.userId;
         const ordersService = new OrdersService();
         const { order, warning } = await ordersService.createOrder({
             customerId,
             providerId,
             serviceId,
-            pricingTypeId,  
+            pricingUnitId,
+            contractTypeId,
+            withMaterial,
             quantity,
             description,
             workDate,

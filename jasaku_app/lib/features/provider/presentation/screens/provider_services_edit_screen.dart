@@ -19,10 +19,11 @@ class _ProviderServicesEditScreenState
   bool _saving = false;
 
   List<Map<String, dynamic>> _services = [];
-  List<Map<String, dynamic>> _pricingTypes = [];
+  List<Map<String, dynamic>> _pricingUnits = [];
 
   final Map<String, TextEditingController> _descControllers = {};
   final Map<String, TextEditingController> _priceControllers = {};
+  final Map<String, TextEditingController> _priceWithMaterialControllers = {};
 
   @override
   void initState() {
@@ -38,6 +39,9 @@ class _ProviderServicesEditScreenState
     for (final c in _priceControllers.values) {
       c.dispose();
     }
+    for (final c in _priceWithMaterialControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -45,14 +49,14 @@ class _ProviderServicesEditScreenState
     try {
       final [servicesRes, pricingRes] = await Future.wait([
         _dio.get(ApiEndpoints.providerServices),
-        _dio.get(ApiEndpoints.providerAvailablePricingTypes),
+        _dio.get(ApiEndpoints.providerAvailablePricingUnits),
       ]);
 
       final services = (servicesRes.data['data'] as List?)
               ?.map((e) => Map<String, dynamic>.from(e as Map))
               .toList() ??
           [];
-      final pricingTypes = (pricingRes.data['data'] as List?)
+      final pricingUnits = (pricingRes.data['data'] as List?)
               ?.map((e) => Map<String, dynamic>.from(e as Map))
               .toList() ??
           [];
@@ -63,18 +67,18 @@ class _ProviderServicesEditScreenState
             TextEditingController(text: svc['description'] as String? ?? '');
 
         final existingPrices = svc['provider_service_prices'] as List? ?? [];
-        final allPricingTypesForCategory = pricingTypes
-            .where((pt) =>
-                (pt['categories']?['id'] as String?) ==
-                (svc['services']?['category_id'] as String?))
+        final catId = svc['services']?['category_id'] as String?;
+
+        final pricingForCategory = pricingUnits
+            .where((pu) => (pu['category_id'] as String?) == catId)
             .toList();
 
-        for (final pt in allPricingTypesForCategory) {
-          final ptId = pt['id'] as String;
-          final key = '${svcId}_$ptId';
+        for (final pu in pricingForCategory) {
+          final puId = pu['id'] as String;
+          final key = '${svcId}_$puId';
           Map<String, dynamic>? existing;
           for (final ep in existingPrices) {
-            if ((ep as Map)['pricing_type_id'] == ptId) {
+            if ((ep as Map)['pricing_unit_id'] == puId) {
               existing = ep as Map<String, dynamic>;
               break;
             }
@@ -82,13 +86,16 @@ class _ProviderServicesEditScreenState
           _priceControllers[key] = TextEditingController(
             text: existing?['price']?.toString() ?? '',
           );
+          _priceWithMaterialControllers[key] = TextEditingController(
+            text: existing?['price_with_material']?.toString() ?? '',
+          );
         }
       }
 
       if (mounted) {
         setState(() {
           _services = services;
-          _pricingTypes = pricingTypes;
+          _pricingUnits = pricingUnits;
           _loading = false;
         });
       }
@@ -104,9 +111,29 @@ class _ProviderServicesEditScreenState
 
   List<Map<String, dynamic>> _getPricingForService(Map<String, dynamic> svc) {
     final catId = svc['services']?['category_id'] as String?;
-    return _pricingTypes
-        .where((pt) => (pt['categories']?['id'] as String?) == catId)
+    return _pricingUnits
+        .where((pu) => (pu['category_id'] as String?) == catId)
         .toList();
+  }
+
+  String? _getExistingContractTypeId(Map<String, dynamic> svc, String pricingUnitId) {
+    final existingPrices = svc['provider_service_prices'] as List? ?? [];
+    for (final ep in existingPrices) {
+      if ((ep as Map)['pricing_unit_id'] == pricingUnitId) {
+        return ep['contract_type_id'] as String?;
+      }
+    }
+    return null;
+  }
+
+  bool _getExistingPlusMaterial(Map<String, dynamic> svc, String pricingUnitId) {
+    final existingPrices = svc['provider_service_prices'] as List? ?? [];
+    for (final ep in existingPrices) {
+      if ((ep as Map)['pricing_unit_id'] == pricingUnitId) {
+        return ep['plus_material'] == true;
+      }
+    }
+    return false;
   }
 
   Future<void> _saveAll() async {
@@ -117,17 +144,31 @@ class _ProviderServicesEditScreenState
       final svcId = svc['id'] as String;
       final serviceId = svc['service_id'] as String;
       final pricingForSvc = _getPricingForService(svc);
+
       final prices = pricingForSvc
-          .where((pt) {
-            final key = '${svcId}_${pt['id']}';
+          .where((pu) {
+            final key = '${svcId}_${pu['id']}';
             final ctrl = _priceControllers[key];
             return ctrl != null && ctrl.text.trim().isNotEmpty;
           })
-          .map((pt) {
-            final key = '${svcId}_${pt['id']}';
+          .map((pu) {
+            final puId = pu['id'] as String;
+            final key = '${svcId}_$puId';
+            final existingContractTypeId = _getExistingContractTypeId(svc, puId);
+            final existingPlusMaterial = _getExistingPlusMaterial(svc, puId);
+
+            final price = int.tryParse(_priceControllers[key]!.text.trim()) ?? 0;
+            final priceWithMaterialStr = _priceWithMaterialControllers[key]?.text.trim();
+            final priceWithMaterial = priceWithMaterialStr != null && priceWithMaterialStr.isNotEmpty
+                ? int.tryParse(priceWithMaterialStr)
+                : null;
+
             return {
-              'pricingTypeId': pt['id'],
-              'price': int.tryParse(_priceControllers[key]!.text.trim()) ?? 0,
+              'pricingUnitId': puId,
+              'contractTypeId': existingContractTypeId,
+              'price': price,
+              'priceWithMaterial': priceWithMaterial,
+              'plusMaterial': existingPlusMaterial,
             };
           })
           .toList();
@@ -275,42 +316,76 @@ class _ProviderServicesEditScreenState
               maxLines: 2,
             ),
             const SizedBox(height: 12),
-            ...pricing.map((pt) {
-              final ptId = pt['id'] as String;
-              final key = '${svcId}_$ptId';
-              final unit = pt['default_unit'] as String? ?? '';
-              final label =
-                  (pt['name'] as String? ?? '').replaceAll('_', ' ');
+            ...pricing.map((pu) {
+              final puId = pu['id'] as String;
+              final key = '${svcId}_$puId';
+              final unit = pu['unit'] as String? ?? '';
+              final label = (pu['name'] as String? ?? '').replaceAll('_', ' ');
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: TextFormField(
-                  controller: _priceControllers[key],
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: label,
-                    hintText: 'Masukkan harga',
-                    hintStyle:
-                        TextStyle(color: cs.onSurface.withValues(alpha: 0.4)),
-                    suffixText: '/$unit',
-                    suffixStyle:
-                        TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
-                    prefixText: 'Rp ',
-                    prefixStyle:
-                        TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: cs.outlineVariant),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _priceControllers[key],
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Harga $label',
+                        hintText: 'Masukkan harga',
+                        hintStyle:
+                            TextStyle(color: cs.onSurface.withValues(alpha: 0.4)),
+                        suffixText: '/$unit',
+                        suffixStyle:
+                            TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                        prefixText: 'Rp ',
+                        prefixStyle:
+                            TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: cs.outlineVariant),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: cs.primary, width: 1.5),
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: cs.primary, width: 1.5),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      controller: _priceWithMaterialControllers[key],
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Harga $label + Material',
+                        hintText: 'Harga jika include material',
+                        hintStyle:
+                            TextStyle(color: cs.onSurface.withValues(alpha: 0.4)),
+                        suffixText: '/$unit',
+                        suffixStyle:
+                            TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                        prefixText: 'Rp ',
+                        prefixStyle:
+                            TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: cs.outlineVariant),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: cs.primary, width: 1.5),
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                      ),
                     ),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
-                  ),
+                  ],
                 ),
               );
             }),

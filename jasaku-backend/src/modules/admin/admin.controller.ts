@@ -70,11 +70,11 @@ const getServicesByCategory = async (req: AuthRequest, res: Response) => {
   }
 };
 
-const getPricingTypesByCategory = async (req: AuthRequest, res: Response) => {
+const getPricingUnitsByCategory = async (req: AuthRequest, res: Response) => {
   try {
     const categoryId = String(req.params.id);
-    const result = await new AdminService().getPricingTypesByCategory(categoryId);
-    return successResponse(res, result, "Daftar tipe harga berhasil diambil");
+    const result = await new AdminService().getPricingUnitsByCategory(categoryId);
+    return successResponse(res, result, "Daftar unit harga berhasil diambil");
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
@@ -195,34 +195,76 @@ const unbanUser = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Pricing Types
-const createPricingType = async (req: AuthRequest, res: Response) => {
+// Pricing Units
+const createPricingUnit = async (req: AuthRequest, res: Response) => {
   try {
-    const { categoryId, name, defaultUnit } = req.body;
-    if (!categoryId || !name) return errorResponse(res, "categoryId dan name wajib diisi", 400);
-    const result = await new AdminService().createPricingType(categoryId, name, defaultUnit);
-    return successResponse(res, result, "Tipe harga berhasil dibuat", 201);
+    const { categoryId, name, unit } = req.body;
+    if (!name) return errorResponse(res, "name wajib diisi", 400);
+    const result = await new AdminService().createPricingUnit(categoryId, name, unit);
+    return successResponse(res, result, "Unit harga berhasil dibuat", 201);
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
 };
 
-const updatePricingType = async (req: AuthRequest, res: Response) => {
+const updatePricingUnit = async (req: AuthRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    const { name, defaultUnit, categoryId } = req.body;
-    const result = await new AdminService().updatePricingType(id, { name, defaultUnit, categoryId });
-    return successResponse(res, result, "Tipe harga berhasil diupdate");
+    const { name, unit, categoryId } = req.body;
+    const result = await new AdminService().updatePricingUnit(id, { name, unit, categoryId });
+    return successResponse(res, result, "Unit harga berhasil diupdate");
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
 };
 
-const deletePricingType = async (req: AuthRequest, res: Response) => {
+const deletePricingUnit = async (req: AuthRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    await new AdminService().deletePricingType(id);
-    return successResponse(res, null, "Tipe harga berhasil dihapus");
+    await new AdminService().deletePricingUnit(id);
+    return successResponse(res, null, "Unit harga berhasil dihapus");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+// Contract Types
+const getAllContractTypes = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getAllContractTypes();
+    return successResponse(res, result, "Daftar tipe kontrak berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const createContractType = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, description } = req.body;
+    if (!name) return errorResponse(res, "name wajib diisi", 400);
+    const result = await new AdminService().createContractType(name, description);
+    return successResponse(res, result, "Tipe kontrak berhasil dibuat", 201);
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const updateContractType = async (req: AuthRequest, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const { name, description } = req.body;
+    const result = await new AdminService().updateContractType(id, { name, description });
+    return successResponse(res, result, "Tipe kontrak berhasil diupdate");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const deleteContractType = async (req: AuthRequest, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    await new AdminService().deleteContractType(id);
+    return successResponse(res, null, "Tipe kontrak berhasil dihapus");
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
@@ -453,11 +495,12 @@ const confirmOrderPayout = async (req: AuthRequest, res: Response) => {
 
 export {
   getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail,
-  getCategories, getServicesByCategory, getPricingTypesByCategory,
+  getCategories, getServicesByCategory, getPricingUnitsByCategory,
   createCategory, updateCategory, deleteCategory,
   createService, updateService, deleteService,
   getAllProviders, getAllCustomers, banUser, unbanUser,
-  createPricingType, updatePricingType, deletePricingType,
+  createPricingUnit, updatePricingUnit, deletePricingUnit,
+  getAllContractTypes, createContractType, updateContractType, deleteContractType,
   getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount,
   uploadQrisImage,
   getPendingPaymentOrders,

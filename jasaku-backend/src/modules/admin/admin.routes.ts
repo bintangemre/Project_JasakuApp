@@ -1,11 +1,12 @@
 import {Router} from 'express';
 import {
   getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail,
-  getCategories, getServicesByCategory, getPricingTypesByCategory,
+  getCategories, getServicesByCategory, getPricingUnitsByCategory,
   createCategory, updateCategory, deleteCategory,
   createService, updateService, deleteService,
   getAllProviders, getAllCustomers, banUser, unbanUser,
-  createPricingType, updatePricingType, deletePricingType,
+  createPricingUnit, updatePricingUnit, deletePricingUnit,
+  getAllContractTypes, createContractType, updateContractType, deleteContractType,
   getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount,
   uploadQrisImage,
   getPendingPaymentOrders,
@@ -29,7 +30,7 @@ import { confirmPaymentByAdmin, approveExtension, activateExtension } from '../o
 import { authenticate } from '../../middleware/auth.middleware';
 import { isAdmin } from '../../middleware/role.middleware';
 import { validate } from '../../middleware/validate.middleware';
-import { createCategorySchema, createServiceSchema, createPricingTypeSchema, updatePricingTypeSchema, verifyProviderSchema } from '../../middleware/schemas';
+import { createCategorySchema, createServiceSchema, createPricingUnitSchema, updatePricingUnitSchema, createContractTypeSchema, updateContractTypeSchema, verifyProviderSchema } from '../../middleware/schemas';
 import { upload } from '../../middleware/upload.middleware';
 
 const router = Router();
@@ -62,11 +63,17 @@ router.post('/services', authenticate, isAdmin, validate(createServiceSchema), c
 router.put('/services/:id', authenticate, isAdmin, updateService);
 router.delete('/services/:id', authenticate, isAdmin, deleteService);
 
-// Pricing Types
-router.get('/categories/:id/pricing-types', authenticate, isAdmin, getPricingTypesByCategory);
-router.post('/pricing-types', authenticate, isAdmin, validate(createPricingTypeSchema), createPricingType);
-router.put('/pricing-types/:id', authenticate, isAdmin, validate(updatePricingTypeSchema), updatePricingType);
-router.delete('/pricing-types/:id', authenticate, isAdmin, deletePricingType);
+// Pricing Units
+router.get('/categories/:id/pricing-units', authenticate, isAdmin, getPricingUnitsByCategory);
+router.post('/pricing-units', authenticate, isAdmin, validate(createPricingUnitSchema), createPricingUnit);
+router.put('/pricing-units/:id', authenticate, isAdmin, validate(updatePricingUnitSchema), updatePricingUnit);
+router.delete('/pricing-units/:id', authenticate, isAdmin, deletePricingUnit);
+
+// Contract Types
+router.get('/contract-types', authenticate, isAdmin, getAllContractTypes);
+router.post('/contract-types', authenticate, isAdmin, validate(createContractTypeSchema), createContractType);
+router.put('/contract-types/:id', authenticate, isAdmin, validate(updateContractTypeSchema), updateContractType);
+router.delete('/contract-types/:id', authenticate, isAdmin, deleteContractType);
 
 // Payment Accounts (Rekber Admin)
 router.get('/payment-accounts', authenticate, isAdmin, getPaymentAccounts);

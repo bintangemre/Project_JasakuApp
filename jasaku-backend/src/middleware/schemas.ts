@@ -21,7 +21,9 @@ export const googleLoginSchema = z.object({
 export const createOrderSchema = z.object({
     providerId: z.string().uuid('providerId tidak valid'),
     serviceId: z.string().uuid('serviceId tidak valid'),
-    pricingTypeId: z.string().uuid('pricingTypeId tidak valid'),
+    pricingUnitId: z.string().uuid('pricingUnitId tidak valid'),
+    contractTypeId: z.string().uuid('contractTypeId tidak valid').optional(),
+    withMaterial: z.boolean().optional().default(false),
     quantity: z.number().int().positive('Kuantitas harus lebih dari 0'),
     description: z.string().optional(),
     workDate: z.string().min(1, 'Tanggal kerja wajib diisi'),
@@ -66,16 +68,26 @@ export const createCategorySchema = z.object({
     iconUrl: z.string().optional(),
 });
 
-export const createPricingTypeSchema = z.object({
-    categoryId: z.string().uuid('categoryId tidak valid'),
-    name: z.string().min(1, 'Nama tipe harga wajib diisi').max(50, 'Nama maksimal 50 karakter'),
-    defaultUnit: z.string().optional(),
+export const createPricingUnitSchema = z.object({
+    categoryId: z.string().uuid('categoryId tidak valid').optional(),
+    name: z.string().min(1, 'Nama unit harga wajib diisi').max(50, 'Nama maksimal 50 karakter'),
+    unit: z.string().optional(),
 });
 
-export const updatePricingTypeSchema = z.object({
-    name: z.string().min(1, 'Nama tipe harga wajib diisi').max(50, 'Nama maksimal 50 karakter').optional(),
-    defaultUnit: z.string().optional(),
+export const updatePricingUnitSchema = z.object({
+    name: z.string().min(1, 'Nama unit harga wajib diisi').max(50, 'Nama maksimal 50 karakter').optional(),
+    unit: z.string().optional(),
     categoryId: z.string().uuid('categoryId tidak valid').optional(),
+});
+
+export const createContractTypeSchema = z.object({
+    name: z.string().min(1, 'Nama tipe kontrak wajib diisi').max(50, 'Nama maksimal 50 karakter'),
+    description: z.string().optional(),
+});
+
+export const updateContractTypeSchema = z.object({
+    name: z.string().min(1, 'Nama tipe kontrak wajib diisi').max(50, 'Nama maksimal 50 karakter').optional(),
+    description: z.string().optional(),
 });
 
 export const createServiceSchema = z.object({

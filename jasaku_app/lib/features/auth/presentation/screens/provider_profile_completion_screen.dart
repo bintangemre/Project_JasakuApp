@@ -21,8 +21,9 @@ class _ProviderProfileCompletionScreenState
   bool _submitting = false;
 
   List<Map<String, dynamic>> _services = [];
-  List<Map<String, dynamic>> _pricingTypes = [];
+  List<Map<String, dynamic>> _pricingUnits = [];
   final Map<String, TextEditingController> _priceControllers = {};
+  final Map<String, TextEditingController> _priceWithMaterialControllers = {};
   final Map<String, TextEditingController> _descControllers = {};
 
   bool _usePayout = false;
@@ -41,13 +42,13 @@ class _ProviderProfileCompletionScreenState
     try {
       final [servicesRes, pricingRes] = await Future.wait([
         _dio.get(ApiEndpoints.providerServices),
-        _dio.get(ApiEndpoints.providerAvailablePricingTypes),
+        _dio.get(ApiEndpoints.providerAvailablePricingUnits),
       ]);
 
       final services = (servicesRes.data['data'] as List?)
               ?.cast<Map<String, dynamic>>() ??
           [];
-      final pricingTypes = (pricingRes.data['data'] as List?)
+      final pricingUnits = (pricingRes.data['data'] as List?)
               ?.cast<Map<String, dynamic>>() ??
           [];
 
@@ -57,18 +58,17 @@ class _ProviderProfileCompletionScreenState
             TextEditingController(text: svc['description'] as String? ?? '');
 
         final existingPrices = svc['provider_service_prices'] as List? ?? [];
-        final allPricingTypesForCategory = pricingTypes
-            .where((pt) =>
-                (pt['categories']?['id'] as String?) ==
-                (svc['services']?['category_id'] as String?))
+        final catId = svc['services']?['category_id'] as String?;
+        final pricingForCategory = pricingUnits
+            .where((pu) => (pu['category_id'] as String?) == catId)
             .toList();
 
-        for (final pt in allPricingTypesForCategory) {
-          final ptId = pt['id'] as String;
-          final key = '${svcId}_$ptId';
+        for (final pu in pricingForCategory) {
+          final puId = pu['id'] as String;
+          final key = '${svcId}_$puId';
           Map<String, dynamic>? existing;
           for (final ep in existingPrices) {
-            if ((ep as Map)['pricing_type_id'] == ptId) {
+            if ((ep as Map)['pricing_unit_id'] == puId) {
               existing = ep as Map<String, dynamic>;
               break;
             }
@@ -76,13 +76,16 @@ class _ProviderProfileCompletionScreenState
           _priceControllers[key] = TextEditingController(
             text: existing?['price']?.toString() ?? '',
           );
+          _priceWithMaterialControllers[key] = TextEditingController(
+            text: existing?['price_with_material']?.toString() ?? '',
+          );
         }
       }
 
       if (mounted) {
         setState(() {
           _services = services;
-          _pricingTypes = pricingTypes;
+          _pricingUnits = pricingUnits;
           _loading = false;
         });
       }
@@ -98,8 +101,8 @@ class _ProviderProfileCompletionScreenState
 
   List<Map<String, dynamic>> _getPricingForService(Map<String, dynamic> svc) {
     final catId = svc['services']?['category_id'] as String?;
-    return _pricingTypes
-        .where((pt) => (pt['categories']?['id'] as String?) == catId)
+    return _pricingUnits
+        .where((pu) => (pu['category_id'] as String?) == catId)
         .toList();
   }
 
@@ -111,16 +114,22 @@ class _ProviderProfileCompletionScreenState
         final svcId = svc['id'] as String;
         final pricingForSvc = _getPricingForService(svc);
         final prices = pricingForSvc
-            .where((pt) {
-              final key = '${svcId}_${pt['id']}';
+            .where((pu) {
+              final key = '${svcId}_${pu['id']}';
               final ctrl = _priceControllers[key];
               return ctrl != null && ctrl.text.trim().isNotEmpty;
             })
-            .map((pt) {
-              final key = '${svcId}_${pt['id']}';
+            .map((pu) {
+              final puId = pu['id'] as String;
+              final key = '${svcId}_$puId';
+              final priceWithMaterialStr =
+                  _priceWithMaterialControllers[key]?.text.trim();
               return {
-                'pricingTypeId': pt['id'],
+                'pricingUnitId': puId,
                 'price': int.tryParse(_priceControllers[key]!.text.trim()) ?? 0,
+                'priceWithMaterial': priceWithMaterialStr != null && priceWithMaterialStr.isNotEmpty
+                    ? int.tryParse(priceWithMaterialStr)
+                    : null,
               };
             })
             .toList();
@@ -178,6 +187,9 @@ class _ProviderProfileCompletionScreenState
   @override
   void dispose() {
     for (final c in _priceControllers.values) {
+      c.dispose();
+    }
+    for (final c in _priceWithMaterialControllers.values) {
       c.dispose();
     }
     for (final c in _descControllers.values) {
@@ -472,45 +484,89 @@ class _ProviderProfileCompletionScreenState
                         fontWeight: FontWeight.w500,
                         color: cs.onSurfaceVariant)),
                 const SizedBox(height: 8),
-                ...pricing.map((pt) {
-                  final ptId = pt['id'] as String;
-                  final key = '${svcId}_$ptId';
-                  final unit = pt['default_unit'] as String? ?? '';
+                ...pricing.map((pu) {
+                  final puId = pu['id'] as String;
+                  final key = '${svcId}_$puId';
+                  final unit = pu['unit'] as String? ?? '';
                   final label =
-                      (pt['name'] as String? ?? '').replaceAll('_', ' ');
+                      (pu['name'] as String? ?? '').replaceAll('_', ' ');
+                  final hasMaterial = pu['has_material'] == true;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: TextFormField(
-                      controller: _priceControllers[key],
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: label,
-                        hintText: '0',
-                        hintStyle: TextStyle(
-                            color: cs.onSurface.withValues(alpha: 0.35)),
-                        suffixText: '/$unit',
-                        suffixStyle: TextStyle(
-                            color: cs.onSurfaceVariant, fontSize: 13),
-                        prefixText: 'Rp ',
-                        prefixStyle: TextStyle(
-                            color: cs.onSurfaceVariant, fontSize: 14),
-                        filled: true,
-                        fillColor:
-                            cs.surfaceContainerLow.withValues(alpha: 0.4),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: cs.outlineVariant),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _priceControllers[key],
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Harga $label',
+                            hintText: '0',
+                            hintStyle: TextStyle(
+                                color: cs.onSurface.withValues(alpha: 0.35)),
+                            suffixText: '/$unit',
+                            suffixStyle: TextStyle(
+                                color: cs.onSurfaceVariant, fontSize: 13),
+                            prefixText: 'Rp ',
+                            prefixStyle: TextStyle(
+                                color: cs.onSurfaceVariant, fontSize: 14),
+                            filled: true,
+                            fillColor:
+                                cs.surfaceContainerLow.withValues(alpha: 0.4),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide:
+                                  BorderSide(color: cs.outlineVariant),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide:
+                                  BorderSide(color: cs.primary, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 12),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              BorderSide(color: cs.primary, width: 1.5),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 12),
-                      ),
+                        if (hasMaterial) ...[
+                          const SizedBox(height: 6),
+                          TextFormField(
+                            controller: _priceWithMaterialControllers[key],
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'Harga $label + Material',
+                              hintText: 'Harga jika include material',
+                              hintStyle: TextStyle(
+                                  color:
+                                      cs.onSurface.withValues(alpha: 0.35)),
+                              suffixText: '/$unit',
+                              suffixStyle: TextStyle(
+                                  color: cs.onSurfaceVariant, fontSize: 13),
+                              prefixText: 'Rp ',
+                              prefixStyle: TextStyle(
+                                  color: cs.onSurfaceVariant, fontSize: 14),
+                              filled: true,
+                              fillColor: cs.surfaceContainerLow
+                                  .withValues(alpha: 0.4),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    BorderSide(color: cs.outlineVariant),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                    color: cs.primary, width: 1.5),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   );
                 }),

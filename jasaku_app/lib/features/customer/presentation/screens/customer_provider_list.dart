@@ -1185,11 +1185,11 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                           onPressed: (_hasActiveOrder || !_serviceAvailable || !OperatingHours.isWithinOperatingHours())
                               ? null
                               : () {
-                                  if (provider.pricingTypeId == null) {
+                                  if (provider.pricingUnitId == null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
-                                          'Tidak dapat memproses pesanan: pricing type tidak tersedia.',
+                                          'Tidak dapat memproses pesanan: pricing unit tidak tersedia.',
                                         ),
                                       ),
                                     );
@@ -1205,7 +1205,8 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                                             providerId: provider.id,
                                             providerName: provider.name,
                                             serviceId: widget.servicesId,
-                                            pricingTypeId: provider.pricingTypeId!,
+                                            pricingUnitId: provider.pricingUnitId!,
+                                            contractTypeId: provider.contractTypeId,
                                             basePrice:
                                                 provider.basePrice?.toDouble() ?? 0.0,
                                           ),
@@ -1319,7 +1320,9 @@ class ProviderModel {
   final double? rating;
   final int? jobsDone;
   final int? basePrice;
-  final String? pricingTypeId;
+  final String? pricingUnitId;
+  final String? contractTypeId;
+  final bool withMaterial;
   final int? totalReviews;
   final int? experience;
   final String? aboutMe;
@@ -1337,7 +1340,9 @@ class ProviderModel {
     this.rating,
     this.jobsDone,
     this.basePrice,
-    this.pricingTypeId,
+    this.pricingUnitId,
+    this.contractTypeId,
+    this.withMaterial = false,
     this.totalReviews,
     this.experience,
     this.aboutMe,
@@ -1371,9 +1376,14 @@ class ProviderModel {
 
     final serviceData = json['services'] as Map<String, dynamic>?;
 
-    final pricingTypeIdRaw =
-        priceData?['pricing_type_id'] ?? priceData?['pricingTypeId'];
-    final pricingTypeId = pricingTypeIdRaw?.toString();
+    final pricingUnitIdRaw =
+        priceData?['pricing_unit_id'] ?? priceData?['pricingUnitId'];
+    final pricingUnitId = pricingUnitIdRaw?.toString();
+
+    final contractTypeIdRaw = priceData?['contract_type_id'];
+    final contractTypeId = contractTypeIdRaw?.toString();
+
+    final withMaterial = priceData?['plus_material'] == true;
 
     // ✅ Parse rating secara aman
     double? parsedRating;
@@ -1438,7 +1448,9 @@ class ProviderModel {
       jobsDone: parsedJobs,
       totalReviews: parsedReviews,
       basePrice: parsedPrice,
-      pricingTypeId: pricingTypeId,
+      pricingUnitId: pricingUnitId,
+      contractTypeId: contractTypeId,
+      withMaterial: withMaterial,
       portfolios: portfoliosRaw?.map((e) => e.toString()).toList() ?? [],
       experience: parsedExperience,
       aboutMe:

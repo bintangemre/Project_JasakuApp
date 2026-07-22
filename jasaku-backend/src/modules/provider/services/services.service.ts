@@ -3,33 +3,30 @@ import { prisma } from "../../../config/prisma";
 
 export class ProviderServicesService {
     // Helper untuk validasi logika bisnis harga (Reusable untuk Add & Update)
-    private async validatePriceLogic(tx: any, serviceId: string, prices: { pricingTypeId: string }[]) {
+    private async validatePriceLogic(tx: any, serviceId: string, prices: { pricingUnitId: string; contractTypeId?: string }[]) {
         // 1. Ambil data layanan & kategorinya
         const service = await tx.services.findUnique({
             where: { id: serviceId },
-            include: { categories: true } // Pastikan relasi di schema benar
+            include: { categories: true }
         });
 
         if (!service) throw new Error('Layanan tidak ditemukan');
 
-        // 2. Ambil semua master pricing types
-        const masterPricingTypes = await tx.pricing_types.findMany();
+        // 2. Ambil semua master pricing units
+        const masterPricingUnits = await tx.pricing_units.findMany();
 
         for (const p of prices) {
-            const typeInfo = masterPricingTypes.find((t: any) => t.id === p.pricingTypeId);
-            if (!typeInfo) throw new Error('Metode pengerjaan tidak valid');
+            const unitInfo = masterPricingUnits.find((t: any) => t.id === p.pricingUnitId);
+            if (!unitInfo) throw new Error('Unit harga tidak valid');
 
-            // Logika Khusus Plus Material (Hanya untuk Kelistrikan)
-            if (typeInfo.name === 'plus_material') {
-                if (service.categories.name !== 'Kelistrikan') {
-                    throw new Error('Metode Plus Material (Paket Terima Beres) hanya tersedia untuk kategori Kelistrikan');
-                }
+            // Validasi: jika ada contractTypeId, pastikan ada di contract_types
+            if (p.contractTypeId) {
+                const contractType = await tx.contract_types.findUnique({ where: { id: p.contractTypeId } });
+                if (!contractType) throw new Error('Tipe kontrak tidak valid');
             }
-            
-            // Kamu bisa menambah pengecekan kategori lain di sini jika diperlukan
         }
 
-        return { service, masterPricingTypes };
+        return { service, masterPricingUnits };
     }
     
     async getProviderServices(userId: string) {
@@ -44,14 +41,15 @@ export class ProviderServicesService {
                 services: true,
                 provider_service_prices: {
                     include: {
-                        pricing_types: true
+                        pricing_units: true,
+                        contract_types: true
                     }
                 }
             }
         });
     }
 
-    async updateProviderService(userId: string, serviceId: string, description: string, prices: { pricingTypeId: string; price: number }[]) {
+    async updateProviderService(userId: string, serviceId: string, description: string, prices: { pricingUnitId: string; contractTypeId?: string; price: number; priceWithMaterial?: number; plusMaterial?: boolean }[]) {
         const profile = await prisma.provider_profiles.findUnique({
             where: { user_id: userId }
         });
@@ -59,7 +57,7 @@ export class ProviderServicesService {
 
         return await prisma.$transaction(async (tx) => {
             // 1. Validasi Akses & Logika Bisnis
-            const { masterPricingTypes } = await this.validatePriceLogic(tx, serviceId, prices);
+            const { masterPricingUnits } = await this.validatePriceLogic(tx, serviceId, prices);
 
             const existingService = await tx.provider_services.findFirst({
                 where: { provider_id: profile.id, service_id: serviceId }
@@ -82,12 +80,15 @@ export class ProviderServicesService {
 
             // 4. Masukkan harga baru dengan unit otomatis
             const newPrices = prices.map(p => {
-                const typeInfo = masterPricingTypes.find((t: any) => t.id === p.pricingTypeId);
+                const unitInfo = masterPricingUnits.find((t: any) => t.id === p.pricingUnitId);
                 return {
                     provider_service_id: existingService.id,
-                    pricing_type_id: p.pricingTypeId,
+                    pricing_unit_id: p.pricingUnitId,
+                    contract_type_id: p.contractTypeId || null,
                     price: p.price,
-                    unit: typeInfo?.default_unit || null
+                    price_with_material: p.priceWithMaterial || null,
+                    plus_material: p.plusMaterial || false,
+                    unit: unitInfo?.unit || null
                 };
             });
 

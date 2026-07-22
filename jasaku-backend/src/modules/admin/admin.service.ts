@@ -89,7 +89,10 @@ export class AdminService {
             include: {
                 services: { select: { id: true, name: true } },
                 provider_service_prices: {
-                    include: { pricing_types: { select: { id: true, name: true, default_unit: true } } }
+                    include: { 
+                        pricing_units: { select: { id: true, name: true, unit: true } },
+                        contract_types: { select: { id: true, name: true } }
+                    }
                 }
             }
         });
@@ -162,8 +165,8 @@ export class AdminService {
         });
     }
 
-    async getPricingTypesByCategory(categoryId: string) {
-        return await prisma.pricing_types.findMany({
+    async getPricingUnitsByCategory(categoryId: string) {
+        return await prisma.pricing_units.findMany({
             where: { category_id: categoryId },
             orderBy: { name: 'asc' }
         });
@@ -251,50 +254,95 @@ export class AdminService {
         });
     }
 
-    // CRUD Pricing Types
-    async createPricingType(categoryId: string, name: string, defaultUnit?: string) {
-        const category = await prisma.categories.findUnique({ where: { id: categoryId } });
-        if (!category) throw new Error('Kategori tidak ditemukan');
+    // CRUD Pricing Units
+    async createPricingUnit(categoryId: string | undefined, name: string, unit?: string) {
+        if (categoryId) {
+            const category = await prisma.categories.findUnique({ where: { id: categoryId } });
+            if (!category) throw new Error('Kategori tidak ditemukan');
+        }
 
-        return await prisma.pricing_types.create({
-            data: { category_id: categoryId, name, default_unit: defaultUnit }
+        return await prisma.pricing_units.create({
+            data: { category_id: categoryId || null, name, unit }
         });
     }
 
-    async updatePricingType(id: string, data: { name?: string; defaultUnit?: string; categoryId?: string }) {
-        const existing = await prisma.pricing_types.findUnique({ where: { id } });
-        if (!existing) throw new Error('Tipe harga tidak ditemukan');
+    async updatePricingUnit(id: string, data: { name?: string; unit?: string; categoryId?: string }) {
+        const existing = await prisma.pricing_units.findUnique({ where: { id } });
+        if (!existing) throw new Error('Unit harga tidak ditemukan');
 
         if (data.categoryId) {
             const category = await prisma.categories.findUnique({ where: { id: data.categoryId } });
             if (!category) throw new Error('Kategori tidak ditemukan');
         }
 
-        return await prisma.pricing_types.update({
+        return await prisma.pricing_units.update({
             where: { id },
             data: {
                 ...(data.name !== undefined && { name: data.name }),
-                ...(data.defaultUnit !== undefined && { default_unit: data.defaultUnit }),
-                ...(data.categoryId !== undefined && { category_id: data.categoryId }),
+                ...(data.unit !== undefined && { unit: data.unit }),
+                ...(data.categoryId !== undefined && { category_id: data.categoryId || null }),
             }
         });
     }
 
-    async deletePricingType(id: string) {
-        const existing = await prisma.pricing_types.findUnique({ where: { id } });
-        if (!existing) throw new Error('Tipe harga tidak ditemukan');
+    async deletePricingUnit(id: string) {
+        const existing = await prisma.pricing_units.findUnique({ where: { id } });
+        if (!existing) throw new Error('Unit harga tidak ditemukan');
 
-        const usedInServices = await prisma.provider_service_prices.count({ where: { pricing_type_id: id } });
+        const usedInServices = await prisma.provider_service_prices.count({ where: { pricing_unit_id: id } });
         if (usedInServices > 0) {
-            throw new Error('Tipe harga masih digunakan oleh layanan provider dan tidak dapat dihapus');
+            throw new Error('Unit harga masih digunakan oleh layanan provider dan tidak dapat dihapus');
         }
 
-        const usedInOrders = await prisma.order_items.count({ where: { pricing_type_id: id } });
+        const usedInOrders = await prisma.order_items.count({ where: { pricing_unit_id: id } });
         if (usedInOrders > 0) {
-            throw new Error('Tipe harga masih digunakan oleh order dan tidak dapat dihapus');
+            throw new Error('Unit harga masih digunakan oleh order dan tidak dapat dihapus');
         }
 
-        return await prisma.pricing_types.delete({ where: { id } });
+        return await prisma.pricing_units.delete({ where: { id } });
+    }
+
+    // CRUD Contract Types
+    async getAllContractTypes() {
+        return await prisma.contract_types.findMany({
+            orderBy: { name: 'asc' }
+        });
+    }
+
+    async createContractType(name: string, description?: string) {
+        return await prisma.contract_types.create({
+            data: { name, description }
+        });
+    }
+
+    async updateContractType(id: string, data: { name?: string; description?: string }) {
+        const existing = await prisma.contract_types.findUnique({ where: { id } });
+        if (!existing) throw new Error('Tipe kontrak tidak ditemukan');
+
+        return await prisma.contract_types.update({
+            where: { id },
+            data: {
+                ...(data.name !== undefined && { name: data.name }),
+                ...(data.description !== undefined && { description: data.description }),
+            }
+        });
+    }
+
+    async deleteContractType(id: string) {
+        const existing = await prisma.contract_types.findUnique({ where: { id } });
+        if (!existing) throw new Error('Tipe kontrak tidak ditemukan');
+
+        const usedInServices = await prisma.provider_service_prices.count({ where: { contract_type_id: id } });
+        if (usedInServices > 0) {
+            throw new Error('Tipe kontrak masih digunakan oleh layanan provider dan tidak dapat dihapus');
+        }
+
+        const usedInOrders = await prisma.order_items.count({ where: { contract_type_id: id } });
+        if (usedInOrders > 0) {
+            throw new Error('Tipe kontrak masih digunakan oleh order dan tidak dapat dihapus');
+        }
+
+        return await prisma.contract_types.delete({ where: { id } });
     }
 
     // Orders pending payment (rekber)

@@ -93,7 +93,7 @@ const getServiceOptions = async (req: AuthRequest & { params: { providerId: stri
   }
 };
 
-const getServicePricingTypes = async (req: AuthRequest & { params: { serviceId: string } }, res: Response) => {
+const getServicePricingUnits = async (req: AuthRequest & { params: { serviceId: string } }, res: Response) => {
   try {
     const userId = req.user?.userId;
     const { serviceId } = req.params;
@@ -101,14 +101,14 @@ const getServicePricingTypes = async (req: AuthRequest & { params: { serviceId: 
       return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
     }
     const categoriesService = new CategoriesService();
-    const result = await categoriesService.getServicePricingTypes(serviceId);
-    return successResponse(res, result, 'Metode pengerjaan berhasil diambil');
+    const result = await categoriesService.getServicePricingUnits(serviceId);
+    return successResponse(res, result, 'Unit harga berhasil diambil');
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
 };
 
-export { getAllCategories, getCategoriesById, getProvidersByService, getServiceOptions, getServicePricingTypes, getProvidersByServiceWithoutDistance, searchServices };
+export { getAllCategories, getCategoriesById, getProvidersByService, getServiceOptions, getServicePricingUnits, getProvidersByServiceWithoutDistance, searchServices };
 
 const searchServices = async (req: AuthRequest, res: Response) => {
   try {

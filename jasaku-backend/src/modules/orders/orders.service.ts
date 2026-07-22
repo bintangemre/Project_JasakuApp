@@ -21,7 +21,9 @@ interface CreateOrderDto {
     customerId: string;
     providerId: string;
     serviceId: string;
-    pricingTypeId: string;
+    pricingUnitId: string;
+    contractTypeId?: string;
+    withMaterial?: boolean;
     quantity: number;
     description: string;
     workDate: string;
@@ -101,7 +103,11 @@ export class OrdersService {
                 where: { provider_id: data.providerId, service_id: data.serviceId },
                 select: {
                     provider_service_prices: {
-                        where: { pricing_type_id: data.pricingTypeId }
+                        where: { 
+                            pricing_unit_id: data.pricingUnitId,
+                            ...(data.contractTypeId && { contract_type_id: data.contractTypeId }),
+                            ...(data.withMaterial !== undefined && { plus_material: data.withMaterial })
+                        }
                     }
                 }
             });
@@ -109,7 +115,10 @@ export class OrdersService {
                 throw new Error("Layanan tidak tersedia atau harga tidak tersedia pada provider ini");
             }
 
-            const pricePerUnit = providerService.provider_service_prices[0].price;
+            const priceRecord = providerService.provider_service_prices[0];
+            const pricePerUnit = data.withMaterial && priceRecord.price_with_material 
+                ? priceRecord.price_with_material 
+                : priceRecord.price;
             const totalPrice = Number(pricePerUnit) * data.quantity;
 
             // Cek apakah provider sudah punya order aktif di tanggal tsb
@@ -154,10 +163,12 @@ export class OrdersService {
                 data: {
                     order_id: order.id,
                     service_id: data.serviceId,
-                    pricing_type_id: data.pricingTypeId,
+                    pricing_unit_id: data.pricingUnitId,
+                    contract_type_id: data.contractTypeId || null,
                     quantity: data.quantity,
                     price: pricePerUnit,
-                    subtotal: totalPrice
+                    subtotal: totalPrice,
+                    with_material: data.withMaterial || false
                 }
             });
 

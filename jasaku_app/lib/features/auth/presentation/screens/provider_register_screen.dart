@@ -48,12 +48,12 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
   String? _selectedServiceLabel;
   String? _serviceDescription;
   String? _servicePrice;
-  String? _pricingTypeId;
-  String? _selectedPricingTypeLabel;
+  String? _pricingUnitId;
+  String? _selectedPricingUnitLabel;
 
   bool _isLoadingServiceMetadata = false;
   List<Map<String, dynamic>> _availableServices = [];
-  List<Map<String, dynamic>> _availablePricingTypes = [];
+  List<Map<String, dynamic>> _availablePricingUnits = [];
 
   @override
   void initState() {
@@ -83,12 +83,12 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
     try {
       final repository = ProviderServicesRepository();
       final services = await repository.getAvailableServices();
-      final pricingTypes = await repository.getAvailablePricingTypes();
+      final pricingUnits = await repository.getAvailablePricingUnits();
 
       if (!mounted) return;
       setState(() {
         _availableServices = services;
-        _availablePricingTypes = pricingTypes;
+        _availablePricingUnits = pricingUnits;
       });
     } catch (e) {
       // error handled
@@ -156,7 +156,7 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
   }
 
   void _addService() {
-    if (_selectedServiceId == null || _serviceDescription == null || _servicePrice == null || _pricingTypeId == null) {
+    if (_selectedServiceId == null || _serviceDescription == null || _servicePrice == null || _pricingUnitId == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lengkapi semua field layanan')));
       return;
     }
@@ -166,8 +166,8 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
         'description': _serviceDescription,
         'prices': [
           {
-            'pricingTypeId': _pricingTypeId,
-            'price': double.parse(_servicePrice!),
+            'pricingUnitId': _pricingUnitId,
+            'price': int.tryParse(_servicePrice!) ?? 0,
           },
         ],
       });
@@ -175,8 +175,8 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
       _selectedServiceLabel = null;
       _serviceDescription = null;
       _servicePrice = null;
-      _pricingTypeId = null;
-      _selectedPricingTypeLabel = null;
+      _pricingUnitId = null;
+      _selectedPricingUnitLabel = null;
     });
   }
 
@@ -656,8 +656,8 @@ Widget _buildSkillStep() {
         // 4. Tipe Hitungan Tarif
         _buildTextField(
           label: 'Tipe Hitungan Tarif', 
-          hintText: _selectedPricingTypeLabel ?? 'Pilih satuan hitung', // 🟢 Ubah ke hintText jika valuenya null
-          onTap: () => _showPricingTypePicker()
+          hintText: _selectedPricingUnitLabel ?? 'Pilih satuan hitung',
+          onTap: () => _showPricingUnitPicker()
         ),
         const SizedBox(height: 16),
         
@@ -878,7 +878,7 @@ void _showServicePicker() {
     );
   }
 
-  void _showPricingTypePicker() {
+  void _showPricingUnitPicker() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -887,12 +887,12 @@ void _showServicePicker() {
           width: double.maxFinite,
           child: ListView(
             shrinkWrap: true,
-            children: _availablePricingTypes.map((p) => ListTile(
+            children: _availablePricingUnits.map((p) => ListTile(
                   title: Text('${p['name']}'),
                   onTap: () {
                     setState(() {
-                      _pricingTypeId = p['id'];
-                      _selectedPricingTypeLabel = p['name'];
+                      _pricingUnitId = p['id'];
+                      _selectedPricingUnitLabel = p['name'];
                     });
                     Navigator.pop(context);
                   },

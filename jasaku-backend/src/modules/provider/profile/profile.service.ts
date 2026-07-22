@@ -51,7 +51,10 @@ export class ProfileService {
       include: {
         services: true,
         provider_service_prices: {
-          include: { pricing_types: true },
+          include: { 
+            pricing_units: true,
+            contract_types: true
+          },
         },
       },
     });
@@ -73,7 +76,7 @@ export class ProfileService {
       services?: Array<{
         serviceId: string;
         description: string;
-        prices: Array<{ pricingTypeId: string; price: number }>;
+        prices: Array<{ pricingUnitId: string; contractTypeId?: string; price: number; priceWithMaterial?: number; plusMaterial?: boolean }>;
       }>;
       payoutMethod?: {
         type: string;
@@ -98,7 +101,7 @@ export class ProfileService {
       }
 
       if (data.services && data.services.length > 0) {
-        const masterPricingTypes = await tx.pricing_types.findMany();
+        const masterPricingUnits = await tx.pricing_units.findMany();
 
         for (const svc of data.services) {
           const existing = await tx.provider_services.findFirst({
@@ -117,14 +120,17 @@ export class ProfileService {
 
           if (svc.prices.length > 0) {
             const priceData = svc.prices.map((p) => {
-              const typeInfo = masterPricingTypes.find(
-                (t: any) => t.id === p.pricingTypeId
+              const unitInfo = masterPricingUnits.find(
+                (t: any) => t.id === p.pricingUnitId
               );
               return {
                 provider_service_id: existing.id,
-                pricing_type_id: p.pricingTypeId,
+                pricing_unit_id: p.pricingUnitId,
+                contract_type_id: p.contractTypeId || null,
                 price: p.price,
-                unit: typeInfo?.default_unit || null,
+                price_with_material: p.priceWithMaterial || null,
+                plus_material: p.plusMaterial || false,
+                unit: unitInfo?.unit || null,
               };
             });
             await tx.provider_service_prices.createMany({ data: priceData });

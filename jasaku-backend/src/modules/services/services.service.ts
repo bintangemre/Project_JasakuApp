@@ -82,7 +82,8 @@ export class CategoriesService {
                 },
                 provider_service_prices: {
                     include: {
-                        pricing_types: true
+                        pricing_units: true,
+                        contract_types: true
                     }
                 }
             }
@@ -168,14 +169,10 @@ export class CategoriesService {
 
     // menampilkan daftar provider yang menawarkan layanan tertentu  
     // masih belum menampilkan provider beserta data lainnya seperti nama provider, alamat, dan jarak dari pelanggan ke provider
-    async getServicePricingTypes(serviceId: string) {
+    async getServicePricingUnits(serviceId: string) {
         const service = await prisma.services.findUnique({
             where: { id: serviceId },
             select: {
-                // `provider_profiles` is not a relation on `services` model in the Prisma schema.
-                // Use `provider_services` (relation defined on `services`) to access provider-specific
-                // offerings and related prices. If you need provider profile details, either add a
-                // relation in the schema or query profiles separately (see suggestions below).
                 provider_services: {
                     select: {
                         id: true,
@@ -184,20 +181,23 @@ export class CategoriesService {
                         provider_service_prices: {
                             select: {
                                 price: true,
-                                pricing_types: true,
+                                price_with_material: true,
+                                plus_material: true,
+                                pricing_units: true,
+                                contract_types: true,
                             }
                         }
                     }
                 },
                 categories: {
                     select: {
-                        pricing_types: true
+                        pricing_units: true
                     }
                 }
             }
         });
         if (!service) throw new Error('Layanan tidak ditemukan');
-        return service.categories?.pricing_types ?? [];
+        return service.categories?.pricing_units ?? [];
     }
 
     async getServiceOptions(providerId: string, serviceId: string) {
@@ -206,8 +206,10 @@ export class CategoriesService {
             where: { provider_id: providerId, service_id: serviceId },
             include: {
                 provider_service_prices: {
-                    include: { pricing_types: true }
-
+                    include: { 
+                        pricing_units: true,
+                        contract_types: true
+                    }
                 }
             }
         });

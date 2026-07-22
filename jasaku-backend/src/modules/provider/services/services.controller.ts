@@ -17,14 +17,23 @@ const getAvailableServices = async (req: any, res: Response) => {
     }
 };
 
-const getAvailablePricingTypes = async (req: any, res: Response) => {
+const getAvailablePricingUnits = async (req: any, res: Response) => {
     try {
-        const pricingTypes = await prisma.pricing_types.findMany({
+        const pricingUnits = await prisma.pricing_units.findMany({
             include: {
                 categories: true
             }
         });
-        return successResponse(res, pricingTypes, 'Tipe pricing tersedia berhasil diambil');
+        return successResponse(res, pricingUnits, 'Unit harga tersedia berhasil diambil');
+    } catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+const getAvailableContractTypes = async (req: any, res: Response) => {
+    try {
+        const contractTypes = await prisma.contract_types.findMany();
+        return successResponse(res, contractTypes, 'Tipe kontrak tersedia berhasil diambil');
     } catch (err: any) {
         return errorResponse(res, err.message);
     }
@@ -73,4 +82,4 @@ const updateProviderService = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export { getAvailableServices, getAvailablePricingTypes, getProviderServices, updateProviderService };
+export { getAvailableServices, getAvailablePricingUnits, getAvailableContractTypes, getProviderServices, updateProviderService };

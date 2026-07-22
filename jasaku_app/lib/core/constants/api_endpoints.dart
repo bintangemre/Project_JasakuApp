@@ -16,7 +16,8 @@ class ApiEndpoints {
   static final String updateLocation = '$baseUrl/api/locations/update';
   static final String updateProviderService = '$baseUrl/api/provider/services/update-service';
   static final String providerAvailableServices = '$baseUrl/api/provider/services/available-services';
-  static final String providerAvailablePricingTypes = '$baseUrl/api/provider/services/available-pricing-types';
+  static final String providerAvailablePricingUnits = '$baseUrl/api/provider/services/available-pricing-units';
+  static final String providerAvailableContractTypes = '$baseUrl/api/provider/services/available-contract-types';
   static final String createOrder = '$baseUrl/api/orders/orders';
   static final String getOrderDetails = '$baseUrl/api/orders/orders/'; // + {orderId}
   static final String getCustomerOrders = '$baseUrl/api/orders/customer/orders';
@@ -55,10 +56,14 @@ class ApiEndpoints {
   static final String adminCreateCategory = '$baseUrl/api/admin/categories';
   static final String adminCreateService = '$baseUrl/api/admin/services';
   static final String adminCategories = '$baseUrl/api/admin/categories';
-  static String adminPricingTypes(String categoryId) => '$baseUrl/api/admin/categories/$categoryId/pricing-types';
-  static final String adminCreatePricingType = '$baseUrl/api/admin/pricing-types';
-  static String adminUpdatePricingType(String id) => '$baseUrl/api/admin/pricing-types/$id';
-  static String adminDeletePricingType(String id) => '$baseUrl/api/admin/pricing-types/$id';
+  static String adminPricingUnits(String categoryId) => '$baseUrl/api/admin/categories/$categoryId/pricing-units';
+  static final String adminCreatePricingUnit = '$baseUrl/api/admin/pricing-units';
+  static String adminUpdatePricingUnit(String id) => '$baseUrl/api/admin/pricing-units/$id';
+  static String adminDeletePricingUnit(String id) => '$baseUrl/api/admin/pricing-units/$id';
+  static final String adminContractTypes = '$baseUrl/api/admin/contract-types';
+  static final String adminCreateContractType = '$baseUrl/api/admin/contract-types';
+  static String adminUpdateContractType(String id) => '$baseUrl/api/admin/contract-types/$id';
+  static String adminDeleteContractType(String id) => '$baseUrl/api/admin/contract-types/$id';
 
   // Customer Profile
   static final String customerProfile = '$baseUrl/api/customer/profile';

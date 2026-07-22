@@ -14,7 +14,7 @@ model categories {
   description   String?
   created_at    DateTime?       @default(now()) @db.Timestamp(6)
   icon_url      String?
-  pricing_types pricing_types[]
+  pricing_units pricing_units[]
   services      services[]
 }
 
@@ -117,16 +117,19 @@ model order_attachments {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model order_items {
-  id              String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  order_id        String         @db.Uuid
-  service_id      String         @db.Uuid
-  pricing_type_id String         @db.Uuid
-  quantity        Int?           @default(1)
-  price           Decimal?       @db.Decimal(12, 2)
-  subtotal        Decimal?       @db.Decimal(12, 2)
-  orders          orders         @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_order")
-  services        services       @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_service")
-  pricing_types   pricing_types  @relation(fields: [pricing_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_order_item_pricing_type")
+  id              String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  order_id        String          @db.Uuid
+  service_id      String          @db.Uuid
+  pricing_unit_id String          @db.Uuid
+  contract_type_id String?        @db.Uuid
+  quantity        Int?            @default(1)
+  price           Decimal?        @db.Decimal(12, 2)
+  subtotal        Decimal?        @db.Decimal(12, 2)
+  with_material   Boolean?        @default(false)
+  orders          orders          @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_order")
+  services        services        @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_service")
+  pricing_units   pricing_units   @relation(fields: [pricing_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_order_item_pricing_unit")
+  contract_types  contract_types? @relation(fields: [contract_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_order_item_contract_type")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -184,11 +187,24 @@ model payments {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model pricing_types {
+model contract_types {
   id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                    String                    @db.VarChar(50)
-  default_unit            String?
+  description             String?
+  created_at              DateTime?                 @default(now()) @db.Timestamp(6)
+  updated_at              DateTime?                 @updatedAt @db.Timestamp(6)
+  provider_service_prices provider_service_prices[]
+  order_items             order_items[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model pricing_units {
+  id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                    String                    @db.VarChar(50)
+  unit                    String?                   @db.VarChar(50)
   category_id             String?                   @db.Uuid
+  created_at              DateTime?                 @default(now()) @db.Timestamp(6)
+  updated_at              DateTime?                 @updatedAt @db.Timestamp(6)
   categories              categories?               @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider_service_prices provider_service_prices[]
   order_items             order_items[]
@@ -238,11 +254,15 @@ model provider_schedules {
 model provider_service_prices {
   id                  String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   provider_service_id String            @db.Uuid
-  pricing_type_id     String            @db.Uuid
+  pricing_unit_id     String            @db.Uuid
+  contract_type_id    String?           @db.Uuid
   price               Decimal           @db.Decimal(12, 2)
+  price_with_material Decimal?          @db.Decimal(12, 2)
+  plus_material       Boolean?          @default(false)
   created_at          DateTime?         @default(now()) @db.Timestamp(6)
   unit                String?
-  pricing_types       pricing_types     @relation(fields: [pricing_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_price_type")
+  pricing_units       pricing_units     @relation(fields: [pricing_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_price_pricing_unit")
+  contract_types      contract_types?   @relation(fields: [contract_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_price_contract_type")
   provider_services   provider_services @relation(fields: [provider_service_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_ps_price")
 }
 

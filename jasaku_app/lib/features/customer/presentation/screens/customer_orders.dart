@@ -21,7 +21,9 @@ class CustomerOrdersPage extends ConsumerStatefulWidget {
   final String providerId;
   final String providerName;
   final String serviceId;
-  final String pricingTypeId;
+  final String pricingUnitId;
+  final String? contractTypeId;
+  final bool withMaterial;
   final double basePrice;
 
   const CustomerOrdersPage({
@@ -29,7 +31,9 @@ class CustomerOrdersPage extends ConsumerStatefulWidget {
     required this.providerId,
     required this.providerName,
     required this.serviceId,
-    required this.pricingTypeId,
+    required this.pricingUnitId,
+    this.contractTypeId,
+    this.withMaterial = false,
     required this.basePrice,
   });
 
@@ -628,7 +632,9 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                           customerId: customerId,
                           providerId: widget.providerId,
                           serviceId: widget.serviceId,
-                          pricingTypeId: widget.pricingTypeId,
+                          pricingUnitId: widget.pricingUnitId,
+                          contractTypeId: widget.contractTypeId,
+                          withMaterial: widget.withMaterial,
                           quantity: _quantity,
                           description: _descController.text,
                           workDate: _dateController.text,

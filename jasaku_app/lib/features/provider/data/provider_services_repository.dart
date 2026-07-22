@@ -5,7 +5,6 @@ import '../../../core/network/api_client.dart';
 class ProviderServicesRepository {
   final Dio _dio = ApiClient().dio;
 
-  // 🌍 Tetap dipertahankan untuk memuat daftar keahlian master di Step 2
   Future<List<Map<String, dynamic>>> getAvailableServices() async {
     final response = await _dio.get(ApiEndpoints.providerAvailableServices);
     final data = response.data['data'] as List<dynamic>?;
@@ -17,9 +16,19 @@ class ProviderServicesRepository {
         [];
   }
 
-  // 🌍 Tetap dipertahankan untuk memuat jenis-jenis tipe harga master di Step 2
-  Future<List<Map<String, dynamic>>> getAvailablePricingTypes() async {
-    final response = await _dio.get(ApiEndpoints.providerAvailablePricingTypes);
+  Future<List<Map<String, dynamic>>> getAvailablePricingUnits() async {
+    final response = await _dio.get(ApiEndpoints.providerAvailablePricingUnits);
+    final data = response.data['data'] as List<dynamic>?;
+    return data
+            ?.map(
+              (item) => Map<String, dynamic>.from(item as Map<String, dynamic>),
+            )
+            .toList() ??
+        [];
+  }
+
+  Future<List<Map<String, dynamic>>> getAvailableContractTypes() async {
+    final response = await _dio.get(ApiEndpoints.providerAvailableContractTypes);
     final data = response.data['data'] as List<dynamic>?;
     return data
             ?.map(

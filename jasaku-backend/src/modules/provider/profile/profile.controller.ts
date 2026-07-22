@@ -96,10 +96,14 @@ const getProfile = async (req: AuthRequest, res: Response) => {
         description: s.description,
         prices: s.provider_service_prices?.map((p: any) => ({
           id: p.id,
-          pricing_type_id: p.pricing_type_id,
-          pricing_type_name: p.pricing_types?.name || '',
+          pricing_unit_id: p.pricing_unit_id,
+          pricing_unit_name: p.pricing_units?.name || '',
+          contract_type_id: p.contract_type_id,
+          contract_type_name: p.contract_types?.name || '',
           price: p.price ? Number(p.price) : 0,
-          unit: p.unit || p.pricing_types?.default_unit || '',
+          price_with_material: p.price_with_material ? Number(p.price_with_material) : null,
+          plus_material: p.plus_material || false,
+          unit: p.unit || p.pricing_units?.unit || '',
         })) || [],
       })),
       payout_methods: payoutMethods.map((pm: any) => ({
