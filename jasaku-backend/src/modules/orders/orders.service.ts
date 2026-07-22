@@ -375,7 +375,7 @@ export class OrdersService {
         const terminalStatuses = ["completed", "cancelled", "rejected"];
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-        const whereClause: any = { customer_id: profile.id };
+        const whereClause: any = { customer_id: profile.id, custom_task_id: null };
         if (statusFilter) {
             if (statusFilter === 'active') {
                 whereClause.status = { notIn: terminalStatuses };
@@ -415,7 +415,7 @@ export class OrdersService {
         });
         if (!profile) return [];
 
-        const whereClause: any = { provider_id: profile.id };
+        const whereClause: any = { provider_id: profile.id, custom_task_id: null };
         if (statusFilter) {
             whereClause.status = statusFilter;
         }
@@ -602,6 +602,7 @@ export class OrdersService {
             return await prisma.$transaction(async (tx) => {
                 const order = await tx.orders.findUnique({ where: { id: orderId } });
                 if (!order) throw new Error("Order tidak ditemukan");
+                if (order.custom_task_id) throw new Error("Gunakan endpoint custom task untuk order ini");
                 if (order.provider_id !== profile.id) throw new Error("Anda tidak berhak mengubah order ini");
 
                 const current = order.status || 'pending';
@@ -645,6 +646,7 @@ export class OrdersService {
         // Non-accept flows (rejected, on_the_way, arrived, in_progress, completed)
         const order = await prisma.orders.findUnique({ where: { id: orderId } });
         if (!order) throw new Error("Order tidak ditemukan");
+        if (order.custom_task_id) throw new Error("Gunakan endpoint custom task untuk order ini");
         if (order.provider_id !== profile.id) throw new Error("Anda tidak berhak mengubah order ini");
 
         const current = order.status || 'pending';
@@ -762,6 +764,7 @@ export class OrdersService {
         const activeOrder = await prisma.orders.findFirst({
             where: {
                 provider_id: profile.id,
+                custom_task_id: null,
                 status: { in: ['accepted', 'on_the_way', 'arrived', 'in_progress'] },
                 work_date: { gte: todayStart, lt: tomorrowStart },
             },
@@ -812,6 +815,7 @@ export class OrdersService {
         return await prisma.orders.findMany({
             where: {
                 provider_id: profile.id,
+                custom_task_id: null,
                 work_date: { gte: today, lt: tomorrow },
                 status: { in: ['pending', 'accepted', 'on_the_way', 'arrived'] }
             },
@@ -831,6 +835,7 @@ export class OrdersService {
     async cancelOrder(userId: string, orderId: string) {
         const order = await prisma.orders.findUnique({ where: { id: orderId } });
         if (!order) throw new Error("Order tidak ditemukan");
+        if (order.custom_task_id) throw new Error("Gunakan endpoint custom task untuk order ini");
 
         const profile = await prisma.profiles_customer.findUnique({
             where: { user_id: userId },
@@ -898,6 +903,7 @@ export class OrdersService {
             }
         });
         if (!order) throw new Error("Order tidak ditemukan");
+        if (order.custom_task_id) throw new Error("Gunakan endpoint custom task untuk order ini");
 
         const profile = await prisma.provider_profiles.findUnique({
             where: { user_id: userId },
@@ -1254,6 +1260,7 @@ export class OrdersService {
             }
         });
         if (!order) throw new Error("Order tidak ditemukan");
+        if (order.custom_task_id) throw new Error("Gunakan endpoint custom task untuk order ini");
         if (order.status !== 'pending_payment') {
             throw new Error(`Order dengan status ${order.status} tidak dapat dikonfirmasi pembayarannya`);
         }
@@ -1265,12 +1272,12 @@ export class OrdersService {
             });
 
             await tx.payments.updateMany({
-                where: { order_id: orderId },
+                where: { order_id: orderId, method: { not: 'extension' } },
                 data: { status: 'paid', paid_at: new Date() }
             });
 
-            // Buat jadwal provider untuk tanggal kerja (skip untuk custom task)
-            if (order.work_date && order.assignment_type !== 'custom_task') {
+            // Buat jadwal provider untuk tanggal kerja
+            if (order.work_date) {
                 await tx.provider_schedules.upsert({
                     where: {
                         provider_id_work_date: {

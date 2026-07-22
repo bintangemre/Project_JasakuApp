@@ -344,7 +344,7 @@ export class AdminService {
     // Orders pending payment (rekber)
     async getPendingPaymentOrders() {
         return await prisma.orders.findMany({
-            where: { status: 'pending_payment' },
+            where: { status: 'pending_payment', task_provider_id: null },
             orderBy: { created_at: 'desc' },
             select: {
                 id: true,
@@ -657,9 +657,10 @@ export class AdminService {
     async confirmOrderPayout(orderId: string) {
         const order = await prisma.orders.findUnique({
             where: { id: orderId },
-            select: { id: true, status: true, payout_confirmed: true, provider_id: true }
+            select: { id: true, status: true, payout_confirmed: true, provider_id: true, custom_task_id: true }
         });
         if (!order) throw new Error('Order tidak ditemukan');
+        if (order.custom_task_id) throw new Error('Gunakan endpoint custom task untuk order ini');
         if (order.status !== 'completed') throw new Error('Order belum selesai');
         if (order.payout_confirmed) throw new Error('Payout sudah dikonfirmasi sebelumnya');
 

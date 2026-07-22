@@ -1,6 +1,7 @@
 import { prisma } from '../../config/prisma';
 import { NotificationService } from '../notifications/notifications.service';
 import { LocationService } from '../locations/locations.service';
+import { getTodayWitaDate } from '../../utils/operating-hours';
 
 interface LocationPoint {
   label?: string;
@@ -369,6 +370,21 @@ export class CustomTasksService {
     if (!profile) throw new Error('Profil provider tidak ditemukan');
     if (!profile.full_name) throw new Error('Lengkapi profil Anda terlebih dahulu');
 
+    // Guard: prevent accepting custom tasks if provider has active regular orders
+    const today = getTodayWitaDate();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const activeOrder = await prisma.orders.findFirst({
+      where: {
+        provider_id: profile.id,
+        custom_task_id: null,
+        status: { in: ['pending', 'accepted', 'on_the_way', 'arrived', 'in_progress'] },
+        work_date: { gte: today, lt: tomorrow }
+      },
+      select: { id: true }
+    });
+    if (activeOrder) throw new Error('Anda memiliki order regular yang masih aktif hari ini. Selesaikan terlebih dahulu.');
+
     const task = await prisma.custom_tasks.findUnique({
       where: { id: taskId },
       select: {
@@ -453,6 +469,24 @@ export class CustomTasksService {
           method: 'rekber',
           status: 'pending',
           amount: finalPrice,
+        }
+      });
+
+      // Create provider schedule entry so the day shows as booked
+      const workDate = new Date();
+      workDate.setHours(0, 0, 0, 0);
+      await tx.provider_schedules.upsert({
+        where: {
+          provider_id_work_date: {
+            provider_id: profile.id,
+            work_date: workDate,
+          }
+        },
+        update: { is_booked: true },
+        create: {
+          provider_id: profile.id,
+          work_date: workDate,
+          is_booked: true,
         }
       });
 
@@ -605,51 +639,43 @@ export class CustomTasksService {
     const tp = await prisma.task_providers.findUnique({
       where: { task_id_provider_id: { task_id: taskId, provider_id: profile.id } },
       include: {
-        custom_tasks: { select: { title: true, customer_id: true, required_people: true } }
+        custom_tasks: { select: { title: true, customer_id: true, required_people: true, payment_status: true } }
       }
     });
     if (!tp) throw new Error('Anda tidak terdaftar di task ini');
     if (tp.status === 'completed') throw new Error('Task ini sudah Anda selesaikan');
+    if (tp.custom_tasks.payment_status !== 'paid') throw new Error('Pembayaran belum dikonfirmasi admin');
 
-    await prisma.$transaction([
-      prisma.task_providers.update({
+    // Advance work_status through required states before completing
+    if (tp.work_status === null) {
+      await prisma.$transaction([
+        prisma.task_providers.update({
+          where: { id: tp.id },
+          data: { work_status: 'on_the_way' }
+        }),
+        prisma.orders.updateMany({
+          where: { task_provider_id: tp.id },
+          data: { status: 'on_the_way' }
+        }),
+      ]);
+      await prisma.task_providers.update({
         where: { id: tp.id },
-        data: { status: 'completed', work_status: 'completed', completed_at: new Date() }
-      }),
-      prisma.orders.updateMany({
-        where: { task_provider_id: tp.id },
-        data: { status: 'completed' }
-      }),
-    ]);
-
-    // Update provider stats
-    await prisma.provider_profiles.update({
-      where: { id: profile.id },
-      data: { total_jobs: { increment: 1 } }
-    });
-
-    // Jika semua provider selesai, set custom_tasks.status = 'completed'
-    const completedCount = await prisma.task_providers.count({
-      where: { task_id: taskId, status: 'completed' }
-    });
-    if (completedCount >= (tp.custom_tasks.required_people ?? 1)) {
-      await prisma.custom_tasks.update({
-        where: { id: taskId },
-        data: { status: 'completed' }
+        data: { work_status: 'in_progress' }
+      });
+    } else if (tp.work_status === 'on_the_way') {
+      await prisma.task_providers.update({
+        where: { id: tp.id },
+        data: { work_status: 'in_progress' }
+      });
+    } else if (tp.work_status === 'arrived') {
+      await prisma.task_providers.update({
+        where: { id: tp.id },
+        data: { work_status: 'in_progress' }
       });
     }
 
-    // Notifikasi customer
-    try {
-      await NotificationService.sendToUser(
-        tp.custom_tasks.customer_id,
-        'Task Selesai!',
-        `Provider telah menyelesaikan task "${tp.custom_tasks.title}". Admin akan memproses pembayaran.`,
-        { taskId, tpId: tp.id, type: 'CUSTOM_TASK_COMPLETED' }
-      );
-    } catch (_) {}
-
-    return { message: 'Task ditandai selesai. Menunggu konfirmasi pembayaran dari admin.' };
+    // Delegate to updateWorkStatus for single-source-of-truth completion logic
+    return this.updateWorkStatus(providerUserId, taskId, 'completed');
   }
 
   async republishTask(customerId: string, taskId: string) {
