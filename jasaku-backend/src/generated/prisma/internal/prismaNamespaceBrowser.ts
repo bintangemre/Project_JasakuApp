@@ -63,7 +63,8 @@ export const ModelName = {
   order_locations: 'order_locations',
   orders: 'orders',
   payments: 'payments',
-  pricing_types: 'pricing_types',
+  contract_types: 'contract_types',
+  pricing_units: 'pricing_units',
   provider_documents: 'provider_documents',
   provider_payout_methods: 'provider_payout_methods',
   provider_schedules: 'provider_schedules',
@@ -73,6 +74,8 @@ export const ModelName = {
   order_extensions: 'order_extensions',
   roles: 'roles',
   services: 'services',
+  service_pricing_units: 'service_pricing_units',
+  service_contract_types: 'service_contract_types',
   spatial_ref_sys: 'spatial_ref_sys',
   users: 'users',
   profiles_customer: 'profiles_customer',
@@ -211,10 +214,12 @@ export const Order_itemsScalarFieldEnum = {
   id: 'id',
   order_id: 'order_id',
   service_id: 'service_id',
-  pricing_type_id: 'pricing_type_id',
+  pricing_unit_id: 'pricing_unit_id',
+  contract_type_id: 'contract_type_id',
   quantity: 'quantity',
   price: 'price',
-  subtotal: 'subtotal'
+  subtotal: 'subtotal',
+  with_material: 'with_material'
 } as const
 
 export type Order_itemsScalarFieldEnum = (typeof Order_itemsScalarFieldEnum)[keyof typeof Order_itemsScalarFieldEnum]
@@ -266,14 +271,27 @@ export const PaymentsScalarFieldEnum = {
 export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typeof PaymentsScalarFieldEnum]
 
 
-export const Pricing_typesScalarFieldEnum = {
+export const Contract_typesScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  default_unit: 'default_unit',
-  category_id: 'category_id'
+  description: 'description',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 } as const
 
-export type Pricing_typesScalarFieldEnum = (typeof Pricing_typesScalarFieldEnum)[keyof typeof Pricing_typesScalarFieldEnum]
+export type Contract_typesScalarFieldEnum = (typeof Contract_typesScalarFieldEnum)[keyof typeof Contract_typesScalarFieldEnum]
+
+
+export const Pricing_unitsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  unit: 'unit',
+  description: 'description',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Pricing_unitsScalarFieldEnum = (typeof Pricing_unitsScalarFieldEnum)[keyof typeof Pricing_unitsScalarFieldEnum]
 
 
 export const Provider_documentsScalarFieldEnum = {
@@ -317,8 +335,11 @@ export type Provider_schedulesScalarFieldEnum = (typeof Provider_schedulesScalar
 export const Provider_service_pricesScalarFieldEnum = {
   id: 'id',
   provider_service_id: 'provider_service_id',
-  pricing_type_id: 'pricing_type_id',
+  pricing_unit_id: 'pricing_unit_id',
+  contract_type_id: 'contract_type_id',
   price: 'price',
+  price_with_material: 'price_with_material',
+  plus_material: 'plus_material',
   created_at: 'created_at',
   unit: 'unit'
 } as const
@@ -391,6 +412,26 @@ export const ServicesScalarFieldEnum = {
 } as const
 
 export type ServicesScalarFieldEnum = (typeof ServicesScalarFieldEnum)[keyof typeof ServicesScalarFieldEnum]
+
+
+export const Service_pricing_unitsScalarFieldEnum = {
+  id: 'id',
+  service_id: 'service_id',
+  pricing_unit_id: 'pricing_unit_id',
+  created_at: 'created_at'
+} as const
+
+export type Service_pricing_unitsScalarFieldEnum = (typeof Service_pricing_unitsScalarFieldEnum)[keyof typeof Service_pricing_unitsScalarFieldEnum]
+
+
+export const Service_contract_typesScalarFieldEnum = {
+  id: 'id',
+  service_id: 'service_id',
+  contract_type_id: 'contract_type_id',
+  created_at: 'created_at'
+} as const
+
+export type Service_contract_typesScalarFieldEnum = (typeof Service_contract_typesScalarFieldEnum)[keyof typeof Service_contract_typesScalarFieldEnum]
 
 
 export const Spatial_ref_sysScalarFieldEnum = {

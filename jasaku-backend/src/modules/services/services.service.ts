@@ -173,31 +173,19 @@ export class CategoriesService {
         const service = await prisma.services.findUnique({
             where: { id: serviceId },
             select: {
-                provider_services: {
-                    select: {
-                        id: true,
-                        provider_id: true,
-                        description: true,
-                        provider_service_prices: {
-                            select: {
-                                price: true,
-                                price_with_material: true,
-                                plus_material: true,
-                                pricing_units: true,
-                                contract_types: true,
-                            }
-                        }
-                    }
+                service_pricing_units: {
+                    include: { pricing_units: true }
                 },
-                categories: {
-                    select: {
-                        pricing_units: true
-                    }
+                service_contract_types: {
+                    include: { contract_types: true }
                 }
             }
         });
         if (!service) throw new Error('Layanan tidak ditemukan');
-        return service.categories?.pricing_units ?? [];
+        return {
+            pricingUnits: service.service_pricing_units.map(sp => sp.pricing_units),
+            contractTypes: service.service_contract_types.map(sc => sc.contract_types),
+        };
     }
 
     async getServiceOptions(providerId: string, serviceId: string) {

@@ -56,14 +56,20 @@ class ApiEndpoints {
   static final String adminCreateCategory = '$baseUrl/api/admin/categories';
   static final String adminCreateService = '$baseUrl/api/admin/services';
   static final String adminCategories = '$baseUrl/api/admin/categories';
-  static String adminPricingUnits(String categoryId) => '$baseUrl/api/admin/categories/$categoryId/pricing-units';
+  static final String adminAllServices = '$baseUrl/api/admin/services';
+  static final String adminAllPricingUnits = '$baseUrl/api/admin/pricing-units';
+  static String adminPricingUnit(String id) => '$baseUrl/api/admin/pricing-units/$id';
   static final String adminCreatePricingUnit = '$baseUrl/api/admin/pricing-units';
   static String adminUpdatePricingUnit(String id) => '$baseUrl/api/admin/pricing-units/$id';
   static String adminDeletePricingUnit(String id) => '$baseUrl/api/admin/pricing-units/$id';
+  static String adminServicePricingUnits(String serviceId) => '$baseUrl/api/admin/services/$serviceId/pricing-units';
+  static String adminRemoveServicePricingUnit(String serviceId, String pricingUnitId) => '$baseUrl/api/admin/services/$serviceId/pricing-units/$pricingUnitId';
   static final String adminContractTypes = '$baseUrl/api/admin/contract-types';
   static final String adminCreateContractType = '$baseUrl/api/admin/contract-types';
   static String adminUpdateContractType(String id) => '$baseUrl/api/admin/contract-types/$id';
   static String adminDeleteContractType(String id) => '$baseUrl/api/admin/contract-types/$id';
+  static String adminServiceContractTypes(String serviceId) => '$baseUrl/api/admin/services/$serviceId/contract-types';
+  static String adminRemoveServiceContractType(String serviceId, String contractTypeId) => '$baseUrl/api/admin/services/$serviceId/contract-types/$contractTypeId';
 
   // Customer Profile
   static final String customerProfile = '$baseUrl/api/customer/profile';

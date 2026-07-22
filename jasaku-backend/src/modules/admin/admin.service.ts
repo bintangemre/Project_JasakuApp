@@ -165,9 +165,15 @@ export class AdminService {
         });
     }
 
-    async getPricingUnitsByCategory(categoryId: string) {
+    async getAllServices() {
+        return await prisma.services.findMany({
+            include: { categories: { select: { name: true } } },
+            orderBy: { name: 'asc' }
+        });
+    }
+
+    async getAllPricingUnits() {
         return await prisma.pricing_units.findMany({
-            where: { category_id: categoryId },
             orderBy: { name: 'asc' }
         });
     }
@@ -255,32 +261,22 @@ export class AdminService {
     }
 
     // CRUD Pricing Units
-    async createPricingUnit(categoryId: string | undefined, name: string, unit?: string) {
-        if (categoryId) {
-            const category = await prisma.categories.findUnique({ where: { id: categoryId } });
-            if (!category) throw new Error('Kategori tidak ditemukan');
-        }
-
+    async createPricingUnit(name: string, unit?: string, description?: string) {
         return await prisma.pricing_units.create({
-            data: { category_id: categoryId || null, name, unit }
+            data: { name, unit, description }
         });
     }
 
-    async updatePricingUnit(id: string, data: { name?: string; unit?: string; categoryId?: string }) {
+    async updatePricingUnit(id: string, data: { name?: string; unit?: string; description?: string }) {
         const existing = await prisma.pricing_units.findUnique({ where: { id } });
         if (!existing) throw new Error('Unit harga tidak ditemukan');
-
-        if (data.categoryId) {
-            const category = await prisma.categories.findUnique({ where: { id: data.categoryId } });
-            if (!category) throw new Error('Kategori tidak ditemukan');
-        }
 
         return await prisma.pricing_units.update({
             where: { id },
             data: {
                 ...(data.name !== undefined && { name: data.name }),
                 ...(data.unit !== undefined && { unit: data.unit }),
-                ...(data.categoryId !== undefined && { category_id: data.categoryId || null }),
+                ...(data.description !== undefined && { description: data.description }),
             }
         });
     }
@@ -687,6 +683,58 @@ export class AdminService {
         }
 
         return updated;
+    }
+
+    // CRUD Service Pricing Units (pivot)
+    async getServicePricingUnits(serviceId: string) {
+        return await prisma.service_pricing_units.findMany({
+            where: { service_id: serviceId },
+            include: { pricing_units: true },
+            orderBy: { pricing_units: { name: 'asc' } }
+        });
+    }
+
+    async addServicePricingUnit(serviceId: string, pricingUnitId: string) {
+        const service = await prisma.services.findUnique({ where: { id: serviceId } });
+        if (!service) throw new Error('Layanan tidak ditemukan');
+        const unit = await prisma.pricing_units.findUnique({ where: { id: pricingUnitId } });
+        if (!unit) throw new Error('Unit harga tidak ditemukan');
+
+        return await prisma.service_pricing_units.create({
+            data: { service_id: serviceId, pricing_unit_id: pricingUnitId }
+        });
+    }
+
+    async removeServicePricingUnit(serviceId: string, pricingUnitId: string) {
+        return await prisma.service_pricing_units.deleteMany({
+            where: { service_id: serviceId, pricing_unit_id: pricingUnitId }
+        });
+    }
+
+    // CRUD Service Contract Types (pivot)
+    async getServiceContractTypes(serviceId: string) {
+        return await prisma.service_contract_types.findMany({
+            where: { service_id: serviceId },
+            include: { contract_types: true },
+            orderBy: { contract_types: { name: 'asc' } }
+        });
+    }
+
+    async addServiceContractType(serviceId: string, contractTypeId: string) {
+        const service = await prisma.services.findUnique({ where: { id: serviceId } });
+        if (!service) throw new Error('Layanan tidak ditemukan');
+        const ct = await prisma.contract_types.findUnique({ where: { id: contractTypeId } });
+        if (!ct) throw new Error('Tipe kontrak tidak ditemukan');
+
+        return await prisma.service_contract_types.create({
+            data: { service_id: serviceId, contract_type_id: contractTypeId }
+        });
+    }
+
+    async removeServiceContractType(serviceId: string, contractTypeId: string) {
+        return await prisma.service_contract_types.deleteMany({
+            where: { service_id: serviceId, contract_type_id: contractTypeId }
+        });
     }
 
     async getNotificationCounts() {

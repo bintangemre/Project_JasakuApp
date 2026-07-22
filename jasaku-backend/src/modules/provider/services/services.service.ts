@@ -4,29 +4,35 @@ import { prisma } from "../../../config/prisma";
 export class ProviderServicesService {
     // Helper untuk validasi logika bisnis harga (Reusable untuk Add & Update)
     private async validatePriceLogic(tx: any, serviceId: string, prices: { pricingUnitId: string; contractTypeId?: string }[]) {
-        // 1. Ambil data layanan & kategorinya
         const service = await tx.services.findUnique({
             where: { id: serviceId },
-            include: { categories: true }
         });
-
         if (!service) throw new Error('Layanan tidak ditemukan');
 
-        // 2. Ambil semua master pricing units
-        const masterPricingUnits = await tx.pricing_units.findMany();
+        // Ambil pricing units & contract types yang valid untuk layanan ini
+        const allowedPricingUnits = await tx.service_pricing_units.findMany({
+            where: { service_id: serviceId },
+            include: { pricing_units: true }
+        });
+        const allowedPricingUnitIds = allowedPricingUnits.map((spu: any) => spu.pricing_unit_id);
+
+        const allowedContractTypes = await tx.service_contract_types.findMany({
+            where: { service_id: serviceId },
+            include: { contract_types: true }
+        });
+        const allowedContractTypeIds = allowedContractTypes.map((sct: any) => sct.contract_type_id);
 
         for (const p of prices) {
-            const unitInfo = masterPricingUnits.find((t: any) => t.id === p.pricingUnitId);
-            if (!unitInfo) throw new Error('Unit harga tidak valid');
+            if (!allowedPricingUnitIds.includes(p.pricingUnitId)) {
+                throw new Error(`Unit harga ${p.pricingUnitId} tidak tersedia untuk layanan ini`);
+            }
 
-            // Validasi: jika ada contractTypeId, pastikan ada di contract_types
-            if (p.contractTypeId) {
-                const contractType = await tx.contract_types.findUnique({ where: { id: p.contractTypeId } });
-                if (!contractType) throw new Error('Tipe kontrak tidak valid');
+            if (p.contractTypeId && !allowedContractTypeIds.includes(p.contractTypeId)) {
+                throw new Error(`Tipe kontrak ${p.contractTypeId} tidak tersedia untuk layanan ini`);
             }
         }
 
-        return { service, masterPricingUnits };
+        return { service };
     }
     
     async getProviderServices(userId: string) {
@@ -57,7 +63,7 @@ export class ProviderServicesService {
 
         return await prisma.$transaction(async (tx) => {
             // 1. Validasi Akses & Logika Bisnis
-            const { masterPricingUnits } = await this.validatePriceLogic(tx, serviceId, prices);
+            await this.validatePriceLogic(tx, serviceId, prices);
 
             const existingService = await tx.provider_services.findFirst({
                 where: { provider_id: profile.id, service_id: serviceId }
@@ -78,19 +84,23 @@ export class ProviderServicesService {
                 where: { provider_service_id: existingService.id }
             });
 
-            // 4. Masukkan harga baru dengan unit otomatis
-            const newPrices = prices.map(p => {
-                const unitInfo = masterPricingUnits.find((t: any) => t.id === p.pricingUnitId);
-                return {
-                    provider_service_id: existingService.id,
-                    pricing_unit_id: p.pricingUnitId,
-                    contract_type_id: p.contractTypeId || null,
-                    price: p.price,
-                    price_with_material: p.priceWithMaterial || null,
-                    plus_material: p.plusMaterial || false,
-                    unit: unitInfo?.unit || null
-                };
+            // 4. Ambil unit info dari pricing_units
+            const pricingUnitIds = prices.map(p => p.pricingUnitId);
+            const pricingUnits = await tx.pricing_units.findMany({
+                where: { id: { in: pricingUnitIds } }
             });
+            const unitMap = new Map(pricingUnits.map((pu: any) => [pu.id, pu.unit]));
+
+            // 5. Masukkan harga baru
+            const newPrices = prices.map(p => ({
+                provider_service_id: existingService.id,
+                pricing_unit_id: p.pricingUnitId,
+                contract_type_id: p.contractTypeId || null,
+                price: p.price,
+                price_with_material: p.priceWithMaterial || null,
+                plus_material: p.plusMaterial || false,
+                unit: unitMap.get(p.pricingUnitId) || null
+            }));
 
             if (newPrices.length > 0) {
               await tx.provider_service_prices.createMany({ data: newPrices });

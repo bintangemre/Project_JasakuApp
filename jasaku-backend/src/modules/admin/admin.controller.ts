@@ -64,16 +64,24 @@ const getServicesByCategory = async (req: AuthRequest, res: Response) => {
   try {
     const categoryId = String(req.params.id);
     const result = await new AdminService().getServicesByCategory(categoryId);
-    return successResponse(res, result, "Daftar layanan berhasil diambil");
+    return successResponse(res, result, "Layanan berhasil diambil");
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
 };
 
-const getPricingUnitsByCategory = async (req: AuthRequest, res: Response) => {
+const getAllServices = async (req: AuthRequest, res: Response) => {
   try {
-    const categoryId = String(req.params.id);
-    const result = await new AdminService().getPricingUnitsByCategory(categoryId);
+    const result = await new AdminService().getAllServices();
+    return successResponse(res, result, "Semua layanan berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const getAllPricingUnits = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getAllPricingUnits();
     return successResponse(res, result, "Daftar unit harga berhasil diambil");
   } catch (err: any) {
     return errorResponse(res, err.message);
@@ -198,9 +206,9 @@ const unbanUser = async (req: AuthRequest, res: Response) => {
 // Pricing Units
 const createPricingUnit = async (req: AuthRequest, res: Response) => {
   try {
-    const { categoryId, name, unit } = req.body;
+    const { name, unit, description } = req.body;
     if (!name) return errorResponse(res, "name wajib diisi", 400);
-    const result = await new AdminService().createPricingUnit(categoryId, name, unit);
+    const result = await new AdminService().createPricingUnit(name, unit, description);
     return successResponse(res, result, "Unit harga berhasil dibuat", 201);
   } catch (err: any) {
     return errorResponse(res, err.message);
@@ -210,8 +218,8 @@ const createPricingUnit = async (req: AuthRequest, res: Response) => {
 const updatePricingUnit = async (req: AuthRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    const { name, unit, categoryId } = req.body;
-    const result = await new AdminService().updatePricingUnit(id, { name, unit, categoryId });
+    const { name, unit, description } = req.body;
+    const result = await new AdminService().updatePricingUnit(id, { name, unit, description });
     return successResponse(res, result, "Unit harga berhasil diupdate");
   } catch (err: any) {
     return errorResponse(res, err.message);
@@ -405,6 +413,74 @@ const respondToReport = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// Service Pricing Units (pivot)
+const getServicePricingUnits = async (req: AuthRequest, res: Response) => {
+  try {
+    const serviceId = String(req.params.serviceId);
+    const result = await new AdminService().getServicePricingUnits(serviceId);
+    return successResponse(res, result, "Unit harga layanan berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const addServicePricingUnit = async (req: AuthRequest, res: Response) => {
+  try {
+    const serviceId = String(req.params.serviceId);
+    const { pricingUnitId } = req.body;
+    if (!pricingUnitId) return errorResponse(res, "pricingUnitId wajib diisi", 400);
+    const result = await new AdminService().addServicePricingUnit(serviceId, pricingUnitId);
+    return successResponse(res, result, "Unit harga berhasil ditambahkan ke layanan", 201);
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const removeServicePricingUnit = async (req: AuthRequest, res: Response) => {
+  try {
+    const serviceId = String(req.params.serviceId);
+    const pricingUnitId = String(req.params.pricingUnitId);
+    await new AdminService().removeServicePricingUnit(serviceId, pricingUnitId);
+    return successResponse(res, null, "Unit harga berhasil dihapus dari layanan");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+// Service Contract Types (pivot)
+const getServiceContractTypes = async (req: AuthRequest, res: Response) => {
+  try {
+    const serviceId = String(req.params.serviceId);
+    const result = await new AdminService().getServiceContractTypes(serviceId);
+    return successResponse(res, result, "Tipe kontrak layanan berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const addServiceContractType = async (req: AuthRequest, res: Response) => {
+  try {
+    const serviceId = String(req.params.serviceId);
+    const { contractTypeId } = req.body;
+    if (!contractTypeId) return errorResponse(res, "contractTypeId wajib diisi", 400);
+    const result = await new AdminService().addServiceContractType(serviceId, contractTypeId);
+    return successResponse(res, result, "Tipe kontrak berhasil ditambahkan ke layanan", 201);
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const removeServiceContractType = async (req: AuthRequest, res: Response) => {
+  try {
+    const serviceId = String(req.params.serviceId);
+    const contractTypeId = String(req.params.contractTypeId);
+    await new AdminService().removeServiceContractType(serviceId, contractTypeId);
+    return successResponse(res, null, "Tipe kontrak berhasil dihapus dari layanan");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
 const getNotificationCounts = async (req: AuthRequest, res: Response) => {
   try {
     const result = await new AdminService().getNotificationCounts();
@@ -495,12 +571,14 @@ const confirmOrderPayout = async (req: AuthRequest, res: Response) => {
 
 export {
   getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail,
-  getCategories, getServicesByCategory, getPricingUnitsByCategory,
+  getCategories, getServicesByCategory, getAllServices, getAllPricingUnits,
   createCategory, updateCategory, deleteCategory,
   createService, updateService, deleteService,
   getAllProviders, getAllCustomers, banUser, unbanUser,
   createPricingUnit, updatePricingUnit, deletePricingUnit,
   getAllContractTypes, createContractType, updateContractType, deleteContractType,
+  getServicePricingUnits, addServicePricingUnit, removeServicePricingUnit,
+  getServiceContractTypes, addServiceContractType, removeServiceContractType,
   getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount,
   uploadQrisImage,
   getPendingPaymentOrders,

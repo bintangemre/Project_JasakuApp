@@ -19,11 +19,7 @@ const getAvailableServices = async (req: any, res: Response) => {
 
 const getAvailablePricingUnits = async (req: any, res: Response) => {
     try {
-        const pricingUnits = await prisma.pricing_units.findMany({
-            include: {
-                categories: true
-            }
-        });
+        const pricingUnits = await prisma.pricing_units.findMany();
         return successResponse(res, pricingUnits, 'Unit harga tersedia berhasil diambil');
     } catch (err: any) {
         return errorResponse(res, err.message);

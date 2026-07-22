@@ -30,7 +30,7 @@ class AdminHubPage extends StatelessWidget {
           _AdminTile(
             icon: Icons.attach_money,
             title: 'Satuan Harga & Tipe Kontrak',
-            subtitle: 'Kelola satuan harga per kategori & tipe kontrak',
+            subtitle: 'Kelola satuan harga, tipe kontrak & mapping layanan',
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const AdminPricingTypesPage()),

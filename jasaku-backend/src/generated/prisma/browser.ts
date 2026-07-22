@@ -78,10 +78,15 @@ export type orders = Prisma.ordersModel
  */
 export type payments = Prisma.paymentsModel
 /**
- * Model pricing_types
+ * Model contract_types
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
-export type pricing_types = Prisma.pricing_typesModel
+export type contract_types = Prisma.contract_typesModel
+/**
+ * Model pricing_units
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type pricing_units = Prisma.pricing_unitsModel
 /**
  * Model provider_documents
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -127,6 +132,16 @@ export type roles = Prisma.rolesModel
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type services = Prisma.servicesModel
+/**
+ * Model service_pricing_units
+ * 
+ */
+export type service_pricing_units = Prisma.service_pricing_unitsModel
+/**
+ * Model service_contract_types
+ * 
+ */
+export type service_contract_types = Prisma.service_contract_typesModel
 /**
  * Model spatial_ref_sys
  * This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

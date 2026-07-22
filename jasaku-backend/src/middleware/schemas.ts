@@ -69,15 +69,15 @@ export const createCategorySchema = z.object({
 });
 
 export const createPricingUnitSchema = z.object({
-    categoryId: z.string().uuid('categoryId tidak valid').optional(),
     name: z.string().min(1, 'Nama unit harga wajib diisi').max(50, 'Nama maksimal 50 karakter'),
     unit: z.string().optional(),
+    description: z.string().optional(),
 });
 
 export const updatePricingUnitSchema = z.object({
     name: z.string().min(1, 'Nama unit harga wajib diisi').max(50, 'Nama maksimal 50 karakter').optional(),
     unit: z.string().optional(),
-    categoryId: z.string().uuid('categoryId tidak valid').optional(),
+    description: z.string().optional(),
 });
 
 export const createContractTypeSchema = z.object({

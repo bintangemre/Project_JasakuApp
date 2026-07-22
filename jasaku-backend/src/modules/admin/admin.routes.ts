@@ -1,12 +1,14 @@
 import {Router} from 'express';
 import {
   getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail,
-  getCategories, getServicesByCategory, getPricingUnitsByCategory,
+  getCategories, getServicesByCategory, getAllServices, getAllPricingUnits,
   createCategory, updateCategory, deleteCategory,
   createService, updateService, deleteService,
   getAllProviders, getAllCustomers, banUser, unbanUser,
   createPricingUnit, updatePricingUnit, deletePricingUnit,
   getAllContractTypes, createContractType, updateContractType, deleteContractType,
+  getServicePricingUnits, addServicePricingUnit, removeServicePricingUnit,
+  getServiceContractTypes, addServiceContractType, removeServiceContractType,
   getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount,
   uploadQrisImage,
   getPendingPaymentOrders,
@@ -58,16 +60,27 @@ router.put('/categories/:id', authenticate, isAdmin, updateCategory);
 router.delete('/categories/:id', authenticate, isAdmin, deleteCategory);
 
 // Services
+router.get('/services', authenticate, isAdmin, getAllServices);
 router.get('/categories/:id/services', authenticate, isAdmin, getServicesByCategory);
 router.post('/services', authenticate, isAdmin, validate(createServiceSchema), createService);
 router.put('/services/:id', authenticate, isAdmin, updateService);
 router.delete('/services/:id', authenticate, isAdmin, deleteService);
 
-// Pricing Units
-router.get('/categories/:id/pricing-units', authenticate, isAdmin, getPricingUnitsByCategory);
+// Pricing Units (global, no category filter)
+router.get('/pricing-units', authenticate, isAdmin, getAllPricingUnits);
 router.post('/pricing-units', authenticate, isAdmin, validate(createPricingUnitSchema), createPricingUnit);
 router.put('/pricing-units/:id', authenticate, isAdmin, validate(updatePricingUnitSchema), updatePricingUnit);
 router.delete('/pricing-units/:id', authenticate, isAdmin, deletePricingUnit);
+
+// Service ↔ Pricing Units (pivot)
+router.get('/services/:serviceId/pricing-units', authenticate, isAdmin, getServicePricingUnits);
+router.post('/services/:serviceId/pricing-units', authenticate, isAdmin, addServicePricingUnit);
+router.delete('/services/:serviceId/pricing-units/:pricingUnitId', authenticate, isAdmin, removeServicePricingUnit);
+
+// Service ↔ Contract Types (pivot)
+router.get('/services/:serviceId/contract-types', authenticate, isAdmin, getServiceContractTypes);
+router.post('/services/:serviceId/contract-types', authenticate, isAdmin, addServiceContractType);
+router.delete('/services/:serviceId/contract-types/:contractTypeId', authenticate, isAdmin, removeServiceContractType);
 
 // Contract Types
 router.get('/contract-types', authenticate, isAdmin, getAllContractTypes);

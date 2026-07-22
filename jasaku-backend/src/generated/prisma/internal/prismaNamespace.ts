@@ -396,7 +396,8 @@ export const ModelName = {
   order_locations: 'order_locations',
   orders: 'orders',
   payments: 'payments',
-  pricing_types: 'pricing_types',
+  contract_types: 'contract_types',
+  pricing_units: 'pricing_units',
   provider_documents: 'provider_documents',
   provider_payout_methods: 'provider_payout_methods',
   provider_schedules: 'provider_schedules',
@@ -406,6 +407,8 @@ export const ModelName = {
   order_extensions: 'order_extensions',
   roles: 'roles',
   services: 'services',
+  service_pricing_units: 'service_pricing_units',
+  service_contract_types: 'service_contract_types',
   spatial_ref_sys: 'spatial_ref_sys',
   users: 'users',
   profiles_customer: 'profiles_customer',
@@ -429,7 +432,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "categories" | "admin_bank_accounts" | "admin_ewallet_accounts" | "admin_qris_accounts" | "custom_tasks" | "task_locations" | "task_providers" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_documents" | "provider_payout_methods" | "provider_schedules" | "provider_service_prices" | "provider_services" | "reports" | "order_extensions" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations" | "reviews" | "identity_verifications" | "user_devices"
+    modelProps: "categories" | "admin_bank_accounts" | "admin_ewallet_accounts" | "admin_qris_accounts" | "custom_tasks" | "task_locations" | "task_providers" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "contract_types" | "pricing_units" | "provider_documents" | "provider_payout_methods" | "provider_schedules" | "provider_service_prices" | "provider_services" | "reports" | "order_extensions" | "roles" | "services" | "service_pricing_units" | "service_contract_types" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations" | "reviews" | "identity_verifications" | "user_devices"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1321,77 +1324,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    pricing_types: {
-      payload: Prisma.$pricing_typesPayload<ExtArgs>
-      fields: Prisma.pricing_typesFieldRefs
+    contract_types: {
+      payload: Prisma.$contract_typesPayload<ExtArgs>
+      fields: Prisma.contract_typesFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.pricing_typesFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload> | null
+          args: Prisma.contract_typesFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.pricing_typesFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload>
+          args: Prisma.contract_typesFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload>
         }
         findFirst: {
-          args: Prisma.pricing_typesFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload> | null
+          args: Prisma.contract_typesFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.pricing_typesFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload>
+          args: Prisma.contract_typesFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload>
         }
         findMany: {
-          args: Prisma.pricing_typesFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload>[]
+          args: Prisma.contract_typesFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload>[]
         }
         create: {
-          args: Prisma.pricing_typesCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload>
+          args: Prisma.contract_typesCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload>
         }
         createMany: {
-          args: Prisma.pricing_typesCreateManyArgs<ExtArgs>
+          args: Prisma.contract_typesCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.pricing_typesCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload>[]
+          args: Prisma.contract_typesCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload>[]
         }
         delete: {
-          args: Prisma.pricing_typesDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload>
+          args: Prisma.contract_typesDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload>
         }
         update: {
-          args: Prisma.pricing_typesUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload>
+          args: Prisma.contract_typesUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload>
         }
         deleteMany: {
-          args: Prisma.pricing_typesDeleteManyArgs<ExtArgs>
+          args: Prisma.contract_typesDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.pricing_typesUpdateManyArgs<ExtArgs>
+          args: Prisma.contract_typesUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.pricing_typesUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload>[]
+          args: Prisma.contract_typesUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload>[]
         }
         upsert: {
-          args: Prisma.pricing_typesUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_typesPayload>
+          args: Prisma.contract_typesUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contract_typesPayload>
         }
         aggregate: {
-          args: Prisma.Pricing_typesAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePricing_types>
+          args: Prisma.Contract_typesAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContract_types>
         }
         groupBy: {
-          args: Prisma.pricing_typesGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.Pricing_typesGroupByOutputType>[]
+          args: Prisma.contract_typesGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Contract_typesGroupByOutputType>[]
         }
         count: {
-          args: Prisma.pricing_typesCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.Pricing_typesCountAggregateOutputType> | number
+          args: Prisma.contract_typesCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Contract_typesCountAggregateOutputType> | number
+        }
+      }
+    }
+    pricing_units: {
+      payload: Prisma.$pricing_unitsPayload<ExtArgs>
+      fields: Prisma.pricing_unitsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.pricing_unitsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.pricing_unitsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload>
+        }
+        findFirst: {
+          args: Prisma.pricing_unitsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.pricing_unitsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload>
+        }
+        findMany: {
+          args: Prisma.pricing_unitsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload>[]
+        }
+        create: {
+          args: Prisma.pricing_unitsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload>
+        }
+        createMany: {
+          args: Prisma.pricing_unitsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.pricing_unitsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload>[]
+        }
+        delete: {
+          args: Prisma.pricing_unitsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload>
+        }
+        update: {
+          args: Prisma.pricing_unitsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload>
+        }
+        deleteMany: {
+          args: Prisma.pricing_unitsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.pricing_unitsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.pricing_unitsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload>[]
+        }
+        upsert: {
+          args: Prisma.pricing_unitsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pricing_unitsPayload>
+        }
+        aggregate: {
+          args: Prisma.Pricing_unitsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePricing_units>
+        }
+        groupBy: {
+          args: Prisma.pricing_unitsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Pricing_unitsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.pricing_unitsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Pricing_unitsCountAggregateOutputType> | number
         }
       }
     }
@@ -2058,6 +2135,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.servicesCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ServicesCountAggregateOutputType> | number
+        }
+      }
+    }
+    service_pricing_units: {
+      payload: Prisma.$service_pricing_unitsPayload<ExtArgs>
+      fields: Prisma.service_pricing_unitsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.service_pricing_unitsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.service_pricing_unitsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload>
+        }
+        findFirst: {
+          args: Prisma.service_pricing_unitsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.service_pricing_unitsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload>
+        }
+        findMany: {
+          args: Prisma.service_pricing_unitsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload>[]
+        }
+        create: {
+          args: Prisma.service_pricing_unitsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload>
+        }
+        createMany: {
+          args: Prisma.service_pricing_unitsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.service_pricing_unitsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload>[]
+        }
+        delete: {
+          args: Prisma.service_pricing_unitsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload>
+        }
+        update: {
+          args: Prisma.service_pricing_unitsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload>
+        }
+        deleteMany: {
+          args: Prisma.service_pricing_unitsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.service_pricing_unitsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.service_pricing_unitsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload>[]
+        }
+        upsert: {
+          args: Prisma.service_pricing_unitsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_pricing_unitsPayload>
+        }
+        aggregate: {
+          args: Prisma.Service_pricing_unitsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateService_pricing_units>
+        }
+        groupBy: {
+          args: Prisma.service_pricing_unitsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Service_pricing_unitsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.service_pricing_unitsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Service_pricing_unitsCountAggregateOutputType> | number
+        }
+      }
+    }
+    service_contract_types: {
+      payload: Prisma.$service_contract_typesPayload<ExtArgs>
+      fields: Prisma.service_contract_typesFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.service_contract_typesFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.service_contract_typesFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload>
+        }
+        findFirst: {
+          args: Prisma.service_contract_typesFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.service_contract_typesFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload>
+        }
+        findMany: {
+          args: Prisma.service_contract_typesFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload>[]
+        }
+        create: {
+          args: Prisma.service_contract_typesCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload>
+        }
+        createMany: {
+          args: Prisma.service_contract_typesCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.service_contract_typesCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload>[]
+        }
+        delete: {
+          args: Prisma.service_contract_typesDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload>
+        }
+        update: {
+          args: Prisma.service_contract_typesUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload>
+        }
+        deleteMany: {
+          args: Prisma.service_contract_typesDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.service_contract_typesUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.service_contract_typesUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload>[]
+        }
+        upsert: {
+          args: Prisma.service_contract_typesUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$service_contract_typesPayload>
+        }
+        aggregate: {
+          args: Prisma.Service_contract_typesAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateService_contract_types>
+        }
+        groupBy: {
+          args: Prisma.service_contract_typesGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Service_contract_typesGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.service_contract_typesCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Service_contract_typesCountAggregateOutputType> | number
         }
       }
     }
@@ -2804,10 +3029,12 @@ export const Order_itemsScalarFieldEnum = {
   id: 'id',
   order_id: 'order_id',
   service_id: 'service_id',
-  pricing_type_id: 'pricing_type_id',
+  pricing_unit_id: 'pricing_unit_id',
+  contract_type_id: 'contract_type_id',
   quantity: 'quantity',
   price: 'price',
-  subtotal: 'subtotal'
+  subtotal: 'subtotal',
+  with_material: 'with_material'
 } as const
 
 export type Order_itemsScalarFieldEnum = (typeof Order_itemsScalarFieldEnum)[keyof typeof Order_itemsScalarFieldEnum]
@@ -2859,14 +3086,27 @@ export const PaymentsScalarFieldEnum = {
 export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typeof PaymentsScalarFieldEnum]
 
 
-export const Pricing_typesScalarFieldEnum = {
+export const Contract_typesScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  default_unit: 'default_unit',
-  category_id: 'category_id'
+  description: 'description',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 } as const
 
-export type Pricing_typesScalarFieldEnum = (typeof Pricing_typesScalarFieldEnum)[keyof typeof Pricing_typesScalarFieldEnum]
+export type Contract_typesScalarFieldEnum = (typeof Contract_typesScalarFieldEnum)[keyof typeof Contract_typesScalarFieldEnum]
+
+
+export const Pricing_unitsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  unit: 'unit',
+  description: 'description',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Pricing_unitsScalarFieldEnum = (typeof Pricing_unitsScalarFieldEnum)[keyof typeof Pricing_unitsScalarFieldEnum]
 
 
 export const Provider_documentsScalarFieldEnum = {
@@ -2910,8 +3150,11 @@ export type Provider_schedulesScalarFieldEnum = (typeof Provider_schedulesScalar
 export const Provider_service_pricesScalarFieldEnum = {
   id: 'id',
   provider_service_id: 'provider_service_id',
-  pricing_type_id: 'pricing_type_id',
+  pricing_unit_id: 'pricing_unit_id',
+  contract_type_id: 'contract_type_id',
   price: 'price',
+  price_with_material: 'price_with_material',
+  plus_material: 'plus_material',
   created_at: 'created_at',
   unit: 'unit'
 } as const
@@ -2984,6 +3227,26 @@ export const ServicesScalarFieldEnum = {
 } as const
 
 export type ServicesScalarFieldEnum = (typeof ServicesScalarFieldEnum)[keyof typeof ServicesScalarFieldEnum]
+
+
+export const Service_pricing_unitsScalarFieldEnum = {
+  id: 'id',
+  service_id: 'service_id',
+  pricing_unit_id: 'pricing_unit_id',
+  created_at: 'created_at'
+} as const
+
+export type Service_pricing_unitsScalarFieldEnum = (typeof Service_pricing_unitsScalarFieldEnum)[keyof typeof Service_pricing_unitsScalarFieldEnum]
+
+
+export const Service_contract_typesScalarFieldEnum = {
+  id: 'id',
+  service_id: 'service_id',
+  contract_type_id: 'contract_type_id',
+  created_at: 'created_at'
+} as const
+
+export type Service_contract_typesScalarFieldEnum = (typeof Service_contract_typesScalarFieldEnum)[keyof typeof Service_contract_typesScalarFieldEnum]
 
 
 export const Spatial_ref_sysScalarFieldEnum = {
@@ -3365,7 +3628,8 @@ export type GlobalOmitConfig = {
   order_locations?: Prisma.order_locationsOmit
   orders?: Prisma.ordersOmit
   payments?: Prisma.paymentsOmit
-  pricing_types?: Prisma.pricing_typesOmit
+  contract_types?: Prisma.contract_typesOmit
+  pricing_units?: Prisma.pricing_unitsOmit
   provider_documents?: Prisma.provider_documentsOmit
   provider_payout_methods?: Prisma.provider_payout_methodsOmit
   provider_schedules?: Prisma.provider_schedulesOmit
@@ -3375,6 +3639,8 @@ export type GlobalOmitConfig = {
   order_extensions?: Prisma.order_extensionsOmit
   roles?: Prisma.rolesOmit
   services?: Prisma.servicesOmit
+  service_pricing_units?: Prisma.service_pricing_unitsOmit
+  service_contract_types?: Prisma.service_contract_typesOmit
   spatial_ref_sys?: Prisma.spatial_ref_sysOmit
   users?: Prisma.usersOmit
   profiles_customer?: Prisma.profiles_customerOmit

@@ -496,27 +496,115 @@
           </div>
         </div>
 
-        <!-- PRICING TYPES -->
-        <div x-data="pricingPage" x-init="init()" x-show="$store.nav.page === 'pricing-types'" class="page-enter">
-          <div class="card p-0 overflow-hidden">
-            <div class="p-5 pb-0 flex flex-wrap items-center justify-between gap-3">
-              <select x-model="selectedCategoryId" @change="load()" class="form-select max-w-xs text-sm">
-                <option value="">Pilih kategori...</option>
-                <template x-for="cat in categories" :key="cat.id"><option :value="cat.id" x-text="cat.name"></option></template>
-              </select>
-              <button @click="openCreate()" :disabled="!selectedCategoryId" class="btn-primary btn-sm"><i class="fas fa-plus mr-1"></i>Tambah</button>
+        <!-- PRICING TYPES (Tabbed: Pricing Units / Contract Types / Service Mapping) -->
+        <div x-data="pricingTypesPage" x-init="init()" x-show="$store.nav.page === 'pricing-types'" class="page-enter">
+          <!-- Tabs -->
+          <div class="flex gap-1 bg-gray-100 rounded-xl p-1 mb-5 w-fit">
+            <button class="filter-tab" :class="activeTab === 'pricing-units' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'" @click="activeTab = 'pricing-units'">Satuan Harga</button>
+            <button class="filter-tab" :class="activeTab === 'contract-types' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'" @click="activeTab = 'contract-types'">Tipe Kontrak</button>
+            <button class="filter-tab" :class="activeTab === 'mapping' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'" @click="activeTab = 'mapping'">Mapping</button>
+          </div>
+
+          <!-- Tab: Pricing Units (Global) -->
+          <div x-show="activeTab === 'pricing-units'">
+            <div class="card p-0 overflow-hidden">
+              <div class="p-5 pb-0 flex items-center justify-between gap-3">
+                <span class="text-xs text-gray-400" x-text="pricingUnits.length + ' satuan harga'"></span>
+                <button @click="openCreatePricingUnit()" class="btn-primary btn-sm"><i class="fas fa-plus mr-1"></i>Tambah</button>
+              </div>
+              <div class="p-5 pt-3">
+                <template x-if="loadingPU"><div class="space-y-3"><template x-for="i in 3"><div class="skeleton h-12 rounded-xl"></div></template></div></template>
+                <template x-if="!loadingPU && pricingUnits.length === 0">
+                  <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-dollar-sign text-gray-300 text-2xl"></i></div>
+                    <p class="text-gray-400 text-sm font-medium">Belum ada satuan harga</p>
+                    <p class="text-gray-300 text-xs mt-1">Klik "Tambah" untuk membuat satuan harga baru</p>
+                  </div>
+                </template>
+                <template x-if="!loadingPU && pricingUnits.length > 0">
+                  <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Unit</th><th>Deskripsi</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                    <template x-for="pu in pricingUnits" :key="pu.id">
+                      <tr>
+                        <td class="font-medium text-gray-800" x-text="pu.name"></td>
+                        <td class="text-gray-500" x-text="pu.unit || '-'"></td>
+                        <td class="text-gray-500 text-sm max-w-xs truncate" x-text="pu.description || '-'"></td>
+                        <td class="text-right">
+                          <button @click="openEditPricingUnit(pu)" class="text-indigo-600 hover:text-indigo-800 mr-3 transition-colors"><i class="fas fa-edit"></i></button>
+                          <button @click="deletePricingUnit(pu)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody></table></div>
+                </template>
+              </div>
             </div>
-            <div class="p-5 pt-3">
-              <template x-if="loading"><div class="space-y-3"><template x-for="i in 3"><div class="skeleton h-12 rounded-xl"></div></template></div></template>
-              <template x-if="!loading && !selectedCategoryId"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-dollar-sign text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Pilih kategori</p><p class="text-gray-300 text-xs mt-1">Pilih kategori untuk melihat tipe harga</p></div></template>
-              <template x-if="!loading && selectedCategoryId && types.length === 0"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-tag text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Belum ada tipe harga</p><p class="text-gray-300 text-xs mt-1">Klik "Tambah" untuk membuat tipe harga baru</p></div></template>
-              <template x-if="!loading && types.length > 0">
-                <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Deskripsi</th><th>Satuan</th><th class="text-right">Aksi</th></tr></thead><tbody>
-                  <template x-for="t in types" :key="t.id">
-                    <tr><td class="font-medium text-gray-800" x-text="t.name"></td><td class="text-gray-500" x-text="t.description || '-'"></td><td class="text-gray-500" x-text="t.default_unit || '-'"></td><td class="text-right"><button @click="confirmDelete(t.id)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button></td></tr>
-                  </template>
-                </tbody></table></div>
-              </template>
+          </div>
+
+          <!-- Tab: Contract Types -->
+          <div x-show="activeTab === 'contract-types'">
+            <div class="card p-0 overflow-hidden">
+              <div class="p-5 pb-0 flex items-center justify-between gap-3">
+                <span class="text-xs text-gray-400" x-text="contractTypes.length + ' tipe kontrak'"></span>
+                <button @click="openCreateContractType()" class="btn-primary btn-sm"><i class="fas fa-plus mr-1"></i>Tambah</button>
+              </div>
+              <div class="p-5 pt-3">
+                <template x-if="loadingCT"><div class="space-y-3"><template x-for="i in 3"><div class="skeleton h-12 rounded-xl"></div></template></div></template>
+                <template x-if="!loadingCT && contractTypes.length === 0">
+                  <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-calendar text-gray-300 text-2xl"></i></div>
+                    <p class="text-gray-400 text-sm font-medium">Belum ada tipe kontrak</p>
+                    <p class="text-gray-300 text-xs mt-1">Klik "Tambah" untuk membuat tipe kontrak baru</p>
+                  </div>
+                </template>
+                <template x-if="!loadingCT && contractTypes.length > 0">
+                  <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Deskripsi</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                    <template x-for="ct in contractTypes" :key="ct.id">
+                      <tr>
+                        <td class="font-medium text-gray-800" x-text="ct.name"></td>
+                        <td class="text-gray-500 text-sm max-w-xs truncate" x-text="ct.description || '-'"></td>
+                        <td class="text-right">
+                          <button @click="openEditContractType(ct)" class="text-indigo-600 hover:text-indigo-800 mr-3 transition-colors"><i class="fas fa-edit"></i></button>
+                          <button @click="deleteContractType(ct)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody></table></div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Service Mapping -->
+          <div x-show="activeTab === 'mapping'">
+            <div class="card p-0 overflow-hidden">
+              <div class="p-5 pb-0 flex items-center justify-between gap-3">
+                <span class="text-xs text-gray-400" x-text="services.length + ' layanan'"></span>
+                <button @click="loadServices()" class="btn-secondary btn-sm" :disabled="loadingSvc"><i class="fas fa-sync-alt mr-1" :class="loadingSvc ? 'fa-spin' : ''"></i>Refresh</button>
+              </div>
+              <div class="p-5 pt-3">
+                <template x-if="loadingSvc"><div class="space-y-3"><template x-for="i in 3"><div class="skeleton h-12 rounded-xl"></div></template></div></template>
+                <template x-if="!loadingSvc && services.length === 0">
+                  <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-tools text-gray-300 text-2xl"></i></div>
+                    <p class="text-gray-400 text-sm font-medium">Belum ada layanan</p>
+                  </div>
+                </template>
+                <template x-if="!loadingSvc && services.length > 0">
+                  <div class="table-wrap"><table><thead><tr><th>Layanan</th><th>Kategori</th><th>Satuan Harga</th><th>Tipe Kontrak</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                    <template x-for="svc in services" :key="svc.id">
+                      <tr>
+                        <td class="font-medium text-gray-800" x-text="svc.name"></td>
+                        <td class="text-gray-500 text-sm" x-text="svc.categories?.name || '-'"></td>
+                        <td><span class="text-xs text-indigo-600 font-medium" x-text="(svc._puCount || 0) + ' aktif'"></span></td>
+                        <td><span class="text-xs text-indigo-600 font-medium" x-text="(svc._ctCount || 0) + ' aktif'"></span></td>
+                        <td class="text-right">
+                          <button @click="openServiceMapping(svc)" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium"><i class="fas fa-link mr-1"></i>Mapping</button>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody></table></div>
+                </template>
+              </div>
             </div>
           </div>
         </div>
@@ -986,17 +1074,89 @@
     </div></div>
   </div>
 
-  <!-- PRICING MODAL -->
-  <div x-data="pricingModal" x-show="show" x-cloak>
+  <!-- PRICING UNIT MODAL -->
+  <div x-data="pricingUnitModal" x-show="show" x-cloak>
     <div class="modal-backdrop" @click="close()"></div>
     <div class="modal-content"><div class="modal-box">
-      <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800">Tambah Tipe Harga</h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
+      <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800" x-text="isEdit ? 'Edit Satuan Harga' : 'Tambah Satuan Harga'"></h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
       <form @submit.prevent="save" class="space-y-4">
-        <div><label class="form-label">Nama</label><input type="text" x-model="form.name" class="form-input" placeholder="cth: Harian, Borongan" required></div>
-        <div><label class="form-label">Deskripsi (Opsional)</label><input type="text" x-model="form.description" class="form-input" placeholder="cth: Harga per hari kerja"></div>
-        <div><label class="form-label">Satuan (Opsional)</label><input type="text" x-model="form.defaultUnit" class="form-input" placeholder="cth: hari, meter, unit, sesi"></div>
+        <div><label class="form-label">Nama *</label><input type="text" x-model="form.name" class="form-input" placeholder="cth: per_hari, per_titik" required></div>
+        <div><label class="form-label">Unit *</label><input type="text" x-model="form.unit" class="form-input" placeholder="cth: hari, titik, kunjungan" required></div>
+        <div><label class="form-label">Deskripsi</label><textarea x-model="form.description" class="form-input" rows="2" placeholder="cth: Per hitungan titik pemasangan"></textarea></div>
         <div class="flex gap-3 justify-end pt-2"><button type="button" class="btn-secondary" @click="close()">Batal</button><button type="submit" class="btn-primary"><i class="fas fa-save mr-1"></i>Simpan</button></div>
       </form>
+    </div></div>
+  </div>
+
+  <!-- CONTRACT TYPE MODAL -->
+  <div x-data="contractTypeModal" x-show="show" x-cloak>
+    <div class="modal-backdrop" @click="close()"></div>
+    <div class="modal-content"><div class="modal-box">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800" x-text="isEdit ? 'Edit Tipe Kontrak' : 'Tambah Tipe Kontrak'"></h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
+      <form @submit.prevent="save" class="space-y-4">
+        <div><label class="form-label">Nama *</label><input type="text" x-model="form.name" class="form-input" placeholder="cth: Harian, Borongan" required></div>
+        <div><label class="form-label">Deskripsi</label><textarea x-model="form.description" class="form-input" rows="2" placeholder="cth: Pengerjaan per hari kerja"></textarea></div>
+        <div class="flex gap-3 justify-end pt-2"><button type="button" class="btn-secondary" @click="close()">Batal</button><button type="submit" class="btn-primary"><i class="fas fa-save mr-1"></i>Simpan</button></div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- SERVICE MAPPING MODAL -->
+  <div x-data="serviceMappingModal" x-show="show" x-cloak
+       @toggle-pu.window="if(show) togglePricingUnit($event.detail)"
+       @toggle-ct.window="if(show) toggleContractType($event.detail)">
+    <div class="modal-backdrop" @click="close()"></div>
+    <div class="modal-content"><div class="modal-box max-w-lg">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-semibold text-gray-800" x-text="'Mapping: ' + serviceName"></h3>
+        <button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button>
+      </div>
+      <p class="text-xs text-gray-400 mb-5" x-text="serviceCategory"></p>
+
+      <template x-if="loading"><div class="space-y-3 py-4"><template x-for="i in 4"><div class="skeleton h-10 rounded-xl"></div></template></div></template>
+
+      <template x-if="!loading">
+        <div class="max-h-[60vh] overflow-y-auto space-y-1">
+          <!-- Pricing Units Section -->
+          <div class="flex items-center gap-2 py-2 sticky top-0 bg-white z-10 border-b border-gray-100">
+            <i class="fas fa-dollar-sign text-amber-500 text-sm"></i>
+            <span class="font-semibold text-sm text-gray-800">Satuan Harga</span>
+            <span class="text-xs text-gray-400 ml-auto" x-text="assignedPU.length + '/' + allPU.length + ' aktif'"></span>
+          </div>
+          <template x-for="pu in allPU" :key="pu.id">
+            <div @click="$dispatch('toggle-pu', pu.id)" class="flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0"
+                   :class="assignedPU.includes(pu.id) ? 'bg-indigo-500 border-indigo-500' : 'border-gray-300'">
+                <i x-show="assignedPU.includes(pu.id)" class="fas fa-check text-white text-[10px]"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-gray-800" x-text="pu.name"></span>
+                <span class="text-xs text-gray-400 ml-2" x-text="pu.unit || ''"></span>
+              </div>
+              <span x-show="pu.description" class="text-[11px] text-gray-400 truncate max-w-[120px]" x-text="pu.description || ''"></span>
+            </div>
+          </template>
+
+          <!-- Contract Types Section -->
+          <div class="flex items-center gap-2 py-2 mt-3 sticky top-0 bg-white z-10 border-b border-gray-100">
+            <i class="fas fa-calendar text-blue-500 text-sm"></i>
+            <span class="font-semibold text-sm text-gray-800">Tipe Kontrak</span>
+            <span class="text-xs text-gray-400 ml-auto" x-text="assignedCT.length + '/' + allCT.length + ' aktif'"></span>
+          </div>
+          <template x-for="ct in allCT" :key="ct.id">
+            <div @click="$dispatch('toggle-ct', ct.id)" class="flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0"
+                   :class="assignedCT.includes(ct.id) ? 'bg-blue-500 border-blue-500' : 'border-gray-300'">
+                <i x-show="assignedCT.includes(ct.id)" class="fas fa-check text-white text-[10px]"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-gray-800" x-text="ct.name"></span>
+              </div>
+              <span x-show="ct.description" class="text-[11px] text-gray-400 truncate max-w-[120px]" x-text="ct.description || ''"></span>
+            </div>
+          </template>
+        </div>
+      </template>
     </div></div>
   </div>
 

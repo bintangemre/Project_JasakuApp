@@ -185,6 +185,8 @@ export type servicesWhereInput = {
   order_items?: Prisma.Order_itemsListRelationFilter
   provider_services?: Prisma.Provider_servicesListRelationFilter
   categories?: Prisma.XOR<Prisma.CategoriesScalarRelationFilter, Prisma.categoriesWhereInput>
+  service_pricing_units?: Prisma.Service_pricing_unitsListRelationFilter
+  service_contract_types?: Prisma.Service_contract_typesListRelationFilter
 }
 
 export type servicesOrderByWithRelationInput = {
@@ -196,6 +198,8 @@ export type servicesOrderByWithRelationInput = {
   order_items?: Prisma.order_itemsOrderByRelationAggregateInput
   provider_services?: Prisma.provider_servicesOrderByRelationAggregateInput
   categories?: Prisma.categoriesOrderByWithRelationInput
+  service_pricing_units?: Prisma.service_pricing_unitsOrderByRelationAggregateInput
+  service_contract_types?: Prisma.service_contract_typesOrderByRelationAggregateInput
 }
 
 export type servicesWhereUniqueInput = Prisma.AtLeast<{
@@ -210,6 +214,8 @@ export type servicesWhereUniqueInput = Prisma.AtLeast<{
   order_items?: Prisma.Order_itemsListRelationFilter
   provider_services?: Prisma.Provider_servicesListRelationFilter
   categories?: Prisma.XOR<Prisma.CategoriesScalarRelationFilter, Prisma.categoriesWhereInput>
+  service_pricing_units?: Prisma.Service_pricing_unitsListRelationFilter
+  service_contract_types?: Prisma.Service_contract_typesListRelationFilter
 }, "id">
 
 export type servicesOrderByWithAggregationInput = {
@@ -242,6 +248,8 @@ export type servicesCreateInput = {
   order_items?: Prisma.order_itemsCreateNestedManyWithoutServicesInput
   provider_services?: Prisma.provider_servicesCreateNestedManyWithoutServicesInput
   categories: Prisma.categoriesCreateNestedOneWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsCreateNestedManyWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesCreateNestedManyWithoutServicesInput
 }
 
 export type servicesUncheckedCreateInput = {
@@ -252,6 +260,8 @@ export type servicesUncheckedCreateInput = {
   created_at?: Date | string | null
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutServicesInput
   provider_services?: Prisma.provider_servicesUncheckedCreateNestedManyWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedCreateNestedManyWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedCreateNestedManyWithoutServicesInput
 }
 
 export type servicesUpdateInput = {
@@ -262,6 +272,8 @@ export type servicesUpdateInput = {
   order_items?: Prisma.order_itemsUpdateManyWithoutServicesNestedInput
   provider_services?: Prisma.provider_servicesUpdateManyWithoutServicesNestedInput
   categories?: Prisma.categoriesUpdateOneRequiredWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUpdateManyWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUpdateManyWithoutServicesNestedInput
 }
 
 export type servicesUncheckedUpdateInput = {
@@ -272,6 +284,8 @@ export type servicesUncheckedUpdateInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutServicesNestedInput
   provider_services?: Prisma.provider_servicesUncheckedUpdateManyWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedUpdateManyWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedUpdateManyWithoutServicesNestedInput
 }
 
 export type servicesCreateManyInput = {
@@ -406,6 +420,34 @@ export type servicesUpdateOneRequiredWithoutProvider_servicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.servicesUpdateToOneWithWhereWithoutProvider_servicesInput, Prisma.servicesUpdateWithoutProvider_servicesInput>, Prisma.servicesUncheckedUpdateWithoutProvider_servicesInput>
 }
 
+export type servicesCreateNestedOneWithoutService_pricing_unitsInput = {
+  create?: Prisma.XOR<Prisma.servicesCreateWithoutService_pricing_unitsInput, Prisma.servicesUncheckedCreateWithoutService_pricing_unitsInput>
+  connectOrCreate?: Prisma.servicesCreateOrConnectWithoutService_pricing_unitsInput
+  connect?: Prisma.servicesWhereUniqueInput
+}
+
+export type servicesUpdateOneRequiredWithoutService_pricing_unitsNestedInput = {
+  create?: Prisma.XOR<Prisma.servicesCreateWithoutService_pricing_unitsInput, Prisma.servicesUncheckedCreateWithoutService_pricing_unitsInput>
+  connectOrCreate?: Prisma.servicesCreateOrConnectWithoutService_pricing_unitsInput
+  upsert?: Prisma.servicesUpsertWithoutService_pricing_unitsInput
+  connect?: Prisma.servicesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.servicesUpdateToOneWithWhereWithoutService_pricing_unitsInput, Prisma.servicesUpdateWithoutService_pricing_unitsInput>, Prisma.servicesUncheckedUpdateWithoutService_pricing_unitsInput>
+}
+
+export type servicesCreateNestedOneWithoutService_contract_typesInput = {
+  create?: Prisma.XOR<Prisma.servicesCreateWithoutService_contract_typesInput, Prisma.servicesUncheckedCreateWithoutService_contract_typesInput>
+  connectOrCreate?: Prisma.servicesCreateOrConnectWithoutService_contract_typesInput
+  connect?: Prisma.servicesWhereUniqueInput
+}
+
+export type servicesUpdateOneRequiredWithoutService_contract_typesNestedInput = {
+  create?: Prisma.XOR<Prisma.servicesCreateWithoutService_contract_typesInput, Prisma.servicesUncheckedCreateWithoutService_contract_typesInput>
+  connectOrCreate?: Prisma.servicesCreateOrConnectWithoutService_contract_typesInput
+  upsert?: Prisma.servicesUpsertWithoutService_contract_typesInput
+  connect?: Prisma.servicesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.servicesUpdateToOneWithWhereWithoutService_contract_typesInput, Prisma.servicesUpdateWithoutService_contract_typesInput>, Prisma.servicesUncheckedUpdateWithoutService_contract_typesInput>
+}
+
 export type servicesCreateWithoutCategoriesInput = {
   id?: string
   name: string
@@ -413,6 +455,8 @@ export type servicesCreateWithoutCategoriesInput = {
   created_at?: Date | string | null
   order_items?: Prisma.order_itemsCreateNestedManyWithoutServicesInput
   provider_services?: Prisma.provider_servicesCreateNestedManyWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsCreateNestedManyWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesCreateNestedManyWithoutServicesInput
 }
 
 export type servicesUncheckedCreateWithoutCategoriesInput = {
@@ -422,6 +466,8 @@ export type servicesUncheckedCreateWithoutCategoriesInput = {
   created_at?: Date | string | null
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutServicesInput
   provider_services?: Prisma.provider_servicesUncheckedCreateNestedManyWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedCreateNestedManyWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedCreateNestedManyWithoutServicesInput
 }
 
 export type servicesCreateOrConnectWithoutCategoriesInput = {
@@ -468,6 +514,8 @@ export type servicesCreateWithoutOrder_itemsInput = {
   created_at?: Date | string | null
   provider_services?: Prisma.provider_servicesCreateNestedManyWithoutServicesInput
   categories: Prisma.categoriesCreateNestedOneWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsCreateNestedManyWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesCreateNestedManyWithoutServicesInput
 }
 
 export type servicesUncheckedCreateWithoutOrder_itemsInput = {
@@ -477,6 +525,8 @@ export type servicesUncheckedCreateWithoutOrder_itemsInput = {
   description?: string | null
   created_at?: Date | string | null
   provider_services?: Prisma.provider_servicesUncheckedCreateNestedManyWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedCreateNestedManyWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedCreateNestedManyWithoutServicesInput
 }
 
 export type servicesCreateOrConnectWithoutOrder_itemsInput = {
@@ -502,6 +552,8 @@ export type servicesUpdateWithoutOrder_itemsInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   provider_services?: Prisma.provider_servicesUpdateManyWithoutServicesNestedInput
   categories?: Prisma.categoriesUpdateOneRequiredWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUpdateManyWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUpdateManyWithoutServicesNestedInput
 }
 
 export type servicesUncheckedUpdateWithoutOrder_itemsInput = {
@@ -511,6 +563,8 @@ export type servicesUncheckedUpdateWithoutOrder_itemsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   provider_services?: Prisma.provider_servicesUncheckedUpdateManyWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedUpdateManyWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedUpdateManyWithoutServicesNestedInput
 }
 
 export type servicesCreateWithoutProvider_servicesInput = {
@@ -520,6 +574,8 @@ export type servicesCreateWithoutProvider_servicesInput = {
   created_at?: Date | string | null
   order_items?: Prisma.order_itemsCreateNestedManyWithoutServicesInput
   categories: Prisma.categoriesCreateNestedOneWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsCreateNestedManyWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesCreateNestedManyWithoutServicesInput
 }
 
 export type servicesUncheckedCreateWithoutProvider_servicesInput = {
@@ -529,6 +585,8 @@ export type servicesUncheckedCreateWithoutProvider_servicesInput = {
   description?: string | null
   created_at?: Date | string | null
   order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedCreateNestedManyWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedCreateNestedManyWithoutServicesInput
 }
 
 export type servicesCreateOrConnectWithoutProvider_servicesInput = {
@@ -554,6 +612,8 @@ export type servicesUpdateWithoutProvider_servicesInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_items?: Prisma.order_itemsUpdateManyWithoutServicesNestedInput
   categories?: Prisma.categoriesUpdateOneRequiredWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUpdateManyWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUpdateManyWithoutServicesNestedInput
 }
 
 export type servicesUncheckedUpdateWithoutProvider_servicesInput = {
@@ -563,6 +623,128 @@ export type servicesUncheckedUpdateWithoutProvider_servicesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedUpdateManyWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedUpdateManyWithoutServicesNestedInput
+}
+
+export type servicesCreateWithoutService_pricing_unitsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  created_at?: Date | string | null
+  order_items?: Prisma.order_itemsCreateNestedManyWithoutServicesInput
+  provider_services?: Prisma.provider_servicesCreateNestedManyWithoutServicesInput
+  categories: Prisma.categoriesCreateNestedOneWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesCreateNestedManyWithoutServicesInput
+}
+
+export type servicesUncheckedCreateWithoutService_pricing_unitsInput = {
+  id?: string
+  category_id: string
+  name: string
+  description?: string | null
+  created_at?: Date | string | null
+  order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutServicesInput
+  provider_services?: Prisma.provider_servicesUncheckedCreateNestedManyWithoutServicesInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedCreateNestedManyWithoutServicesInput
+}
+
+export type servicesCreateOrConnectWithoutService_pricing_unitsInput = {
+  where: Prisma.servicesWhereUniqueInput
+  create: Prisma.XOR<Prisma.servicesCreateWithoutService_pricing_unitsInput, Prisma.servicesUncheckedCreateWithoutService_pricing_unitsInput>
+}
+
+export type servicesUpsertWithoutService_pricing_unitsInput = {
+  update: Prisma.XOR<Prisma.servicesUpdateWithoutService_pricing_unitsInput, Prisma.servicesUncheckedUpdateWithoutService_pricing_unitsInput>
+  create: Prisma.XOR<Prisma.servicesCreateWithoutService_pricing_unitsInput, Prisma.servicesUncheckedCreateWithoutService_pricing_unitsInput>
+  where?: Prisma.servicesWhereInput
+}
+
+export type servicesUpdateToOneWithWhereWithoutService_pricing_unitsInput = {
+  where?: Prisma.servicesWhereInput
+  data: Prisma.XOR<Prisma.servicesUpdateWithoutService_pricing_unitsInput, Prisma.servicesUncheckedUpdateWithoutService_pricing_unitsInput>
+}
+
+export type servicesUpdateWithoutService_pricing_unitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order_items?: Prisma.order_itemsUpdateManyWithoutServicesNestedInput
+  provider_services?: Prisma.provider_servicesUpdateManyWithoutServicesNestedInput
+  categories?: Prisma.categoriesUpdateOneRequiredWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUpdateManyWithoutServicesNestedInput
+}
+
+export type servicesUncheckedUpdateWithoutService_pricing_unitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  category_id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutServicesNestedInput
+  provider_services?: Prisma.provider_servicesUncheckedUpdateManyWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedUpdateManyWithoutServicesNestedInput
+}
+
+export type servicesCreateWithoutService_contract_typesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  created_at?: Date | string | null
+  order_items?: Prisma.order_itemsCreateNestedManyWithoutServicesInput
+  provider_services?: Prisma.provider_servicesCreateNestedManyWithoutServicesInput
+  categories: Prisma.categoriesCreateNestedOneWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsCreateNestedManyWithoutServicesInput
+}
+
+export type servicesUncheckedCreateWithoutService_contract_typesInput = {
+  id?: string
+  category_id: string
+  name: string
+  description?: string | null
+  created_at?: Date | string | null
+  order_items?: Prisma.order_itemsUncheckedCreateNestedManyWithoutServicesInput
+  provider_services?: Prisma.provider_servicesUncheckedCreateNestedManyWithoutServicesInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedCreateNestedManyWithoutServicesInput
+}
+
+export type servicesCreateOrConnectWithoutService_contract_typesInput = {
+  where: Prisma.servicesWhereUniqueInput
+  create: Prisma.XOR<Prisma.servicesCreateWithoutService_contract_typesInput, Prisma.servicesUncheckedCreateWithoutService_contract_typesInput>
+}
+
+export type servicesUpsertWithoutService_contract_typesInput = {
+  update: Prisma.XOR<Prisma.servicesUpdateWithoutService_contract_typesInput, Prisma.servicesUncheckedUpdateWithoutService_contract_typesInput>
+  create: Prisma.XOR<Prisma.servicesCreateWithoutService_contract_typesInput, Prisma.servicesUncheckedCreateWithoutService_contract_typesInput>
+  where?: Prisma.servicesWhereInput
+}
+
+export type servicesUpdateToOneWithWhereWithoutService_contract_typesInput = {
+  where?: Prisma.servicesWhereInput
+  data: Prisma.XOR<Prisma.servicesUpdateWithoutService_contract_typesInput, Prisma.servicesUncheckedUpdateWithoutService_contract_typesInput>
+}
+
+export type servicesUpdateWithoutService_contract_typesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order_items?: Prisma.order_itemsUpdateManyWithoutServicesNestedInput
+  provider_services?: Prisma.provider_servicesUpdateManyWithoutServicesNestedInput
+  categories?: Prisma.categoriesUpdateOneRequiredWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUpdateManyWithoutServicesNestedInput
+}
+
+export type servicesUncheckedUpdateWithoutService_contract_typesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  category_id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutServicesNestedInput
+  provider_services?: Prisma.provider_servicesUncheckedUpdateManyWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedUpdateManyWithoutServicesNestedInput
 }
 
 export type servicesCreateManyCategoriesInput = {
@@ -579,6 +761,8 @@ export type servicesUpdateWithoutCategoriesInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_items?: Prisma.order_itemsUpdateManyWithoutServicesNestedInput
   provider_services?: Prisma.provider_servicesUpdateManyWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUpdateManyWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUpdateManyWithoutServicesNestedInput
 }
 
 export type servicesUncheckedUpdateWithoutCategoriesInput = {
@@ -588,6 +772,8 @@ export type servicesUncheckedUpdateWithoutCategoriesInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order_items?: Prisma.order_itemsUncheckedUpdateManyWithoutServicesNestedInput
   provider_services?: Prisma.provider_servicesUncheckedUpdateManyWithoutServicesNestedInput
+  service_pricing_units?: Prisma.service_pricing_unitsUncheckedUpdateManyWithoutServicesNestedInput
+  service_contract_types?: Prisma.service_contract_typesUncheckedUpdateManyWithoutServicesNestedInput
 }
 
 export type servicesUncheckedUpdateManyWithoutCategoriesInput = {
@@ -605,11 +791,15 @@ export type servicesUncheckedUpdateManyWithoutCategoriesInput = {
 export type ServicesCountOutputType = {
   order_items: number
   provider_services: number
+  service_pricing_units: number
+  service_contract_types: number
 }
 
 export type ServicesCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order_items?: boolean | ServicesCountOutputTypeCountOrder_itemsArgs
   provider_services?: boolean | ServicesCountOutputTypeCountProvider_servicesArgs
+  service_pricing_units?: boolean | ServicesCountOutputTypeCountService_pricing_unitsArgs
+  service_contract_types?: boolean | ServicesCountOutputTypeCountService_contract_typesArgs
 }
 
 /**
@@ -636,6 +826,20 @@ export type ServicesCountOutputTypeCountProvider_servicesArgs<ExtArgs extends ru
   where?: Prisma.provider_servicesWhereInput
 }
 
+/**
+ * ServicesCountOutputType without action
+ */
+export type ServicesCountOutputTypeCountService_pricing_unitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.service_pricing_unitsWhereInput
+}
+
+/**
+ * ServicesCountOutputType without action
+ */
+export type ServicesCountOutputTypeCountService_contract_typesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.service_contract_typesWhereInput
+}
+
 
 export type servicesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -646,6 +850,8 @@ export type servicesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   order_items?: boolean | Prisma.services$order_itemsArgs<ExtArgs>
   provider_services?: boolean | Prisma.services$provider_servicesArgs<ExtArgs>
   categories?: boolean | Prisma.categoriesDefaultArgs<ExtArgs>
+  service_pricing_units?: boolean | Prisma.services$service_pricing_unitsArgs<ExtArgs>
+  service_contract_types?: boolean | Prisma.services$service_contract_typesArgs<ExtArgs>
   _count?: boolean | Prisma.ServicesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["services"]>
 
@@ -680,6 +886,8 @@ export type servicesInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   order_items?: boolean | Prisma.services$order_itemsArgs<ExtArgs>
   provider_services?: boolean | Prisma.services$provider_servicesArgs<ExtArgs>
   categories?: boolean | Prisma.categoriesDefaultArgs<ExtArgs>
+  service_pricing_units?: boolean | Prisma.services$service_pricing_unitsArgs<ExtArgs>
+  service_contract_types?: boolean | Prisma.services$service_contract_typesArgs<ExtArgs>
   _count?: boolean | Prisma.ServicesCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type servicesIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -695,6 +903,8 @@ export type $servicesPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     order_items: Prisma.$order_itemsPayload<ExtArgs>[]
     provider_services: Prisma.$provider_servicesPayload<ExtArgs>[]
     categories: Prisma.$categoriesPayload<ExtArgs>
+    service_pricing_units: Prisma.$service_pricing_unitsPayload<ExtArgs>[]
+    service_contract_types: Prisma.$service_contract_typesPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1099,6 +1309,8 @@ export interface Prisma__servicesClient<T, Null = never, ExtArgs extends runtime
   order_items<T extends Prisma.services$order_itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.services$order_itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$order_itemsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   provider_services<T extends Prisma.services$provider_servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.services$provider_servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$provider_servicesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   categories<T extends Prisma.categoriesDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.categoriesDefaultArgs<ExtArgs>>): Prisma.Prisma__categoriesClient<runtime.Types.Result.GetResult<Prisma.$categoriesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  service_pricing_units<T extends Prisma.services$service_pricing_unitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.services$service_pricing_unitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$service_pricing_unitsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  service_contract_types<T extends Prisma.services$service_contract_typesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.services$service_contract_typesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$service_contract_typesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1579,6 +1791,54 @@ export type services$provider_servicesArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.Provider_servicesScalarFieldEnum | Prisma.Provider_servicesScalarFieldEnum[]
+}
+
+/**
+ * services.service_pricing_units
+ */
+export type services$service_pricing_unitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the service_pricing_units
+   */
+  select?: Prisma.service_pricing_unitsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the service_pricing_units
+   */
+  omit?: Prisma.service_pricing_unitsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.service_pricing_unitsInclude<ExtArgs> | null
+  where?: Prisma.service_pricing_unitsWhereInput
+  orderBy?: Prisma.service_pricing_unitsOrderByWithRelationInput | Prisma.service_pricing_unitsOrderByWithRelationInput[]
+  cursor?: Prisma.service_pricing_unitsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Service_pricing_unitsScalarFieldEnum | Prisma.Service_pricing_unitsScalarFieldEnum[]
+}
+
+/**
+ * services.service_contract_types
+ */
+export type services$service_contract_typesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the service_contract_types
+   */
+  select?: Prisma.service_contract_typesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the service_contract_types
+   */
+  omit?: Prisma.service_contract_typesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.service_contract_typesInclude<ExtArgs> | null
+  where?: Prisma.service_contract_typesWhereInput
+  orderBy?: Prisma.service_contract_typesOrderByWithRelationInput | Prisma.service_contract_typesOrderByWithRelationInput[]
+  cursor?: Prisma.service_contract_typesWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Service_contract_typesScalarFieldEnum | Prisma.Service_contract_typesScalarFieldEnum[]
 }
 
 /**

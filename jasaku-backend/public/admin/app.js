@@ -342,6 +342,156 @@ document.addEventListener('alpine:init', () => {
     }
   }));
 
+  // ─── Pricing Types (Tabbed: Pricing Units / Contract Types / Service Mapping) ───
+
+  Alpine.data('pricingTypesPage', () => ({
+    activeTab: 'pricing-units',
+    pricingUnits: [],
+    contractTypes: [],
+    services: [],
+    loadingPU: true,
+    loadingCT: true,
+    loadingSvc: true,
+    init() {
+      requireAuth();
+      this.loadPricingUnits();
+      this.loadContractTypes();
+      this.loadServices();
+    },
+    async loadPricingUnits() {
+      this.loadingPU = true;
+      try { this.pricingUnits = await apiFetch('/admin/pricing-units'); } catch (e) { toast(e.message, 'error'); }
+      finally { this.loadingPU = false; }
+    },
+    async loadContractTypes() {
+      this.loadingCT = true;
+      try { this.contractTypes = await apiFetch('/admin/contract-types'); } catch (e) { toast(e.message, 'error'); }
+      finally { this.loadingCT = false; }
+    },
+    async loadServices() {
+      this.loadingSvc = true;
+      try {
+        const svcs = await apiFetch('/admin/services');
+        // Fetch pivot counts for each service
+        for (const svc of svcs) {
+          try {
+            const [puRes, ctRes] = await Promise.all([
+              apiFetch('/admin/services/' + svc.id + '/pricing-units'),
+              apiFetch('/admin/services/' + svc.id + '/contract-types'),
+            ]);
+            svc._puCount = puRes?.length || 0;
+            svc._ctCount = ctRes?.length || 0;
+          } catch { svc._puCount = 0; svc._ctCount = 0; }
+        }
+        this.services = svcs;
+      } catch (e) { toast(e.message, 'error'); }
+      finally { this.loadingSvc = false; }
+    },
+    openCreatePricingUnit() { Alpine.store('pricingUnitModal').openCreate(); },
+    openEditPricingUnit(pu) { Alpine.store('pricingUnitModal').openEdit(pu); },
+    async deletePricingUnit(pu) {
+      const ok = await confirmModal('Hapus satuan harga "' + pu.name + '"?');
+      if (!ok) return;
+      try { await apiFetch('/admin/pricing-units/' + pu.id, { method: 'DELETE' }); toast('Satuan harga dihapus'); this.loadPricingUnits(); } catch (e) { toast(e.message, 'error'); }
+    },
+    openCreateContractType() { Alpine.store('contractTypeModal').openCreate(); },
+    openEditContractType(ct) { Alpine.store('contractTypeModal').openEdit(ct); },
+    async deleteContractType(ct) {
+      const ok = await confirmModal('Hapus tipe kontrak "' + ct.name + '"?');
+      if (!ok) return;
+      try { await apiFetch('/admin/contract-types/' + ct.id, { method: 'DELETE' }); toast('Tipe kontrak dihapus'); this.loadContractTypes(); } catch (e) { toast(e.message, 'error'); }
+    },
+    openServiceMapping(svc) { Alpine.store('serviceMappingModal').open(svc); },
+  }));
+
+  Alpine.store('pricingUnitModal', { show: false, isEdit: false, editId: null, form: { name: '', unit: '', description: '' } });
+  Alpine.data('pricingUnitModal', () => ({
+    show: false, isEdit: false, editId: null, form: { name: '', unit: '', description: '' },
+    init() { this.$store.pricingUnitModal = this; },
+    openCreate() { this.isEdit = false; this.editId = null; this.form = { name: '', unit: '', description: '' }; this.show = true; },
+    openEdit(pu) { this.isEdit = true; this.editId = pu.id; this.form = { name: pu.name || '', unit: pu.unit || '', description: pu.description || '' }; this.show = true; },
+    close() { this.show = false; },
+    async save() {
+      try {
+        if (this.isEdit) { await apiFetch('/admin/pricing-units/' + this.editId, { method: 'PUT', body: JSON.stringify(this.form) }); toast('Satuan harga diperbarui'); }
+        else { await apiFetch('/admin/pricing-units', { method: 'POST', body: JSON.stringify(this.form) }); toast('Satuan harga ditambahkan'); }
+        this.close();
+        document.querySelector('[x-data="pricingTypesPage"]')?.__x?.$data.loadPricingUnits();
+      } catch (e) { toast(e.message, 'error'); }
+    }
+  }));
+
+  Alpine.store('contractTypeModal', { show: false, isEdit: false, editId: null, form: { name: '', description: '' } });
+  Alpine.data('contractTypeModal', () => ({
+    show: false, isEdit: false, editId: null, form: { name: '', description: '' },
+    init() { this.$store.contractTypeModal = this; },
+    openCreate() { this.isEdit = false; this.editId = null; this.form = { name: '', description: '' }; this.show = true; },
+    openEdit(ct) { this.isEdit = true; this.editId = ct.id; this.form = { name: ct.name || '', description: ct.description || '' }; this.show = true; },
+    close() { this.show = false; },
+    async save() {
+      try {
+        if (this.isEdit) { await apiFetch('/admin/contract-types/' + this.editId, { method: 'PUT', body: JSON.stringify(this.form) }); toast('Tipe kontrak diperbarui'); }
+        else { await apiFetch('/admin/contract-types', { method: 'POST', body: JSON.stringify(this.form) }); toast('Tipe kontrak ditambahkan'); }
+        this.close();
+        document.querySelector('[x-data="pricingTypesPage"]')?.__x?.$data.loadContractTypes();
+      } catch (e) { toast(e.message, 'error'); }
+    }
+  }));
+
+  Alpine.store('serviceMappingModal', { show: false, serviceId: '', serviceName: '', serviceCategory: '', allPU: [], allCT: [], assignedPU: [], assignedCT: [], loading: false });
+  Alpine.data('serviceMappingModal', () => ({
+    show: false, serviceId: '', serviceName: '', serviceCategory: '', allPU: [], allCT: [], assignedPU: [], assignedCT: [], loading: false,
+    init() { this.$store.serviceMappingModal = this; },
+    async open(svc) {
+      this.serviceId = svc.id;
+      this.serviceName = svc.name;
+      this.serviceCategory = svc.categories?.name || '';
+      this.show = true;
+      this.loading = true;
+      try {
+        const [allPU, allCT, assignedPU, assignedCT] = await Promise.all([
+          apiFetch('/admin/pricing-units'),
+          apiFetch('/admin/contract-types'),
+          apiFetch('/admin/services/' + svc.id + '/pricing-units'),
+          apiFetch('/admin/services/' + svc.id + '/contract-types'),
+        ]);
+        this.allPU = allPU;
+        this.allCT = allCT;
+        this.assignedPU = (assignedPU || []).map(a => a.pricing_unit_id);
+        this.assignedCT = (assignedCT || []).map(a => a.contract_type_id);
+      } catch (e) { toast(e.message, 'error'); }
+      finally { this.loading = false; }
+    },
+    close() { this.show = false; },
+    async togglePricingUnit(puId) {
+      const isAssigned = this.assignedPU.includes(puId);
+      try {
+        if (isAssigned) {
+          await apiFetch('/admin/services/' + this.serviceId + '/pricing-units/' + puId, { method: 'DELETE' });
+          this.assignedPU = this.assignedPU.filter(id => id !== puId);
+        } else {
+          await apiFetch('/admin/services/' + this.serviceId + '/pricing-units', { method: 'POST', body: JSON.stringify({ pricingUnitId: puId }) });
+          this.assignedPU.push(puId);
+        }
+        // Refresh parent counts
+        document.querySelector('[x-data="pricingTypesPage"]')?.__x?.$data.loadServices();
+      } catch (e) { toast(e.message, 'error'); }
+    },
+    async toggleContractType(ctId) {
+      const isAssigned = this.assignedCT.includes(ctId);
+      try {
+        if (isAssigned) {
+          await apiFetch('/admin/services/' + this.serviceId + '/contract-types/' + ctId, { method: 'DELETE' });
+          this.assignedCT = this.assignedCT.filter(id => id !== ctId);
+        } else {
+          await apiFetch('/admin/services/' + this.serviceId + '/contract-types', { method: 'POST', body: JSON.stringify({ contractTypeId: ctId }) });
+          this.assignedCT.push(ctId);
+        }
+        document.querySelector('[x-data="pricingTypesPage"]')?.__x?.$data.loadServices();
+      } catch (e) { toast(e.message, 'error'); }
+    },
+  }));
+
   Alpine.data('adminApp', () => ({
     init() {
       if (Alpine.store('theme').dark) document.documentElement.classList.add('dark');
@@ -356,7 +506,7 @@ document.addEventListener('alpine:init', () => {
     },
     menu: sidebarMenu,
     get pageTitle() {
-      const map = { dashboard: 'Beranda', 'confirm-payment': 'Konfirmasi Bayar', 'order-payout': 'Pencairan Dana', 'confirm-extension': 'Konfirmasi Ekstensi', 'custom-tasks': 'Custom Task', providers: 'Mitra', 'provider-detail': 'Detail Mitra', customers: 'Pelanggan', categories: 'Kategori', services: 'Layanan', payments: 'Pembayaran', 'pricing-types': 'Tipe Harga', reports: 'Laporan' };
+      const map = { dashboard: 'Beranda', 'confirm-payment': 'Konfirmasi Bayar', 'order-payout': 'Pencairan Dana', 'confirm-extension': 'Konfirmasi Ekstensi', 'custom-tasks': 'Custom Task', providers: 'Mitra', 'provider-detail': 'Detail Mitra', customers: 'Pelanggan', categories: 'Kategori', services: 'Layanan', payments: 'Pembayaran', 'pricing-types': 'Kelola Harga', reports: 'Laporan' };
       return map[Alpine.store('nav').page] || '';
     },
     get notifDropdownItems() {

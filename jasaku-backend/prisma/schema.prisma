@@ -14,7 +14,6 @@ model categories {
   description   String?
   created_at    DateTime?       @default(now()) @db.Timestamp(6)
   icon_url      String?
-  pricing_units pricing_units[]
   services      services[]
 }
 
@@ -195,6 +194,7 @@ model contract_types {
   updated_at              DateTime?                 @updatedAt @db.Timestamp(6)
   provider_service_prices provider_service_prices[]
   order_items             order_items[]
+  service_contract_types  service_contract_types[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -202,12 +202,12 @@ model pricing_units {
   id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                    String                    @db.VarChar(50)
   unit                    String?                   @db.VarChar(50)
-  category_id             String?                   @db.Uuid
+  description             String?
   created_at              DateTime?                 @default(now()) @db.Timestamp(6)
   updated_at              DateTime?                 @updatedAt @db.Timestamp(6)
-  categories              categories?               @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider_service_prices provider_service_prices[]
   order_items             order_items[]
+  service_pricing_units   service_pricing_units[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -326,14 +326,38 @@ model roles {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model services {
-  id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  category_id       String              @db.Uuid
-  name              String              @db.VarChar(150)
-  description       String?
-  created_at        DateTime?           @default(now()) @db.Timestamp(6)
-  order_items       order_items[]
-  provider_services provider_services[]
-  categories        categories          @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_service_category")
+  id                      String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  category_id             String              @db.Uuid
+  name                    String              @db.VarChar(150)
+  description             String?
+  created_at              DateTime?           @default(now()) @db.Timestamp(6)
+  order_items             order_items[]
+  provider_services       provider_services[]
+  categories              categories          @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_service_category")
+  service_pricing_units   service_pricing_units[]
+  service_contract_types  service_contract_types[]
+}
+
+model service_pricing_units {
+  id              String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  service_id      String         @db.Uuid
+  pricing_unit_id String         @db.Uuid
+  created_at      DateTime?      @default(now()) @db.Timestamp(6)
+  services        services       @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  pricing_units   pricing_units  @relation(fields: [pricing_unit_id], references: [id], onDelete: Cascade)
+
+  @@unique([service_id, pricing_unit_id])
+}
+
+model service_contract_types {
+  id              String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  service_id      String         @db.Uuid
+  contract_type_id String        @db.Uuid
+  created_at      DateTime?      @default(now()) @db.Timestamp(6)
+  services        services       @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  contract_types  contract_types @relation(fields: [contract_type_id], references: [id], onDelete: Cascade)
+
+  @@unique([service_id, contract_type_id])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
