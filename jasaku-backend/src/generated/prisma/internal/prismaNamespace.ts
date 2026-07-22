@@ -416,7 +416,8 @@ export const ModelName = {
   provider_locations: 'provider_locations',
   reviews: 'reviews',
   identity_verifications: 'identity_verifications',
-  user_devices: 'user_devices'
+  user_devices: 'user_devices',
+  wilayah: 'wilayah'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -432,7 +433,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "categories" | "admin_bank_accounts" | "admin_ewallet_accounts" | "admin_qris_accounts" | "custom_tasks" | "task_locations" | "task_providers" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "contract_types" | "pricing_units" | "provider_documents" | "provider_payout_methods" | "provider_schedules" | "provider_service_prices" | "provider_services" | "reports" | "order_extensions" | "roles" | "services" | "service_pricing_units" | "service_contract_types" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations" | "reviews" | "identity_verifications" | "user_devices"
+    modelProps: "categories" | "admin_bank_accounts" | "admin_ewallet_accounts" | "admin_qris_accounts" | "custom_tasks" | "task_locations" | "task_providers" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "contract_types" | "pricing_units" | "provider_documents" | "provider_payout_methods" | "provider_schedules" | "provider_service_prices" | "provider_services" | "reports" | "order_extensions" | "roles" | "services" | "service_pricing_units" | "service_contract_types" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations" | "reviews" | "identity_verifications" | "user_devices" | "wilayah"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2878,6 +2879,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    wilayah: {
+      payload: Prisma.$wilayahPayload<ExtArgs>
+      fields: Prisma.wilayahFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.wilayahFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.wilayahFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload>
+        }
+        findFirst: {
+          args: Prisma.wilayahFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.wilayahFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload>
+        }
+        findMany: {
+          args: Prisma.wilayahFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload>[]
+        }
+        create: {
+          args: Prisma.wilayahCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload>
+        }
+        createMany: {
+          args: Prisma.wilayahCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.wilayahCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload>[]
+        }
+        delete: {
+          args: Prisma.wilayahDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload>
+        }
+        update: {
+          args: Prisma.wilayahUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload>
+        }
+        deleteMany: {
+          args: Prisma.wilayahDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.wilayahUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.wilayahUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload>[]
+        }
+        upsert: {
+          args: Prisma.wilayahUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$wilayahPayload>
+        }
+        aggregate: {
+          args: Prisma.WilayahAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWilayah>
+        }
+        groupBy: {
+          args: Prisma.wilayahGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WilayahGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.wilayahCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WilayahCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3388,6 +3463,17 @@ export const User_devicesScalarFieldEnum = {
 export type User_devicesScalarFieldEnum = (typeof User_devicesScalarFieldEnum)[keyof typeof User_devicesScalarFieldEnum]
 
 
+export const WilayahScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  level: 'level',
+  parent_code: 'parent_code'
+} as const
+
+export type WilayahScalarFieldEnum = (typeof WilayahScalarFieldEnum)[keyof typeof WilayahScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3653,6 +3739,7 @@ export type GlobalOmitConfig = {
   reviews?: Prisma.reviewsOmit
   identity_verifications?: Prisma.identity_verificationsOmit
   user_devices?: Prisma.user_devicesOmit
+  wilayah?: Prisma.wilayahOmit
 }
 
 /* Types for Logging */

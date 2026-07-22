@@ -183,3 +183,8 @@ export type identity_verifications = Prisma.identity_verificationsModel
  * 
  */
 export type user_devices = Prisma.user_devicesModel
+/**
+ * Model wilayah
+ * 
+ */
+export type wilayah = Prisma.wilayahModel

@@ -517,3 +517,11 @@ model user_devices {
 
   @@index([user_id])
 }
+
+model wilayah {
+  id          String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  code        String  @unique @db.VarChar(20)
+  name        String  @db.VarChar(150)
+  level       String  @db.VarChar(20) // provinsi, kabupaten, kecamatan, kelurahan
+  parent_code String? @db.VarChar(20)
+}

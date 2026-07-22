@@ -83,7 +83,8 @@ export const ModelName = {
   provider_locations: 'provider_locations',
   reviews: 'reviews',
   identity_verifications: 'identity_verifications',
-  user_devices: 'user_devices'
+  user_devices: 'user_devices',
+  wilayah: 'wilayah'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -571,6 +572,17 @@ export const User_devicesScalarFieldEnum = {
 } as const
 
 export type User_devicesScalarFieldEnum = (typeof User_devicesScalarFieldEnum)[keyof typeof User_devicesScalarFieldEnum]
+
+
+export const WilayahScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  level: 'level',
+  parent_code: 'parent_code'
+} as const
+
+export type WilayahScalarFieldEnum = (typeof WilayahScalarFieldEnum)[keyof typeof WilayahScalarFieldEnum]
 
 
 export const SortOrder = {
